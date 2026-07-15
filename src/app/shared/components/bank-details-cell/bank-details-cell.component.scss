@@ -4,6 +4,12 @@
   max-width: 20rem;
 }
 
+:host:has(.bank-details-cell--compact),
+:host:has(.bank-details-cell__compact-empty) {
+  min-width: 0;
+  max-width: none;
+}
+
 .bank-details-cell {
   --bdc-accent: #0369a1;
   --bdc-border: color-mix(in srgb, var(--bdc-accent) 18%, var(--border-light-color));
@@ -139,6 +145,38 @@
 
 .bank-details-cell__empty-text {
   font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-disabled-color);
+}
+
+.bank-details-cell--compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.08rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.bank-details-cell__compact-bank {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-primary-color);
+  word-break: break-word;
+}
+
+.bank-details-cell__compact-line {
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--text-secondary-color);
+  word-break: break-word;
+}
+
+.bank-details-cell__compact-empty {
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--text-disabled-color);
 }

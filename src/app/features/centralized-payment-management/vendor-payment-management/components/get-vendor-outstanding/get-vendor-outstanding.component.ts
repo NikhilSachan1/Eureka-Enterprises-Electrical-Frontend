@@ -18,6 +18,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { LoggerService } from '@core/services';
+import { AppPermissionService } from '@core/services/app-permission.service';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
@@ -29,7 +30,6 @@ import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-
 import { PaginatorComponent } from '@shared/components/paginator/paginator.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { ICONS } from '@shared/constants';
-import { AppPermissionDirective } from '@shared/directives/app-permission.directive';
 import { TableService, ConfirmationDialogService } from '@shared/services';
 import {
   EButtonActionType,
@@ -73,7 +73,6 @@ type IVendorOutstandingBookPayment =
     EmptyMessagesComponent,
     PaginatorComponent,
     DocReferenceComponent,
-    AppPermissionDirective,
     CurrencyPipe,
     DatePipe,
     NgClass,
@@ -87,19 +86,19 @@ export class GetVendorOutstandingComponent implements OnInit {
   selectionChange = output<IVendorBookPaymentTableRow[]>();
   sectionSummaryChange = output<IOutstandingBalanceSectionSnapshot>();
   excludedBookPaymentIds = input<ReadonlySet<string>>(new Set());
+  showSelection = input(true);
 
   protected readonly APP_CONFIG = APP_CONFIG;
-  protected readonly APP_PERMISSION = APP_PERMISSION;
   protected readonly icons = ICONS;
-  protected readonly bookPaymentPermission =
-    APP_PERMISSION.BOOK_PAYMENT_DOC.ADD;
   protected readonly bookPaymentButtonConfig: Partial<IButtonConfig> = {
     ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
     label: 'Book Payment',
     actionName: 'bookPayment',
+    permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.ADD],
   };
 
   private readonly logger = inject(LoggerService);
+  private readonly appPermissionService = inject(AppPermissionService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly vendorOutstandingService = inject(VendorOutstandingService);
@@ -203,6 +202,14 @@ export class GetVendorOutstandingComponent implements OnInit {
   protected canBookPaymentForInvoice(
     invoice: IVendorInvoiceOutstandingGroup
   ): boolean {
+    if (
+      !this.appPermissionService.hasPermission(
+        APP_PERMISSION.BOOK_PAYMENT_DOC.ADD
+      )
+    ) {
+      return false;
+    }
+
     return (
       this.resolveInvoiceSiteId(invoice).length > 0 &&
       Number(invoice.invoice?.pendingToBook ?? 0) > 0
@@ -212,12 +219,11 @@ export class GetVendorOutstandingComponent implements OnInit {
   protected vendorOverviewStats(
     group: IVendorOutstandingVendorGroup
   ): IVendorCardSummaryStat[] {
-    const invoiceCount = new Set(
-      group.invoiceGroups.map(invoice => invoice.invoiceId)
-    ).size;
-    const bookingCount = group.invoiceGroups
-      .filter(invoice => invoice.viewType === 'booked')
-      .reduce((total, invoice) => total + invoice.bookPayments.length, 0);
+    const invoiceCount = group.invoiceGroups.length;
+    const bookingCount = group.invoiceGroups.reduce(
+      (total, invoice) => total + invoice.bookPayments.length,
+      0
+    );
 
     return [
       {
@@ -241,7 +247,6 @@ export class GetVendorOutstandingComponent implements OnInit {
       0
     );
     const bookedPayable = group.invoiceGroups
-      .filter(invoice => invoice.viewType === 'booked')
       .flatMap(invoice => invoice.bookPayments)
       .reduce(
         (total, bookPayment) => total + Number(bookPayment.pendingAmount ?? 0),
@@ -439,17 +444,11 @@ export class GetVendorOutstandingComponent implements OnInit {
         Number(group.invoice?.bookedTotal ?? 0) > 0;
       const pendingToBook = Number(group.invoice?.pendingToBook ?? 0);
 
-      if (hasBookedData) {
-        invoiceViews.push(
-          this.toInvoiceOutstandingView(group, 'booked', excludedBookPaymentIds)
-        );
-      }
-
-      if (pendingToBook > 0) {
+      if (hasBookedData || pendingToBook > 0) {
         invoiceViews.push(
           this.toInvoiceOutstandingView(
             group,
-            'unbooked',
+            hasBookedData ? 'booked' : 'unbooked',
             excludedBookPaymentIds
           )
         );
@@ -478,15 +477,13 @@ export class GetVendorOutstandingComponent implements OnInit {
     viewType: IVendorOutstandingInvoiceViewType,
     excludedBookPaymentIds: ReadonlySet<string>
   ): IVendorInvoiceOutstandingGroup {
-    const bookPayments = viewType === 'booked' ? group.bookPayments : [];
-
     return {
       ...group,
-      id: `${group.invoiceId}-${viewType}`,
+      id: group.invoiceId,
       viewType,
-      bookPayments,
+      bookPayments: group.bookPayments,
       opsTable: this.createBookPaymentsTable(
-        bookPayments,
+        group.bookPayments,
         excludedBookPaymentIds
       ),
     };
@@ -521,6 +518,7 @@ export class GetVendorOutstandingComponent implements OnInit {
     );
 
     opsTable.updateTableConfig({
+      showCheckbox: this.showSelection(),
       disableRowSelectionWhen: row => {
         const bookPaymentId = String(row['id'] ?? '');
 

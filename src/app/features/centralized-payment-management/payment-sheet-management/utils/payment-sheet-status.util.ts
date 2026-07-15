@@ -5,7 +5,8 @@ import {
   EPaymentSheetWorkflowRole,
 } from '../types/payment-sheet.enum';
 import { IPaymentSheetWorkflowRow } from '../types/payment-sheet.interface';
-import { EUserRole } from '@shared/constants';
+import { IPaymentSheetCurrentOwnerBanner } from '../types/payment-sheet-detail.interface';
+import { EUserRole, ICONS } from '@shared/constants';
 
 type ActiveRole = string | null | undefined;
 
@@ -64,6 +65,74 @@ function paymentSheetDraftOrReturnedOmDisableReason(
   return `${actionLabel} can only be performed by Operation Manager while the payment sheet is in draft or returned.`;
 }
 
+export function getPaymentSheetCurrentOwnerBanner(
+  row: IPaymentSheetWorkflowRow
+): IPaymentSheetCurrentOwnerBanner | null {
+  const { status } = row;
+
+  if (status === EPaymentSheetStatus.COMPLETED) {
+    return {
+      prefix: 'Status',
+      ownerLabel: 'Completed',
+      stageHint: null,
+      tone: 'completed',
+      icon: ICONS.ACTIONS.CHECK_CIRCLE,
+    };
+  }
+
+  if (status === EPaymentSheetStatus.REJECTED) {
+    return {
+      prefix: 'Status',
+      ownerLabel: 'Rejected',
+      stageHint: null,
+      tone: 'rejected',
+      icon: ICONS.ACTIONS.BAN,
+    };
+  }
+
+  if (isPaymentSheetDraftOrReturned(row)) {
+    return {
+      prefix: 'Currently with',
+      ownerLabel: 'Operation Manager',
+      stageHint: status === EPaymentSheetStatus.RETURNED ? 'Returned' : 'Draft',
+      tone: 'draft',
+      icon: ICONS.COMMON.BRIEFCASE,
+    };
+  }
+
+  if (isPaymentSheetHrReview(row)) {
+    return {
+      prefix: 'Currently with',
+      ownerLabel: 'HR',
+      stageHint: 'HR Review',
+      tone: 'hr',
+      icon: ICONS.COMMON.USER,
+    };
+  }
+
+  if (isPaymentSheetAdminReview(row)) {
+    return {
+      prefix: 'Currently with',
+      ownerLabel: 'Admin',
+      stageHint: 'Admin Review',
+      tone: 'admin',
+      icon: ICONS.COMMON.USER,
+    };
+  }
+
+  if (isPaymentSheetProcessing(row)) {
+    return {
+      prefix: 'Currently with',
+      ownerLabel: 'Accounts',
+      stageHint: 'Account Review',
+      tone: 'accounts',
+      icon: ICONS.PAYROLL.WALLET,
+    };
+  }
+
+  return null;
+}
+
 export function isPaymentSheetReturnAllowed(
   row: IPaymentSheetWorkflowRow,
   activeRole: ActiveRole
@@ -99,7 +168,7 @@ export function isPaymentSheetReturnDisabled(
   return !isPaymentSheetReturnAllowed(row, activeRole);
 }
 
-export function isPaymentSheetRejectAllowed(
+export function isPaymentSheetDeleteAllowed(
   row: IPaymentSheetWorkflowRow,
   activeRole: ActiveRole
 ): boolean {
@@ -110,11 +179,11 @@ export function isPaymentSheetRejectAllowed(
   return activeRole === EUserRole.OPERATION_MANAGER;
 }
 
-export function isPaymentSheetRejectDisabled(
+export function isPaymentSheetDeleteDisabled(
   row: IPaymentSheetWorkflowRow,
   activeRole: ActiveRole
 ): boolean {
-  return !isPaymentSheetRejectAllowed(row, activeRole);
+  return !isPaymentSheetDeleteAllowed(row, activeRole);
 }
 
 export function getPaymentSheetReturnDisableReason(
@@ -158,29 +227,29 @@ export function getPaymentSheetReturnDisableReason(
   return 'Return is not available for this payment sheet at the current status.';
 }
 
-export function getPaymentSheetRejectDisableReason(
+export function getPaymentSheetDeleteDisableReason(
   row: IPaymentSheetWorkflowRow,
   activeRole: ActiveRole
 ): string | undefined {
-  if (!isPaymentSheetRejectDisabled(row, activeRole)) {
+  if (!isPaymentSheetDeleteDisabled(row, activeRole)) {
     return undefined;
   }
 
   const { status } = row;
 
   if (status === EPaymentSheetStatus.COMPLETED) {
-    return 'This payment sheet is completed and cannot be rejected.';
+    return 'This payment sheet is completed and cannot be deleted.';
   }
 
   if (status === EPaymentSheetStatus.REJECTED) {
-    return 'This payment sheet is already rejected and cannot be rejected again.';
+    return 'This payment sheet is already rejected and cannot be deleted.';
   }
 
   if (!isPaymentSheetDraftOrReturned(row)) {
-    return 'Reject is only available while the payment sheet is in draft or returned.';
+    return 'Delete is only available while the payment sheet is in draft or returned.';
   }
 
-  return paymentSheetDraftOrReturnedOmDisableReason('Reject');
+  return paymentSheetDraftOrReturnedOmDisableReason('Delete');
 }
 
 export function getPaymentSheetForwardActionForUserRole(

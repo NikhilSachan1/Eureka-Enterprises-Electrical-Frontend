@@ -347,6 +347,14 @@ export const appMenu: ApplicationMenu = {
                   routerLink: ROUTES.SITE.PROJECT.WORKSPACE,
                   permission: [APP_PERMISSION.PROJECT.WORKSPACE],
                 },
+                {
+                  label: 'Workforce Allocation',
+                  icon: ICONS.EMPLOYEE.GROUP,
+                  routerLink: ROUTES.SITE.PROJECT.WORKFORCE_ALLOCATION,
+                  permission: [
+                    APP_PERMISSION.PROJECT.WORKFORCE_ALLOCATION_TABLE_VIEW,
+                  ],
+                },
               ],
             },
           ],
@@ -398,7 +406,7 @@ export const appMenu: ApplicationMenu = {
         },
         {
           label: 'Company Bank Account',
-          icon: ICONS.PAYROLL.WALLET,
+          icon: ICONS.BANK.ACCOUNT,
           basePath: ROUTE_BASE_PATHS.COMPANY_BANK_ACCOUNT,
           children: [
             {
@@ -436,7 +444,7 @@ export const appMenu: ApplicationMenu = {
               label: 'Increment',
               icon: ICONS.COMMON.BOLT,
               routerLink: ROUTES.PAYROLL.INCREMENT,
-              permission: [APP_PERMISSION.PAYROLL.ADD_INCREMENT],
+              permission: [APP_PERMISSION.SALARY_STRUCTURE.ADD_INCREMENT],
             },
           ],
         },

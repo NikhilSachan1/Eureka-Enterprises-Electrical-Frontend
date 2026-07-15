@@ -14,6 +14,7 @@ import {
 import { BankTransferService } from '../../services/bank-transfer.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import {
+  EBankDetailsDisplayMode,
   EDataType,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
@@ -42,6 +43,8 @@ import { mapPaidFromAccountToBankDetails } from '@shared/utility';
   styleUrl: './get-bank-transfer-detail.component.scss',
 })
 export class GetBankTransferDetailComponent extends DrawerDetailBase {
+  protected readonly EBankDetailsDisplayMode = EBankDetailsDisplayMode;
+
   protected readonly drawerData = inject(DRAWER_DATA) as {
     bankTransfer: IBankTransferGetBaseResponseDto;
   };

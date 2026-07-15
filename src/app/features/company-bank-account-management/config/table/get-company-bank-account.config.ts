@@ -20,7 +20,7 @@ export const COMPANY_BANK_ACCOUNT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderC
     {
       field: 'bankNameDisplay',
       header: 'Bank Name',
-      icon: ICONS.COMMON.CREDIT_CARD,
+      icon: ICONS.BANK.ACCOUNT,
       showImage: true,
       dummyImageField: 'bankNameDisplay',
       bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,

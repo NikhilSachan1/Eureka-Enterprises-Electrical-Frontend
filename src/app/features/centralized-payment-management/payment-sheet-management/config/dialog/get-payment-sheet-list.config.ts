@@ -1,12 +1,12 @@
 import {
   CANCEL_CONFIRMATION_DIALOG_CONFIG,
   CONFIRMATION_DIALOG_CONFIG,
-  REJECT_CONFIRMATION_DIALOG_CONFIG,
+  DELETE_CONFIRMATION_DIALOG_CONFIG,
 } from '@shared/config';
 import { ICONS } from '@shared/constants';
 import { EButtonActionType, IDialogActionConfig } from '@shared/types';
+import { DeletePaymentSheetComponent } from '../../components/delete-payment-sheet/delete-payment-sheet.component';
 import { DownloadPaymentSheetPdfComponent } from '../../components/download-payment-sheet-pdf/download-payment-sheet-pdf.component';
-import { RejectPaymentSheetComponent } from '../../components/reject-payment-sheet/reject-payment-sheet.component';
 import { ReturnPaymentSheetComponent } from '../../components/return-payment-sheet/return-payment-sheet.component';
 
 export const PAYMENT_SHEET_LIST_ACTION_CONFIG_MAP: Record<
@@ -42,18 +42,18 @@ export const PAYMENT_SHEET_LIST_ACTION_CONFIG_MAP: Record<
     },
     dynamicComponent: ReturnPaymentSheetComponent,
   },
-  [EButtonActionType.REJECT]: {
+  [EButtonActionType.DELETE]: {
     dialogConfig: {
-      ...REJECT_CONFIRMATION_DIALOG_CONFIG,
-      header: 'Reject payment sheet?',
+      ...DELETE_CONFIRMATION_DIALOG_CONFIG,
+      header: 'Delete payment sheet?',
       message:
-        'This payment sheet will be rejected. Add remarks explaining why it is being rejected.',
+        'This payment sheet will be permanently deleted. You cannot undo this.',
       labels: {
-        actionWord: 'reject',
-        singleLabel: 'Reject Sheet',
-        bulkLabel: 'Reject Sheet',
+        actionWord: 'delete',
+        singleLabel: 'Delete Sheet',
+        bulkLabel: 'Delete Sheet',
       },
     },
-    dynamicComponent: RejectPaymentSheetComponent,
+    dynamicComponent: DeletePaymentSheetComponent,
   },
 };

@@ -9,13 +9,20 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
+import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
 import { TimelineComponent } from '@shared/components/timeline/timeline.component';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { ICONS } from '@shared/constants';
-import { AppConfigurationService, AvatarService } from '@shared/services';
 import {
+  AppConfigurationService,
+  AvatarService,
+  GalleryService,
+} from '@shared/services';
+import {
+  EBankDetailsDisplayMode,
   ETimelineAlign,
   ETimelineLayout,
+  IGalleryInputData,
   ITimelineConfig,
 } from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
@@ -37,8 +44,6 @@ import {
 } from '../../types/payment-sheet.enum';
 import { getPaymentSheetVerificationStageLabel } from '../../utils/payment-sheet-verification.util';
 
-const PAYMENT_SHEET_TIMELINE_PERFORMED_BY = 'Nikhil Sachan';
-
 const ROLE_LABELS: Record<string, string> = {
   [EPaymentSheetWorkflowRole.OPERATION_MANAGER]: 'Operation Manager',
   [EPaymentSheetWorkflowRole.HR]: 'HR',
@@ -50,7 +55,7 @@ const REMOVED_ACTION_ALIASES = new Set(['REMOVED', 'ITEM_DELETED', 'DELETED']);
 
 @Component({
   selector: 'app-payment-sheet-timeline-drawer',
-  imports: [DatePipe, TimelineComponent],
+  imports: [DatePipe, TimelineComponent, BankDetailsCellComponent],
   templateUrl: './payment-sheet-timeline-drawer.component.html',
   styleUrl: './payment-sheet-timeline-drawer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,6 +67,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
 
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly avatarService = inject(AvatarService);
+  private readonly galleryService = inject(GalleryService);
   private readonly paymentSheetService = inject(PaymentSheetService);
 
   private readonly shouldFetchStageLogs =
@@ -71,6 +77,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
   protected readonly isDrawerLoading = this.drawerService.loading;
 
   protected readonly ICONS = ICONS;
+  protected readonly EBankDetailsDisplayMode = EBankDetailsDisplayMode;
   protected readonly dateFormat = APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
   protected readonly dateLocale = APP_CONFIG.DATE_FORMATS.DISPLAY_LOCALE;
 
@@ -230,6 +237,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           details,
           icon,
           tone,
+          performedBy: this.resolvePerformedByName(log.createdByUser),
         });
       });
   }
@@ -269,6 +277,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
       label: 'Review stage',
       value: stageLabel,
     };
+    const performedBy = this.resolvePerformedByName(entry.createdByUser);
     const action = this.normalizeHistoryAction(entry.action);
 
     switch (action) {
@@ -288,6 +297,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
               variant: 'emphasis',
             },
           ]),
+          performedBy,
         });
 
       case EPaymentSheetHistoryAction.ITEM_REMOVED:
@@ -298,6 +308,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           icon: ICONS.ACTIONS.TRASH,
           tone: 'removed',
           details: this.withRemarks(entry, [reviewStageDetail]),
+          performedBy,
         });
 
       case EPaymentSheetHistoryAction.VERIFIED:
@@ -308,6 +319,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           icon: ICONS.ACTIONS.CHECK,
           tone: 'success',
           details: this.withRemarks(entry, [reviewStageDetail]),
+          performedBy,
         });
 
       case EPaymentSheetHistoryAction.UNVERIFIED:
@@ -318,6 +330,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           icon: ICONS.ACTIONS.TIMES,
           tone: 'removed',
           details: this.withRemarks(entry, [reviewStageDetail]),
+          performedBy,
         });
 
       case EPaymentSheetHistoryAction.REJECTED:
@@ -328,35 +341,70 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           icon: ICONS.ACTIONS.BAN,
           tone: 'danger',
           details: this.withRemarks(entry, [reviewStageDetail], 'Remarks'),
+          performedBy,
         });
 
       case EPaymentSheetHistoryAction.PAID: {
         const details: IPaymentSheetTimelineEventDetail[] = [
           reviewStageDetail,
           {
-            icon: ICONS.PAYROLL.PAID,
+            icon: ICONS.PAYMENT.RECORD,
             label: 'Amount paid',
             value: this.formatPaymentAmount(entry.newAmount),
             variant: 'emphasis',
           },
         ];
-        const paymentRef = entry.reason?.trim();
+        const utrNumber = this.resolvePaidUtrNumber(entry);
 
-        if (paymentRef) {
+        if (utrNumber) {
           details.push({
             icon: ICONS.COMMON.TAG,
-            label: 'Payment reference',
-            value: paymentRef,
+            label: 'UTR Number',
+            value: utrNumber,
           });
+        }
+
+        if (
+          this.drawerData.mode === EPaymentSheetTimelineMode.ITEM_HISTORY &&
+          this.drawerData.paidFromAccount
+        ) {
+          details.push({
+            icon: ICONS.BANK.ACCOUNT,
+            label: 'Paid from',
+            bankDetails: this.drawerData.paidFromAccount,
+            variant: 'paidFrom',
+          });
+        }
+
+        if (this.drawerData.mode === EPaymentSheetTimelineMode.ITEM_HISTORY) {
+          const { paymentAdvice } = this.drawerData;
+
+          if (paymentAdvice) {
+            details.push({
+              icon: ICONS.COMMON.FILE,
+              label: 'Payment Advice',
+              value: paymentAdvice.referenceNumber,
+            });
+
+            if (paymentAdvice.pdfKey) {
+              details.push({
+                icon: ICONS.MEDIA.PDF,
+                label: 'PA Attachment',
+                attachmentKeys: [paymentAdvice.pdfKey],
+                variant: 'attachment',
+              });
+            }
+          }
         }
 
         return this.createTimelineEvent({
           id: entry.id,
           occurredAt: entry.createdAt,
           title: 'Payment recorded',
-          icon: ICONS.PAYROLL.PAID,
+          icon: ICONS.PAYMENT.RECORD,
           tone: 'paid',
           details,
+          performedBy,
         });
       }
 
@@ -376,6 +424,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
               variant: 'emphasis',
             },
           ]),
+          performedBy,
         });
 
       default:
@@ -386,6 +435,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           icon: ICONS.COMMON.HISTORY,
           tone: 'neutral',
           details: this.withRemarks(entry, [reviewStageDetail]),
+          performedBy,
         });
     }
   }
@@ -397,8 +447,20 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
   ): IPaymentSheetTimelineEventView {
     return {
       ...event,
-      performedBy: event.performedBy ?? PAYMENT_SHEET_TIMELINE_PERFORMED_BY,
+      performedBy: event.performedBy ?? '—',
     };
+  }
+
+  private resolvePerformedByName(
+    user: { firstName: string; lastName: string } | null | undefined
+  ): string {
+    if (!user) {
+      return '—';
+    }
+
+    const name = `${user.firstName} ${user.lastName}`.trim();
+
+    return name || '—';
   }
 
   private withRemarks(
@@ -517,6 +579,28 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
       : normalized;
   }
 
+  private resolvePaidUtrNumber(
+    entry: TPaymentSheetHistoryEntryView
+  ): string | undefined {
+    const entryUtr = entry.utrNumber?.trim();
+
+    if (entryUtr) {
+      return entryUtr;
+    }
+
+    if (this.drawerData.mode !== EPaymentSheetTimelineMode.ITEM_HISTORY) {
+      return undefined;
+    }
+
+    const drawerUtr = this.drawerData.utrNumber?.trim();
+
+    if (!drawerUtr) {
+      return undefined;
+    }
+
+    return drawerUtr;
+  }
+
   private resolveRemarks(
     ...candidates: (string | null | undefined)[]
   ): string | undefined {
@@ -542,6 +626,23 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
+  }
+
+  protected viewTimelineAttachments(
+    attachmentKeys: string[] | undefined
+  ): void {
+    const keys = attachmentKeys?.map(key => key.trim()).filter(Boolean) ?? [];
+
+    if (!keys.length) {
+      return;
+    }
+
+    const media: IGalleryInputData[] = keys.map(mediaKey => ({
+      mediaKey,
+      actualMediaUrl: '',
+    }));
+
+    this.galleryService.show(media);
   }
 
   private initLoadingForFetch(): null {

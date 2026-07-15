@@ -1,12 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   OnInit,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormBase } from '@shared/base/form.base';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
@@ -43,6 +44,10 @@ export class PayPaymentSheetItemComponent
   protected readonly paymentSheetId = input.required<string>();
   protected readonly onSuccess = input.required<() => void>();
 
+  protected readonly isVendorPayment = computed(() =>
+    Boolean(this.selectedRecord()[0]?.bookPaymentId)
+  );
+
   private itemId?: string;
 
   ngOnInit(): void {
@@ -65,11 +70,20 @@ export class PayPaymentSheetItemComponent
       {
         destroyRef: this.destroyRef,
         defaultValues: {
-          paymentMode: 'neft/imps',
           paidDate: toLocalCalendarDate(new Date()) as Date,
         },
       }
     );
+
+    if (this.isVendorPayment()) {
+      const paymentModeControl = this.form.formGroup.get('paymentMode');
+      paymentModeControl?.clearValidators();
+      paymentModeControl?.updateValueAndValidity();
+
+      const paidFromAccountControl = this.form.formGroup.get('paidFromAccount');
+      paidFromAccountControl?.setValidators([Validators.required]);
+      paidFromAccountControl?.updateValueAndValidity();
+    }
   }
 
   onDialogAccept(): void {
@@ -89,7 +103,17 @@ export class PayPaymentSheetItemComponent
   }
 
   private prepareFormData(): IPayPaymentSheetItemFormDto {
-    return this.form.getData();
+    const formData = this.form.getData();
+    const bookPaymentId = this.selectedRecord()[0]?.bookPaymentId;
+
+    if (!bookPaymentId) {
+      return formData;
+    }
+
+    return {
+      ...formData,
+      bookPaymentId,
+    };
   }
 
   private executePayPaymentSheetItemAction(

@@ -10,6 +10,10 @@ export {
   DeletePaymentSheetItemRequestSchema,
   DeletePaymentSheetItemResponseSchema,
 } from './delete-payment-sheet-item.schema';
+export {
+  DeletePaymentSheetRequestSchema,
+  DeletePaymentSheetResponseSchema,
+} from './delete-payment-sheet.schema';
 export { DownloadPaymentSheetPdfFormSchema } from './download-payment-sheet-pdf.schema';
 export {
   PaymentSheetDetailGetRequestSchema,
@@ -30,10 +34,6 @@ export {
   RejectPaymentSheetItemRequestSchema,
   RejectPaymentSheetItemResponseSchema,
 } from './reject-payment-sheet-item.schema';
-export {
-  RejectPaymentSheetRequestSchema,
-  RejectPaymentSheetResponseSchema,
-} from './reject-payment-sheet.schema';
 export {
   ReturnPaymentSheetRequestSchema,
   ReturnPaymentSheetResponseSchema,

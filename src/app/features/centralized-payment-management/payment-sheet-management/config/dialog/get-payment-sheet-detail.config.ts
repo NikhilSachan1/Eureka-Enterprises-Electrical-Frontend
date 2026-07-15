@@ -123,7 +123,7 @@ export const PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP: Record<
     dialogConfig: {
       ...CONFIRMATION_DIALOG_CONFIG,
       header: 'Record payment?',
-      icon: ICONS.PAYROLL.PAID,
+      icon: ICONS.PAYMENT.RECORD,
       message:
         'Record payment for this beneficiary. Enter payment mode, paid date, and transaction reference.',
       labels: {

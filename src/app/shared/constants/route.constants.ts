@@ -123,6 +123,7 @@ export const ROUTES = {
       LIST: `list`,
       ADD: `add`,
       EDIT: `edit`,
+      WORKFORCE_ALLOCATION: `workforce-allocation`,
       ALLOCATION_HISTORY: `allocation-history`,
       WORKSPACE: `workspace`,
       PROFITABILITY: `profitability`,

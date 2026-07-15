@@ -32,10 +32,6 @@ const {
   city,
   pincode,
   email,
-  bankName,
-  accountNumber,
-  ifscCode,
-  accountHolderName,
 } = VendorBaseSchema.shape;
 
 export const VendorUpsertShapeSchema = z
@@ -51,9 +47,9 @@ export const VendorUpsertShapeSchema = z
     state,
     city,
     pincode,
-    bankName,
-    accountNumber,
-    ifscCode,
-    accountHolderName,
+    bankName: z.string().min(1),
+    accountNumber: z.string().min(1),
+    ifscCode: z.string().min(1),
+    accountHolderName: z.string().min(1),
   })
   .strict();

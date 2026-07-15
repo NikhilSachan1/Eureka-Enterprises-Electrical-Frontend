@@ -263,6 +263,24 @@ $ps-tones: (
   font-variant-numeric: tabular-nums;
 }
 
+.ps-timeline-drawer__attachment-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.05rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .ps-timeline-drawer__note {
   padding: 0.6rem 0.7rem;
   border-radius: 0.55rem;

@@ -1,11 +1,15 @@
 import { EPaymentSheetStage } from '../types/payment-sheet.enum';
 
 export function getPaymentSheetVerificationStageLabel(stage: string): string {
-  switch (stage) {
+  switch (stage.toUpperCase()) {
+    case EPaymentSheetStage.INITIATION:
+      return 'Operation Manager';
     case EPaymentSheetStage.HR_REVIEW:
       return 'HR';
     case EPaymentSheetStage.ADMIN_REVIEW:
       return 'Admin';
+    case EPaymentSheetStage.PROCESSING:
+      return 'Accounts';
     default:
       return stage;
   }
@@ -13,8 +17,28 @@ export function getPaymentSheetVerificationStageLabel(stage: string): string {
 
 export function getVisiblePaymentSheetItemVerificationStages(
   currentStage: string | null | undefined,
-  verifiedStages: string[]
+  verifiedStages: string[],
+  options?: {
+    onlyVerifiedStages?: string[];
+  }
 ): EPaymentSheetStage[] {
+  if (options?.onlyVerifiedStages) {
+    const verifiedStageSet = new Set(
+      options.onlyVerifiedStages.map(stage => stage.toUpperCase())
+    );
+    const stages: EPaymentSheetStage[] = [];
+
+    if (verifiedStageSet.has(EPaymentSheetStage.HR_REVIEW)) {
+      stages.push(EPaymentSheetStage.HR_REVIEW);
+    }
+
+    if (verifiedStageSet.has(EPaymentSheetStage.ADMIN_REVIEW)) {
+      stages.push(EPaymentSheetStage.ADMIN_REVIEW);
+    }
+
+    return stages;
+  }
+
   const stages: EPaymentSheetStage[] = [];
 
   const showHr =

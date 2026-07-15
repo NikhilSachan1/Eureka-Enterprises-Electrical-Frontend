@@ -7,6 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { LoggerService } from '@core/services';
+import { AppPermissionService } from '@core/services/app-permission.service';
+import { APP_PERMISSION } from '@core/constants';
 import { GetExpenseOutstandingComponent } from '@features/centralized-payment-management/expense-payment-management/components/get-expense-outstanding/get-expense-outstanding.component';
 import { IExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/expense-payment-management/types/expense-outstanding.dto';
 import { GetFuelExpenseOutstandingComponent } from '@features/centralized-payment-management/fuel-expense-payment-management/components/get-fuel-expense-outstanding/get-fuel-expense-outstanding.component';
@@ -52,11 +54,16 @@ export class GetOutstandingBalanceComponent {
   protected readonly sourceType = EPaymentOutstandingSourceType;
 
   private readonly logger = inject(LoggerService);
+  private readonly appPermissionService = inject(AppPermissionService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
 
   protected readonly activeTabIndex = model(0);
+
+  protected readonly canCreatePaymentSheet = computed(() =>
+    this.appPermissionService.hasPermission(APP_PERMISSION.PAYMENT_SHEET.CREATE)
+  );
 
   protected readonly selectedExpenseRecords = signal<
     IExpenseOutstandingGetBaseResponseDto[]
@@ -74,27 +81,31 @@ export class GetOutstandingBalanceComponent {
     >
   >({});
 
-  protected readonly balanceTabs = computed(() => [
-    {
-      value: EPaymentOutstandingSourceType.EXPENSE,
-      label: getPaymentSourceTabLabel(EPaymentOutstandingSourceType.EXPENSE),
-      badgeCount: this.selectedExpenseRecords().length,
-    },
-    {
-      value: EPaymentOutstandingSourceType.FUEL_EXPENSE,
-      label: getPaymentSourceTabLabel(
-        EPaymentOutstandingSourceType.FUEL_EXPENSE
-      ),
-      badgeCount: this.selectedFuelRecords().length,
-    },
-    {
-      value: EPaymentOutstandingSourceType.VENDOR_PAYMENT,
-      label: getPaymentSourceTabLabel(
-        EPaymentOutstandingSourceType.VENDOR_PAYMENT
-      ),
-      badgeCount: this.selectedVendorBookPayments().length,
-    },
-  ]);
+  protected readonly balanceTabs = computed(() => {
+    const canCreate = this.canCreatePaymentSheet();
+
+    return [
+      {
+        value: EPaymentOutstandingSourceType.EXPENSE,
+        label: getPaymentSourceTabLabel(EPaymentOutstandingSourceType.EXPENSE),
+        badgeCount: canCreate ? this.selectedExpenseRecords().length : 0,
+      },
+      {
+        value: EPaymentOutstandingSourceType.FUEL_EXPENSE,
+        label: getPaymentSourceTabLabel(
+          EPaymentOutstandingSourceType.FUEL_EXPENSE
+        ),
+        badgeCount: canCreate ? this.selectedFuelRecords().length : 0,
+      },
+      {
+        value: EPaymentOutstandingSourceType.VENDOR_PAYMENT,
+        label: getPaymentSourceTabLabel(
+          EPaymentOutstandingSourceType.VENDOR_PAYMENT
+        ),
+        badgeCount: canCreate ? this.selectedVendorBookPayments().length : 0,
+      },
+    ];
+  });
 
   protected readonly sectionOverview = computed(() => [
     this.buildOverviewCard(EPaymentOutstandingSourceType.EXPENSE, 0),
@@ -170,11 +181,12 @@ export class GetOutstandingBalanceComponent {
     tabIndex: number
   ): IPaymentOutstandingSectionStat[] {
     const snapshot = this.sectionSnapshots()[sourceType];
-    const selectedCount = this.getSelectedCount(tabIndex);
-    const selectedAmount = this.getSelectedAmount(tabIndex);
+    const canCreate = this.canCreatePaymentSheet();
+    const selectedCount = canCreate ? this.getSelectedCount(tabIndex) : 0;
+    const selectedAmount = canCreate ? this.getSelectedAmount(tabIndex) : 0;
 
     if (sourceType === EPaymentOutstandingSourceType.VENDOR_PAYMENT) {
-      return [
+      const stats: IPaymentOutstandingSectionStat[] = [
         {
           kind: 'count',
           label: 'Vendors',
@@ -192,22 +204,29 @@ export class GetOutstandingBalanceComponent {
           value: snapshot?.totalNetPayableAmount ?? 0,
           tone: (snapshot?.totalNetPayableAmount ?? 0) > 0 ? 'debit' : null,
         },
-        {
-          kind: 'count',
-          label: 'Selected',
-          value: selectedCount,
-          dividerBefore: true,
-        },
-        {
-          kind: 'currency',
-          label: 'Selected payable',
-          value: selectedAmount,
-          tone: selectedAmount > 0 ? 'debit' : null,
-        },
       ];
+
+      if (canCreate) {
+        stats.push(
+          {
+            kind: 'count',
+            label: 'Selected',
+            value: selectedCount,
+            dividerBefore: true,
+          },
+          {
+            kind: 'currency',
+            label: 'Selected payable',
+            value: selectedAmount,
+            tone: selectedAmount > 0 ? 'debit' : null,
+          }
+        );
+      }
+
+      return stats;
     }
 
-    return [
+    const stats: IPaymentOutstandingSectionStat[] = [
       {
         kind: 'count',
         label: 'Employees',
@@ -219,19 +238,26 @@ export class GetOutstandingBalanceComponent {
         value: snapshot?.totalPendingAmount ?? 0,
         tone: (snapshot?.totalPendingAmount ?? 0) > 0 ? 'debit' : null,
       },
-      {
-        kind: 'count',
-        label: 'Selected',
-        value: selectedCount,
-        dividerBefore: true,
-      },
-      {
-        kind: 'currency',
-        label: 'Selected payable',
-        value: selectedAmount,
-        tone: selectedAmount > 0 ? 'debit' : null,
-      },
     ];
+
+    if (canCreate) {
+      stats.push(
+        {
+          kind: 'count',
+          label: 'Selected',
+          value: selectedCount,
+          dividerBefore: true,
+        },
+        {
+          kind: 'currency',
+          label: 'Selected payable',
+          value: selectedAmount,
+          tone: selectedAmount > 0 ? 'debit' : null,
+        }
+      );
+    }
+
+    return stats;
   }
 
   private getSelectedCount(tabIndex: number): number {
@@ -303,7 +329,7 @@ export class GetOutstandingBalanceComponent {
     return {
       title: 'Outstanding Balance',
       subtitle: 'View outstanding balance records',
-      showHeaderButton: true,
+      showHeaderButton: this.canCreatePaymentSheet(),
       headerButtonConfig: [
         {
           id: EButtonActionType.GENERATE,
@@ -311,6 +337,7 @@ export class GetOutstandingBalanceComponent {
           label: 'Create Payment Sheet',
           icon: ICONS.COMMON.FILE,
           severity: EButtonSeverity.PRIMARY,
+          permission: [APP_PERMISSION.PAYMENT_SHEET.CREATE],
           disabled: selectedCount === 0,
           disabledTooltip:
             selectedCount === 0

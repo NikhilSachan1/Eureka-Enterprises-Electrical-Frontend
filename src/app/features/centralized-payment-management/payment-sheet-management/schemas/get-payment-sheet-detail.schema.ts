@@ -21,6 +21,16 @@ const PaymentSheetBankSnapshotSchema = z
   })
   .nullable();
 
+const PaymentSheetPaidFromAccountSchema = z
+  .looseObject({
+    accountHolderName: z.string(),
+    bankName: z.string(),
+    accountNumber: z.string(),
+    ifscCode: z.string(),
+    branchName: z.string(),
+  })
+  .nullable();
+
 const PaymentSheetVendorSnapshotSchema = z
   .looseObject({
     id: uuidField.optional(),
@@ -45,13 +55,22 @@ const PaymentSheetBookPaymentAllocationInvoiceSchema = z.looseObject({
   state: z.string().optional(),
 });
 
+const PaymentSheetPaymentAdviceSchema = z
+  .looseObject({
+    referenceNumber: z.string(),
+    pdfKey: z.string().nullable(),
+  })
+  .nullable();
+
 const PaymentSheetBookPaymentAllocationSchema = z.looseObject({
   id: uuidField,
   itemId: uuidField.optional(),
   bookPaymentId: uuidField,
   allocatedAmount: z.coerce.number(),
   bankTransferId: uuidField.nullable().optional(),
+  utrNumber: z.string().nullable().optional(),
   invoice: PaymentSheetBookPaymentAllocationInvoiceSchema.optional(),
+  paymentAdvice: PaymentSheetPaymentAdviceSchema,
 });
 
 const PaymentSheetItemVerificationSchema = z.looseObject({
@@ -60,6 +79,15 @@ const PaymentSheetItemVerificationSchema = z.looseObject({
   verifiedByName: z.string(),
   verifiedAt: isoDateTimeField,
 });
+
+const PaymentSheetItemRejectDetailSchema = z
+  .looseObject({
+    stage: z.string(),
+    rejectedBy: UserSchema,
+    rejectedAt: isoDateTimeField,
+    reason: z.string(),
+  })
+  .nullable();
 
 const PaymentSheetVerificationSummarySchema = z.looseObject({
   stage: z.string(),
@@ -77,6 +105,7 @@ const PaymentSheetStageLogSchema = z.looseObject({
   actedRole: z.string().nullable(),
   remarks: z.string().nullable(),
   createdAt: isoDateTimeField,
+  createdByUser: UserSchema.nullable().optional(),
 });
 
 const PaymentSheetHistorySchema = z.looseObject({
@@ -87,7 +116,9 @@ const PaymentSheetHistorySchema = z.looseObject({
   previousAmount: z.coerce.number().nullable(),
   newAmount: z.coerce.number().nullable(),
   reason: z.string().nullable(),
+  utrNumber: z.string().nullable().optional(),
   createdAt: isoDateTimeField,
+  createdByUser: UserSchema.nullable().optional(),
 });
 
 export const PaymentSheetItemDetailSchema = z.looseObject({
@@ -102,7 +133,10 @@ export const PaymentSheetItemDetailSchema = z.looseObject({
   bankSnapshot: PaymentSheetBankSnapshotSchema,
   itemStatus: z.string(),
   paidAt: isoDateTimeField.nullable(),
-  paymentRef: z.string().nullable(),
+  utrNumber: z.string().nullable(),
+  paidByUser: UserSchema.nullable().optional(),
+  paidFromAccountId: uuidField.nullable(),
+  paidFromAccount: PaymentSheetPaidFromAccountSchema,
   bookPaymentAllocations: z
     .array(PaymentSheetBookPaymentAllocationSchema)
     .nullable(),
@@ -114,6 +148,10 @@ export const PaymentSheetItemDetailSchema = z.looseObject({
   verifications: z.array(PaymentSheetItemVerificationSchema),
   verifiedStages: z.array(z.string()),
   isVerifiedForCurrentStage: z.boolean(),
+  rejectReason: z.string().nullable().optional(),
+  rejectedAt: isoDateTimeField.nullable().optional(),
+  rejectStage: z.string().nullable().optional(),
+  rejectDetail: PaymentSheetItemRejectDetailSchema.optional(),
 });
 
 export const PaymentSheetDetailGetResponseSchema = z.looseObject({
@@ -127,6 +165,7 @@ export const PaymentSheetDetailGetResponseSchema = z.looseObject({
   totalCurrentAmount: z.coerce.number(),
   totalPaidAmount: z.coerce.number(),
   createdAt: isoDateTimeField,
+  createdByUser: UserSchema.nullable().optional(),
   items: z.array(PaymentSheetItemDetailSchema),
   verificationSummary: PaymentSheetVerificationSummarySchema.nullable(),
   stageLogs: z.array(PaymentSheetStageLogSchema).optional(),

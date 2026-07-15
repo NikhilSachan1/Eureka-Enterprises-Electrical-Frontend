@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { AppConfigurationService } from '@shared/services';
 import { ICONS } from '@shared/constants';
-import { IBankDetailsCellValue } from '@shared/types/bank-details/bank-details.interface';
+import { EBankDetailsDisplayMode, IBankDetailsCellValue } from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
@@ -20,14 +20,23 @@ export class BankDetailsCellComponent {
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly ICONS = ICONS;
+  protected readonly EBankDetailsDisplayMode = EBankDetailsDisplayMode;
 
   bankDetails = input<IBankDetailsCellValue | null>(null);
+  displayMode = input<EBankDetailsDisplayMode>(EBankDetailsDisplayMode.DEFAULT);
 
   protected readonly hasBankDetails = computed(() => {
     const bank = this.bankDetails();
 
     if (!bank) {
       return false;
+    }
+
+    if (this.displayMode() === EBankDetailsDisplayMode.COMPACT) {
+      return (
+        (this.mappedBankName() ?? this.accountNumber() ?? this.branchName()) !==
+        null
+      );
     }
 
     return (
