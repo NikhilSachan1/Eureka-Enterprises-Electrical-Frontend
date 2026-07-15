@@ -186,8 +186,15 @@ export class SystemPermissionService {
       map((response: ISystemPermissionGetResponseDto) => {
         const moduleNames = this.appConfigurationService.moduleNames();
 
+        const normalizeModuleKey = (value: string): string =>
+          replaceTextWithSeparator(
+            replaceTextWithSeparator(value.toLowerCase(), ' ', '_'),
+            '-',
+            '_'
+          );
+
         const moduleMap = moduleNames.reduce((acc, module) => {
-          const moduleKey = module.value.toLowerCase();
+          const moduleKey = normalizeModuleKey(module.value);
           acc.set(moduleKey, {
             id: `module-${moduleKey}`,
             moduleName: module.label,
@@ -198,11 +205,7 @@ export class SystemPermissionService {
 
         response.records.forEach(
           (permission: ISystemPermissionGetBaseResponseDto) => {
-            const moduleKey = replaceTextWithSeparator(
-              permission.module.toLowerCase(),
-              ' ',
-              '_'
-            );
+            const moduleKey = normalizeModuleKey(permission.module);
 
             if (moduleMap.has(moduleKey)) {
               moduleMap.get(moduleKey)?.permissions.push({

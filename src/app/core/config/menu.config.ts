@@ -444,7 +444,7 @@ export const appMenu: ApplicationMenu = {
               label: 'Increment',
               icon: ICONS.COMMON.BOLT,
               routerLink: ROUTES.PAYROLL.INCREMENT,
-              permission: [APP_PERMISSION.PAYROLL.ADD_INCREMENT],
+              permission: [APP_PERMISSION.SALARY_STRUCTURE.ADD_INCREMENT],
             },
           ],
         },

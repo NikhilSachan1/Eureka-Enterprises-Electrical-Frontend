@@ -13,7 +13,7 @@ export const PROJECT_WORKSPACE_PROFITABILITY_ROUTES: Routes = [
       ),
     canActivate: [permissionGuard],
     data: {
-      permissions: [APP_PERMISSION.PROJECT_WORKSPACE.PROFITABILITY],
+      permissions: [APP_PERMISSION.PROJECT.PROFITABILITY],
     },
   },
 ];

@@ -29,7 +29,7 @@ export const PAYROLL_MANAGEMENT_ROUTES: Routes = [
       ).then(m => m.AddSalaryIncrementComponent),
     canActivate: [permissionGuard],
     data: {
-      permissions: [APP_PERMISSION.PAYROLL.ADD_INCREMENT],
+      permissions: [APP_PERMISSION.SALARY_STRUCTURE.ADD_INCREMENT],
     },
   },
   {

@@ -122,9 +122,7 @@ export class GetProjectWorkspaceComponent {
   );
 
   protected readonly canViewProjectTimeline = computed(() =>
-    this.appPermissionService.hasPermission(
-      APP_PERMISSION.PROJECT_WORKSPACE.TIMELINE
-    )
+    this.appPermissionService.hasPermission(APP_PERMISSION.PROJECT.TIMELINE)
   );
 
   protected readonly pageHeaderConfig = computed(() =>
@@ -602,7 +600,7 @@ export class GetProjectWorkspaceComponent {
 
   private buildWorkspaceTabs(): ITabItem[] {
     const {
-      PROJECT_WORKSPACE,
+      PROJECT,
       PO_DOC,
       JMC_DOC,
       REPORT_DOC,
@@ -619,9 +617,7 @@ export class GetProjectWorkspaceComponent {
         route: ROUTES.SITE.PROJECT.PROFITABILITY,
         label: 'Profitability',
         icon: this.icons.COMMON.CHART,
-        visible: this.appPermissionService.hasPermission(
-          PROJECT_WORKSPACE.PROFITABILITY
-        ),
+        visible: this.appPermissionService.hasPermission(PROJECT.PROFITABILITY),
       },
       {
         route: ROUTES.SITE.PROJECT.CONTRACTOR_DOC,
