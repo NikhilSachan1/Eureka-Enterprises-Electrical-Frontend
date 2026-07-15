@@ -10,6 +10,11 @@ export const WORKFORCE_ALLOCATION_ACTION_CONFIG_MAP: Record<
       header: 'Allocate employee',
       message:
         'Assign this employee to a project? Choose the project and allocate date below.',
+      labels: {
+        actionWord: 'allocate',
+        singleLabel: 'Allocate Employee',
+        bulkLabel: 'Allocate Employees',
+      },
     },
     dynamicComponent: ActionWorkforceAllocationComponent,
   },
@@ -26,6 +31,11 @@ export const WORKFORCE_ALLOCATION_ACTION_CONFIG_MAP: Record<
       header: 'Deallocate employee',
       message:
         'Remove this employee from their current project? Choose the release date below.',
+      labels: {
+        actionWord: 'deallocate',
+        singleLabel: 'Deallocate Employee',
+        bulkLabel: 'Deallocate Employees',
+      },
     },
     dynamicComponent: ActionWorkforceAllocationComponent,
   },

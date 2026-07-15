@@ -160,12 +160,13 @@ export class GetWorkforceAllocationComponent implements OnInit {
   }
 
   protected handleTableActionClick(
-    event: ITableActionClickEvent<IWorkforceAllocationGetBaseResponseDto>
+    event: ITableActionClickEvent<IWorkforceAllocationGetBaseResponseDto>,
+    isBulk = false
   ): void {
     const { actionType, selectedRows } = event;
-    const selectedRow = selectedRows[0];
+    const [selectedFirstRow] = selectedRows;
 
-    if (!selectedRow) {
+    if (!selectedFirstRow) {
       return;
     }
 
@@ -177,24 +178,37 @@ export class GetWorkforceAllocationComponent implements OnInit {
       return;
     }
 
+    if (
+      isBulk &&
+      actionType !== EButtonActionType.ALLOCATE &&
+      actionType !== EButtonActionType.DEALLOCATE
+    ) {
+      return;
+    }
+
     const actionConfig = WORKFORCE_ALLOCATION_ACTION_CONFIG_MAP[actionType];
     if (!actionConfig) {
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dynamicComponentInputs: any = {
+      selectedRecord: selectedRows,
+      dialogActionType: actionType,
+      onSuccess: () => {
+        this.loadWorkforceAllocation();
+      },
+    };
+
+    const recordDetail = this.prepareRecordDetail(selectedFirstRow);
+
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
       actionConfig,
-      this.prepareRecordDetail(selectedRow),
-      false,
-      true,
-      {
-        selectedRecord: selectedRows,
-        dialogActionType: actionType,
-        onSuccess: () => {
-          this.loadWorkforceAllocation();
-        },
-      }
+      recordDetail,
+      isBulk,
+      !isBulk,
+      dynamicComponentInputs
     );
   }
 

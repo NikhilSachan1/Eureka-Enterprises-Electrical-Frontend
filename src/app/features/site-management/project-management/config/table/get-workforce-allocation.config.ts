@@ -21,7 +21,6 @@ const isAllocatedStatus = (
 
 export const WORKFORCE_ALLOCATION_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No workforce allocation records found.',
-  showCheckbox: false,
 };
 
 export const WORKFORCE_ALLOCATION_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
@@ -68,16 +67,31 @@ const WORKFORCE_ALLOCATION_DISABLED_TOOLTIP = {
     'Employee must be allocated before they can be transferred.',
 } as const;
 
+const WORKFORCE_ALLOCATION_ALLOCATE_ACTION_CONFIG: Partial<
+  ITableActionConfig<IWorkforceAllocationGetBaseResponseDto>
+> = {
+  id: EButtonActionType.ALLOCATE,
+  permission: [APP_PERMISSION.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEE],
+  disableWhen: isAllocatedStatus,
+  disableReason: () =>
+    WORKFORCE_ALLOCATION_DISABLED_TOOLTIP.allocateWhenAllocated,
+};
+
+const WORKFORCE_ALLOCATION_DEALLOCATE_ACTION_CONFIG: Partial<
+  ITableActionConfig<IWorkforceAllocationGetBaseResponseDto>
+> = {
+  id: EButtonActionType.DEALLOCATE,
+  permission: [APP_PERMISSION.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEE],
+  disableWhen: isFreeStatus,
+  disableReason: () => WORKFORCE_ALLOCATION_DISABLED_TOOLTIP.deallocateWhenFree,
+};
+
 export const WORKFORCE_ALLOCATION_TABLE_ROW_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IWorkforceAllocationGetBaseResponseDto>
 >[] = [
   {
-    id: EButtonActionType.ALLOCATE,
+    ...WORKFORCE_ALLOCATION_ALLOCATE_ACTION_CONFIG,
     tooltip: 'Allocate Employee',
-    permission: [APP_PERMISSION.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEE],
-    disableWhen: isAllocatedStatus,
-    disableReason: () =>
-      WORKFORCE_ALLOCATION_DISABLED_TOOLTIP.allocateWhenAllocated,
   },
   {
     id: EButtonActionType.TRANSFER,
@@ -87,12 +101,23 @@ export const WORKFORCE_ALLOCATION_TABLE_ROW_ACTIONS_CONFIG: Partial<
     disableReason: () => WORKFORCE_ALLOCATION_DISABLED_TOOLTIP.transferWhenFree,
   },
   {
-    id: EButtonActionType.DEALLOCATE,
+    ...WORKFORCE_ALLOCATION_DEALLOCATE_ACTION_CONFIG,
     tooltip: 'Deallocate Employee',
-    permission: [APP_PERMISSION.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEE],
-    disableWhen: isFreeStatus,
-    disableReason: () =>
-      WORKFORCE_ALLOCATION_DISABLED_TOOLTIP.deallocateWhenFree,
+  },
+];
+
+export const WORKFORCE_ALLOCATION_TABLE_BULK_ACTIONS_CONFIG: Partial<
+  ITableActionConfig<IWorkforceAllocationGetBaseResponseDto>
+>[] = [
+  {
+    ...WORKFORCE_ALLOCATION_ALLOCATE_ACTION_CONFIG,
+    label: 'Allocate',
+    tooltip: 'Allocate Selected Employees',
+  },
+  {
+    ...WORKFORCE_ALLOCATION_DEALLOCATE_ACTION_CONFIG,
+    label: 'Deallocate',
+    tooltip: 'Deallocate Selected Employees',
   },
 ];
 
@@ -102,4 +127,6 @@ export const WORKFORCE_ALLOCATION_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IW
     headers: WORKFORCE_ALLOCATION_TABLE_HEADER_CONFIG,
     rowActions:
       WORKFORCE_ALLOCATION_TABLE_ROW_ACTIONS_CONFIG as IEnhancedTableConfig<IWorkforceAllocation>['rowActions'],
+    bulkActions:
+      WORKFORCE_ALLOCATION_TABLE_BULK_ACTIONS_CONFIG as IEnhancedTableConfig<IWorkforceAllocation>['bulkActions'],
   };

@@ -130,7 +130,8 @@ export class ActionWorkforceAllocationComponent
     this.logger.logUserAction('Workforce allocation action form submitted', {
       actionType: this.dialogActionType(),
       formData: this.form.getData(),
-      selectedRecord: this.selectedRecord()[0],
+      selectedRecords: this.selectedRecord(),
+      selectedCount: this.selectedRecord().length,
     });
     this.isSubmitting.set(false);
     this.confirmationDialogService.closeDialog();
