@@ -21,7 +21,7 @@
   @if (dialogActionType() === EButtonActionTypeEnum.ALLOCATE || dialogActionType() === EButtonActionTypeEnum.TRANSFER) {
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.allocateDate"
+      [inputFieldConfig]="isTransferAction ? allocateDateFieldConfig() : form.fieldConfigs.allocateDate"
     />
   }
 </form>

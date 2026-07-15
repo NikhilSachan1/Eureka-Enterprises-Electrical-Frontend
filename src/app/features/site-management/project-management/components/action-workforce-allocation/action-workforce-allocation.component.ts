@@ -1,9 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
+  effect,
   inject,
   input,
   OnInit,
+  Signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBase } from '@shared/base/form.base';
@@ -32,12 +35,61 @@ export class ActionWorkforceAllocationComponent
     ConfirmationDialogService
   );
 
+  private trackedReleaseDate?: Signal<Date | null | undefined>;
+
+  protected isTransferAction = false;
+
+  private readonly transferReleaseDateMin = computed(() => {
+    if (this.dialogActionType() !== EButtonActionType.TRANSFER) {
+      return null;
+    }
+
+    return this.toDateOnly(this.trackedReleaseDate?.());
+  });
+
+  protected readonly allocateDateFieldConfig = computed(() => {
+    const allocateDateConfig = this.form?.fieldConfigs.allocateDate;
+    if (!allocateDateConfig) {
+      return allocateDateConfig;
+    }
+
+    const minDate = this.transferReleaseDateMin();
+    if (!minDate) {
+      return allocateDateConfig;
+    }
+
+    return {
+      ...allocateDateConfig,
+      dateConfig: {
+        ...(allocateDateConfig.dateConfig ?? {}),
+        minDate,
+      },
+    };
+  });
+
   protected readonly selectedRecord =
     input.required<IWorkforceAllocationGetBaseResponseDto[]>();
   protected readonly dialogActionType = input.required<EButtonActionType>();
   protected readonly onSuccess = input<() => void>();
 
   protected readonly EButtonActionTypeEnum = EButtonActionType;
+
+  constructor() {
+    super();
+    effect(() => {
+      const minDate = this.transferReleaseDateMin();
+      if (!minDate || !this.form) {
+        return;
+      }
+
+      const allocateDateControl = this.form.formGroup.get('allocateDate');
+      const allocateDate = this.toDateOnly(allocateDateControl?.value);
+
+      if (allocateDate && allocateDate.getTime() < minDate.getTime()) {
+        allocateDateControl?.setValue(null);
+      }
+    });
+  }
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -52,6 +104,7 @@ export class ActionWorkforceAllocationComponent
     }
 
     const actionType = this.dialogActionType();
+    this.isTransferAction = actionType === EButtonActionType.TRANSFER;
     this.form = this.formService.createForm<IWorkforceAllocationActionFormDto>(
       WORKFORCE_ALLOCATION_ACTION_FORM_CONFIG,
       {
@@ -61,6 +114,12 @@ export class ActionWorkforceAllocationComponent
         },
       }
     );
+
+    if (this.isTransferAction) {
+      this.trackedReleaseDate = this.formService.trackFieldChanges<
+        Date | null | undefined
+      >(this.form.formGroup, 'releaseDate', this.destroyRef);
+    }
   }
 
   onDialogAccept(): void {
@@ -75,5 +134,13 @@ export class ActionWorkforceAllocationComponent
     });
     this.isSubmitting.set(false);
     this.confirmationDialogService.closeDialog();
+  }
+
+  private toDateOnly(value: unknown): Date | null {
+    if (!(value instanceof Date) || Number.isNaN(value.getTime())) {
+      return null;
+    }
+
+    return new Date(value.getFullYear(), value.getMonth(), value.getDate());
   }
 }
