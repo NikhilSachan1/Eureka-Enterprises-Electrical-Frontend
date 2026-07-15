@@ -31,6 +31,17 @@ export const PROJECT_MANAGEMENT_ROUTES: Routes = [
     },
   },
   {
+    path: ROUTES.SITE.PROJECT.WORKFORCE_ALLOCATION,
+    loadComponent: () =>
+      import(
+        './components/get-workforce-allocation/get-workforce-allocation.component'
+      ).then(m => m.GetWorkforceAllocationComponent),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.PROJECT.WORKFORCE_ALLOCATION_TABLE_VIEW],
+    },
+  },
+  {
     path: ROUTES.SITE.PROJECT.ADD,
     loadComponent: () =>
       import('./components/add-project/add-project.component').then(

@@ -198,6 +198,7 @@ export const APP_PERMISSION = {
     CHANGE_STATUS: 'project.change-status',
     WORKSPACE: 'project.analysis',
     ALLOCATE_DEALLOCATE_EMPLOYEE: 'project.allocate-deallocate-employee',
+    WORKFORCE_ALLOCATION_TABLE_VIEW: 'project.workforce-allocation.table.view',
     ALLOCATION_HISTORY_TABLE_VIEW: 'project.allocation-history.table.view',
   },
   PROJECT_WORKSPACE: {

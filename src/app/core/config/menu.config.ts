@@ -347,6 +347,14 @@ export const appMenu: ApplicationMenu = {
                   routerLink: ROUTES.SITE.PROJECT.WORKSPACE,
                   permission: [APP_PERMISSION.PROJECT.WORKSPACE],
                 },
+                {
+                  label: 'Workforce Allocation',
+                  icon: ICONS.EMPLOYEE.GROUP,
+                  routerLink: ROUTES.SITE.PROJECT.WORKFORCE_ALLOCATION,
+                  permission: [
+                    APP_PERMISSION.PROJECT.WORKFORCE_ALLOCATION_TABLE_VIEW,
+                  ],
+                },
               ],
             },
           ],
