@@ -23,42 +23,10 @@ const normalizeProjectStatusKey = (status: unknown): string =>
 const isOngoingProjectStatus = (status: unknown): boolean =>
   normalizeProjectStatusKey(status) === 'ongoing';
 
-const isAllocateDeallocateBlockedStatus = (status: unknown): boolean => {
-  const key = normalizeProjectStatusKey(status);
-  return (
-    key === 'completed' ||
-    key === 'workcompleted' ||
-    key === 'hold' ||
-    key === 'onhold'
-  );
-};
-
 const PROJECT_DISABLED_TOOLTIP = {
   deleteWhileOngoing:
     'Cannot delete a project while its status is Ongoing. Change status first.',
-  allocateDeallocateCompleted:
-    'Cannot allocate/deallocate employees when project status is Completed.',
-  allocateDeallocateWorkCompleted:
-    'Cannot allocate/deallocate employees when project status is Work completed.',
-  allocateDeallocateHold:
-    'Cannot allocate/deallocate employees when project status is Hold.',
 } as const;
-
-const allocateDeallocateDisableReason = (
-  status: unknown
-): string | undefined => {
-  const key = normalizeProjectStatusKey(status);
-  if (key === 'completed') {
-    return PROJECT_DISABLED_TOOLTIP.allocateDeallocateCompleted;
-  }
-  if (key === 'workcompleted') {
-    return PROJECT_DISABLED_TOOLTIP.allocateDeallocateWorkCompleted;
-  }
-  if (key === 'hold' || key === 'onhold') {
-    return PROJECT_DISABLED_TOOLTIP.allocateDeallocateHold;
-  }
-  return undefined;
-};
 
 const PROJECT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No project record found.',
@@ -144,15 +112,6 @@ const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Project',
     permission: [APP_PERMISSION.PROJECT.EDIT],
-  },
-  {
-    id: EButtonActionType.ALLOCATE_DEALLOCATE_EMPLOYEE,
-    tooltip: 'Allocate/Deallocate Employee',
-    permission: [APP_PERMISSION.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEE],
-    disableWhen: record =>
-      isAllocateDeallocateBlockedStatus(record?.originalRawData?.status),
-    disableReason: record =>
-      allocateDeallocateDisableReason(record?.originalRawData?.status),
   },
   {
     id: EButtonActionType.CHANGE_STATUS,

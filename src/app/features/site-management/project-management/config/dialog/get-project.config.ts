@@ -2,7 +2,6 @@ import { EButtonActionType, IDialogActionConfig } from '@shared/types';
 import { DELETE_CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
 import { DeleteProjectComponent } from '../../components/delete-project/delete-project.component';
 import { ChangeStatusProjectComponent } from '../../components/change-status-project/change-status-project.component';
-import { AllocateDeallocateEmployeeComponent } from '../../components/allocate-deallocate-employee/allocate-deallocate-employee.component';
 
 export const PROJECT_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.DELETE]: {
@@ -15,13 +14,5 @@ export const PROJECT_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
       message: "Update this project's status? Choose the new status below.",
     },
     dynamicComponent: ChangeStatusProjectComponent,
-  },
-  [EButtonActionType.ALLOCATE_DEALLOCATE_EMPLOYEE]: {
-    dialogConfig: {
-      header: 'Update project team',
-      message:
-        'Add or remove team members on this project? Adjust allocations below.',
-    },
-    dynamicComponent: AllocateDeallocateEmployeeComponent,
   },
 };
