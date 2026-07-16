@@ -50,7 +50,6 @@ const WORKFORCE_ALLOCATION_ACTION_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IWo
       fieldName: 'allocateDate',
       label: 'Allocate Date',
       dateConfig: {
-        maxDate: new Date(),
         touchUI: false,
       },
       conditionalValidators: [
@@ -68,7 +67,6 @@ const WORKFORCE_ALLOCATION_ACTION_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IWo
       fieldName: 'releaseDate',
       label: 'Release Date',
       dateConfig: {
-        maxDate: new Date(),
         touchUI: false,
       },
       conditionalValidators: [

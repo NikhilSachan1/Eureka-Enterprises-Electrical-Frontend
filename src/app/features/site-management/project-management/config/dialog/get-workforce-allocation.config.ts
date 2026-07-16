@@ -22,7 +22,7 @@ export const WORKFORCE_ALLOCATION_ACTION_CONFIG_MAP: Record<
     dialogConfig: {
       header: 'Transfer employee',
       message:
-        'Move this employee to another project? Choose the new project, release date, and allocate date below.',
+        'Choose release date from current project, then new project and allocate date.',
     },
     dynamicComponent: ActionWorkforceAllocationComponent,
   },

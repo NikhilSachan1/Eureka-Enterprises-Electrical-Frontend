@@ -48,6 +48,17 @@ export const WORKFORCE_ALLOCATION_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderC
       icon: ICONS.SITE.BUILDING,
       dummyImageField: 'projectName',
       primaryFieldHighlight: true,
+      subtitle: { field: 'projectLocation' },
+      showSort: false,
+    },
+    {
+      field: 'companyName',
+      header: 'Company',
+      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+      icon: ICONS.COMMON.BRIEFCASE,
+      dummyImageField: 'companyName',
+      primaryFieldHighlight: true,
+      subtitle: { field: 'companyLocation' },
       showSort: false,
     },
     {

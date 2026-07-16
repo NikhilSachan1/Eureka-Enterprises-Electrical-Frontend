@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  computed,
   effect,
   inject,
   input,
@@ -9,16 +9,30 @@ import {
   Signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBase } from '@shared/base/form.base';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { ConfirmationDialogService } from '@shared/services';
-import { EButtonActionType, IDialogActionHandler } from '@shared/types';
+import {
+  EButtonActionType,
+  IDialogActionHandler,
+  IInputFieldsConfig,
+} from '@shared/types';
 import {
   IWorkforceAllocationActionFormDto,
   WORKFORCE_ALLOCATION_ACTION_FORM_CONFIG,
 } from '../../config/form/action-workforce-allocation.config';
+import { ProjectService } from '../../services/project.service';
 import { IWorkforceAllocationGetBaseResponseDto } from '../../types/project.dto';
+import {
+  applyProjectDateRangeFromOverview,
+  applyProjectDateRangeFromSite,
+  IProjectSiteDateRange,
+  parseProjectDateOnly,
+  resetProjectDateField,
+  setProjectDateFieldLoading,
+} from '../../utility/project-overview-date.util';
 
 @Component({
   selector: 'app-action-workforce-allocation',
@@ -34,38 +48,11 @@ export class ActionWorkforceAllocationComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly projectService = inject(ProjectService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   private trackedReleaseDate?: Signal<Date | null | undefined>;
-
-  protected isTransferAction = false;
-
-  private readonly transferReleaseDateMin = computed(() => {
-    if (this.dialogActionType() !== EButtonActionType.TRANSFER) {
-      return null;
-    }
-
-    return this.toDateOnly(this.trackedReleaseDate?.());
-  });
-
-  protected readonly allocateDateFieldConfig = computed(() => {
-    const allocateDateConfig = this.form?.fieldConfigs.allocateDate;
-    if (!allocateDateConfig) {
-      return allocateDateConfig;
-    }
-
-    const minDate = this.transferReleaseDateMin();
-    if (!minDate) {
-      return allocateDateConfig;
-    }
-
-    return {
-      ...allocateDateConfig,
-      dateConfig: {
-        ...(allocateDateConfig.dateConfig ?? {}),
-        minDate,
-      },
-    };
-  });
+  private trackedProjectName?: Signal<string | null | undefined>;
 
   protected readonly selectedRecord =
     input.required<IWorkforceAllocationGetBaseResponseDto[]>();
@@ -77,17 +64,35 @@ export class ActionWorkforceAllocationComponent
   constructor() {
     super();
     effect(() => {
-      const minDate = this.transferReleaseDateMin();
-      if (!minDate || !this.form) {
+      const releaseDate = this.trackedReleaseDate?.();
+      if (
+        this.dialogActionType() !== EButtonActionType.TRANSFER ||
+        !this.form
+      ) {
         return;
       }
 
-      const allocateDateControl = this.form.formGroup.get('allocateDate');
-      const allocateDate = this.toDateOnly(allocateDateControl?.value);
+      this.applyTransferAllocateReleaseMin(releaseDate);
+      this.clearDateIfBeforeMin('allocateDate', releaseDate);
+      queueMicrotask(() => this.changeDetectorRef.detectChanges());
+    });
 
-      if (allocateDate && allocateDate.getTime() < minDate.getTime()) {
-        allocateDateControl?.setValue(null);
+    effect(() => {
+      const projectId = this.trackedProjectName?.();
+      if (
+        !this.form ||
+        (this.dialogActionType() !== EButtonActionType.ALLOCATE &&
+          this.dialogActionType() !== EButtonActionType.TRANSFER)
+      ) {
+        return;
       }
+
+      if (projectId && typeof projectId === 'string') {
+        this.loadTargetProjectDateRange(projectId);
+        return;
+      }
+
+      this.resetAllocateDateField();
     });
   }
 
@@ -104,7 +109,6 @@ export class ActionWorkforceAllocationComponent
     }
 
     const actionType = this.dialogActionType();
-    this.isTransferAction = actionType === EButtonActionType.TRANSFER;
     this.form = this.formService.createForm<IWorkforceAllocationActionFormDto>(
       WORKFORCE_ALLOCATION_ACTION_FORM_CONFIG,
       {
@@ -115,10 +119,30 @@ export class ActionWorkforceAllocationComponent
       }
     );
 
-    if (this.isTransferAction) {
+    if (
+      actionType === EButtonActionType.DEALLOCATE ||
+      actionType === EButtonActionType.TRANSFER
+    ) {
+      this.applyReleaseDateRangeFromCurrentProject(record[0]?.currentProject);
       this.trackedReleaseDate = this.formService.trackFieldChanges<
         Date | null | undefined
       >(this.form.formGroup, 'releaseDate', this.destroyRef);
+    }
+
+    if (
+      actionType === EButtonActionType.ALLOCATE ||
+      actionType === EButtonActionType.TRANSFER
+    ) {
+      this.trackedProjectName = this.formService.trackFieldChanges<
+        string | null | undefined
+      >(this.form.formGroup, 'projectName', this.destroyRef);
+    }
+
+    if (actionType === EButtonActionType.TRANSFER) {
+      this.form.fieldConfigs.projectName = {
+        ...this.form.fieldConfigs.projectName,
+        label: 'New Project',
+      };
     }
   }
 
@@ -127,21 +151,126 @@ export class ActionWorkforceAllocationComponent
   }
 
   protected override handleSubmit(): void {
-    this.logger.logUserAction('Workforce allocation action form submitted', {
+    this.logger.logUserAction('Workforce allocation action submitted', {
       actionType: this.dialogActionType(),
       formData: this.form.getData(),
-      selectedRecords: this.selectedRecord(),
+      selectedRecords: this.selectedRecord().map(row => ({
+        userId: row.userId,
+        allocationId: row.currentProject?.allocationId ?? null,
+      })),
       selectedCount: this.selectedRecord().length,
     });
     this.isSubmitting.set(false);
     this.confirmationDialogService.closeDialog();
   }
 
-  private toDateOnly(value: unknown): Date | null {
-    if (!(value instanceof Date) || Number.isNaN(value.getTime())) {
-      return null;
+  private loadTargetProjectDateRange(projectId: string): void {
+    setProjectDateFieldLoading(this.form, 'allocateDate', true);
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+
+    this.projectService
+      .getProjectOverview(projectId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: overview => {
+          applyProjectDateRangeFromOverview(
+            this.form,
+            'allocateDate',
+            WORKFORCE_ALLOCATION_ACTION_FORM_CONFIG.fields.allocateDate
+              .dateConfig,
+            overview
+          );
+          this.applyTransferAllocateReleaseMin(this.trackedReleaseDate?.());
+          queueMicrotask(() => this.changeDetectorRef.detectChanges());
+        },
+        error: error => {
+          this.logger.error('Failed to load project overview for dates', error);
+          this.resetAllocateDateField();
+        },
+      });
+  }
+
+  private applyReleaseDateRangeFromCurrentProject(
+    currentProject: IWorkforceAllocationGetBaseResponseDto['currentProject']
+  ): void {
+    if (!currentProject) {
+      return;
     }
 
-    return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+    applyProjectDateRangeFromSite(
+      this.form,
+      'releaseDate',
+      WORKFORCE_ALLOCATION_ACTION_FORM_CONFIG.fields.releaseDate.dateConfig,
+      currentProject as IProjectSiteDateRange
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+  }
+
+  private resetAllocateDateField(): void {
+    resetProjectDateField(
+      this.form,
+      'allocateDate',
+      WORKFORCE_ALLOCATION_ACTION_FORM_CONFIG.fields.allocateDate.dateConfig
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+  }
+
+  private applyTransferAllocateReleaseMin(
+    releaseDate: Date | null | undefined
+  ): void {
+    if (this.dialogActionType() !== EButtonActionType.TRANSFER) {
+      return;
+    }
+
+    const base = this.form.fieldConfigs.allocateDate;
+    if (!base) {
+      return;
+    }
+
+    const releaseMin = parseProjectDateOnly(releaseDate);
+    const projectMin = base.dateConfig?.minDate;
+    const minDate = this.resolveMinDate(projectMin, releaseMin);
+
+    this.form.fieldConfigs.allocateDate = {
+      ...base,
+      dateConfig: {
+        ...base.dateConfig,
+        minDate,
+      },
+    } as IInputFieldsConfig;
+  }
+
+  private resolveMinDate(
+    projectMin?: Date,
+    releaseMin?: Date
+  ): Date | undefined {
+    if (projectMin && releaseMin) {
+      return projectMin.getTime() >= releaseMin.getTime()
+        ? projectMin
+        : releaseMin;
+    }
+
+    return projectMin ?? releaseMin;
+  }
+
+  private clearDateIfBeforeMin(
+    fieldName: 'allocateDate' | 'releaseDate',
+    minValue: unknown
+  ): void {
+    const minDate = parseProjectDateOnly(
+      minValue instanceof Date ? minValue : undefined
+    );
+    if (!minDate) {
+      return;
+    }
+
+    const control = this.form.formGroup.get(fieldName);
+    const value = parseProjectDateOnly(
+      control?.value instanceof Date ? control.value : undefined
+    );
+
+    if (value && value.getTime() < minDate.getTime()) {
+      control?.setValue(null);
+    }
   }
 }

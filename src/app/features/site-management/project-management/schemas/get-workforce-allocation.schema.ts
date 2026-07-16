@@ -26,14 +26,21 @@ const WorkforceCompanyRefSchema = z
   .looseObject({
     id: uuidField,
     name: z.string(),
+    city: z.string(),
+    state: z.string(),
   })
   .nullable();
 
 export const WorkforceAllocationCurrentProjectSchema = z.looseObject({
   siteId: uuidField,
   siteName: z.string(),
+  city: z.string(),
+  state: z.string(),
+  startDate: isoDateTimeField,
+  endDate: isoDateTimeField,
   company: WorkforceCompanyRefSchema,
   since: isoDateTimeField,
+  allocationId: uuidField,
 });
 
 export const WorkforceAllocationGetBaseResponseSchema = z.looseObject({

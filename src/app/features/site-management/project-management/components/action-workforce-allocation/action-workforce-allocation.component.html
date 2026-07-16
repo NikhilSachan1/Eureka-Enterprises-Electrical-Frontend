@@ -2,26 +2,36 @@
   [formGroup]="form.formGroup"
   class="form"
 >
-  @if (dialogActionType() === EButtonActionTypeEnum.ALLOCATE || dialogActionType() === EButtonActionTypeEnum.TRANSFER) {
+  @if (dialogActionType() === EButtonActionTypeEnum.ALLOCATE) {
     <app-input-field
       [formGroup]="form.formGroup"
       [inputFieldConfig]="form.fieldConfigs.projectName"
     />
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.allocateDate"
+    />
   }
 
-  @if (
-    dialogActionType() === EButtonActionTypeEnum.DEALLOCATE || dialogActionType() === EButtonActionTypeEnum.TRANSFER
-  ) {
+  @if (dialogActionType() === EButtonActionTypeEnum.DEALLOCATE) {
     <app-input-field
       [formGroup]="form.formGroup"
       [inputFieldConfig]="form.fieldConfigs.releaseDate"
     />
   }
 
-  @if (dialogActionType() === EButtonActionTypeEnum.ALLOCATE || dialogActionType() === EButtonActionTypeEnum.TRANSFER) {
+  @if (dialogActionType() === EButtonActionTypeEnum.TRANSFER) {
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="isTransferAction ? allocateDateFieldConfig() : form.fieldConfigs.allocateDate"
+      [inputFieldConfig]="form.fieldConfigs.releaseDate"
+    />
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.projectName"
+    />
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.allocateDate"
     />
   }
 </form>

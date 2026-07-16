@@ -146,12 +146,30 @@ export class GetWorkforceAllocationComponent implements OnInit {
           record.status
         ),
         projectName: currentProject?.siteName ?? null,
+        projectLocation: this.formatCityState(
+          currentProject?.city,
+          currentProject?.state
+        ),
+        companyName: currentProject?.company?.name ?? null,
+        companyLocation: this.formatCityState(
+          currentProject?.company?.city,
+          currentProject?.company?.state
+        ),
         allocatedSince: currentProject?.since
           ? new Date(currentProject.since)
           : null,
+        allocationId: currentProject?.allocationId ?? null,
         originalRawData: record,
       } satisfies IWorkforceAllocation;
     });
+  }
+
+  private formatCityState(
+    city: string | null | undefined,
+    state: string | null | undefined
+  ): string | null {
+    const location = [city, state].filter(Boolean).join(', ');
+    return location || null;
   }
 
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
@@ -215,20 +233,40 @@ export class GetWorkforceAllocationComponent implements OnInit {
   private prepareRecordDetail(
     selectedRow: IWorkforceAllocationGetBaseResponseDto
   ): IDataViewDetailsWithEntity {
-    const entryData: IDataViewDetails['entryData'] = [
-      {
-        label: 'Current Project',
-        value: selectedRow.currentProject?.siteName ?? '—',
-      },
-    ];
+    const { currentProject } = selectedRow;
+    const entryData: IDataViewDetails['entryData'] = [];
 
-    if (selectedRow.currentProject?.since) {
+    if (currentProject) {
+      entryData.push(
+        {
+          label: 'Current Project',
+          value: currentProject.siteName,
+        },
+        {
+          label: 'Project Location',
+          value:
+            this.formatCityState(currentProject.city, currentProject.state) ??
+            '—',
+        },
+        {
+          label: 'Company',
+          value: currentProject.company?.name ?? '—',
+        }
+      );
+
+      if (currentProject.since) {
+        entryData.push({
+          label: 'Allocated Since',
+          value: currentProject.since,
+          type: EDataType.DATE,
+          dataType: EDataType.DATE,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        });
+      }
+    } else {
       entryData.push({
-        label: 'Allocated Since',
-        value: selectedRow.currentProject.since,
-        type: EDataType.DATE,
-        dataType: EDataType.DATE,
-        format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        label: 'Current Project',
+        value: '—',
       });
     }
 
