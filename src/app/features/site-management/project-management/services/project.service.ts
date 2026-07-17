@@ -14,13 +14,13 @@ import {
   ProjectEditResponseSchema,
   ProjectGetRequestSchema,
   ProjectGetResponseSchema,
-  AllocateDeallocateEmployeeRequestSchema,
-  AllocateDeallocateEmployeeResponseSchema,
   ProjectOverviewGetResponseSchema,
   SiteAllocationGetRequestSchema,
   SiteAllocationGetResponseSchema,
   WorkforceAllocationGetRequestSchema,
   WorkforceAllocationGetResponseSchema,
+  WorkforceAllocationActionRequestSchema,
+  WorkforceAllocationManageResponseSchema,
 } from '../schemas';
 import {
   IProjectAddFormDto,
@@ -35,13 +35,13 @@ import {
   IProjectEditResponseDto,
   IProjectGetFormDto,
   IProjectGetResponseDto,
-  IProjectAllocateDeallocateEmployeeRequestFormDto,
-  IProjectAllocateDeallocateEmployeeResponseDto,
   IProjectOverviewGetResponseDto,
   ISiteAllocationGetFormDto,
   ISiteAllocationGetResponseDto,
   IWorkforceAllocationGetFormDto,
   IWorkforceAllocationGetResponseDto,
+  IWorkforceAllocationManageFormDto,
+  IWorkforceAllocationManageResponseDto,
 } from '../types/project.dto';
 
 @Injectable({
@@ -108,36 +108,36 @@ export class ProjectService {
       );
   }
 
-  allocateDeallocateEmployees(
-    formData: IProjectAllocateDeallocateEmployeeRequestFormDto
-  ): Observable<IProjectAllocateDeallocateEmployeeResponseDto> {
-    this.logger.logUserAction('Allocate/Deallocate project employees request');
+  manageWorkforceAllocation(
+    formData: IWorkforceAllocationManageFormDto
+  ): Observable<IWorkforceAllocationManageResponseDto> {
+    this.logger.logUserAction('Manage workforce allocation request');
 
     return this.apiService
       .postValidated(
         API_ROUTES.SITE.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEES,
         {
-          response: AllocateDeallocateEmployeeResponseSchema,
-          request: AllocateDeallocateEmployeeRequestSchema,
+          response: WorkforceAllocationManageResponseSchema,
+          request: WorkforceAllocationActionRequestSchema,
         },
         formData
       )
       .pipe(
-        tap((response: IProjectAllocateDeallocateEmployeeResponseDto) => {
+        tap((response: IWorkforceAllocationManageResponseDto) => {
           this.logger.logUserAction(
-            'Allocate/Deallocate project employees response',
+            'Manage workforce allocation response',
             response
           );
         }),
         catchError(error => {
           if (error?.name === 'ZodError') {
             this.logger.logDtoValidationErrors(
-              'Allocate/Deallocate project employees error',
+              'Manage workforce allocation error',
               error
             );
           } else {
             this.logger.logUserAction(
-              'Allocate/Deallocate project employees error',
+              'Manage workforce allocation error',
               error
             );
           }

@@ -363,8 +363,4 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   // ═══════════════════════════════════════════════════════════════════════════
   // PROJECT ALLOCATION STATUS
   // ═══════════════════════════════════════════════════════════════════════════
-  allocateDeallocateEmployee: {
-    icon: ICONS.ACTIONS.CHECK_CIRCLE,
-    severity: 'success',
-  },
 };

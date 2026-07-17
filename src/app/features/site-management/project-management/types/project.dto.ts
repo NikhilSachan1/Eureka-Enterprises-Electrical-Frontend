@@ -14,8 +14,6 @@ import {
   ProjectGetRequestSchema,
   ProjectGetResponseSchema,
   ProjectGetStatsResponseSchema,
-  AllocateDeallocateEmployeeRequestSchema,
-  AllocateDeallocateEmployeeResponseSchema,
   ProjectOverviewGetResponseSchema,
   SiteAllocationGetRequestSchema,
   SiteAllocationGetBaseResponseSchema,
@@ -24,6 +22,8 @@ import {
   WorkforceAllocationGetBaseResponseSchema,
   WorkforceAllocationGetStatsSchema,
   WorkforceAllocationGetResponseSchema,
+  WorkforceAllocationActionRequestSchema,
+  WorkforceAllocationManageResponseSchema,
 } from '../schemas';
 /*
   Project Add
@@ -90,21 +90,6 @@ export type IProjectChangeStatusResponseDto = z.infer<
 >;
 
 /*
-  Site allocations manage (allocate / deallocate)
-*/
-/** Body sent on the wire after `AllocateDeallocateEmployeeRequestSchema.parse()` (transform output). */
-export type IProjectAllocateDeallocateEmployeeRequestDto = z.infer<
-  typeof AllocateDeallocateEmployeeRequestSchema
->;
-/** Payload passed into `parse()` / `postValidated` — uses `date`; transform maps to `allocatedAt` / `deallocatedAt`. */
-export type IProjectAllocateDeallocateEmployeeRequestFormDto = z.input<
-  typeof AllocateDeallocateEmployeeRequestSchema
->;
-export type IProjectAllocateDeallocateEmployeeResponseDto = z.infer<
-  typeof AllocateDeallocateEmployeeResponseSchema
->;
-
-/*
   Project Overview Get
 */
 export type IProjectOverviewGetResponseDto = z.infer<
@@ -144,4 +129,17 @@ export type IWorkforceAllocationGetBaseResponseDto = z.infer<
 >;
 export type IWorkforceAllocationGetResponseDto = z.infer<
   typeof WorkforceAllocationGetResponseSchema
+>;
+
+/*
+  Workforce allocation action (allocate / deallocate / transfer)
+*/
+export type IWorkforceAllocationManageRequestDto = z.infer<
+  typeof WorkforceAllocationActionRequestSchema
+>;
+export type IWorkforceAllocationManageFormDto = z.input<
+  typeof WorkforceAllocationActionRequestSchema
+>;
+export type IWorkforceAllocationManageResponseDto = z.infer<
+  typeof WorkforceAllocationManageResponseSchema
 >;

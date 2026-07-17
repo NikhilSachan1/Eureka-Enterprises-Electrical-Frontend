@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { FormBase } from '@shared/base/form.base';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
@@ -19,12 +20,17 @@ import {
   IDialogActionHandler,
   IInputFieldsConfig,
 } from '@shared/types';
+import { toTitleCase } from '@shared/utility';
 import {
   IWorkforceAllocationActionFormDto,
   WORKFORCE_ALLOCATION_ACTION_FORM_CONFIG,
 } from '../../config/form/action-workforce-allocation.config';
 import { ProjectService } from '../../services/project.service';
-import { IWorkforceAllocationGetBaseResponseDto } from '../../types/project.dto';
+import {
+  IWorkforceAllocationGetBaseResponseDto,
+  IWorkforceAllocationManageFormDto,
+  IWorkforceAllocationManageResponseDto,
+} from '../../types/project.dto';
 import {
   applyProjectDateRangeFromOverview,
   applyProjectDateRangeFromSite,
@@ -151,17 +157,106 @@ export class ActionWorkforceAllocationComponent
   }
 
   protected override handleSubmit(): void {
-    this.logger.logUserAction('Workforce allocation action submitted', {
-      actionType: this.dialogActionType(),
-      formData: this.form.getData(),
-      selectedRecords: this.selectedRecord().map(row => ({
-        userId: row.userId,
-        allocationId: row.currentProject?.allocationId ?? null,
-      })),
-      selectedCount: this.selectedRecord().length,
-    });
-    this.isSubmitting.set(false);
-    this.confirmationDialogService.closeDialog();
+    const payload = this.prepareFormData();
+    const actionType = this.dialogActionType();
+    const loadingCopy = this.getLoadingCopy(actionType);
+
+    this.loadingService.show(loadingCopy);
+    this.form.disable();
+
+    this.projectService
+      .manageWorkforceAllocation(payload)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+          this.isSubmitting.set(false);
+          this.form.enable();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IWorkforceAllocationManageResponseDto) => {
+          this.showResponseNotification(
+            response,
+            this.selectedRecord()[0]?.employeeName ?? ''
+          );
+          this.onSuccess()?.();
+          this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          this.logger.error('Workforce allocation action failed', error);
+          this.notificationService.error(
+            'Could not update workforce allocation. Please try again.'
+          );
+        },
+      });
+  }
+
+  private prepareFormData(): IWorkforceAllocationManageFormDto {
+    const record = this.selectedRecord()[0];
+
+    return {
+      ...this.form.getData(),
+      actionType:
+        this.dialogActionType() as IWorkforceAllocationManageFormDto['actionType'],
+      userId: record.userId,
+      allocationId: record.currentProject?.allocationId ?? null,
+    };
+  }
+
+  private getLoadingCopy(actionType: EButtonActionType): {
+    title: string;
+    message: string;
+  } {
+    if (actionType === EButtonActionType.ALLOCATE) {
+      return {
+        title: 'Allocating employees',
+        message: 'Please wait while employees are being allocated.',
+      };
+    }
+
+    if (actionType === EButtonActionType.DEALLOCATE) {
+      return {
+        title: 'Deallocating employees',
+        message: 'Please wait while employees are being deallocated.',
+      };
+    }
+
+    return {
+      title: 'Transferring employee',
+      message: 'Please wait while the employee is being transferred.',
+    };
+  }
+
+  private showResponseNotification(
+    response: IWorkforceAllocationManageResponseDto,
+    employeeName: string
+  ): void {
+    const name = toTitleCase(employeeName || 'Employee');
+    const allocationResult = response.allocations?.results?.[0];
+    const deallocationResult = response.deallocations?.results?.[0];
+    const failedResult =
+      allocationResult?.success === false
+        ? allocationResult
+        : deallocationResult?.success === false
+          ? deallocationResult
+          : undefined;
+
+    if (failedResult) {
+      this.notificationService.warning(
+        `${name} — ${this.formatOperationFailureMessage(failedResult.message)}`,
+        response.message
+      );
+      return;
+    }
+
+    this.notificationService.success(response.message, 'Workforce allocation');
+  }
+
+  private formatOperationFailureMessage(message?: string | null): string {
+    const trimmed = (message ?? '').trim();
+    const cleaned = trimmed.replace(/^employee\b\s*/i, '').trim();
+    return cleaned.length > 0 ? cleaned : 'Operation failed.';
   }
 
   private loadTargetProjectDateRange(projectId: string): void {
