@@ -211,7 +211,7 @@ export function buildAssetTableRowActionsConfig(
     },
     {
       id: EButtonActionType.QR_CODE,
-      tooltip: 'View QR Code',
+      tooltip: 'Download QR Code',
       permission: [APP_PERMISSION.ASSET.VIEW_DETAIL],
     },
     {

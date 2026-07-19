@@ -1,5 +1,10 @@
-import { EButtonActionType, IDialogActionConfig } from '@shared/types';
+import {
+  EButtonActionType,
+  EButtonSeverity,
+  IDialogActionConfig,
+} from '@shared/types';
 import { DELETE_CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
+import { ICONS } from '@shared/constants';
 import { DeleteAssetComponent } from '@features/asset-management/components/delete-asset/delete-asset.component';
 import { ActionAssetComponent } from '@features/asset-management/components/action-asset/action-asset.component';
 import { QrCodeAssetComponent } from '@features/asset-management/components/qr-code-asset/qr-code-asset.component';
@@ -49,8 +54,20 @@ export const ASSET_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.QR_CODE]: {
     dynamicComponent: QrCodeAssetComponent,
     dialogConfig: {
-      header: 'Asset QR Code',
-      message: 'Scan this QR code to view the asset information.',
+      header: 'Download QR Code',
+      message:
+        'Scan this QR code for asset verification, or download it to print/share.',
+      icon: ICONS.COMMON.QRCODE,
+      acceptButtonProps: {
+        label: 'Download',
+        icon: ICONS.COMMON.DOWNLOAD,
+        severity: EButtonSeverity.PRIMARY,
+      },
+      rejectButtonProps: {
+        label: 'Close',
+        icon: ICONS.ACTIONS.TIMES,
+        severity: EButtonSeverity.SECONDARY,
+      },
     },
   },
 };

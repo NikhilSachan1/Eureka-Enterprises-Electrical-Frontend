@@ -1,5 +1,6 @@
 export interface IAppConfig {
   name: string;
+  logoPath: string;
   version: string;
   description: string;
   API_CONFIG: {

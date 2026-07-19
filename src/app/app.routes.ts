@@ -2,8 +2,21 @@ import { Routes } from '@angular/router';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 
 import { authGuard, GuestGuard } from '@core/guards';
+import { GetPublicAssetDetailResolver } from '@features/asset-management/resolvers/get-public-asset-detail.resolver';
 
 export const routes: Routes = [
+  // Public asset detail (QR scan) — `/public/asset/:assetMasterId`
+  {
+    path: `${ROUTE_BASE_PATHS.PUBLIC}/${ROUTE_BASE_PATHS.ASSET}/:assetMasterId`,
+    loadComponent: () =>
+      import(
+        './features/asset-management/components/public-asset-detail/public-asset-detail.component'
+      ).then(m => m.PublicAssetDetailComponent),
+    resolve: {
+      publicAsset: GetPublicAssetDetailResolver,
+    },
+  },
+
   // Public routes (no sidebar)
   {
     path: '',
