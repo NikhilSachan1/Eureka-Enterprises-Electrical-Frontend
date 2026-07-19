@@ -1,0 +1,77 @@
+/* stylelint-disable */
+.qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.qr__plate {
+  width: min(100%, 20rem);
+  padding: 0.85rem 0.85rem 0.9rem;
+  border-radius: 1.1rem;
+  border: 1px solid var(--border-light-color, #e2e8f0);
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 4%),
+    0 8px 24px rgb(15 23 42 / 5%);
+}
+
+.qr__code-wrap {
+  display: grid;
+  place-items: center;
+}
+
+:host ::ng-deep .qr__canvas {
+  display: flex;
+  justify-content: center;
+  line-height: 0;
+}
+
+.qr__divider {
+  width: 100%;
+  height: 1px;
+  margin: 0.7rem 0 0.55rem;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--primary-color, #006d5b) 35%, #e2e8f0) 50%,
+    transparent 100%
+  );
+}
+
+.qr__details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  text-align: center;
+}
+
+.qr__name {
+  margin: 0;
+  max-width: 100%;
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--text-primary-color, #1e293b);
+  word-break: break-word;
+}
+
+.qr__id {
+  margin: 0;
+  max-width: 100%;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--primary-color, #006d5b);
+  word-break: break-all;
+}
+
+.qr__empty {
+  margin: 0;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-secondary-color, #64748b);
+}

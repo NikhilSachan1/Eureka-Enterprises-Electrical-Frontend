@@ -26,7 +26,10 @@ import { LoggerService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { applyIconsToDropdownOptions } from '@shared/config/dropdown-option-icons.config';
-import { CONFIGURATION_TYPE_DATA } from '@shared/config/static-data.config';
+import {
+  CONFIGURATION_TYPE_DATA,
+  SITE_ALLOCATION_STATUS_DATA,
+} from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IOptionDropdown } from '@shared/types';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
@@ -171,6 +174,9 @@ export class AppConfigurationService {
   private readonly _vendorTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectSiteTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectStatus = signal<IOptionDropdown[]>([]);
+  private readonly _projectAllocationStatuses = signal<IOptionDropdown[]>(
+    SITE_ALLOCATION_STATUS_DATA
+  );
   private readonly _projectWorkTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectDocumentTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectList = signal<IOptionDropdown[]>([]);
@@ -245,6 +251,8 @@ export class AppConfigurationService {
   readonly vendorTypes = this._vendorTypes.asReadonly();
   readonly projectSiteTypes = this._projectSiteTypes.asReadonly();
   readonly projectStatus = this._projectStatus.asReadonly();
+  readonly projectAllocationStatuses =
+    this._projectAllocationStatuses.asReadonly();
   readonly projectWorkTypes = this._projectWorkTypes.asReadonly();
   readonly projectDocumentTypes = this._projectDocumentTypes.asReadonly();
   readonly projectList = this._projectList.asReadonly();
@@ -275,6 +283,10 @@ export class AppConfigurationService {
     [MODULE_NAMES.CONFIGURATION]: {
       [CONFIGURATION_KEYS.CONFIGURATION.CONFIGURATION_TYPE_DROPDOWN]:
         CONFIGURATION_TYPE_DATA,
+    },
+    [MODULE_NAMES.PROJECT]: {
+      [CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS]:
+        SITE_ALLOCATION_STATUS_DATA,
     },
   };
 
@@ -494,6 +506,10 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.PROJECT.PROJECT_STATUS,
         signal: this._projectStatus,
+      },
+      {
+        key: CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS,
+        signal: this._projectAllocationStatuses,
       },
       {
         key: CONFIGURATION_KEYS.PROJECT.PROJECT_WORK_TYPES,
@@ -884,6 +900,7 @@ export class AppConfigurationService {
     const excludedKeys = new Set<string>([
       CONFIGURATION_KEYS.COMMON.ROLE_LIST,
       CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
+      CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS,
       CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
       CONFIGURATION_KEYS.ASSET.ASSET_LIST,
       CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
@@ -1041,7 +1058,8 @@ export class AppConfigurationService {
             dropdown.key === CONFIGURATION_KEYS.COMPANY.COMPANY_LIST ||
             dropdown.key === CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST ||
             dropdown.key === CONFIGURATION_KEYS.VENDOR.VENDOR_LIST ||
-            dropdown.key === CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS
+            dropdown.key === CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS ||
+            dropdown.key === CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS
           ) {
             return;
           }

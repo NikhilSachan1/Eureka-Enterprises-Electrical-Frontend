@@ -10,6 +10,16 @@ export interface IProjectSiteDateRange {
   endDate?: string | null;
 }
 
+export function parseProjectDateOnly(
+  value: Date | string | null | undefined
+): Date | undefined {
+  if (value === null || value === undefined || value === '') {
+    return undefined;
+  }
+
+  return toDateOnly(value);
+}
+
 function toDateOnly(value: Date | string): Date | undefined {
   const date = value instanceof Date ? new Date(value) : new Date(value);
   if (Number.isNaN(date.getTime())) {

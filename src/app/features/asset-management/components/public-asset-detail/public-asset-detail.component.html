@@ -1,0 +1,142 @@
+<div class="page">
+  <header class="topbar">
+    <div
+      class="topbar__accent"
+      aria-hidden="true"
+    ></div>
+    <div class="topbar__inner shell">
+      <div class="brand">
+        <div class="brand__logo-wrap">
+          <img
+            [src]="logoPath"
+            [alt]="companyName"
+            class="brand__logo"
+            draggable="false"
+          />
+        </div>
+        <p class="brand__name">{{ companyName }}</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    @if (hasError()) {
+      <div class="state state--error shell">
+        <i [class]="errorIcon + ' state__icon'"></i>
+        <h2>Asset Not Found</h2>
+        <p>
+          This record is unavailable or the link is invalid. Please contact
+          {{ companyName }}.
+        </p>
+      </div>
+    } @else {
+      <div class="stack shell">
+        <article class="card card--hero">
+          <div class="hero__title-row">
+            <h1 class="hero__name">{{ assetName() }}</h1>
+            <span
+              class="hero__verified"
+              title="Verified Record"
+              aria-label="Verified Record"
+            >
+              <svg
+                class="hero__verified-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  fill="currentColor"
+                  d="M12 2.2 14.7 3l2.1 2.1 2.8.4.8 2.7 2.1 1.9-1 2.6.6 2.8-2.3 1.6-.6 2.8-2.8.5-1.7 2.3-2.7-.5L12 21.8l-2-1.6-2.7.5-1.7-2.3-2.8-.5-.6-2.8-2.3-1.6.6-2.8-1-2.6 2.1-1.9.8-2.7 2.8-.4L9.3 3z"
+                />
+                <path
+                  fill="none"
+                  stroke="#fff"
+                  stroke-width="2.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8.2 12.2 10.8 14.8 15.8 9.2"
+                />
+              </svg>
+            </span>
+          </div>
+          <p class="hero__code">{{ assetCode() }}</p>
+        </article>
+
+        @for (section of sections(); track section.title) {
+          <article class="card">
+            <header class="section-head">
+              <i [class]="section.icon"></i>
+              <h2>{{ section.title }}</h2>
+            </header>
+
+            <dl class="section-fields">
+              @for (row of section.rows; track row.label) {
+                <div class="section-fields__row">
+                  <dt>{{ row.label }}</dt>
+                  <dd>{{ row.value }}</dd>
+                </div>
+              }
+            </dl>
+          </article>
+        }
+
+        @if (attachmentKeys().length > 0) {
+          <article class="card card--attachments">
+            <button
+              type="button"
+              class="attachments"
+              (click)="openAttachments()"
+            >
+              <span
+                class="attachments__icon-wrap"
+                aria-hidden="true"
+              >
+                <i [class]="paperclipIcon"></i>
+              </span>
+              <span class="attachments__body">
+                <span class="attachments__title">Attachments</span>
+                <span class="attachments__meta">
+                  {{ attachmentKeys().length }}
+                  {{ attachmentKeys().length === 1 ? 'file available' : 'files available' }}
+                </span>
+              </span>
+              <span class="attachments__action">
+                View
+                <i [class]="chevronIcon"></i>
+              </span>
+            </button>
+          </article>
+        }
+      </div>
+    }
+  </main>
+
+  <footer class="footer">
+    <div
+      class="footer__accent"
+      aria-hidden="true"
+    ></div>
+    <div class="footer__inner shell">
+      <div class="brand brand--footer">
+        <img
+          [src]="logoPath"
+          [alt]=""
+          class="brand__logo brand__logo--sm"
+          draggable="false"
+        />
+        <p class="brand__name brand__name--sm">{{ companyName }}</p>
+      </div>
+      <div
+        class="footer__divider"
+        aria-hidden="true"
+      ></div>
+      <p class="footer__copy">© {{ year }} {{ companyName }}. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <div
+    class="watermark"
+    [style.background-image]="watermarkBg"
+    aria-hidden="true"
+  ></div>
+</div>

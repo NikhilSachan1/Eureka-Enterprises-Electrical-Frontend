@@ -24,10 +24,16 @@
       }
 
       <!-- Header Section -->
-      <div class="text-center mt-4">
-        <span class="font-bold text-xl block mb-1">{{ settings?.header }}</span>
-        <p class="text-sm mb-4">{{ settings?.message }}</p>
-      </div>
+      @if (settings?.header || settings?.message) {
+        <div class="text-center mt-4">
+          @if (settings?.header) {
+            <span class="font-bold text-xl block mb-1">{{ settings.header }}</span>
+          }
+          @if (settings?.message) {
+            <p class="text-sm mb-4">{{ settings.message }}</p>
+          }
+        </div>
+      }
 
       <!-- Content Section -->
       <div class="w-full mt-3">

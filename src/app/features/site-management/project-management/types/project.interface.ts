@@ -2,6 +2,8 @@ import { IProjectGetBaseResponseDto } from './project.dto';
 
 export interface IProjectStakeholders {
   company: IProjectGetBaseResponseDto['company'];
+  projectManager: string | null;
+  projectManagerContact: string | null;
   siteContractors: IProjectGetBaseResponseDto['siteContractors'];
   vendors: IProjectGetBaseResponseDto['vendors'];
   allocatedEmployees: IProjectGetBaseResponseDto['allocatedEmployees'];
@@ -13,8 +15,6 @@ export interface IProject
   projectLocation: string | null;
   projectStatus: string;
   timeLine: Date[];
-  projectManager: string;
-  projectManagerContact: string | null;
   stakeholders: IProjectStakeholders;
   originalRawData: IProjectGetBaseResponseDto;
 }

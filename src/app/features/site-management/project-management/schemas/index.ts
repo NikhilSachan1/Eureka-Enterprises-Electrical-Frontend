@@ -29,12 +29,18 @@ export {
   ProjectChangeStatusResponseSchema,
 } from './change-status-project.schema';
 export {
-  AllocateDeallocateEmployeeRequestSchema,
-  AllocateDeallocateEmployeeResponseSchema,
-} from './allocate-deallocate-employee.schema';
+  WorkforceAllocationActionRequestSchema,
+  WorkforceAllocationManageResponseSchema,
+} from './action-workforce-allocation.schema';
 export { ProjectOverviewGetResponseSchema } from './get-project-overview.schema';
 export {
   SiteAllocationGetRequestSchema,
   SiteAllocationGetBaseResponseSchema,
   SiteAllocationGetResponseSchema,
 } from './get-site-allocation.schema';
+export {
+  WorkforceAllocationGetRequestSchema,
+  WorkforceAllocationGetBaseResponseSchema,
+  WorkforceAllocationGetStatsSchema,
+  WorkforceAllocationGetResponseSchema,
+} from './get-workforce-allocation.schema';

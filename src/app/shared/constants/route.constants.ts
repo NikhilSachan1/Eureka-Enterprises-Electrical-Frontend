@@ -4,6 +4,8 @@
 
 export const ROUTE_BASE_PATHS = {
   STARTUP_ERROR: 'startup-error',
+  /** Public pages (no auth) — e.g. `/public/asset/:id` */
+  PUBLIC: 'public',
   AUTH: 'auth',
   EMPLOYEE: 'employee',
   ATTENDANCE: 'attendance',

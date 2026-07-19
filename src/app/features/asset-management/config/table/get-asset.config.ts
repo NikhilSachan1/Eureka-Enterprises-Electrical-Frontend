@@ -210,6 +210,11 @@ export function buildAssetTableRowActionsConfig(
       permission: [APP_PERMISSION.ASSET.VIEW_DETAIL],
     },
     {
+      id: EButtonActionType.QR_CODE,
+      tooltip: 'Download QR Code',
+      permission: [APP_PERMISSION.ASSET.VIEW_DETAIL],
+    },
+    {
       id: EButtonActionType.EVENT_HISTORY,
       tooltip: 'View Event History',
       permission: [APP_PERMISSION.ASSET.EVENT_HISTORY],

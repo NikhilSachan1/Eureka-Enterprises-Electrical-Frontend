@@ -731,6 +731,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
       CONFIGURATION_KEYS.COMMON.ROLE_LIST,
       CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
+      CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS,
     ]);
 
     if (nonConfigurationDynamicKeys.has(dropdownName)) {

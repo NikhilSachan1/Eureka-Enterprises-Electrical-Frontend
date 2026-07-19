@@ -12,6 +12,7 @@ import {
 import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
+  AvatarService,
   ConfirmationDialogService,
   DrawerService,
   RouterNavigationService,
@@ -26,6 +27,7 @@ import {
   IDataViewDetailsWithEntity,
   IEnhancedTable,
   IMetricGroup,
+  IOptionDropdown,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -60,6 +62,10 @@ import {
 } from '@shared/utility';
 import { SEARCH_FILTER_PROJECT_FORM_CONFIG } from '../../config/form/search-filter-project.config';
 import { ProjectSiteTypeChipsComponent } from '../project-site-type-chips/project-site-type-chips.component';
+import {
+  mapProjectSiteTypeDisplays,
+  projectSiteTypeTagVariant,
+} from '../../utility/project-site-type.util';
 import { EVendorType } from '@features/site-management/vendor-management/types/vendor.enum';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -93,8 +99,42 @@ export class GetProjectComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly avatarService = inject(AvatarService);
 
   protected readonly APP_CONFIG = APP_CONFIG;
+  protected readonly ICONS = ICONS;
+
+  protected resolveProjectSiteTypeTags(
+    siteTypes: readonly string[] | undefined
+  ): (IOptionDropdown & { variant: string })[] {
+    return mapProjectSiteTypeDisplays(
+      siteTypes,
+      this.appConfigurationService.projectSiteTypes()
+    ).map(item => ({
+      ...item,
+      variant: projectSiteTypeTagVariant(String(item.value)),
+    }));
+  }
+
+  protected projectNameLeadBackground(
+    projectName: string | null | undefined
+  ): string {
+    const seed = projectName?.trim() ?? '';
+    return `#${this.avatarService.getConsistentColor(seed)}`;
+  }
+
+  protected stakeholderInitials(value: string | null | undefined): string {
+    if (!value?.trim()) {
+      return '?';
+    }
+
+    return value
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(part => part[0]?.toUpperCase() ?? '')
+      .join('');
+  }
 
   private readonly projectSiteTypesDetailTpl = viewChild<TemplateRef<unknown>>(
     'projectSiteTypesDetail'
@@ -177,10 +217,10 @@ export class GetProjectComponent implements OnInit {
             )
           )
         ),
-        projectManager: record.managerName,
-        projectManagerContact: record.managerContact,
         stakeholders: {
           company: record.company,
+          projectManager: record.managerName?.trim() || null,
+          projectManagerContact: record.managerContact ?? null,
           siteContractors: record.siteContractors,
           vendors: record.vendors,
           allocatedEmployees: record.allocatedEmployees,

@@ -87,6 +87,8 @@ export const API_ROUTES = {
     DELETE: 'assets',
     EDIT: (assetId: string) => `assets/${assetId}`,
     GET_ASSET_BY_ID: (assetId: string) => `assets/${assetId}`,
+    GET_PUBLIC_ASSET_BY_ID: (assetMasterId: string) =>
+      `assets/public/${assetMasterId}`,
     ACTION: 'assets/action',
     GET_ASSET_EVENT_HISTORY: (assetId: string) => `asset-events/${assetId}`,
   },
@@ -224,6 +226,7 @@ export const API_ROUTES = {
       CHANGE_STATUS: (projectId: string) => `sites/${projectId}/status`,
       ALLOCATE_DEALLOCATE_EMPLOYEES: 'site-allocations/manage',
       ALLOCATION_HISTORY: 'site-allocations',
+      WORKFORCE_ALLOCATION_EMPLOYEES: 'site-allocations/employees',
     },
     DSR: {
       ADD: 'daily-status-reports',
@@ -416,4 +419,5 @@ export const SKIP_AUTH_ENDPOINTS = [
   API_ROUTES.AUTH.FORGOT_PASSWORD,
   API_ROUTES.AUTH.RESET_PASSWORD,
   API_ROUTES.AUTH.REFRESH_TOKEN,
+  'assets/public',
 ] as const;

@@ -1,1 +1,23 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<app-metrics-card [metricGroups]="metricGroups()" />
+
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="dataTable.dt()"
+    [searchFilterConfig]="searchFilterConfig"
+  />
+</div>
+
+<app-data-table
+  #dataTable
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [rowActions]="table.rowActions()"
+  [bulkActionButtons]="table.bulkActions()"
+  (rowActionClick)="handleTableActionClick($any($event))"
+  (bulkActionClick)="handleTableActionClick($any($event), true)"
+  (filterData)="onTableStateChange($event)"
+/>

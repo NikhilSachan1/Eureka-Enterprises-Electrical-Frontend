@@ -29,3 +29,20 @@ export function mapProjectSiteTypeDisplays(
     );
   });
 }
+
+export function projectSiteTypeTagVariant(value: string): string {
+  const key = value
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, '');
+
+  if (key === 'electrical') {
+    return 'electrical';
+  }
+
+  if (key === 'civil') {
+    return 'civil';
+  }
+
+  return 'default';
+}

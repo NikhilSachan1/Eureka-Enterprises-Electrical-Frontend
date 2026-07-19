@@ -4,6 +4,7 @@ import packageJson from '../../../../package.json';
 export const APP_CONFIG = {
   // Application Information
   name: 'Eureka Enterprises',
+  logoPath: '/assets/logo.png',
   version: packageJson.version,
   description: 'Electrical Management System',
 

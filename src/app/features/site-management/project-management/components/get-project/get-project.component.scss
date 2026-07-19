@@ -140,6 +140,96 @@ $muted: var(--text-secondary-color);
   opacity: 0.95;
 }
 
+.project-name-cell {
+  min-width: 0;
+}
+
+.project-name-cell__primary {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.project-name-cell__lead {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  color: #fff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.12);
+
+  i {
+    font-size: 1rem;
+    line-height: 1;
+  }
+}
+
+.project-name-cell__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.project-name-cell__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.project-name-cell__title {
+  font-weight: 500;
+  color: #{$text};
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.project-name-cell__subtitle {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: #{$muted};
+  overflow-wrap: anywhere;
+}
+
+.project-site-type-tag {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0.0625rem 0.3125rem;
+  border-radius: 0.25rem;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  white-space: nowrap;
+
+  &[data-type="electrical"] {
+    color: color-mix(in srgb, #f59e0b 55%, #{$text});
+    background: color-mix(in srgb, #f59e0b 12%, #{$paper});
+    border-color: color-mix(in srgb, #f59e0b 22%, #{$border});
+  }
+
+  &[data-type="civil"] {
+    color: color-mix(in srgb, #2563eb 55%, #{$text});
+    background: color-mix(in srgb, #2563eb 12%, #{$paper});
+    border-color: color-mix(in srgb, #2563eb 22%, #{$border});
+  }
+
+  &[data-type="default"] {
+    color: color-mix(in srgb, #{$muted} 70%, #{$text});
+    background: color-mix(in srgb, #{$muted} 10%, #{$paper});
+    border-color: color-mix(in srgb, #{$muted} 20%, #{$border});
+  }
+}
+
 /* Work types: Prime p-chip default padding is too tall for dense tables */
 .project-work-types-chips {
   ::ng-deep .p-chip {
@@ -156,72 +246,145 @@ $muted: var(--text-secondary-color);
   }
 }
 
-/* Stakeholders cell: company, contractors, team count → popover */
-.project-stakeholders-cell {
+/* Stakeholders cell — compact 2×2 tile card */
+.project-stakeholders-card {
   min-width: 0;
-  max-width: 15rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
+  max-width: min(100%, 18.5rem);
 }
 
-.project-stakeholders-cell__block {
+.project-stakeholders-card__tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.stakeholder-tile {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0.45rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #{$border};
+  background: #{$paper};
+  text-align: left;
+}
+
+.stakeholder-tile--interactive {
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+}
+
+.stakeholder-tile--empty {
+  opacity: 0.72;
+}
+
+.stakeholder-tile__icon-wrap {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+.stakeholder-tile--company .stakeholder-tile__icon-wrap {
+  color: #0d9488;
+  background: color-mix(in srgb, #0d9488 14%, #{$paper});
+}
+
+.stakeholder-tile--manager .stakeholder-tile__icon-wrap {
+  color: #d97706;
+  background: color-mix(in srgb, #d97706 14%, #{$paper});
+}
+
+.stakeholder-tile--contractor .stakeholder-tile__icon-wrap {
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 12%, #{$paper});
+}
+
+.stakeholder-tile--vendor .stakeholder-tile__icon-wrap {
+  color: #6366f1;
+  background: color-mix(in srgb, #6366f1 12%, #{$paper});
+}
+
+.stakeholder-tile--team .stakeholder-tile__icon-wrap {
+  color: #059669;
+  background: color-mix(in srgb, #059669 12%, #{$paper});
+}
+
+.stakeholder-tile--wide {
+  grid-column: 1 / -1;
+}
+
+.stakeholder-tile__content {
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
 }
 
-.project-stakeholders-cell__label {
+.stakeholder-tile__title {
   font-size: 0.5625rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #{$muted};
   line-height: 1.2;
 }
 
-.project-stakeholders-cell__dash {
-  font-size: 0.75rem;
-  color: #{$muted};
-  font-weight: 500;
-}
-
-.project-stakeholders-cell__link-btn {
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: none;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  font-size: 0.75rem;
+.stakeholder-tile__value {
+  font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--primary-color);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  text-decoration-color: color-mix(in srgb, var(--primary-color) 45%, transparent);
-
-  &:hover {
-    color: color-mix(in srgb, var(--primary-color) 85%, #{$text});
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-    border-radius: 2px;
-  }
+  color: #{$text};
+  line-height: 1.3;
+  word-break: break-word;
 }
 
-.project-stakeholders-cell__link-btn--clamp {
+.stakeholder-tile--interactive .stakeholder-tile__value {
+  color: color-mix(in srgb, var(--primary-color) 78%, #{$text});
+}
+
+.stakeholder-tile--company.stakeholder-tile--interactive .stakeholder-tile__value,
+.stakeholder-tile--manager.stakeholder-tile--interactive .stakeholder-tile__value {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  word-break: break-word;
 }
 
-/* Stakeholders popovers — shared minimal panel */
+.stakeholder-tile--empty .stakeholder-tile__value {
+  color: #{$muted};
+  font-weight: 500;
+}
+
+.stakeholder-tile__count {
+  display: inline-block;
+  margin-right: 0.2rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #{$text};
+}
+
+/* Stakeholders popovers */
 :host ::ng-deep .p-popover.project-stakeholders-popover-panel {
   max-width: min(20rem, calc(100vw - 2rem));
   border-radius: 6px;
@@ -248,8 +411,52 @@ $muted: var(--text-secondary-color);
 }
 
 .project-stakeholders-popover__head {
-  padding: 0.45rem 0.65rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.55rem 0.7rem;
   border-bottom: 1px solid #{$border};
+}
+
+.project-stakeholders-popover__head-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.project-stakeholders-popover__head--company .project-stakeholders-popover__head-icon {
+  color: #0d9488;
+  background: color-mix(in srgb, #0d9488 14%, #{$paper});
+}
+
+.project-stakeholders-popover__head--manager .project-stakeholders-popover__head-icon {
+  color: #d97706;
+  background: color-mix(in srgb, #d97706 14%, #{$paper});
+}
+
+.project-stakeholders-popover__head--contractor .project-stakeholders-popover__head-icon {
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 12%, #{$paper});
+}
+
+.project-stakeholders-popover__head--vendor .project-stakeholders-popover__head-icon {
+  color: #6366f1;
+  background: color-mix(in srgb, #6366f1 12%, #{$paper});
+}
+
+.project-stakeholders-popover__head--team .project-stakeholders-popover__head-icon {
+  color: #059669;
+  background: color-mix(in srgb, #059669 12%, #{$paper});
+}
+
+.project-stakeholders-popover__head-text {
+  min-width: 0;
+  flex: 1;
 }
 
 .project-stakeholders-popover__head-title {
@@ -311,6 +518,9 @@ $muted: var(--text-secondary-color);
   color: #{$muted};
   line-height: 1.4;
   word-break: break-word;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .project-stakeholders-popover__list {
@@ -320,12 +530,66 @@ $muted: var(--text-secondary-color);
 }
 
 .project-stakeholders-popover__row {
-  padding: 0.35rem 0.65rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.45rem 0.7rem;
   border-bottom: 1px solid color-mix(in srgb, #{$border} 70%, transparent);
 
   &:last-child {
     border-bottom: none;
   }
+}
+
+.project-stakeholders-popover__row-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.project-stakeholders-popover__avatar {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #{$text};
+  background: color-mix(in srgb, #{$muted} 18%, #{$paper});
+  border: 1px solid #{$border};
+}
+
+.project-stakeholders-popover__avatar--company {
+  color: #0d9488;
+  background: color-mix(in srgb, #0d9488 14%, #{$paper});
+  border-color: color-mix(in srgb, #0d9488 28%, #{$border});
+}
+
+.project-stakeholders-popover__avatar--manager {
+  color: #d97706;
+  background: color-mix(in srgb, #d97706 14%, #{$paper});
+  border-color: color-mix(in srgb, #d97706 28%, #{$border});
+}
+
+.project-stakeholders-popover__avatar--contractor {
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 12%, #{$paper});
+  border-color: color-mix(in srgb, var(--primary-color) 24%, #{$border});
+}
+
+.project-stakeholders-popover__avatar--vendor {
+  color: #6366f1;
+  background: color-mix(in srgb, #6366f1 12%, #{$paper});
+  border-color: color-mix(in srgb, #6366f1 24%, #{$border});
+}
+
+.project-stakeholders-popover__avatar--team {
+  color: #059669;
+  background: color-mix(in srgb, #059669 12%, #{$paper});
+  border-color: color-mix(in srgb, #059669 24%, #{$border});
 }
 
 .project-stakeholders-popover__name {

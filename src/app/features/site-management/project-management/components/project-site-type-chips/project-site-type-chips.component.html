@@ -1,12 +1,12 @@
-<div class="project-site-type-chips">
+<div
+  class="project-site-type-chips flex flex-wrap gap-1 max-w-[16rem] min-w-0"
+  title="Project type"
+>
   @if (displays().length === 0) {
-    <span class="project-site-type-chips__empty">—</span>
+    <span class="text-content-secondary text-sm font-medium">—</span>
   } @else {
     @for (item of displays(); track item.value) {
-      <app-chip
-        [label]="item.label"
-        [icon]="item.icon"
-      />
+      <app-chip [label]="item.label" />
     }
   }
 </div>

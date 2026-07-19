@@ -1,0 +1,43 @@
+@if (qrData()) {
+  <div class="qr">
+    <div
+      #qrPlate
+      class="qr__plate"
+    >
+      <div class="qr__code-wrap">
+        <qrcode
+          [qrdata]="qrData()"
+          [allowEmptyString]="true"
+          [elementType]="'canvas'"
+          [errorCorrectionLevel]="'H'"
+          [margin]="4"
+          [scale]="1"
+          [width]="qrWidth"
+          [colorDark]="'#000000ff'"
+          [colorLight]="'#ffffffff'"
+          [imageSrc]="logoPath"
+          [imageHeight]="65"
+          [imageWidth]="65"
+          [alt]="companyName + ' asset QR code'"
+          [ariaLabel]="'QR code for ' + assetName()"
+          [title]="assetName()"
+          cssClass="qr__canvas"
+        />
+      </div>
+
+      <div
+        class="qr__divider"
+        aria-hidden="true"
+      ></div>
+
+      <div class="qr__details">
+        <p class="qr__name">{{ assetName() }}</p>
+        @if (assetCode()) {
+          <p class="qr__id">{{ assetCode() }}</p>
+        }
+      </div>
+    </div>
+  </div>
+} @else {
+  <p class="qr__empty">Unable to generate QR code for this asset.</p>
+}

@@ -220,6 +220,36 @@ export class AssetService {
       );
   }
 
+  getPublicAssetById(
+    assetMasterId: string
+  ): Observable<IAssetDetailGetResponseDto> {
+    this.logger.logUserAction('Get Public Asset Detail Request');
+
+    return this.apiService
+      .getValidated(API_ROUTES.ASSET.GET_PUBLIC_ASSET_BY_ID(assetMasterId), {
+        response: AssetDetailGetResponseSchema,
+      })
+      .pipe(
+        tap((response: IAssetDetailGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get Public Asset Detail Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Public Asset Detail Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get Public Asset Detail Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
   getAssetEventHistory(
     params: IAssetEventHistoryGetFormDto,
     assetId: string

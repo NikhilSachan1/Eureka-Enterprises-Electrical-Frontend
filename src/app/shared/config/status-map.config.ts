@@ -62,6 +62,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   available: { icon: ICONS.STATUS.AVAILABLE, severity: 'success' },
   assigned: { icon: ICONS.STATUS.ASSIGNED, severity: 'info' },
   allocated: { icon: ICONS.STATUS.ASSIGNED, severity: 'info' },
+  free: { icon: ICONS.STATUS.AVAILABLE, severity: 'success' },
   /** Unlock request (warning). Matches action id `unlockRequest` → key `unlockrequest`. */
   unlockrequest: {
     icon: ICONS.SECURITY.LOCK_OPEN,
@@ -276,7 +277,9 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   view: { icon: ICONS.ACTIONS.EYE, severity: 'info' },
   edit: { icon: ICONS.ACTIONS.EDIT, severity: 'warning' },
   delete: { icon: ICONS.ACTIONS.TRASH, severity: 'danger' },
-  deallocate: { icon: ICONS.ACTIONS.TRASH, severity: 'danger' },
+  allocate: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
+  transfer: { icon: ICONS.COMMON.ARROW_RIGHT_LEFT, severity: 'info' },
+  deallocate: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   sendpasswordlink: { icon: ICONS.ACTIONS.SEND, severity: 'warning' },
   sendemail: { icon: ICONS.COMMON.EMAIL, severity: 'info' },
   changestatus: { icon: ICONS.COMMON.SYNC, severity: 'warning' },
@@ -286,6 +289,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   setpermissions: { icon: ICONS.SECURITY.SHIELD, severity: 'info' },
   clearselection: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   download: { icon: ICONS.COMMON.DOWNLOAD, severity: 'success' },
+  qrcode: { icon: ICONS.COMMON.QRCODE, severity: 'info' },
   filter: { icon: ICONS.COMMON.SEARCH, severity: 'success' },
   workspace: { icon: ICONS.COMMON.CHART, severity: 'info' },
 
@@ -360,8 +364,4 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   // ═══════════════════════════════════════════════════════════════════════════
   // PROJECT ALLOCATION STATUS
   // ═══════════════════════════════════════════════════════════════════════════
-  allocateDeallocateEmployee: {
-    icon: ICONS.ACTIONS.CHECK_CIRCLE,
-    severity: 'success',
-  },
 };
