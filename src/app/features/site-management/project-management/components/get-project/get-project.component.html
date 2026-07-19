@@ -29,19 +29,21 @@
         </div>
       }
       <div class="project-name-cell__text">
-        <div class="project-name-cell__title-row">
-          <span class="project-name-cell__title">{{ r.projectName }}</span>
-          @for (tag of siteTypeTags; track tag.value) {
-            <span
-              class="project-site-type-tag"
-              [attr.data-type]="tag.variant"
-            >
-              {{ tag.label }}
-            </span>
-          }
-        </div>
+        <span class="project-name-cell__title">{{ r.projectName }}</span>
         @if (r.projectLocation) {
           <span class="project-name-cell__subtitle">{{ r.projectLocation }}</span>
+        }
+        @if (siteTypeTags.length) {
+          <div class="project-name-cell__tags">
+            @for (tag of siteTypeTags; track tag.value) {
+              <span
+                class="project-site-type-tag"
+                [attr.data-type]="tag.variant"
+              >
+                {{ tag.label }}
+              </span>
+            }
+          </div>
         }
       </div>
     </div>
