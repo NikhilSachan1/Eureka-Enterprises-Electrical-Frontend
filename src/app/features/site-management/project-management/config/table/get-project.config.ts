@@ -36,6 +36,7 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     field: 'projectName',
     header: 'Project Name',
     customTemplateKey: 'projectNameCell',
+    columnStyleClass: 'cell-allow-wrap project-name-col',
     showSort: false,
   },
   {
