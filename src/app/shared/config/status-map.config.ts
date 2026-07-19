@@ -289,6 +289,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   setpermissions: { icon: ICONS.SECURITY.SHIELD, severity: 'info' },
   clearselection: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   download: { icon: ICONS.COMMON.DOWNLOAD, severity: 'success' },
+  qrcode: { icon: ICONS.COMMON.QRCODE, severity: 'info' },
   filter: { icon: ICONS.COMMON.SEARCH, severity: 'success' },
   workspace: { icon: ICONS.COMMON.CHART, severity: 'info' },
 

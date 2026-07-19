@@ -2,6 +2,7 @@ import { EButtonActionType, IDialogActionConfig } from '@shared/types';
 import { DELETE_CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
 import { DeleteAssetComponent } from '@features/asset-management/components/delete-asset/delete-asset.component';
 import { ActionAssetComponent } from '@features/asset-management/components/action-asset/action-asset.component';
+import { QrCodeAssetComponent } from '@features/asset-management/components/qr-code-asset/qr-code-asset.component';
 
 export const ASSET_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.DELETE]: {
@@ -43,6 +44,13 @@ export const ASSET_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
     dialogConfig: {
       header: 'Deallocate asset',
       message: 'Remove this asset from the current assignee and free it up?',
+    },
+  },
+  [EButtonActionType.QR_CODE]: {
+    dynamicComponent: QrCodeAssetComponent,
+    dialogConfig: {
+      header: 'Asset QR Code',
+      message: 'Scan this QR code to view the asset information.',
     },
   },
 };

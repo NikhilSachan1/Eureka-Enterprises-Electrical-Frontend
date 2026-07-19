@@ -309,6 +309,18 @@ export class GetAssetComponent implements OnInit {
       this.navigateToEventHistory(selectedFirstRow.id);
       return;
     }
+
+    if (actionType === EButtonActionType.QR_CODE) {
+      this.confirmationDialogService.showConfirmationDialog(
+        actionType,
+        ASSET_ACTION_CONFIG_MAP[actionType],
+        null,
+        isBulk,
+        false,
+        { selectedRecord: selectedRows }
+      );
+      return;
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,

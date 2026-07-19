@@ -69,6 +69,8 @@ export const ICONS = {
     CLOCK: 'pi pi-clock',
     CALENDAR_PLUS: 'pi pi-calendar-plus',
     CALENDAR_CLOCK: 'pi pi-calendar-clock',
+    PRINT: 'pi pi-print',
+    QRCODE: 'pi pi-qrcode',
     /** Quick action / energy (e.g. salary bolt). */
     BOLT: 'pi pi-bolt',
   },

@@ -93,4 +93,5 @@ export enum EButtonActionType {
   CREATE_FOLDER = 'createFolder',
   MOVE = 'move',
   WORKFLOW_JOURNEY = 'workflowJourney',
+  QR_CODE = 'qrCode',
 }
