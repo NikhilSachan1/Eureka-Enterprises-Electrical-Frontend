@@ -55,6 +55,13 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'documentStatus',
+    header: 'Document Status',
+    customTemplateKey: 'projectDocumentStatus',
+    columnStyleClass: 'project-doc-status-col',
+    showSort: false,
+  },
+  {
     field: 'timeLine',
     header: 'Time Line',
     bodyTemplate: EDataType.RANGE,
@@ -64,7 +71,7 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
   {
     field: 'workTypes',
-    header: 'Work types',
+    header: 'Work Type',
     customTemplateKey: 'projectWorkTypes',
     showSort: false,
   },

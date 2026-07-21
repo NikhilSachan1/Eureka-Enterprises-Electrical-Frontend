@@ -62,6 +62,7 @@ import {
 } from '@shared/utility';
 import { SEARCH_FILTER_PROJECT_FORM_CONFIG } from '../../config/form/search-filter-project.config';
 import { ProjectSiteTypeChipsComponent } from '../project-site-type-chips/project-site-type-chips.component';
+import { ProjectDocumentStatusComponent } from '../project-document-status/project-document-status.component';
 import {
   mapProjectSiteTypeDisplays,
   projectSiteTypeTagVariant,
@@ -80,6 +81,7 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
     DataTableComponent,
     PopoverModule,
     ProjectSiteTypeChipsComponent,
+    ProjectDocumentStatusComponent,
   ],
   templateUrl: './get-project.component.html',
   styleUrl: './get-project.component.scss',
@@ -225,8 +227,19 @@ export class GetProjectComponent implements OnInit {
           vendors: record.vendors,
           allocatedEmployees: record.allocatedEmployees,
         },
+        documentStatus: {
+          missingDocsCount: 2,
+          toBeInvoicedAmount: 52500,
+          pendingApprovalsCount: 3,
+        },
         originalRawData: record,
       } satisfies IProject;
+    });
+  }
+
+  protected onDocumentStatusViewDetails(project: IProject): void {
+    this.logger.logUserAction('Document status view details clicked', {
+      projectId: project.id,
     });
   }
 
