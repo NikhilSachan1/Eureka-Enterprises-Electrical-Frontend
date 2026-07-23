@@ -128,6 +128,16 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
       },
     ];
 
+    if (record.isSystemGenerated && record.items?.length) {
+      entryData.push({
+        label: 'Line items',
+        value: record.items,
+        customTemplateKey: 'jmcLineItems',
+        detailTemplateFullRow: true,
+        detailTemplatePlain: true,
+      });
+    }
+
     entryData.push({
       label: 'Attachment(s)',
       value: record.fileKey ? [record.fileKey] : [],
