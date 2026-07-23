@@ -24,4 +24,5 @@ export enum EDataType {
   PROGRESS = 'progress',
   KNOB = 'knob',
   CHIP_LIST = 'chipList', // Array of strings displayed as tags/chips
+  LINE_ITEMS = 'lineItems',
 }

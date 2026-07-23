@@ -15,9 +15,13 @@ import {
   DEFAULT_TEXT_INPUT_FIELD_CONFIG,
 } from '@shared/config';
 import {
+  EDataType,
   IFormInputFieldsConfig,
   IInputFieldsConfig,
-  EDataType,
+  ILineItemsColumnFieldsConfig,
+  ILineItemsTableColumn,
+  ILineItemsTableConfig,
+  IResolvedLineItemsTableConfig,
 } from '@shared/types';
 import { deepMerge } from '@shared/utility';
 
@@ -76,6 +80,73 @@ export class InputFieldConfigService {
     return configs;
   }
 
+  resolveLineItemsTableConfig<T extends Record<string, unknown>>(
+    config: ILineItemsTableConfig<T>
+  ): IResolvedLineItemsTableConfig {
+    return {
+      title: config.title ?? '',
+      minRows: config.minRows ?? 0,
+      addButton: config.addButton ?? {},
+      removeButton: config.removeButton ?? {},
+      columns: this.initializeLineItemsColumnConfigs(config.fields),
+    };
+  }
+
+  buildLineItemCellFieldConfig(
+    column: ILineItemsTableColumn,
+    rowIndex: number
+  ): IInputFieldsConfig {
+    return {
+      ...column.fieldConfig,
+      id: `lineItem-${column.fieldName}-${rowIndex}`,
+      fieldName: column.fieldName,
+    } as IInputFieldsConfig;
+  }
+
+  initializeLineItemsColumnConfigs<T extends Record<string, unknown>>(
+    fields: ILineItemsColumnFieldsConfig<T>
+  ): ILineItemsTableColumn[] {
+    return Object.entries(fields).map(([key, fieldConfig]) => {
+      const fieldName = fieldConfig.fieldName ?? key;
+      const headerLabel = fieldConfig.label ?? key;
+      const fieldType = fieldConfig.fieldType ?? EDataType.TEXT;
+      const { label, ...cellFieldConfig } = fieldConfig;
+      void label;
+      const resolvedFieldConfig = this.getLineItemCellFieldConfig(fieldType, {
+        ...cellFieldConfig,
+        fieldName,
+      });
+
+      return {
+        fieldName,
+        headerLabel,
+        fieldConfig: resolvedFieldConfig,
+        defaultValue:
+          fieldConfig.defaultValue ?? this.getLineItemDefaultValue(fieldType),
+      };
+    });
+  }
+
+  private getLineItemCellFieldConfig(
+    fieldType: EDataType,
+    options?: Partial<IInputFieldsConfig>
+  ): Partial<IInputFieldsConfig> {
+    return this.getInputFieldConfig(fieldType, options);
+  }
+
+  private getLineItemDefaultValue(fieldType: EDataType): unknown {
+    switch (fieldType) {
+      case EDataType.NUMBER:
+      case EDataType.SELECT:
+      case EDataType.AUTOCOMPLETE:
+        return null;
+      case EDataType.MULTI_SELECT:
+        return [];
+      default:
+        return '';
+    }
+  }
+
   private getDefaultConfigByFieldType(
     fieldType: EDataType
   ): Partial<IInputFieldsConfig> {
@@ -104,6 +175,8 @@ export class InputFieldConfigService {
         return this.defaultIndividualNumberInputFieldConfig;
       case EDataType.TEXT:
         return this.defaultTextInputFieldConfig;
+      case EDataType.LINE_ITEMS:
+        return this.defaultInputFieldConfig;
       default:
         return this.defaultInputFieldConfig;
     }

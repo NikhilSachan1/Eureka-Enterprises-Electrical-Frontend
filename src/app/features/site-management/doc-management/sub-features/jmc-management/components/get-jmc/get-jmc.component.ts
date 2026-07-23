@@ -211,6 +211,11 @@ export class GetJmcComponent implements OnInit {
   protected onHeaderButtonClick(actionName: string): void {
     if (actionName === 'addJmc') {
       this.openAddJmcDialog();
+      return;
+    }
+
+    if (actionName === 'generateJmc') {
+      this.openGenerateJmcDialog();
     }
   }
 
@@ -224,6 +229,24 @@ export class GetJmcComponent implements OnInit {
       {
         docContext: this.docRouteContext(),
         projectName: this.workspaceContext.activeProjectId(),
+        onSuccess: () => {
+          this.loadJmcList();
+        },
+      }
+    );
+  }
+
+  private openGenerateJmcDialog(): void {
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.GENERATE,
+      JMC_ACTION_CONFIG_MAP[EButtonActionType.GENERATE],
+      null,
+      false,
+      false,
+      {
+        docContext: this.docRouteContext(),
+        projectName: this.workspaceContext.activeProjectId(),
+        isSystemGenerated: true,
         onSuccess: () => {
           this.loadJmcList();
         },
@@ -276,7 +299,7 @@ export class GetJmcComponent implements OnInit {
       },
       {
         label: 'Attachment(s)',
-        value: [selectedRow.fileKey],
+        value: selectedRow.fileKey ? [selectedRow.fileKey] : [],
         type: EDataType.ATTACHMENTS,
       },
     ];
@@ -310,6 +333,24 @@ export class GetJmcComponent implements OnInit {
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {
+    const headerButtonConfig: IPageHeaderConfig['headerButtonConfig'] = [
+      {
+        ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
+        label: 'Add JMC',
+        actionName: 'addJmc',
+        permission: [APP_PERMISSION.JMC_DOC.ADD],
+      },
+    ];
+
+    if (this.docRouteContext() === EDocContext.SALES) {
+      headerButtonConfig.push({
+        ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
+        label: 'Generate JMC',
+        actionName: 'generateJmc',
+        permission: [APP_PERMISSION.JMC_DOC.GENERATE_JMC_DOC],
+      });
+    }
+
     return {
       title: '',
       subtitle: '',
@@ -317,14 +358,7 @@ export class GetJmcComponent implements OnInit {
       showGoBackButton: false,
       showSearch: true,
       searchPlaceholder: 'Search by JMC Number',
-      headerButtonConfig: [
-        {
-          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
-          label: 'Add JMC',
-          actionName: 'addJmc',
-          permission: [APP_PERMISSION.JMC_DOC.ADD],
-        },
-      ],
+      headerButtonConfig,
     };
   }
 }

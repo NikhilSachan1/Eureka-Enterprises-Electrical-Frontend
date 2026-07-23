@@ -233,6 +233,7 @@ export const APP_PERMISSION = {
     UNLOCK: 'financials.jmcs.unlock',
     UNLOCK_GRANT: 'financials.jmcs.unlock-grant',
     UNLOCK_REQUEST_REJECT: 'financials.jmcs.unlock-request-reject',
+    GENERATE_JMC_DOC: 'financials.jmcs.create',
   },
   REPORT_DOC: {
     VIEW_DETAIL: 'financials.site-reports.view-detail',

@@ -1,6 +1,5 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   computed,
   effect,
@@ -26,10 +25,11 @@ import {
 } from '@shared/services';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { roundCurrencyAmount, toLocalCalendarDate } from '@shared/utility';
+import { roundCurrencyAmount } from '@shared/utility';
 import {
   applyProjectDateRangeFromSite,
   IProjectSiteDateRange,
+  parseProjectDateOnly,
 } from '@features/site-management/project-management/utility/project-overview-date.util';
 
 import { EDIT_INVOICE_FORM_CONFIG } from '../../config';
@@ -57,7 +57,6 @@ export class EditInvoiceComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   private trackedInvoiceInputs!: ITrackedFields<IEditInvoiceUIFormDto>;
 
@@ -116,7 +115,7 @@ export class EditInvoiceComponent
       return;
     }
 
-    const invoiceDate = toLocalCalendarDate(record.invoiceDate);
+    const invoiceDate = parseProjectDateOnly(record.invoiceDate);
 
     this.form = this.formService.createForm<IEditInvoiceUIFormDto>(
       EDIT_INVOICE_FORM_CONFIG,
@@ -128,7 +127,7 @@ export class EditInvoiceComponent
           isNoInvoice: !record.invoiceNumber || !record.fileKey,
           isGstHold: record.isGstHold ?? true,
           invoiceNumber: record.invoiceNumber ?? null,
-          invoiceDate: invoiceDate ?? undefined,
+          invoiceDate,
           taxableAmount: Number(record.taxableAmount),
           tdsPercent: Number(record.tdsPercentage),
           tdsAmount: Number(record.tdsAmount),
@@ -177,13 +176,6 @@ export class EditInvoiceComponent
       gstPercent === null || gstPercent === undefined
         ? null
         : Number(gstPercent);
-
-    queueMicrotask(() => {
-      if (invoiceDate) {
-        this.form.formGroup.patchValue({ invoiceDate }, { emitEvent: false });
-      }
-      this.changeDetectorRef.detectChanges();
-    });
 
     if (record.fileKey) {
       this.loadPrefillAttachmentFromKey(record.fileKey);

@@ -1,6 +1,5 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   effect,
   inject,
@@ -35,6 +34,7 @@ import { roundCurrencyAmount } from '@shared/utility';
 import {
   applyProjectDateRangeFromSite,
   IProjectSiteDateRange,
+  parseProjectDateOnly,
 } from '@features/site-management/project-management/utility/project-overview-date.util';
 
 @Component({
@@ -53,7 +53,6 @@ export class EditPoComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private trackedGstInputs!: ITrackedFields<IEditPoUIFormDto>;
 
   private allowGstAutoRecalc = false;
@@ -113,7 +112,7 @@ export class EditPoComponent
           contractorName: record.contractorId ?? undefined,
           vendorName: record.vendorId ?? undefined,
           poNumber: record.poNumber,
-          poDate: new Date(record.poDate),
+          poDate: parseProjectDateOnly(record.poDate),
           taxableAmount: Number(record.taxableAmount),
           gstPercent: Number(record.gstPercentage),
           gstAmount: Number(record.gstAmount),
@@ -137,7 +136,6 @@ export class EditPoComponent
       EDIT_PO_FORM_CONFIG.fields.poDate.dateConfig,
       record.site as IProjectSiteDateRange
     );
-    queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
     const { taxableAmount, gstPercent } = this.trackedGstInputs.getValues();
     this.prefilledTaxableAmount =

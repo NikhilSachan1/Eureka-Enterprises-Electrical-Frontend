@@ -1,4 +1,8 @@
-export { JmcBaseSchema, JmcUpsertShapeSchema } from './base-jmc.schema';
+export {
+  JmcBaseSchema,
+  JmcUpsertShapeSchema,
+  JmcItemUpsertSchema,
+} from './base-jmc.schema';
 export {
   JmcGetRequestSchema,
   JmcGetBaseResponseSchema,

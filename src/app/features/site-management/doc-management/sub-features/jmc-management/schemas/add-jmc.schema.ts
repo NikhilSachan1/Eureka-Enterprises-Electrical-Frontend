@@ -11,6 +11,7 @@ export const AddJmcRequestSchema = JmcUpsertShapeSchema.strict().transform(
       fileKey: data.jmcFileKey,
       fileName: data.jmcFileName,
       remarks: data.remarks,
+      items: data.items,
     };
   }
 );

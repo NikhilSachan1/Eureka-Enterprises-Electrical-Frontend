@@ -15,16 +15,25 @@ export const JmcBaseSchema = z.looseObject({
   vendorId: uuidField.nullable(),
   jmcNumber: z.string(),
   jmcDate: onlyDateStringField,
-  fileKey: z.string(),
+  fileKey: z.string().nullable(),
 });
+
+export const JmcItemUpsertSchema = z
+  .object({
+    itemName: z.string().min(1),
+    unit: z.string().min(1),
+    quantity: z.number().min(1),
+  })
+  .strict();
 
 export const JmcUpsertShapeSchema = z
   .object({
     poNumber: z.string(),
-    jmcNumber: z.string(),
+    jmcNumber: z.string().nullable(),
     jmcDate: dateField,
-    jmcFileName: z.string(),
-    jmcFileKey: z.string(),
+    jmcFileName: z.string().nullable(),
+    jmcFileKey: z.string().nullable(),
     remarks: z.string().nullable(),
+    items: z.array(JmcItemUpsertSchema).nullable(),
   })
   .strict();

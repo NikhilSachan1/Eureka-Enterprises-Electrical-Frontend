@@ -196,3 +196,9 @@ export {
 } from './charts/charts.types';
 export type { ITimelineConfig } from './timeline/timeline.interface';
 export { ETimelineLayout, ETimelineAlign } from './timeline/timeline.types';
+export type {
+  ILineItemsColumnFieldsConfig,
+  ILineItemsTableColumn,
+  ILineItemsTableConfig,
+  IResolvedLineItemsTableConfig,
+} from './line-items-table/line-items-table.interface';

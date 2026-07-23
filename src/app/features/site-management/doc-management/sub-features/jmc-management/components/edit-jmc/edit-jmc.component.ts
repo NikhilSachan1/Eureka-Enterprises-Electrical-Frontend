@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
+  computed,
   inject,
   input,
   OnInit,
@@ -34,6 +34,7 @@ import {
 import {
   applyProjectDateRangeFromSite,
   IProjectSiteDateRange,
+  parseProjectDateOnly,
 } from '@features/site-management/project-management/utility/project-overview-date.util';
 
 @Component({
@@ -52,11 +53,14 @@ export class EditJmcComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   protected readonly selectedRecord =
     input.required<IJmcGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
+
+  protected readonly isSystemGenerated = computed(
+    () => this.selectedRecord()[0]?.isSystemGenerated === true
+  );
 
   ngOnInit(): void {
     const rows = this.selectedRecord();
@@ -73,13 +77,25 @@ export class EditJmcComponent
       EDIT_JMC_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
+        context: {
+          isSystemGenerated: this.isSystemGenerated(),
+        },
         defaultValues: {
           projectName: record.siteId,
           poNumber: record.po.poNumber,
           jmcNumber: record.jmcNumber,
-          jmcDate: new Date(record.jmcDate),
+          jmcDate: parseProjectDateOnly(record.jmcDate),
           jmcAttachment: [],
           remarks: record.remarks ?? null,
+          ...(this.isSystemGenerated() && record.items?.length
+            ? {
+                items: record.items.map(item => ({
+                  itemName: item.itemName,
+                  unit: item.unit,
+                  quantity: Number(item.quantity),
+                })),
+              }
+            : {}),
         },
       }
     );
@@ -92,9 +108,10 @@ export class EditJmcComponent
       EDIT_JMC_FORM_CONFIG.fields.jmcDate.dateConfig,
       record.site as IProjectSiteDateRange
     );
-    queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
-    this.loadPrefillAttachmentFromKey(record.fileKey);
+    if (record.fileKey) {
+      this.loadPrefillAttachmentFromKey(record.fileKey);
+    }
   }
 
   private seedPoOption(poNumber: string): void {
@@ -155,7 +172,7 @@ export class EditJmcComponent
   }
 
   private executeEditJmcAction(jmcId: string): void {
-    const file = this.form.getFieldData('jmcAttachment');
+    const isSystemGenerated = this.isSystemGenerated();
 
     this.loadingService.show({
       title: 'Updating JMC',
@@ -164,13 +181,21 @@ export class EditJmcComponent
     });
     this.form.disable();
 
-    this.attachmentsService
-      .uploadFinancialDocument(file[0])
+    const submit$ = isSystemGenerated
+      ? this.jmcService.editJmc(this.prepareFormData(), jmcId)
+      : this.attachmentsService
+          .uploadFinancialDocument(this.form.getFieldData('jmcAttachment')[0])
+          .pipe(
+            switchMap(attachmentResponse =>
+              this.jmcService.editJmc(
+                this.prepareFormData(attachmentResponse),
+                jmcId
+              )
+            )
+          );
+
+    submit$
       .pipe(
-        switchMap(attachmentResponse => {
-          const formData = this.prepareFormData(attachmentResponse);
-          return this.jmcService.editJmc(formData, jmcId);
-        }),
         finalize(() => {
           this.loadingService.hide();
           this.isSubmitting.set(false);
@@ -194,17 +219,22 @@ export class EditJmcComponent
   }
 
   private prepareFormData(
-    attachmentResponse: IFinancialFileUploadResponseDto
+    attachmentResponse: IFinancialFileUploadResponseDto | null = null
   ): IEditJmcFormDto {
     const formData = this.form.getData();
     const record = { ...formData };
     delete (record as Record<string, unknown>)['jmcAttachment'];
     delete (record as Record<string, unknown>)['poNumber'];
     delete (record as Record<string, unknown>)['projectName'];
+
+    if (!this.isSystemGenerated()) {
+      delete (record as Record<string, unknown>)['items'];
+    }
+
     return {
       ...record,
-      jmcFileKey: attachmentResponse.fileKey,
-      jmcFileName: attachmentResponse.fileName,
+      jmcFileKey: attachmentResponse?.fileKey ?? null,
+      jmcFileName: attachmentResponse?.fileName ?? null,
     };
   }
 }

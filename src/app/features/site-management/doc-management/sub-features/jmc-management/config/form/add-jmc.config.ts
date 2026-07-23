@@ -2,10 +2,15 @@ import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
 import {
   CONFIGURATION_KEYS,
+  ICONS,
   MODULE_NAMES,
   TEXT_INPUT_ACCEPT_STRIP,
 } from '@shared/constants';
+import { DEFAULT_BUTTON_CONFIG } from '@shared/config';
 import {
+  EButtonActionType,
+  EButtonSeverity,
+  EButtonVariant,
   EDataType,
   ETextCase,
   IFormConfig,
@@ -50,7 +55,12 @@ const ADD_JMC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddJmcUIFormDto> = {
       textCase: ETextCase.UPPERCASE,
       regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPECIAL_CHARS,
     },
-    validators: [Validators.required],
+    conditionalValidators: [
+      {
+        shouldApply: (context): boolean => !context['isSystemGenerated'],
+        validators: [Validators.required],
+      },
+    ],
   },
   jmcDate: {
     fieldType: EDataType.DATE,
@@ -75,7 +85,69 @@ const ADD_JMC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddJmcUIFormDto> = {
         ...APP_CONFIG.MEDIA_CONFIG.PDF,
       ],
     },
-    validators: [Validators.required],
+    conditionalValidators: [
+      {
+        shouldApply: (context): boolean => !context['isSystemGenerated'],
+        validators: [Validators.required],
+      },
+    ],
+  },
+  items: {
+    fieldType: EDataType.LINE_ITEMS,
+    id: 'items',
+    fieldName: 'items',
+    label: 'Line items',
+    lineItemsConfig: {
+      title: 'Line items',
+      minRows: 1,
+      addButton: {
+        ...DEFAULT_BUTTON_CONFIG,
+        id: EButtonActionType.ADD,
+        label: 'Add item',
+        tooltip: 'Add a line item',
+        icon: ICONS.COMMON.PLUS,
+        variant: EButtonVariant.OUTLINED,
+      },
+      removeButton: {
+        ...DEFAULT_BUTTON_CONFIG,
+        id: EButtonActionType.DELETE,
+        label: '',
+        tooltip: 'Remove item',
+        icon: ICONS.ACTIONS.TRASH,
+        severity: EButtonSeverity.DANGER,
+        variant: EButtonVariant.TEXT,
+      },
+      fields: {
+        itemName: {
+          fieldType: EDataType.TEXT,
+          label: 'Item name',
+          showStandardLabel: true,
+          placeholder: 'Item name',
+          validators: [Validators.required],
+        },
+        unit: {
+          fieldType: EDataType.SELECT,
+          label: 'Unit',
+          showStandardLabel: true,
+          placeholder: 'Unit',
+          defaultValue: null,
+          selectConfig: {
+            optionsDropdown: [
+              { label: 'Nos', value: 'Nos' },
+              { label: 'Set', value: 'set' },
+            ],
+          },
+          validators: [Validators.required],
+        },
+        quantity: {
+          fieldType: EDataType.NUMBER,
+          label: 'Quantity',
+          placeholder: 'Quantity',
+          showStandardLabel: true,
+          validators: [Validators.required, Validators.min(1)],
+        },
+      },
+    },
   },
   remarks: {
     fieldType: EDataType.TEXT_AREA,

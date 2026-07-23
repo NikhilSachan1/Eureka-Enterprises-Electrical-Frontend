@@ -6,7 +6,7 @@
 @let showStandardLabel = config.showStandardLabel;
 @let effectivePlaceholder = showStandardLabel && config.placeholder ? config.placeholder : '';
 
-@if (showStandardLabel) {
+@if (showStandardLabel && config.label) {
   <label
     [for]="config.id"
     class="text-md font-semibold"
@@ -719,6 +719,62 @@
         (ngModelChange)="onValueChange($event)"
       ></p-editor>
     </div>
+  }
+  @case (ALL_DATA_TYPES.LINE_ITEMS) {
+    @if (resolvedLineItemsConfig(); as tableConfig) {
+      @if (formGroup(); as fg) {
+        @if (lineItemsFormArray(); as itemsArray) {
+          <section
+            class="line-items"
+            [formGroup]="fg"
+            [style.--line-items-column-count]="tableConfig.columns.length"
+          >
+            <div class="line-items__header">
+              <h4 class="line-items__title">{{ tableConfig.title }}</h4>
+              <app-button
+                [buttonConfig]="tableConfig.addButton"
+                (onButtonClick)="addLineItemRow()"
+              />
+            </div>
+
+            <div
+              [formArrayName]="config.fieldName"
+              class="line-items__table"
+            >
+              <div class="line-items__row line-items__row--header">
+                <span>#</span>
+                @for (column of tableConfig.columns; track column.fieldName) {
+                  <span>{{ column.headerLabel }}</span>
+                }
+                <span></span>
+              </div>
+
+              @for (row of itemsArray.controls; track $index; let i = $index) {
+                <div
+                  class="line-items__row"
+                  [formGroupName]="i"
+                >
+                  <span class="line-items__index">{{ i + 1 }}</span>
+
+                  @for (column of tableConfig.columns; track column.fieldName) {
+                    <app-input-field
+                      [formGroup]="$any(row)"
+                      [inputFieldConfig]="buildLineItemFieldConfig(column, i)"
+                    />
+                  }
+
+                  <app-button
+                    [buttonConfig]="tableConfig.removeButton"
+                    [showDisabledButton]="!canRemoveLineItemRow()"
+                    (onButtonClick)="removeLineItemRow(i)"
+                  />
+                </div>
+              }
+            </div>
+          </section>
+        }
+      }
+    }
   }
   @case (ALL_DATA_TYPES.INDIVIDUAL_NUMBER) {
     @let individualNumberConfig = config.individualNumberConfig;

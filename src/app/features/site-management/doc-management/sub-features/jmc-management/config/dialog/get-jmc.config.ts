@@ -1,9 +1,14 @@
-import { EButtonActionType, IDialogActionConfig } from '@shared/types';
+import {
+  EButtonActionType,
+  EDialogSize,
+  IDialogActionConfig,
+} from '@shared/types';
 import {
   APPROVE_CONFIRMATION_DIALOG_CONFIG,
   DELETE_CONFIRMATION_DIALOG_CONFIG,
   REJECT_CONFIRMATION_DIALOG_CONFIG,
 } from '@shared/config';
+import { ICONS } from '@shared/constants';
 import { ApproveJmcComponent } from '../../components/approve-jmc/approve-jmc.component';
 import { RejectJmcComponent } from '../../components/reject-jmc/reject-jmc.component';
 import { UnlockRequestJmcComponent } from '../../components/unlock-request-jmc/unlock-request-jmc.component';
@@ -22,10 +27,21 @@ export const JMC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
     dynamicComponent: AddJmcComponent,
   },
 
+  [EButtonActionType.GENERATE]: {
+    dialogConfig: {
+      header: 'Generate JMC',
+      message: 'Create a system-generated JMC with line items.',
+      icon: ICONS.PAYROLL.GENERATE,
+      size: EDialogSize.EXTRA_LARGE,
+    },
+    dynamicComponent: AddJmcComponent,
+  },
+
   [EButtonActionType.EDIT]: {
     dialogConfig: {
       header: 'Edit JMC',
       message: 'Update JMC details.',
+      size: EDialogSize.EXTRA_LARGE,
     },
     dynamicComponent: EditJmcComponent,
   },

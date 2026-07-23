@@ -1,6 +1,5 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   computed,
   inject,
@@ -36,6 +35,7 @@ import {
 import {
   applyProjectDateRangeFromSite,
   IProjectSiteDateRange,
+  parseProjectDateOnly,
 } from '@features/site-management/project-management/utility/project-overview-date.util';
 
 @Component({
@@ -54,7 +54,6 @@ export class EditReportComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   private isNoReportTracked!: Signal<boolean | null | undefined>;
 
@@ -85,7 +84,7 @@ export class EditReportComponent
           projectName: record.siteId,
           jmcNumber: record.jmc.jmcNumber,
           isNoReport: !record.fileKey,
-          reportDate: new Date(record.reportDate),
+          reportDate: parseProjectDateOnly(record.reportDate),
           reportAttachment: [],
           remarks: record.remarks ?? null,
         },
@@ -106,8 +105,6 @@ export class EditReportComponent
       'isNoReport',
       this.destroyRef
     );
-
-    queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
     if (record.fileKey) {
       this.loadPrefillAttachmentFromKey(record.fileKey);

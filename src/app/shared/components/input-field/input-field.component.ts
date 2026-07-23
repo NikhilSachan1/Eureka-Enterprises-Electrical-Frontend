@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  forwardRef,
   inject,
   input,
   OnInit,
@@ -13,7 +14,13 @@ import {
   effect,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  FormsModule,
+} from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -34,6 +41,11 @@ import { EditorModule } from 'primeng/editor';
 import { InputOtpModule } from 'primeng/inputotp';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonComponent } from '@shared/components/button/button.component';
+import {
+  AppConfigurationService,
+  GalleryService,
+  InputFieldConfigService,
+} from '@shared/services';
 import {
   EButtonActionType,
   EButtonVariant,
@@ -57,6 +69,8 @@ import {
   IOptionDropdown,
   InputEventLike,
   CheckboxEventLike,
+  ILineItemsTableColumn,
+  IResolvedLineItemsTableConfig,
 } from '@shared/types';
 import { APP_CONFIG } from '@core/config';
 import { AuthService } from '@features/auth-management/services/auth.service';
@@ -71,7 +85,6 @@ import {
   COMMON_ROW_ACTIONS,
   DEFAULT_MULTI_SELECT_MAX_VISIBLE_LABELS,
 } from '@shared/config';
-import { AppConfigurationService, GalleryService } from '@shared/services';
 import {
   arrayToString,
   filterOptionsByIncludeExclude,
@@ -106,6 +119,7 @@ import { NgClass } from '@angular/common';
     InputOtpModule,
     AutoCompleteModule,
     ButtonComponent,
+    forwardRef(() => InputFieldComponent),
     ImageModule,
   ],
   templateUrl: './input-field.component.html',
@@ -117,6 +131,11 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
+  private readonly fb = inject(FormBuilder);
+  protected readonly inputFieldConfigService = inject(InputFieldConfigService);
+
+  /** Bumps when line-item rows change so the LINE_ITEMS template re-renders under OnPush. */
+  private readonly lineItemsRevision = signal(0);
 
   ALL_DATA_TYPES = EDataType;
   ALL_UP_AND_DOWN_BUTTON_LAYOUTS = EUpAndDownButtonLayout;
@@ -321,6 +340,29 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     return config;
   });
 
+  resolvedLineItemsConfig = computed(() => {
+    const config = this.inputFieldConfig();
+    if (config.fieldType !== EDataType.LINE_ITEMS || !config.lineItemsConfig) {
+      return null;
+    }
+
+    return this.inputFieldConfigService.resolveLineItemsTableConfig(
+      config.lineItemsConfig
+    );
+  });
+
+  lineItemsFormArray = computed(() => {
+    this.lineItemsRevision();
+    const fg = this.formGroup();
+    const { fieldName } = this.inputFieldConfig();
+
+    if (!fg || !fieldName) {
+      return null;
+    }
+
+    return fg.get(fieldName) as FormArray<FormGroup> | null;
+  });
+
   /** Filtered suggestions for autocomplete (filtered by user query) */
   autocompleteSuggestions = signal<IOptionDropdown[]>([]);
 
@@ -403,6 +445,14 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
             this.updateFileUpload(value);
           }
         });
+    }
+
+    if (
+      config.fieldType === EDataType.LINE_ITEMS &&
+      fg &&
+      config.lineItemsConfig
+    ) {
+      this.initializeLineItemsRows();
     }
   }
 
@@ -1578,5 +1628,78 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
           : textCase === ETextCase.SENTENCECASE
             ? toSentenceCase(value)
             : value;
+  }
+
+  protected buildLineItemFieldConfig(
+    column: ILineItemsTableColumn,
+    rowIndex: number
+  ): IInputFieldsConfig {
+    return this.inputFieldConfigService.buildLineItemCellFieldConfig(
+      column,
+      rowIndex
+    );
+  }
+
+  protected addLineItemRow(): void {
+    const formArray = this.lineItemsFormArray();
+    const resolved = this.resolvedLineItemsConfig();
+
+    if (!formArray || !resolved) {
+      return;
+    }
+
+    formArray.push(this.createLineItemRowGroup(undefined, resolved));
+    this.lineItemsRevision.update(value => value + 1);
+  }
+
+  protected removeLineItemRow(index: number): void {
+    const formArray = this.lineItemsFormArray();
+    const minRows = this.resolvedLineItemsConfig()?.minRows ?? 1;
+
+    if (!formArray || formArray.length <= minRows) {
+      return;
+    }
+
+    formArray.removeAt(index);
+    this.lineItemsRevision.update(value => value + 1);
+  }
+
+  protected canRemoveLineItemRow(): boolean {
+    const formArray = this.lineItemsFormArray();
+    const minRows = this.resolvedLineItemsConfig()?.minRows ?? 1;
+    return !!formArray && formArray.length > minRows;
+  }
+
+  private initializeLineItemsRows(): void {
+    const formArray = this.lineItemsFormArray();
+    const resolved = this.resolvedLineItemsConfig();
+
+    if (!formArray || !resolved || formArray.length > 0) {
+      return;
+    }
+
+    for (let index = 0; index < resolved.minRows; index += 1) {
+      formArray.push(this.createLineItemRowGroup(undefined, resolved));
+    }
+
+    this.lineItemsRevision.update(value => value + 1);
+  }
+
+  private createLineItemRowGroup(
+    values: Record<string, unknown> | undefined,
+    tableConfig: IResolvedLineItemsTableConfig
+  ): FormGroup {
+    const groupConfig: Record<string, [unknown, ...unknown[]]> = {};
+
+    tableConfig.columns.forEach(column => {
+      const fieldConfig =
+        this.inputFieldConfigService.buildLineItemCellFieldConfig(column, 0);
+      groupConfig[column.fieldName] = [
+        values?.[column.fieldName] ?? column.defaultValue ?? null,
+        fieldConfig.validators ?? [],
+      ];
+    });
+
+    return this.fb.group(groupConfig);
   }
 }

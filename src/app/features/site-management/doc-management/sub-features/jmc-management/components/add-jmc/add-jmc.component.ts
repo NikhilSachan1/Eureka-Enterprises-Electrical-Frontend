@@ -71,6 +71,7 @@ export class AddJmcComponent
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
   protected readonly projectName = input<string>();
+  protected readonly isSystemGenerated = input(false);
 
   constructor() {
     super();
@@ -93,6 +94,9 @@ export class AddJmcComponent
       ADD_JMC_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
+        context: {
+          isSystemGenerated: this.isSystemGenerated(),
+        },
         defaultValues: {
           projectName: this.projectName(),
         },
@@ -208,22 +212,28 @@ export class AddJmcComponent
   }
 
   private executeAddJmcAction(): void {
-    const file = this.form.getFieldData('jmcAttachment');
+    const isGenerate = this.isSystemGenerated();
 
     this.loadingService.show({
-      title: 'Adding JMC',
-      message:
-        "Please wait while we're adding the JMC. This will just take a moment.",
+      title: isGenerate ? 'Generating JMC' : 'Adding JMC',
+      message: isGenerate
+        ? "Please wait while we're generating the JMC. This will just take a moment."
+        : "Please wait while we're adding the JMC. This will just take a moment.",
     });
     this.form.disable();
 
-    this.attachmentsService
-      .uploadFinancialDocument(file[0])
+    const submit$ = isGenerate
+      ? this.jmcService.addJmc(this.prepareFormData())
+      : this.attachmentsService
+          .uploadFinancialDocument(this.form.getFieldData('jmcAttachment')[0])
+          .pipe(
+            switchMap(attachmentResponse =>
+              this.jmcService.addJmc(this.prepareFormData(attachmentResponse))
+            )
+          );
+
+    submit$
       .pipe(
-        switchMap(attachmentResponse => {
-          const formData = this.prepareFormData(attachmentResponse);
-          return this.jmcService.addJmc(formData);
-        }),
         finalize(() => {
           this.loadingService.hide();
           this.isSubmitting.set(false);
@@ -238,16 +248,21 @@ export class AddJmcComponent
           this.confirmationDialogService.closeDialog();
         },
         error: error => {
-          this.logger.error('Failed to add JMC', error);
+          this.logger.error(
+            isGenerate ? 'Failed to generate JMC' : 'Failed to add JMC',
+            error
+          );
           this.notificationService.error(
-            'Could not add the JMC. Please try again.'
+            isGenerate
+              ? 'Could not generate the JMC. Please try again.'
+              : 'Could not add the JMC. Please try again.'
           );
         },
       });
   }
 
   private prepareFormData(
-    attachmentResponse: IFinancialFileUploadResponseDto
+    attachmentResponse: IFinancialFileUploadResponseDto | null = null
   ): IAddJmcFormDto {
     const formData = this.form.getData();
     const record = { ...formData };
@@ -255,8 +270,8 @@ export class AddJmcComponent
     delete (record as Record<string, unknown>)['projectName'];
     return {
       ...record,
-      jmcFileKey: attachmentResponse.fileKey,
-      jmcFileName: attachmentResponse.fileName,
+      jmcFileKey: attachmentResponse?.fileKey ?? null,
+      jmcFileName: attachmentResponse?.fileName ?? null,
     };
   }
 }

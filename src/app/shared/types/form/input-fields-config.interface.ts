@@ -18,6 +18,7 @@ import {
   EUpAndDownButtonLayout,
 } from '@shared/types';
 import { EEditorToolbarOption } from '@shared/types/editor/editor.enum';
+import type { ILineItemsTableConfig } from '../line-items-table/line-items-table.interface';
 
 export interface IInputFieldsConfig {
   fieldType: EDataType;
@@ -48,6 +49,7 @@ export interface IInputFieldsConfig {
   editorConfig?: Partial<IEditorFieldConfig>;
   textConfig?: Partial<ITextFieldConfig>;
   individualNumberConfig?: Partial<IIndividualNumberFieldConfig>;
+  lineItemsConfig?: ILineItemsTableConfig<Record<string, unknown>>;
   validators?: ValidatorFn[];
   conditionalValidators?: IConditionalValidator[];
 }

@@ -20,6 +20,7 @@ import {
   JmcDropdownGetRequestSchema,
   JmcDropdownGetResponseSchema,
   JmcDropdownRecordSchema,
+  JmcItemUpsertSchema,
 } from '../schemas';
 import { JmcDetailGetRequestSchema } from '../schemas/get-jmc-detail.schema';
 
@@ -123,3 +124,7 @@ export type IJmcDropdownGetResponseDto = z.infer<
   typeof JmcDropdownGetResponseSchema
 >;
 export type IJmcDropdownRecordDto = z.infer<typeof JmcDropdownRecordSchema>;
+
+/** JMC line item (system-generated) */
+export type IJmcItemUpsertDto = z.infer<typeof JmcItemUpsertSchema>;
+export type IJmcItemFormDto = z.input<typeof JmcItemUpsertSchema>;

@@ -13,6 +13,7 @@ export const EditJmcRequestSchema = JmcUpsertShapeSchema.omit({
       fileKey: data.jmcFileKey,
       fileName: data.jmcFileName,
       remarks: data.remarks,
+      items: data.items,
     };
   });
 

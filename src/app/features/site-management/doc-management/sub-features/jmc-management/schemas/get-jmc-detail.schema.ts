@@ -6,6 +6,7 @@ import {
   uuidField,
 } from '@shared/schemas';
 import { makeFieldsNullable } from '@shared/utility';
+import { JmcItemUpsertSchema } from './base-jmc.schema';
 import { JmcGetBaseResponseSchema } from './get-jmc.schema';
 
 export const JmcDetailGetRequestSchema = z
@@ -18,6 +19,7 @@ export const JmcDetailGetResponseSchema = z.looseObject({
   ...JmcGetBaseResponseSchema.shape,
   ...AuditSchema.shape,
   remarks: z.string().nullable(),
+  items: z.array(JmcItemUpsertSchema).nullable(),
   approvalByUser: makeFieldsNullable(UserSchema).nullable(),
   approvalAt: isoDateTimeField.nullable(),
   approvalReason: z.string().nullable(),
