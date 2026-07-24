@@ -129,9 +129,12 @@ export type IUploadJmcSignedCopyRequestDto = z.infer<
 export type IUploadJmcSignedCopyFormDto = z.input<
   typeof UploadJmcSignedCopyRequestSchema
 >;
-export interface IUploadJmcSignedCopyUIFormDto {
+export type IUploadJmcSignedCopyUIFormDto = Omit<
+  IUploadJmcSignedCopyFormDto,
+  'fileKey' | 'fileName'
+> & {
   signedCopyAttachment: File[];
-}
+};
 export type IUploadJmcSignedCopyResponseDto = z.infer<
   typeof UploadJmcSignedCopyResponseSchema
 >;
