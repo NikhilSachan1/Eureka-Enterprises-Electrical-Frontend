@@ -268,6 +268,7 @@ export const API_ROUTES = {
         DELETE: (jmcId: string) => `jmcs/${jmcId}`,
         PDF: (jmcId: string) => `jmcs/${jmcId}/pdf`,
         UPLOAD_SIGNED_JMC: (jmcId: string) => `jmcs/${jmcId}/upload`,
+        ITEM_SUGGESTIONS: 'jmcs/items/suggestions',
       },
       REPORT: {
         ADD: 'site-reports',

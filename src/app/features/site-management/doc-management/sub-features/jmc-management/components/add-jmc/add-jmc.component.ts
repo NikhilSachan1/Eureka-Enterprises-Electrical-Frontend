@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, switchMap } from 'rxjs';
+import { finalize, map, switchMap } from 'rxjs';
 
 import { FormBase } from '@shared/base/form.base';
 import {
@@ -111,6 +111,51 @@ export class AddJmcComponent
         trackedFields,
         this.destroyRef
       );
+
+    if (this.isSystemGenerated()) {
+      this.setupJmcItemNameTypeahead();
+      queueMicrotask(() => this.changeDetectorRef.detectChanges());
+    }
+  }
+
+  private setupJmcItemNameTypeahead(): void {
+    const itemsConfig = this.form.fieldConfigs.items;
+    const lineItemsConfig = itemsConfig?.lineItemsConfig;
+    const itemNameField = lineItemsConfig?.fields?.['itemName'];
+
+    if (!itemsConfig || !lineItemsConfig || !itemNameField) {
+      return;
+    }
+
+    this.form.fieldConfigs.items = {
+      ...itemsConfig,
+      lineItemsConfig: {
+        ...lineItemsConfig,
+        fields: {
+          ...lineItemsConfig.fields,
+          itemName: {
+            ...itemNameField,
+            autocompleteConfig: {
+              ...itemNameField.autocompleteConfig,
+              onSearch: (query: string) => {
+                const search = query.trim();
+                return this.jmcService
+                  .getJmcItemSuggestions(search ? { search } : {})
+                  .pipe(
+                    map(response =>
+                      response.records.map(name => ({
+                        label: name,
+                        value: name,
+                      }))
+                    )
+                  );
+              },
+              remoteSearchDebounceMs: 300,
+            },
+          },
+        },
+      },
+    } as IInputFieldsConfig;
   }
 
   private loadProjectDateRange(projectId: string): void {

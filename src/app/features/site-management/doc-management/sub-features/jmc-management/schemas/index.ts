@@ -38,3 +38,7 @@ export {
   JmcDropdownGetResponseSchema,
   JmcDropdownRecordSchema,
 } from './get-jmc-dropdown.schema';
+export {
+  JmcItemSuggestionsGetRequestSchema,
+  JmcItemSuggestionsGetResponseSchema,
+} from './get-jmc-item-suggestions.schema';

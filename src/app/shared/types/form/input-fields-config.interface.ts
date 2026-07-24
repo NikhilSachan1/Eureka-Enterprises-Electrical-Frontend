@@ -1,4 +1,5 @@
 import { ValidatorFn } from '@angular/forms';
+import type { Observable } from 'rxjs';
 import {
   EAutocomplete,
   ECalendarView,
@@ -152,6 +153,8 @@ export interface IAutocompleteFieldConfig {
     include?: string[];
     exclude?: string[];
   };
+  onSearch?: (query: string) => Observable<IOptionDropdown[]>;
+  remoteSearchDebounceMs?: number;
 }
 
 export interface IMultiSelectFieldConfig {

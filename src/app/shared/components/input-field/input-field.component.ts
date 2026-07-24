@@ -15,6 +15,14 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  of,
+  Subject,
+  switchMap,
+} from 'rxjs';
+import {
   FormArray,
   FormBuilder,
   FormGroup,
@@ -366,6 +374,9 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   /** Filtered suggestions for autocomplete (filtered by user query) */
   autocompleteSuggestions = signal<IOptionDropdown[]>([]);
 
+  private readonly autocompleteSearchQuery$ = new Subject<string>();
+  private autocompleteRemoteSearchInitialized = false;
+
   // Signal for dependent dropdown options (e.g., cities based on state)
   private dependentDropdownOptions = signal<IOptionDropdown[]>([]);
 
@@ -430,8 +441,21 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
     // Pre-populate autocomplete suggestions when value exists (edit / standalone)
     if (config.fieldType === EDataType.AUTOCOMPLETE && this.effectiveValue()) {
-      this.autocompleteSuggestions.set(this.getAutocompleteOptions());
+      const currentValue = this.effectiveValue();
+      if (
+        config.autocompleteConfig?.onSearch &&
+        typeof currentValue === 'string' &&
+        currentValue.trim()
+      ) {
+        this.autocompleteSuggestions.set([
+          { label: currentValue, value: currentValue },
+        ]);
+      } else {
+        this.autocompleteSuggestions.set(this.getAutocompleteOptions());
+      }
     }
+
+    this.setupRemoteAutocompleteSearch(config);
 
     if (fg && config.fieldType === EDataType.ATTACHMENTS && control) {
       control.valueChanges
@@ -1019,8 +1043,13 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   }
 
   onAutocompleteComplete(event: { query: string }): void {
-    const options = this.getAutocompleteOptions();
     const config = this.inputFieldConfig().autocompleteConfig;
+    if (config?.onSearch) {
+      this.autocompleteSearchQuery$.next(event.query ?? '');
+      return;
+    }
+
+    const options = this.getAutocompleteOptions();
     const filterBy = config?.filterBy ?? 'label';
     const query = (event.query ?? '').trim().toLowerCase();
 
@@ -1034,6 +1063,36 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       : options;
 
     this.autocompleteSuggestions.set(filtered);
+  }
+
+  private setupRemoteAutocompleteSearch(config: IInputFieldsConfig): void {
+    const { autocompleteConfig } = config;
+    if (
+      config.fieldType !== EDataType.AUTOCOMPLETE ||
+      !autocompleteConfig?.onSearch ||
+      this.autocompleteRemoteSearchInitialized
+    ) {
+      return;
+    }
+
+    this.autocompleteRemoteSearchInitialized = true;
+    const { onSearch } = autocompleteConfig;
+    const debounceMs = autocompleteConfig.remoteSearchDebounceMs ?? 300;
+
+    this.autocompleteSearchQuery$
+      .pipe(
+        debounceTime(debounceMs),
+        distinctUntilChanged(),
+        switchMap(query =>
+          onSearch((query ?? '').trim()).pipe(
+            catchError(() => of([] as IOptionDropdown[]))
+          )
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(suggestions => {
+        this.autocompleteSuggestions.set(suggestions);
+      });
   }
 
   /**

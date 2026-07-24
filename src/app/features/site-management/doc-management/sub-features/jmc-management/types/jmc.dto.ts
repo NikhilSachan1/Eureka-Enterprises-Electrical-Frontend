@@ -22,6 +22,8 @@ import {
   JmcDropdownGetRequestSchema,
   JmcDropdownGetResponseSchema,
   JmcDropdownRecordSchema,
+  JmcItemSuggestionsGetRequestSchema,
+  JmcItemSuggestionsGetResponseSchema,
   JmcItemUpsertSchema,
 } from '../schemas';
 import { JmcDetailGetRequestSchema } from '../schemas/get-jmc-detail.schema';
@@ -142,6 +144,14 @@ export type IJmcDropdownGetResponseDto = z.infer<
   typeof JmcDropdownGetResponseSchema
 >;
 export type IJmcDropdownRecordDto = z.infer<typeof JmcDropdownRecordSchema>;
+
+/** JMC line item name typeahead */
+export type IJmcItemSuggestionsGetRequestDto = z.input<
+  typeof JmcItemSuggestionsGetRequestSchema
+>;
+export type IJmcItemSuggestionsGetResponseDto = z.infer<
+  typeof JmcItemSuggestionsGetResponseSchema
+>;
 
 /** JMC line item (system-generated) */
 export type IJmcItemUpsertDto = z.infer<typeof JmcItemUpsertSchema>;

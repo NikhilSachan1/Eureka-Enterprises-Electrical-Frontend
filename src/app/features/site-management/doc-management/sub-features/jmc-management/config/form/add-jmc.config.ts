@@ -119,10 +119,14 @@ const ADD_JMC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddJmcUIFormDto> = {
       },
       fields: {
         itemName: {
-          fieldType: EDataType.TEXT,
+          fieldType: EDataType.AUTOCOMPLETE,
           label: 'Item name',
           showStandardLabel: true,
-          placeholder: 'Item name',
+          placeholder: 'Search item name',
+          autocompleteConfig: {
+            optionsDropdown: [],
+            optionValue: 'label',
+          },
           validators: [Validators.required],
         },
         unit: {

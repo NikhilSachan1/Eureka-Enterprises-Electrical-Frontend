@@ -25,6 +25,8 @@ import {
   UploadJmcSignedCopyResponseSchema,
   JmcDropdownGetRequestSchema,
   JmcDropdownGetResponseSchema,
+  JmcItemSuggestionsGetRequestSchema,
+  JmcItemSuggestionsGetResponseSchema,
 } from '../schemas';
 import {
   IApproveJmcFormDto,
@@ -47,6 +49,8 @@ import {
   IUploadJmcSignedCopyResponseDto,
   IJmcDropdownGetRequestDto,
   IJmcDropdownGetResponseDto,
+  IJmcItemSuggestionsGetRequestDto,
+  IJmcItemSuggestionsGetResponseDto,
 } from '../types/jmc.dto';
 
 @Injectable({
@@ -306,6 +310,40 @@ export class JmcService {
             this.logger.logDtoValidationErrors('Get JMC Dropdown Error', error);
           } else {
             this.logger.logUserAction('Get JMC Dropdown Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getJmcItemSuggestions(
+    params?: IJmcItemSuggestionsGetRequestDto
+  ): Observable<IJmcItemSuggestionsGetResponseDto> {
+    this.logger.logUserAction('Get JMC item suggestions Request', params);
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.DOCUMENT.JMC.ITEM_SUGGESTIONS,
+        {
+          response: JmcItemSuggestionsGetResponseSchema,
+          request: JmcItemSuggestionsGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: IJmcItemSuggestionsGetResponseDto) => {
+          this.logger.logUserAction('Get JMC item suggestions Response', {
+            count: response.records.length,
+          });
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get JMC item suggestions Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get JMC item suggestions Error', error);
           }
           return throwError(() => error);
         })
