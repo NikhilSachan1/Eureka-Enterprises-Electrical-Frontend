@@ -7,3 +7,8 @@ export enum ETabLayout {
   HORIZONTAL = 'horizontal',
   VERTICAL = 'vertical',
 }
+
+export enum ETabTier {
+  PRIMARY = 'primary',
+  SECONDARY = 'secondary',
+}

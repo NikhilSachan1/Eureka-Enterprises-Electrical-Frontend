@@ -22,7 +22,13 @@ import { filter } from 'rxjs/operators';
 import { TabsModule } from 'primeng/tabs';
 import { BadgeModule } from 'primeng/badge';
 import { TooltipModule } from 'primeng/tooltip';
-import { ITabChange, ITabItem, ETabMode, ETabLayout } from '@shared/types';
+import {
+  ITabChange,
+  ITabItem,
+  ETabMode,
+  ETabLayout,
+  ETabTier,
+} from '@shared/types';
 
 @Component({
   selector: 'app-nav-tabs',
@@ -45,8 +51,18 @@ export class NavTabsComponent implements OnInit {
   tabs = input.required<ITabItem[]>();
   tabMode = input<ETabMode>(ETabMode.ROUTER_OUTLET);
   layout = input<ETabLayout>(ETabLayout.HORIZONTAL);
+  tier = input<ETabTier>(ETabTier.PRIMARY);
   allTabMode = ETabMode;
   protected readonly tabLayout = ETabLayout;
+  protected readonly tabTier = ETabTier;
+
+  protected readonly isSecondary = computed(
+    () => this.tier() === ETabTier.SECONDARY
+  );
+
+  protected readonly isRouterOutletMode = computed(
+    () => this.tabMode() === ETabMode.ROUTER_OUTLET
+  );
 
   tabChanged = output<ITabChange>();
 
