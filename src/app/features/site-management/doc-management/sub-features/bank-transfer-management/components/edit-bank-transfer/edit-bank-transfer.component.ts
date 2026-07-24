@@ -1,7 +1,6 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   inject,
   input,
@@ -28,6 +27,7 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
 import {
   applyProjectDateRangeFromSite,
   IProjectSiteDateRange,
+  parseProjectDateOnly,
 } from '@features/site-management/project-management/utility/project-overview-date.util';
 
 import { EDIT_BANK_TRANSFER_FORM_CONFIG } from '../../config';
@@ -56,7 +56,6 @@ export class EditBankTransferComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly currencyPipe = inject(CurrencyPipe);
   private readonly datePipe = inject(DatePipe);
 
@@ -95,7 +94,7 @@ export class EditBankTransferComponent
               : null,
           paidFromAccount: record.paidFromAccountId ?? null,
           utrNumber: record.utrNumber,
-          transferDate: new Date(record.transferDate),
+          transferDate: parseProjectDateOnly(record.transferDate),
           transferAmount: Number(record.transferAmount),
           remarks: record.remarks ?? null,
         },
@@ -138,7 +137,6 @@ export class EditBankTransferComponent
       EDIT_BANK_TRANSFER_FORM_CONFIG.fields.transferDate.dateConfig,
       record.site as IProjectSiteDateRange
     );
-    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private seedInvoiceNumberOption(
@@ -166,7 +164,6 @@ export class EditBankTransferComponent
           : [],
       },
     } as IInputFieldsConfig;
-    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private seedBookPaymentNumberOption(
@@ -191,7 +188,6 @@ export class EditBankTransferComponent
           : [],
       },
     } as IInputFieldsConfig;
-    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private formatBookPaymentSeedLabel(

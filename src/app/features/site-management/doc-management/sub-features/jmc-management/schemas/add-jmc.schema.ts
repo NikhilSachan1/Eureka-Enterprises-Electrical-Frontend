@@ -11,6 +11,9 @@ export const AddJmcRequestSchema = JmcUpsertShapeSchema.strict().transform(
       fileKey: data.jmcFileKey,
       fileName: data.jmcFileName,
       remarks: data.remarks,
+      ...(data.items !== null && data.items !== undefined
+        ? { items: data.items }
+        : {}),
     };
   }
 );

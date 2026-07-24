@@ -3,6 +3,7 @@ import {
   IEnhancedForm,
   IInputFieldsConfig,
 } from '@shared/types';
+import { toLocalCalendarDate } from '@shared/utility';
 import { IProjectOverviewGetResponseDto } from '../types/project.dto';
 
 export interface IProjectSiteDateRange {
@@ -21,12 +22,7 @@ export function parseProjectDateOnly(
 }
 
 function toDateOnly(value: Date | string): Date | undefined {
-  const date = value instanceof Date ? new Date(value) : new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return undefined;
-  }
-
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  return toLocalCalendarDate(value) ?? undefined;
 }
 
 export function resolveProjectMaxDate(endDate: Date): Date {

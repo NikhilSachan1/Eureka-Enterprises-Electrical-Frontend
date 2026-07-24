@@ -14,6 +14,12 @@ import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 const { createdBy } = AuditSchema.shape;
 
+export const JmcItemGetResponseSchema = z.looseObject({
+  itemName: z.string(),
+  unit: z.string(),
+  quantity: z.string(),
+});
+
 export const JmcGetRequestSchema = z
   .object({
     projectName: uuidField.nullable().optional(),
@@ -57,6 +63,8 @@ export const JmcGetRequestSchema = z
 
 export const JmcGetBaseResponseSchema = z.looseObject({
   ...JmcBaseSchema.shape,
+  isSystemGenerated: z.boolean(),
+  items: z.array(JmcItemGetResponseSchema).nullable().optional(),
   isLocked: z.boolean(),
   unlockRequestedAt: isoDateTimeField.nullable(),
   unlockRequestedByUser: makeFieldsNullable(UserSchema).nullable(),

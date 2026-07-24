@@ -1,9 +1,14 @@
-import { EButtonActionType, IDialogActionConfig } from '@shared/types';
+import {
+  EButtonActionType,
+  EDialogSize,
+  IDialogActionConfig,
+} from '@shared/types';
 import {
   APPROVE_CONFIRMATION_DIALOG_CONFIG,
   DELETE_CONFIRMATION_DIALOG_CONFIG,
   REJECT_CONFIRMATION_DIALOG_CONFIG,
 } from '@shared/config';
+import { ICONS } from '@shared/constants';
 import { ApproveJmcComponent } from '../../components/approve-jmc/approve-jmc.component';
 import { RejectJmcComponent } from '../../components/reject-jmc/reject-jmc.component';
 import { UnlockRequestJmcComponent } from '../../components/unlock-request-jmc/unlock-request-jmc.component';
@@ -12,6 +17,7 @@ import { UnlockRequestRejectJmcComponent } from '../../components/unlock-request
 import { AddJmcComponent } from '../../components/add-jmc/add-jmc.component';
 import { EditJmcComponent } from '../../components/edit-jmc/edit-jmc.component';
 import { DeleteJmcComponent } from '../../components/delete-jmc/delete-jmc.component';
+import { UploadJmcSignedCopyComponent } from '../../components/upload-jmc-signed-copy/upload-jmc-signed-copy.component';
 
 export const JMC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.ADD]: {
@@ -22,12 +28,32 @@ export const JMC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
     dynamicComponent: AddJmcComponent,
   },
 
+  [EButtonActionType.GENERATE]: {
+    dialogConfig: {
+      header: 'Generate JMC',
+      message: 'Create a system-generated JMC with line items.',
+      icon: ICONS.PAYROLL.GENERATE,
+      size: EDialogSize.EXTRA_LARGE,
+    },
+    dynamicComponent: AddJmcComponent,
+  },
+
   [EButtonActionType.EDIT]: {
     dialogConfig: {
       header: 'Edit JMC',
       message: 'Update JMC details.',
+      size: EDialogSize.EXTRA_LARGE,
     },
     dynamicComponent: EditJmcComponent,
+  },
+
+  [EButtonActionType.UPLOAD]: {
+    dialogConfig: {
+      header: 'Upload signed copy',
+      message: 'Upload the signed copy for this system-generated JMC.',
+      icon: ICONS.COMMON.UPLOAD,
+    },
+    dynamicComponent: UploadJmcSignedCopyComponent,
   },
 
   [EButtonActionType.APPROVE]: {

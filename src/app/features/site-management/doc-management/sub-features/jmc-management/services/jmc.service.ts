@@ -1,6 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
+import { AttachmentsGetResponseSchema } from '@shared/schemas/attachments.schema';
+import { IAttachmentsGetResponseDto } from '@shared/types';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
   ApproveJmcRequestSchema,
@@ -19,8 +21,12 @@ import {
   AddJmcRequestSchema,
   EditJmcRequestSchema,
   EditJmcResponseSchema,
+  UploadJmcSignedCopyRequestSchema,
+  UploadJmcSignedCopyResponseSchema,
   JmcDropdownGetRequestSchema,
   JmcDropdownGetResponseSchema,
+  JmcItemSuggestionsGetRequestSchema,
+  JmcItemSuggestionsGetResponseSchema,
 } from '../schemas';
 import {
   IApproveJmcFormDto,
@@ -39,8 +45,12 @@ import {
   IAddJmcResponseDto,
   IEditJmcFormDto,
   IEditJmcResponseDto,
+  IUploadJmcSignedCopyFormDto,
+  IUploadJmcSignedCopyResponseDto,
   IJmcDropdownGetRequestDto,
   IJmcDropdownGetResponseDto,
+  IJmcItemSuggestionsGetRequestDto,
+  IJmcItemSuggestionsGetResponseDto,
 } from '../types/jmc.dto';
 
 @Injectable({
@@ -306,6 +316,40 @@ export class JmcService {
       );
   }
 
+  getJmcItemSuggestions(
+    params?: IJmcItemSuggestionsGetRequestDto
+  ): Observable<IJmcItemSuggestionsGetResponseDto> {
+    this.logger.logUserAction('Get JMC item suggestions Request', params);
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.DOCUMENT.JMC.ITEM_SUGGESTIONS,
+        {
+          response: JmcItemSuggestionsGetResponseSchema,
+          request: JmcItemSuggestionsGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: IJmcItemSuggestionsGetResponseDto) => {
+          this.logger.logUserAction('Get JMC item suggestions Response', {
+            count: response.records.length,
+          });
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get JMC item suggestions Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get JMC item suggestions Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
   getJmcList(params?: IJmcGetFormDto): Observable<IJmcGetResponseDto> {
     this.logger.logUserAction('Get JMC List Request');
 
@@ -352,6 +396,67 @@ export class JmcService {
             );
           } else {
             this.logger.logUserAction('Get JMC Detail By Id Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  uploadJmcSignedCopy(
+    jmcId: string,
+    formData: IUploadJmcSignedCopyFormDto
+  ): Observable<IUploadJmcSignedCopyResponseDto> {
+    this.logger.logUserAction('Upload JMC signed copy Request', { jmcId });
+
+    return this.apiService
+      .patchValidated(
+        API_ROUTES.SITE.DOCUMENT.JMC.UPLOAD_SIGNED_JMC(jmcId),
+        {
+          response: UploadJmcSignedCopyResponseSchema,
+          request: UploadJmcSignedCopyRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction(
+            'Upload JMC signed copy Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Upload JMC signed copy Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Upload JMC signed copy Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getJmcPdf(jmcId: string): Observable<IAttachmentsGetResponseDto> {
+    this.logger.logUserAction('Get JMC PDF Request', { jmcId });
+
+    return this.apiService
+      .getValidated(API_ROUTES.SITE.DOCUMENT.JMC.PDF(jmcId), {
+        response: AttachmentsGetResponseSchema,
+      })
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction('Get JMC PDF Response', {
+            jmcId,
+            key: response.key,
+          });
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Get JMC PDF Error', error);
+          } else {
+            this.logger.logUserAction('Get JMC PDF Error', error);
           }
           return throwError(() => error);
         })

@@ -432,6 +432,17 @@
   </p-popover>
 </ng-template>
 
+<ng-template
+  #projectDocumentStatus
+  let-row
+>
+  @let r = $any(row);
+  <app-project-document-status
+    [status]="r.documentStatus"
+    (viewDetails)="onDocumentStatusViewDetails(r)"
+  />
+</ng-template>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"
@@ -444,6 +455,7 @@
     projectNameCell: projectNameCell,
     projectWorkTypes: projectWorkTypes,
     projectStakeholders: projectStakeholders,
+    projectDocumentStatus: projectDocumentStatus,
   }"
   (rowActionClick)="handleProjectTableActionClick($any($event), false)"
   (bulkActionClick)="handleProjectTableActionClick($any($event), true)"

@@ -69,12 +69,12 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseAddFormDto>
       fieldName: 'expenseDate',
       label: 'Date of Expense',
       dateConfig: {
-        minDate: new Date(
-          Math.max(
-            getDateBeforeXDays(6).getTime(),
-            financialYearService.getFinancialYearStartDate().getTime()
-          )
-        ),
+        // minDate: new Date(
+        //   Math.max(
+        //     getDateBeforeXDays(6).getTime(),
+        //     financialYearService.getFinancialYearStartDate().getTime()
+        //   )
+        // ),
         maxDate: new Date(),
       },
       validators: [Validators.required],

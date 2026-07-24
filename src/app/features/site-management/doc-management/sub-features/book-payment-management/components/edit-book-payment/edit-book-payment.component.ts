@@ -1,6 +1,5 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   computed,
   effect,
@@ -33,6 +32,7 @@ import {
 import {
   applyProjectDateRangeFromSite,
   IProjectSiteDateRange,
+  parseProjectDateOnly,
 } from '@features/site-management/project-management/utility/project-overview-date.util';
 
 import { EDIT_BOOK_PAYMENT_FORM_CONFIG } from '../../config';
@@ -70,7 +70,6 @@ export class EditBookPaymentComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   private trackedBookPaymentInputs!: ITrackedFields<IEditBookPaymentUIFormDto>;
   private invoiceOptions: IOptionDropdown<IBookPaymentInvoiceDropdownMeta>[] =
@@ -137,7 +136,7 @@ export class EditBookPaymentComponent
         defaultValues: {
           projectName: record.siteId,
           invoiceNumber: record.invoiceId,
-          bookingDate: new Date(record.bookingDate),
+          bookingDate: parseProjectDateOnly(record.bookingDate),
           paymentTotalAmount: Number(record.paymentTotalAmount),
           paymentHoldReason: record.paymentHoldReason ?? null,
           remarks: record.remarks ?? null,
@@ -154,7 +153,6 @@ export class EditBookPaymentComponent
       EDIT_BOOK_PAYMENT_FORM_CONFIG.fields.bookingDate.dateConfig,
       record.site as IProjectSiteDateRange
     );
-    queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
     this.trackedBookPaymentInputs =
       this.formService.trackMultipleFieldChanges<IEditBookPaymentUIFormDto>(
@@ -181,7 +179,6 @@ export class EditBookPaymentComponent
         ],
       },
     } as IInputFieldsConfig;
-    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private loadInvoiceOptions(siteId: string): void {
@@ -245,7 +242,6 @@ export class EditBookPaymentComponent
         loading,
       },
     } as IInputFieldsConfig;
-    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private updateSelectedInvoiceMeta(): void {

@@ -1,0 +1,27 @@
+<div class="doc-status">
+  <div class="doc-status__metrics">
+    @for (metric of metrics(); track metric.label) {
+      <div class="doc-status__metric">
+        <span class="doc-status__label">{{ metric.label }}</span>
+        <span
+          class="doc-status__value"
+          [attr.data-tone]="metric.tone"
+        >
+          {{ metric.displayValue }}
+        </span>
+      </div>
+    }
+  </div>
+
+  <button
+    type="button"
+    class="doc-status__btn"
+    (click)="onViewDetails($event)"
+  >
+    View details
+    <i
+      class="pi pi-arrow-right"
+      aria-hidden="true"
+    ></i>
+  </button>
+</div>

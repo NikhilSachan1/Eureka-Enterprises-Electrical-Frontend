@@ -1,5 +1,5 @@
 import { Injectable, inject, DestroyRef, signal, Signal } from '@angular/core';
-import { FormBuilder, FormGroup, ValidatorFn } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ValidatorFn } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { merge } from 'rxjs';
 import { InputFieldConfigService } from '@shared/services';
@@ -16,6 +16,7 @@ import {
   MultiStepFormsRecord,
   FormWithRequiredFieldConfigs,
   EDataType,
+  IResolvedLineItemsTableConfig,
 } from '@shared/types';
 import { IConditionalValidator } from '@shared/types/form/input-fields-config.interface';
 import {
@@ -386,6 +387,15 @@ export class FormService {
     Object.keys(fieldConfigs).forEach(key => {
       const config = fieldConfigs[key];
       const fieldName = config.fieldName ?? key;
+
+      if (config.fieldType === EDataType.LINE_ITEMS) {
+        formControls[fieldName] = this.createLineItemsFormArray(
+          config,
+          defaultValues?.[key]
+        );
+        return;
+      }
+
       const defaultValue = defaultValues?.[key] ?? config.defaultValue ?? null;
       const validators: ValidatorFn[] = [
         ...(config.validators ?? []),
@@ -396,6 +406,54 @@ export class FormService {
     });
 
     return this.fb.group(formControls);
+  }
+
+  private createLineItemsFormArray(
+    config: IInputFieldsConfig,
+    defaultItems: unknown
+  ): FormArray<FormGroup> {
+    const formArray = this.fb.array<FormGroup>([]);
+    const { lineItemsConfig } = config;
+
+    if (
+      !lineItemsConfig ||
+      !Array.isArray(defaultItems) ||
+      defaultItems.length === 0
+    ) {
+      return formArray;
+    }
+
+    const resolved =
+      this.inputFieldConfigService.resolveLineItemsTableConfig(lineItemsConfig);
+
+    defaultItems.forEach(itemValues => {
+      formArray.push(
+        this.createLineItemRowGroup(
+          itemValues as Record<string, unknown>,
+          resolved
+        )
+      );
+    });
+
+    return formArray;
+  }
+
+  private createLineItemRowGroup(
+    values: Record<string, unknown> | undefined,
+    tableConfig: IResolvedLineItemsTableConfig
+  ): FormGroup {
+    const groupConfig: Record<string, [unknown, ...unknown[]]> = {};
+
+    tableConfig.columns.forEach(column => {
+      const fieldConfig =
+        this.inputFieldConfigService.buildLineItemCellFieldConfig(column, 0);
+      groupConfig[column.fieldName] = [
+        values?.[column.fieldName] ?? column.defaultValue ?? null,
+        fieldConfig.validators ?? [],
+      ];
+    });
+
+    return this.fb.group(groupConfig);
   }
 
   /** File count/size/format validators for attachment fields (kept in sync when conditional validators run). */

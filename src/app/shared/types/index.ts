@@ -45,7 +45,7 @@ export {
   EButtonSize,
   EButtonActionType,
 } from './button/button.types';
-export { ETabMode, ETabLayout } from './nav-tabs/tab-items.types';
+export { ETabMode, ETabLayout, ETabTier } from './nav-tabs/tab-items.types';
 export { EDrawerPosition, EDrawerSize } from './drawer/drawer.types';
 
 export type {
@@ -196,3 +196,9 @@ export {
 } from './charts/charts.types';
 export type { ITimelineConfig } from './timeline/timeline.interface';
 export { ETimelineLayout, ETimelineAlign } from './timeline/timeline.types';
+export type {
+  ILineItemsColumnFieldsConfig,
+  ILineItemsTableColumn,
+  ILineItemsTableConfig,
+  IResolvedLineItemsTableConfig,
+} from './line-items-table/line-items-table.interface';

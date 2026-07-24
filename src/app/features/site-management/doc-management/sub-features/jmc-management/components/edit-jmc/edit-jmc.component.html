@@ -12,20 +12,31 @@
     [inputFieldConfig]="form.fieldConfigs.poNumber"
   />
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.jmcNumber"
-  />
+  @if (!isSystemGenerated()) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.jmcNumber"
+    />
+  }
 
   <app-input-field
     [formGroup]="form.formGroup"
     [inputFieldConfig]="form.fieldConfigs.jmcDate"
   />
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.jmcAttachment"
-  />
+  @if (isSystemGenerated()) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.items"
+    />
+  }
+
+  @if (!isSystemGenerated()) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.jmcAttachment"
+    />
+  }
 
   <app-input-field
     [formGroup]="form.formGroup"

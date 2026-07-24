@@ -109,14 +109,14 @@ const buildInvoiceTableRowActionsConfig = (
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Invoice',
-    disableWhen: (row: IInvoiceGetBaseResponseDto) =>
-      isNotRecordCreator(row.createdBy, loggedInUserId) ||
-      shouldDisableInvoiceEditOrDelete(row),
-    disableReason: (row: IInvoiceGetBaseResponseDto) =>
-      recordCreatorDisableReason('invoice', row.createdBy, loggedInUserId) ??
-      (shouldDisableInvoiceEditOrDelete(row)
-        ? INVOICE_ROW_ACTION_DISABLE_REASON.lockedNoEdit
-        : undefined),
+    // disableWhen: (row: IInvoiceGetBaseResponseDto) =>
+    //   isNotRecordCreator(row.createdBy, loggedInUserId) ||
+    //   shouldDisableInvoiceEditOrDelete(row),
+    // disableReason: (row: IInvoiceGetBaseResponseDto) =>
+    //   recordCreatorDisableReason('invoice', row.createdBy, loggedInUserId) ??
+    //   (shouldDisableInvoiceEditOrDelete(row)
+    //     ? INVOICE_ROW_ACTION_DISABLE_REASON.lockedNoEdit
+    //     : undefined),
     permission: [APP_PERMISSION.INVOICE_DOC.EDIT],
   },
   {

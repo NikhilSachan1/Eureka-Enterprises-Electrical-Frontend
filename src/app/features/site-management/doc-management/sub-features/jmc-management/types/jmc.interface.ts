@@ -20,6 +20,7 @@ export interface IJmc
   > {
   docWorkspaceContext: IDocWorkspaceContextView;
   fileKeys: string[];
+  jmcDocKeys: string[];
   documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
   originalRawData: IJmcGetBaseResponseDto;
 }

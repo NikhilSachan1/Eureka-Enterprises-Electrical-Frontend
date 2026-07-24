@@ -7,13 +7,17 @@ export const EditJmcRequestSchema = JmcUpsertShapeSchema.omit({
 })
   .strict()
   .transform(data => {
-    return {
+    const payload = {
       jmcNumber: data.jmcNumber,
       jmcDate: transformDateFormat(data.jmcDate),
       fileKey: data.jmcFileKey,
       fileName: data.jmcFileName,
       remarks: data.remarks,
+      ...(data.items !== null && data.items !== undefined
+        ? { items: data.items }
+        : {}),
     };
+    return payload;
   });
 
 export const EditJmcResponseSchema = z.looseObject({

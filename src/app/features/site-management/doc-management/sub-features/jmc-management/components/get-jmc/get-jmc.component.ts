@@ -17,12 +17,16 @@ import {
   AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
+  GalleryService,
+  LoadingService,
+  NotificationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
 import {
   EButtonActionType,
   EDataType,
+  IAttachmentsGetResponseDto,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
@@ -80,6 +84,9 @@ export class GetJmcComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly jmcService = inject(JmcService);
+  private readonly galleryService = inject(GalleryService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly notificationService = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
@@ -186,6 +193,7 @@ export class GetJmcComponent implements OnInit {
         po: record.po,
         fileKey: record.fileKey,
         fileKeys: record.fileKey ? [record.fileKey] : [],
+        jmcDocKeys: record.isSystemGenerated ? [record.id] : [],
         approvalStatus: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.projectDocumentApprovalStatuses(),
           record.approvalStatus
@@ -211,6 +219,11 @@ export class GetJmcComponent implements OnInit {
   protected onHeaderButtonClick(actionName: string): void {
     if (actionName === 'addJmc') {
       this.openAddJmcDialog();
+      return;
+    }
+
+    if (actionName === 'generateJmc') {
+      this.openGenerateJmcDialog();
     }
   }
 
@@ -224,6 +237,24 @@ export class GetJmcComponent implements OnInit {
       {
         docContext: this.docRouteContext(),
         projectName: this.workspaceContext.activeProjectId(),
+        onSuccess: () => {
+          this.loadJmcList();
+        },
+      }
+    );
+  }
+
+  private openGenerateJmcDialog(): void {
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.GENERATE,
+      JMC_ACTION_CONFIG_MAP[EButtonActionType.GENERATE],
+      null,
+      false,
+      false,
+      {
+        docContext: this.docRouteContext(),
+        projectName: this.workspaceContext.activeProjectId(),
+        isSystemGenerated: true,
         onSuccess: () => {
           this.loadJmcList();
         },
@@ -275,8 +306,8 @@ export class GetJmcComponent implements OnInit {
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
       {
-        label: 'Attachment(s)',
-        value: [selectedRow.fileKey],
+        label: 'Signed copy',
+        value: selectedRow.fileKey ? [selectedRow.fileKey] : [],
         type: EDataType.ATTACHMENTS,
       },
     ];
@@ -309,7 +340,65 @@ export class GetJmcComponent implements OnInit {
     });
   }
 
+  protected openJmcDoc(jmcId: string): void {
+    this.loadingService.show({
+      title: 'Loading JMC DOC',
+      message: 'Fetching the JMC document. Please wait…',
+    });
+
+    this.jmcService
+      .getJmcPdf(jmcId)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IAttachmentsGetResponseDto) => {
+          this.galleryService.show([
+            {
+              mediaKey: response.key,
+              actualMediaUrl: response.url,
+            },
+          ]);
+        },
+        error: error => {
+          this.logger.logUserAction('Failed to load JMC PDF', error);
+          this.notificationService.error(
+            'Could not load the JMC document. Please try again.'
+          );
+        },
+      });
+  }
+
+  protected handleAttachmentClick(row: Record<string, unknown>): void {
+    const jmc = row as unknown as IJmc;
+    if (!jmc.id) {
+      return;
+    }
+    this.openJmcDoc(jmc.id);
+  }
+
   private getPageHeaderConfig(): IPageHeaderConfig {
+    const headerButtonConfig: IPageHeaderConfig['headerButtonConfig'] = [
+      {
+        ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
+        label: 'Add JMC',
+        actionName: 'addJmc',
+        permission: [APP_PERMISSION.JMC_DOC.ADD],
+      },
+    ];
+
+    if (this.docRouteContext() === EDocContext.SALES) {
+      headerButtonConfig.push({
+        ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
+        label: 'Generate JMC',
+        actionName: 'generateJmc',
+        permission: [APP_PERMISSION.JMC_DOC.GENERATE_JMC_DOC],
+      });
+    }
+
     return {
       title: '',
       subtitle: '',
@@ -317,14 +406,7 @@ export class GetJmcComponent implements OnInit {
       showGoBackButton: false,
       showSearch: true,
       searchPlaceholder: 'Search by JMC Number',
-      headerButtonConfig: [
-        {
-          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
-          label: 'Add JMC',
-          actionName: 'addJmc',
-          permission: [APP_PERMISSION.JMC_DOC.ADD],
-        },
-      ],
+      headerButtonConfig,
     };
   }
 }

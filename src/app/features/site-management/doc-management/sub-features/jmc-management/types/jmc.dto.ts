@@ -4,6 +4,8 @@ import {
   AddJmcResponseSchema,
   EditJmcRequestSchema,
   EditJmcResponseSchema,
+  UploadJmcSignedCopyRequestSchema,
+  UploadJmcSignedCopyResponseSchema,
   ApproveJmcRequestSchema,
   ApproveJmcResponseSchema,
   DeleteJmcResponseSchema,
@@ -20,6 +22,9 @@ import {
   JmcDropdownGetRequestSchema,
   JmcDropdownGetResponseSchema,
   JmcDropdownRecordSchema,
+  JmcItemSuggestionsGetRequestSchema,
+  JmcItemSuggestionsGetResponseSchema,
+  JmcItemUpsertSchema,
 } from '../schemas';
 import { JmcDetailGetRequestSchema } from '../schemas/get-jmc-detail.schema';
 
@@ -115,6 +120,25 @@ export type IEditJmcUIFormDto = Omit<
 };
 export type IEditJmcResponseDto = z.infer<typeof EditJmcResponseSchema>;
 
+/**
+ * JMC Upload signed copy
+ */
+export type IUploadJmcSignedCopyRequestDto = z.infer<
+  typeof UploadJmcSignedCopyRequestSchema
+>;
+export type IUploadJmcSignedCopyFormDto = z.input<
+  typeof UploadJmcSignedCopyRequestSchema
+>;
+export type IUploadJmcSignedCopyUIFormDto = Omit<
+  IUploadJmcSignedCopyFormDto,
+  'fileKey' | 'fileName'
+> & {
+  signedCopyAttachment: File[];
+};
+export type IUploadJmcSignedCopyResponseDto = z.infer<
+  typeof UploadJmcSignedCopyResponseSchema
+>;
+
 /** JMC dropdown (reports, etc.) */
 export type IJmcDropdownGetRequestDto = z.input<
   typeof JmcDropdownGetRequestSchema
@@ -123,3 +147,15 @@ export type IJmcDropdownGetResponseDto = z.infer<
   typeof JmcDropdownGetResponseSchema
 >;
 export type IJmcDropdownRecordDto = z.infer<typeof JmcDropdownRecordSchema>;
+
+/** JMC line item name typeahead */
+export type IJmcItemSuggestionsGetRequestDto = z.input<
+  typeof JmcItemSuggestionsGetRequestSchema
+>;
+export type IJmcItemSuggestionsGetResponseDto = z.infer<
+  typeof JmcItemSuggestionsGetResponseSchema
+>;
+
+/** JMC line item (system-generated) */
+export type IJmcItemUpsertDto = z.infer<typeof JmcItemUpsertSchema>;
+export type IJmcItemFormDto = z.input<typeof JmcItemUpsertSchema>;

@@ -612,3 +612,11 @@ $muted: var(--text-secondary-color);
   line-height: 1.35;
   word-break: break-word;
 }
+
+:host ::ng-deep td.project-doc-status-col,
+:host ::ng-deep th.project-doc-status-col {
+  min-width: 15rem;
+  max-width: 17rem;
+  white-space: normal;
+  vertical-align: middle;
+}

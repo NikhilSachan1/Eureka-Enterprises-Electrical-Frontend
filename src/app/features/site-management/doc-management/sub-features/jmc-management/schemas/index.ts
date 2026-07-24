@@ -1,4 +1,8 @@
-export { JmcBaseSchema, JmcUpsertShapeSchema } from './base-jmc.schema';
+export {
+  JmcBaseSchema,
+  JmcUpsertShapeSchema,
+  JmcItemUpsertSchema,
+} from './base-jmc.schema';
 export {
   JmcGetRequestSchema,
   JmcGetBaseResponseSchema,
@@ -26,7 +30,15 @@ export { UnlockRejectJmcResponseSchema } from './unlock-reject-jmc.schema';
 export { AddJmcRequestSchema, AddJmcResponseSchema } from './add-jmc.schema';
 export { EditJmcRequestSchema, EditJmcResponseSchema } from './edit-jmc.schema';
 export {
+  UploadJmcSignedCopyRequestSchema,
+  UploadJmcSignedCopyResponseSchema,
+} from './upload-jmc-signed-copy.schema';
+export {
   JmcDropdownGetRequestSchema,
   JmcDropdownGetResponseSchema,
   JmcDropdownRecordSchema,
 } from './get-jmc-dropdown.schema';
+export {
+  JmcItemSuggestionsGetRequestSchema,
+  JmcItemSuggestionsGetResponseSchema,
+} from './get-jmc-item-suggestions.schema';
