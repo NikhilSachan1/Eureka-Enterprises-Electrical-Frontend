@@ -61,6 +61,24 @@ export function shouldDisableJmcEditOrDelete(
   return row.isLocked === true;
 }
 
+export function jmcEditDisableReason(
+  row: IJmcGetBaseResponseDto
+): string | undefined {
+  if (row.isLocked === true) {
+    return JMC_ROW_ACTION_DISABLE_REASON.lockedNoEdit;
+  }
+  return undefined;
+}
+
+export function jmcDeleteDisableReason(
+  row: IJmcGetBaseResponseDto
+): string | undefined {
+  if (row.isLocked === true) {
+    return JMC_ROW_ACTION_DISABLE_REASON.lockedNoDelete;
+  }
+  return undefined;
+}
+
 export const JMC_ROW_ACTION_DISABLE_REASON = {
   approveAlreadyApproved: 'This JMC is already approved.',
   approveOnlyPendingOrRejected:

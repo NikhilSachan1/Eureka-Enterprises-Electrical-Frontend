@@ -13,11 +13,18 @@ import {
 } from '../../types/jmc.dto';
 import { JmcService } from '../../services/jmc.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { AppConfigurationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  GalleryService,
+  LoadingService,
+  NotificationService,
+} from '@shared/services';
 import {
   EDataType,
+  IAttachmentsGetResponseDto,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
+  IDetailEntryData,
   IEntityViewDetails,
 } from '@shared/types';
 import { finalize } from 'rxjs';
@@ -45,6 +52,9 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
   };
   private readonly jmcService = inject(JmcService);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly galleryService = inject(GalleryService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly notificationService = inject(NotificationService);
 
   protected readonly _jmcDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -138,8 +148,17 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
       });
     }
 
+    if (record.isSystemGenerated) {
+      entryData.push({
+        label: 'JMC DOC',
+        value: [record.id],
+        type: EDataType.ATTACHMENTS,
+        enableAttachmentGallery: false,
+      });
+    }
+
     entryData.push({
-      label: 'Attachment(s)',
+      label: 'Signed copy',
       value: record.fileKey ? [record.fileKey] : [],
       type: EDataType.ATTACHMENTS,
     });
@@ -182,5 +201,45 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
       name: parts.length > 0 ? parts.join(' · ') : 'Job material certificate',
       subtitle: jmcNumber,
     };
+  }
+
+  protected handleDetailAttachmentClick(entry: IDetailEntryData): void {
+    const jmcId = (entry.value as string[])?.[0];
+    if (!jmcId) {
+      return;
+    }
+    this.openJmcDoc(jmcId);
+  }
+
+  protected openJmcDoc(jmcId: string): void {
+    this.loadingService.show({
+      title: 'Loading JMC DOC',
+      message: 'Fetching the JMC document. Please wait…',
+    });
+
+    this.jmcService
+      .getJmcPdf(jmcId)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IAttachmentsGetResponseDto) => {
+          this.galleryService.show([
+            {
+              mediaKey: response.key,
+              actualMediaUrl: response.url,
+            },
+          ]);
+        },
+        error: error => {
+          this.logger.logUserAction('Failed to load JMC PDF', error);
+          this.notificationService.error(
+            'Could not load the JMC document. Please try again.'
+          );
+        },
+      });
   }
 }

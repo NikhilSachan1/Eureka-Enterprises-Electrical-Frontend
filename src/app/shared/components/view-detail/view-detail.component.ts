@@ -11,6 +11,7 @@ import {
   computed,
   inject,
   input,
+  output,
   TemplateRef,
 } from '@angular/core';
 import { AppPermissionService } from '@core/services';
@@ -76,6 +77,7 @@ export class ViewDetailComponent {
   customTemplates = input<Record<string, TemplateRef<unknown>>>({});
   /** `true`: show entity header without permission check. `false`: gated by `SIDEBAR_INITIALS`. */
   showEntityHeader = input<boolean>(false);
+  attachmentClick = output<IDetailEntryData>();
 
   protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly icons = ICONS;
@@ -163,11 +165,26 @@ export class ViewDetailComponent {
     this.galleryService.show(media);
   }
 
-  protected getAttachmentEntry(
+  protected handleAttachmentEntryClick(entry: IDetailEntryData): void {
+    const fileKeys = entry.value as string[];
+    if (!fileKeys?.length) {
+      return;
+    }
+
+    if (entry.enableAttachmentGallery === false) {
+      this.attachmentClick.emit(entry);
+      return;
+    }
+
+    this.viewAttachment(fileKeys);
+  }
+
+  protected getAttachmentEntries(
     entryData: IDetailEntryData[]
-  ): IDetailEntryData | undefined {
-    const visibleEntries = this.getVisibleEntries(entryData);
-    return visibleEntries.find(e => e.type === EDataType.ATTACHMENTS);
+  ): IDetailEntryData[] {
+    return this.getVisibleEntries(entryData).filter(
+      entry => entry.type === EDataType.ATTACHMENTS
+    );
   }
 
   protected getVisibleEntries(

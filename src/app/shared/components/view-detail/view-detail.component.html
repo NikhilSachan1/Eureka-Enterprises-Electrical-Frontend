@@ -159,8 +159,7 @@
           }
         </div>
 
-        @let attachmentEntry = getAttachmentEntry(detail.entryData);
-        @if (attachmentEntry) {
+        @for (attachmentEntry of getAttachmentEntries(detail.entryData); track attachmentEntry.label) {
           <p-divider />
           @let attachmentCount = $any(attachmentEntry.value).length;
           @let hasAttachments = attachmentCount > 0;
@@ -170,7 +169,7 @@
             [class.view-detail-attachment--empty]="!hasAttachments"
             [tabindex]="hasAttachments ? 0 : -1"
             role="button"
-            (click)="hasAttachments && viewAttachment($any(attachmentEntry.value))"
+            (click)="hasAttachments && handleAttachmentEntryClick(attachmentEntry)"
           >
             <i
               [class]="

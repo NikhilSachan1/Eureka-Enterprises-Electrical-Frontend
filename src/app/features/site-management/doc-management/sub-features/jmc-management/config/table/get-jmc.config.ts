@@ -17,8 +17,9 @@ import {
   IJmcGetResponseDto,
 } from '../../types/jmc.dto';
 import {
-  JMC_ROW_ACTION_DISABLE_REASON,
   jmcApproveDisableReason,
+  jmcEditDisableReason,
+  jmcDeleteDisableReason,
   jmcRejectDisableReason,
   jmcUnlockGrantDisableReason,
   jmcUnlockRequestDisableReason,
@@ -64,8 +65,16 @@ export const JMC_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'jmcDocKeys',
+    header: 'JMC DOC',
+    bodyTemplate: EDataType.ATTACHMENTS,
+    showSort: false,
+    showFilter: false,
+    enableAttachmentGallery: false,
+  },
+  {
     field: 'fileKeys',
-    header: 'Attachments',
+    header: 'Signed copy',
     bodyTemplate: EDataType.ATTACHMENTS,
     showSort: false,
   },
@@ -100,10 +109,20 @@ const buildJmcTableRowActionsConfig = (
       shouldDisableJmcEditOrDelete(row),
     disableReason: (row: IJmcGetBaseResponseDto) =>
       recordCreatorDisableReason('JMC', row.createdBy, loggedInUserId) ??
-      (shouldDisableJmcEditOrDelete(row)
-        ? JMC_ROW_ACTION_DISABLE_REASON.lockedNoEdit
-        : undefined),
+      jmcEditDisableReason(row),
     permission: [APP_PERMISSION.JMC_DOC.EDIT],
+  },
+  {
+    id: EButtonActionType.UPLOAD,
+    tooltip: 'Upload signed copy',
+    hideWhen: (row: IJmcGetBaseResponseDto) => !row.isSystemGenerated,
+    disableWhen: (row: IJmcGetBaseResponseDto) =>
+      isNotRecordCreator(row.createdBy, loggedInUserId) ||
+      shouldDisableJmcEditOrDelete(row),
+    disableReason: (row: IJmcGetBaseResponseDto) =>
+      recordCreatorDisableReason('JMC', row.createdBy, loggedInUserId) ??
+      jmcEditDisableReason(row),
+    permission: [APP_PERMISSION.JMC_DOC.UPLOAD_SIGNED_COPY],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
@@ -113,9 +132,7 @@ const buildJmcTableRowActionsConfig = (
       shouldDisableJmcEditOrDelete(row),
     disableReason: (row: IJmcGetBaseResponseDto) =>
       recordCreatorDisableReason('JMC', row.createdBy, loggedInUserId) ??
-      (shouldDisableJmcEditOrDelete(row)
-        ? JMC_ROW_ACTION_DISABLE_REASON.lockedNoDelete
-        : undefined),
+      jmcDeleteDisableReason(row),
     permission: [APP_PERMISSION.JMC_DOC.DELETE],
   },
   {

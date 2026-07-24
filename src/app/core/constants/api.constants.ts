@@ -266,6 +266,8 @@ export const API_ROUTES = {
         UNLOCK_REQUEST_GRANT: (jmcId: string) => `jmcs/${jmcId}/unlock-grant`,
         UNLOCK_REQUEST_REJECT: (jmcId: string) => `jmcs/${jmcId}/unlock-reject`,
         DELETE: (jmcId: string) => `jmcs/${jmcId}`,
+        PDF: (jmcId: string) => `jmcs/${jmcId}/pdf`,
+        UPLOAD_SIGNED_JMC: (jmcId: string) => `jmcs/${jmcId}/upload`,
       },
       REPORT: {
         ADD: 'site-reports',

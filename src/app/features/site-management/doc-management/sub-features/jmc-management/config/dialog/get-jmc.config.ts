@@ -17,6 +17,7 @@ import { UnlockRequestRejectJmcComponent } from '../../components/unlock-request
 import { AddJmcComponent } from '../../components/add-jmc/add-jmc.component';
 import { EditJmcComponent } from '../../components/edit-jmc/edit-jmc.component';
 import { DeleteJmcComponent } from '../../components/delete-jmc/delete-jmc.component';
+import { UploadJmcSignedCopyComponent } from '../../components/upload-jmc-signed-copy/upload-jmc-signed-copy.component';
 
 export const JMC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.ADD]: {
@@ -44,6 +45,15 @@ export const JMC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
       size: EDialogSize.EXTRA_LARGE,
     },
     dynamicComponent: EditJmcComponent,
+  },
+
+  [EButtonActionType.UPLOAD]: {
+    dialogConfig: {
+      header: 'Upload signed copy',
+      message: 'Upload the signed copy for this system-generated JMC.',
+      icon: ICONS.COMMON.UPLOAD,
+    },
+    dynamicComponent: UploadJmcSignedCopyComponent,
   },
 
   [EButtonActionType.APPROVE]: {

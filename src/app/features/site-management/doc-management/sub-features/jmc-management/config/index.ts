@@ -5,3 +5,4 @@ export { REJECT_ACTION_JMC_FORM_CONFIG } from './form/reject-jmc.config';
 export { UNLOCK_REQUEST_ACTION_JMC_FORM_CONFIG } from './form/unlock-request-jmc.config';
 export { ADD_JMC_FORM_CONFIG } from './form/add-jmc.config';
 export { EDIT_JMC_FORM_CONFIG } from './form/edit-jmc.config';
+export { UPLOAD_JMC_SIGNED_COPY_FORM_CONFIG } from './form/upload-jmc-signed-copy.config';

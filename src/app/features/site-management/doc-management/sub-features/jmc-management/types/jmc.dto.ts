@@ -4,6 +4,8 @@ import {
   AddJmcResponseSchema,
   EditJmcRequestSchema,
   EditJmcResponseSchema,
+  UploadJmcSignedCopyRequestSchema,
+  UploadJmcSignedCopyResponseSchema,
   ApproveJmcRequestSchema,
   ApproveJmcResponseSchema,
   DeleteJmcResponseSchema,
@@ -115,6 +117,22 @@ export type IEditJmcUIFormDto = Omit<
   projectName: string;
 };
 export type IEditJmcResponseDto = z.infer<typeof EditJmcResponseSchema>;
+
+/**
+ * JMC Upload signed copy
+ */
+export type IUploadJmcSignedCopyRequestDto = z.infer<
+  typeof UploadJmcSignedCopyRequestSchema
+>;
+export type IUploadJmcSignedCopyFormDto = z.input<
+  typeof UploadJmcSignedCopyRequestSchema
+>;
+export interface IUploadJmcSignedCopyUIFormDto {
+  signedCopyAttachment: File[];
+}
+export type IUploadJmcSignedCopyResponseDto = z.infer<
+  typeof UploadJmcSignedCopyResponseSchema
+>;
 
 /** JMC dropdown (reports, etc.) */
 export type IJmcDropdownGetRequestDto = z.input<

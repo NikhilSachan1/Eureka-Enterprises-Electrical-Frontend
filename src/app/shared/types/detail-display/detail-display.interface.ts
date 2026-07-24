@@ -29,6 +29,8 @@ export interface IDetailEntryData {
   detailTemplateFullRow?: boolean;
   /** Skip bordered panel wrapper around custom template content. */
   detailTemplatePlain?: boolean;
+  /** When false, attachment click emits to parent instead of opening gallery (default: true). */
+  enableAttachmentGallery?: boolean;
   metadata?: {
     transactionType?:
       | EExpenseTransactionType
