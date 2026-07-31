@@ -1,0 +1,45 @@
+<p-dialog
+  [modal]="true"
+  [(visible)]="visible"
+  [style]="{ width: '70rem' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [maximizable]="true"
+  [contentStyle]="{ padding: '0' }"
+>
+  <ng-template #header>
+    <div class="flex items-center gap-3 w-full min-w-0 pr-2">
+      <span
+        class="flex shrink-0 items-center justify-center w-10 h-10 rounded-lg text-white"
+        [style.background-color]="avatarColor()"
+      >
+        <i [class]="icons.SITE.BUILDING"></i>
+      </span>
+      <div class="flex flex-col gap-1 min-w-0 flex-1">
+        <app-status-tag [value]="project().projectStatus" />
+        <span class="font-semibold leading-snug">{{ project().projectName }}</span>
+        <span class="text-sm text-[var(--text-secondary-color)]">
+          {{ project().stakeholders.company?.name || '—' }} |
+          {{ project().projectLocation }}
+        </span>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="docstat">
+    <section class="docstat__summary">
+      <app-project-document-status
+        [status]="project().documentStatus"
+        [showAction]="false"
+        [embedded]="true"
+      />
+    </section>
+
+    <section class="docstat__body">
+      <app-empty-messages
+        [icon]="icons.COMMON.INBOX"
+        title="No document flow available"
+        description="PO document tree is not available for this project yet."
+      />
+    </section>
+  </div>
+</p-dialog>

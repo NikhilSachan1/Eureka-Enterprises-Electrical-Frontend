@@ -461,3 +461,10 @@
   (bulkActionClick)="handleProjectTableActionClick($any($event), true)"
   (filterData)="onTableStateChange($event)"
 />
+
+@if (docStatusDetailProject(); as project) {
+  <app-project-document-status-detail
+    [(visible)]="docStatusDetailVisible"
+    [project]="project"
+  />
+}

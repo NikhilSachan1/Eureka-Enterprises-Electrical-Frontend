@@ -27,6 +27,8 @@ export class ProjectDocumentStatusComponent {
   private readonly currencyPipe = inject(IndianCurrencyPipe);
 
   readonly status = input.required<IProjectDocumentStatus>();
+  readonly showAction = input(true);
+  readonly embedded = input(false);
   readonly viewDetails = output<void>();
 
   protected readonly metrics = computed((): IDocStatusMetric[] => {
@@ -75,7 +77,7 @@ export class ProjectDocumentStatusComponent {
   private formatValue(value: number, format: EDocStatusMetricFormat): string {
     if (format === EDocStatusMetricFormat.CURRENCY) {
       return value > 0
-        ? this.currencyPipe.transform(value, 'short') || String(value)
+        ? this.currencyPipe.transform(value, 'full') || String(value)
         : '—';
     }
 

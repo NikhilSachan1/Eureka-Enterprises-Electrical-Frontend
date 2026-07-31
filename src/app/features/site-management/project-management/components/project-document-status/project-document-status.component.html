@@ -1,4 +1,7 @@
-<div class="doc-status">
+<div
+  class="doc-status"
+  [class.doc-status--embedded]="embedded()"
+>
   <div class="doc-status__metrics">
     @for (metric of metrics(); track metric.label) {
       <div class="doc-status__metric">
@@ -13,15 +16,17 @@
     }
   </div>
 
-  <button
-    type="button"
-    class="doc-status__btn"
-    (click)="onViewDetails($event)"
-  >
-    View details
-    <i
-      class="pi pi-arrow-right"
-      aria-hidden="true"
-    ></i>
-  </button>
+  @if (showAction()) {
+    <button
+      type="button"
+      class="doc-status__btn"
+      (click)="onViewDetails($event)"
+    >
+      View details
+      <i
+        class="pi pi-arrow-right"
+        aria-hidden="true"
+      ></i>
+    </button>
+  }
 </div>

@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   OnInit,
   signal,
@@ -63,6 +64,7 @@ import {
 import { SEARCH_FILTER_PROJECT_FORM_CONFIG } from '../../config/form/search-filter-project.config';
 import { ProjectSiteTypeChipsComponent } from '../project-site-type-chips/project-site-type-chips.component';
 import { ProjectDocumentStatusComponent } from '../project-document-status/project-document-status.component';
+import { ProjectDocumentStatusDetailComponent } from '../project-document-status-detail/project-document-status-detail.component';
 import {
   mapProjectSiteTypeDisplays,
   projectSiteTypeTagVariant,
@@ -82,6 +84,7 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
     PopoverModule,
     ProjectSiteTypeChipsComponent,
     ProjectDocumentStatusComponent,
+    ProjectDocumentStatusDetailComponent,
   ],
   templateUrl: './get-project.component.html',
   styleUrl: './get-project.component.scss',
@@ -151,6 +154,16 @@ export class GetProjectComponent implements OnInit {
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricGroups = computed(() => this.getMetricGroups());
+  protected readonly docStatusDetailVisible = signal(false);
+  protected readonly docStatusDetailProject = signal<IProject | null>(null);
+
+  constructor() {
+    effect(() => {
+      if (!this.docStatusDetailVisible()) {
+        this.docStatusDetailProject.set(null);
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -238,7 +251,9 @@ export class GetProjectComponent implements OnInit {
   }
 
   protected onDocumentStatusViewDetails(project: IProject): void {
-    this.logger.logUserAction('Document status view details clicked', {
+    this.docStatusDetailProject.set(project);
+    this.docStatusDetailVisible.set(true);
+    this.logger.logUserAction('Document status view details opened', {
       projectId: project.id,
     });
   }

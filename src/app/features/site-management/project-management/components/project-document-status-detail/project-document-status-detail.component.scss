@@ -1,0 +1,15 @@
+﻿.docstat {
+  display: flex;
+  flex-direction: column;
+}
+
+.docstat__summary {
+  padding: 1.25rem;
+  background: var(--background-paper-color);
+  border-bottom: 1px solid var(--border-light-color);
+}
+
+.docstat__body {
+  padding: 1.5rem 1.25rem 1.75rem;
+  background: var(--surface-ground, #f8fafc);
+}
