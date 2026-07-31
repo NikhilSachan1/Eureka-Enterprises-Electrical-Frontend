@@ -32,13 +32,25 @@
         [showAction]="false"
         [embedded]="true"
       />
+
+      <div class="docstat__toolbar">
+        <p-selectButton
+          [options]="contextOptions"
+          [ngModel]="docContext()"
+          (ngModelChange)="setDocContext($event)"
+          optionLabel="label"
+          optionValue="value"
+          [allowEmpty]="false"
+          ariaLabel="Document context"
+        />
+      </div>
     </section>
 
     <section class="docstat__body">
       <app-empty-messages
         [icon]="icons.COMMON.INBOX"
-        title="No document flow available"
-        description="PO document tree is not available for this project yet."
+        [title]="emptyState().title"
+        [description]="emptyState().description"
       />
     </section>
   </div>
