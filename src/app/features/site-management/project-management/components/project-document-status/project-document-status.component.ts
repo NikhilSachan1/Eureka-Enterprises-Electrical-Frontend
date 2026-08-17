@@ -117,7 +117,7 @@ export class ProjectDocumentStatusComponent {
   ): IDocStatusMetric[] {
     const invoiceLabel =
       context === 'sales'
-        ? 'To receive'
+        ? 'To invoice'
         : context === 'purchase'
           ? 'To pay'
           : 'To invoice';

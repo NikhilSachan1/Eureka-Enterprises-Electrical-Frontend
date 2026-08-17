@@ -117,7 +117,7 @@ export function buildProjectDocumentStatusSummary(
       toBeInvoicedAmount:
         summary.toBeInvoicedAmount +
         (isSales
-          ? Math.max(record.totalAmount - record.counts.amounts.paid, 0)
+          ? getPoUninvoicedAmount(record)
           : Math.max(
               record.counts.amounts.invoiceTotal - record.counts.amounts.paid,
               0
