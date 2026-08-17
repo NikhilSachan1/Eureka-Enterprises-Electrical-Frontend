@@ -1,4 +1,5 @@
 import {
+  getPoUninvoicedAmount,
   getSalesPaymentNextMissing,
   needsAdditionalBookPayment,
 } from './project-document-status-chain.util';
@@ -34,9 +35,8 @@ export function buildPoPanelMetrics(
 ): IPoPanelMetrics {
   const c = record.counts;
   const invoicePaymentDue = Math.max(c.amounts.invoiceTotal - c.amounts.paid, 0);
-  const amountDue = isSales
-    ? Math.max(record.totalAmount - c.amounts.paid, 0)
-    : invoicePaymentDue;
+  const uninvoicedAmount = getPoUninvoicedAmount(record);
+  const amountDue = isSales ? uninvoicedAmount : invoicePaymentDue;
 
   const poApproved = countPoApproved(record.status);
 
@@ -77,7 +77,7 @@ export function buildPoPanelMetrics(
       ? []
       : [{ label: 'Booked', value: formatCurrency(c.amounts.booked) }]),
     {
-      label: isSales ? 'Invoice to receive' : 'Invoice to pay',
+      label: isSales ? 'To invoice' : 'Invoice to pay',
       value: formatCurrency(amountDue),
       tone: amountDue > 0 ? 'warn' : 'ok',
     },
