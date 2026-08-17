@@ -186,6 +186,9 @@ export const API_ROUTES = {
         `configurations/${configurationId}`,
     },
   },
+  DOCUMENT_STATUS: {
+    PO_BREAKDOWN: 'document-status/po-breakdown',
+  },
   SITE: {
     TIMELINE: {
       GET: (siteId: string) => `analytics/sites/${siteId}/timeline`,

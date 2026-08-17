@@ -1,5 +1,4 @@
 import { IProjectGetBaseResponseDto } from './project.dto';
-import { IProjectDocumentStatus } from './project-document-status.interface';
 
 export interface IProjectStakeholders {
   company: IProjectGetBaseResponseDto['company'];
@@ -17,7 +16,6 @@ export interface IProject
   projectStatus: string;
   timeLine: Date[];
   stakeholders: IProjectStakeholders;
-  documentStatus: IProjectDocumentStatus;
   originalRawData: IProjectGetBaseResponseDto;
 }
 
