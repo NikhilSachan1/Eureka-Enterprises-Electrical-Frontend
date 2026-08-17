@@ -6,7 +6,7 @@ export const SHIFT_DATA = {
 };
 
 export const PAYSLIP_DATE_DATA = {
-  EVERY_MONTH: 2,
+  EVERY_MONTH: 10,
   CURRENT_MONTH: false,
 };
 

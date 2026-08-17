@@ -5,7 +5,7 @@ import z from 'zod';
 
 export const PayPaymentSheetItemRequestSchema = z
   .object({
-    paymentMode: z.string().trim(),
+    paymentMode: z.string().trim().nullable(),
     paidFromAccount: uuidField.nullable(),
     paidDate: dateField,
     transactionId: z.string().trim().min(1),
