@@ -143,3 +143,12 @@ export type IWorkforceAllocationManageFormDto = z.input<
 export type IWorkforceAllocationManageResponseDto = z.infer<
   typeof WorkforceAllocationManageResponseSchema
 >;
+
+/*
+  PO document breakdown
+*/
+export type {
+  IPoBreakdownGetFormDto,
+  IPoBreakdownGetRecordDto,
+  IPoBreakdownGetResponseDto,
+} from './po-breakdown.dto';

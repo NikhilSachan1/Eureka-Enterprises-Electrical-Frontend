@@ -44,3 +44,8 @@ export {
   WorkforceAllocationGetStatsSchema,
   WorkforceAllocationGetResponseSchema,
 } from './get-workforce-allocation.schema';
+export {
+  PoBreakdownGetRequestSchema,
+  PoBreakdownGetResponseSchema,
+  PoBreakdownRecordSchema,
+} from './get-po-breakdown.schema';

@@ -5,6 +5,7 @@
   [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
   [maximizable]="true"
   [contentStyle]="{ padding: '0' }"
+  (onShow)="onDialogShow()"
 >
   <ng-template #header>
     <div class="flex items-center gap-3 w-full min-w-0 pr-2">
@@ -28,30 +29,262 @@
   <div class="docstat">
     <section class="docstat__summary">
       <app-project-document-status
-        [status]="project().documentStatus"
+        [status]="summaryStatus()"
+        [showContractor]="docContextAvailability().hasContractor"
+        [showVendor]="docContextAvailability().hasVendor"
+        [contextLabel]="isSales() ? 'Contractor' : 'Vendor'"
+        [missingStageLabel]="showMissingPoChain() ? 'PO' : null"
         [showAction]="false"
         [embedded]="true"
       />
 
-      <div class="docstat__toolbar">
-        <p-selectButton
-          [options]="contextOptions"
-          [ngModel]="docContext()"
-          (ngModelChange)="setDocContext($event)"
-          optionLabel="label"
-          optionValue="value"
-          [allowEmpty]="false"
-          ariaLabel="Document context"
-        />
-      </div>
+      @if (showContextToggle()) {
+        <div class="docstat__toolbar">
+          <p-selectButton
+            [options]="contextOptions()"
+            [ngModel]="docContext()"
+            (ngModelChange)="setDocContext($event)"
+            optionLabel="label"
+            optionValue="value"
+            [allowEmpty]="false"
+            ariaLabel="Document context"
+          />
+        </div>
+      }
     </section>
 
     <section class="docstat__body">
-      <app-empty-messages
-        [icon]="icons.COMMON.INBOX"
-        [title]="emptyState().title"
-        [description]="emptyState().description"
-      />
+      @if (loading()) {
+        <div class="docstat__loading">
+          <p-progressSpinner strokeWidth="4" ariaLabel="Loading" />
+        </div>
+      } @else if (showMissingPoChain()) {
+        <div class="docstat__missing-po">
+          <ng-container
+            *ngTemplateOutlet="
+              docChainGraph;
+              context: {
+                graph: missingPoGraph(),
+                graphClass: 'docstat__graph docstat__graph--missing-po',
+              }
+            "
+          />
+        </div>
+      } @else if (!displayTotalRecords()) {
+        <app-empty-messages
+          [icon]="icons.COMMON.INBOX"
+          [title]="emptyState().title"
+          [description]="emptyState().description"
+        />
+      } @else {
+        <div class="docstat__panels">
+          @for (po of displayRecords(); track po.id) {
+            @let metrics = poMetrics(po);
+            @let missing = missingCount(po);
+            @let pending = pendingCount(po);
+            @let graph = poGraph(po);
+
+            <p-panel [toggleable]="true">
+              <ng-template pTemplate="header">
+                <div class="docstat__panel-head">
+                  <div class="docstat__panel-title">
+                    <strong>{{ po.poNumber }}</strong>
+                    <small>
+                      {{ po.partyName || '—' }}
+                      @if (po.totalAmount > 0) {
+                        · {{ formatCurrency(po.totalAmount) }}
+                      }
+                    </small>
+                  </div>
+                  <div class="docstat__panel-badges">
+                    @if (missing) {
+                      <p-tag
+                        [value]="missing + ' missing'"
+                        severity="danger"
+                        [rounded]="true"
+                        styleClass="docstat__head-tag"
+                      />
+                    }
+                    @if (pending) {
+                      <p-tag
+                        [value]="pending + ' pending'"
+                        severity="warn"
+                        [rounded]="true"
+                        styleClass="docstat__head-tag"
+                      />
+                    }
+                  </div>
+                </div>
+              </ng-template>
+
+              <div class="po-summary">
+                <div class="po-summary__strip">
+                  <div class="po-summary__group">
+                    @for (item of metrics.approvals; track item.label) {
+                      <div class="po-summary__item">
+                        <span class="po-summary__label">{{ item.label }}</span>
+                        <span
+                          class="po-summary__value"
+                          [attr.data-tone]="item.tone"
+                        >
+                          {{ item.value }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+                  <div class="po-summary__group po-summary__group--amounts">
+                    @for (item of metrics.amounts; track item.label) {
+                      <div class="po-summary__item">
+                        <span class="po-summary__label">{{ item.label }}</span>
+                        <span
+                          class="po-summary__value"
+                          [attr.data-tone]="item.tone"
+                        >
+                          {{ item.value }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <ng-container
+                *ngTemplateOutlet="
+                  docChainGraph;
+                  context: {
+                    graph: graph,
+                    graphClass: 'docstat__graph',
+                  }
+                "
+              />
+            </p-panel>
+          }
+        </div>
+
+        @if (displayTotalRecords() > pageSize) {
+          <app-paginator
+            [rows]="pageSize"
+            [totalRecords]="displayTotalRecords()"
+            [first]="paginatorFirst()"
+            (pageChange)="onPageChange($event)"
+          />
+        }
+      }
     </section>
   </div>
 </p-dialog>
+
+<ng-template #graphLegend>
+  <div class="docstat__graph-legend">
+    <span class="docstat__legend-item">
+      <span
+        class="docstat__legend-swatch docstat__legend-swatch--doc"
+      ></span>
+      On record
+    </span>
+    <span class="docstat__legend-item">
+      <span
+        class="docstat__legend-swatch docstat__legend-swatch--expected"
+      ></span>
+      Expected (missing)
+    </span>
+    <span class="docstat__legend-item">
+      <span
+        class="docstat__legend-swatch docstat__legend-swatch--na"
+      ></span>
+      Not applicable
+    </span>
+  </div>
+</ng-template>
+
+<ng-template #graphNodeCard let-node="node">
+  @let card = buildGraphCardView(node.data);
+  <div xmlns="http://www.w3.org/1999/xhtml" class="doc-chain-card-host">
+    <div
+      [class]="card.className"
+      [attr.data-stage]="card.stageTone"
+      [attr.data-state]="card.state"
+    >
+      <div class="doc-chain-card__head">
+        <span class="doc-chain-card__identity">
+          <i
+            [class]="'doc-chain-card__icon ' + card.stageIcon"
+            aria-hidden="true"
+          ></i>
+          <span class="doc-chain-card__type">{{ card.docName }}</span>
+        </span>
+        <span class="doc-chain-card__badge">
+          <span class="doc-chain-card__badge-dot" aria-hidden="true"></span>
+          {{ card.statusLabel }}
+        </span>
+      </div>
+
+      <div class="doc-chain-card__body">
+        <div
+          class="doc-chain-card__ref"
+          [class.doc-chain-card__ref--placeholder]="card.isPlaceholder"
+        >
+          {{ card.primaryText }}
+        </div>
+
+        @if (card.hasFacts) {
+          <div class="doc-chain-card__facts">
+            @if (card.amount) {
+              <div class="doc-chain-card__fact">
+                <span class="doc-chain-card__fact-label">Amount</span>
+                <span class="doc-chain-card__fact-value">{{
+                  formatCurrency(card.amount)
+                }}</span>
+              </div>
+            }
+            @if (card.formattedDate !== '—') {
+              <div class="doc-chain-card__fact">
+                <span class="doc-chain-card__fact-label">{{
+                  card.dateLabel
+                }}</span>
+                <span class="doc-chain-card__fact-value">{{
+                  card.formattedDate
+                }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #docChainGraph let-graph="graph" let-graphClass="graphClass">
+  <ng-container *ngTemplateOutlet="graphLegend" />
+
+  <div [class]="graphClass">
+    <ngx-graph
+      #poGraphRef
+      [nodes]="graph.nodes"
+      [links]="graph.links"
+      [layout]="graphLayout"
+      [layoutSettings]="graphLayoutSettings"
+      [enableDrag]="false"
+      [enablePan]="true"
+      [enableZoom]="true"
+      [autoZoom]="true"
+      [autoCenter]="true"
+      [maxZoomLevel]="4"
+      [animate]="false"
+      (drawComplete)="onGraphDrawComplete(poGraphRef)"
+    >
+      <ng-template #nodeTemplate let-node>
+        <svg:g>
+          <svg:foreignObject
+            [attr.width]="node.dimension.width"
+            [attr.height]="node.dimension.height"
+          >
+            <ng-container
+              *ngTemplateOutlet="graphNodeCard; context: { node: node }"
+            />
+          </svg:foreignObject>
+        </svg:g>
+      </ng-template>
+    </ngx-graph>
+  </div>
+</ng-template>

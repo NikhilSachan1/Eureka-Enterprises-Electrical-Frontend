@@ -437,8 +437,15 @@
   let-row
 >
   @let r = $any(row);
+  @let breakdown = documentBreakdown(r.id);
+  @let contractors = r.stakeholders?.siteContractors ?? [];
+  @let vendors = r.stakeholders?.vendors ?? [];
   <app-project-document-status
-    [status]="r.documentStatus"
+    [showContractor]="contractors.length > 0"
+    [showVendor]="vendors.length > 0"
+    [salesStatus]="breakdown.sales"
+    [purchaseStatus]="breakdown.purchase"
+    [loading]="breakdown.loading"
     (viewDetails)="onDocumentStatusViewDetails(r)"
   />
 </ng-template>
@@ -466,5 +473,6 @@
   <app-project-document-status-detail
     [(visible)]="docStatusDetailVisible"
     [project]="project"
+    [breakdownSnapshot]="docStatusDetailSnapshot()"
   />
 }

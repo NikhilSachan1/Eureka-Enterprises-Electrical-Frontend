@@ -1,9 +1,8 @@
-<div
-  class="doc-status"
-  [class.doc-status--embedded]="embedded()"
->
+@let interactive = showAction() && !embedded();
+
+<ng-template #metricGrid let-items>
   <div class="doc-status__metrics">
-    @for (metric of metrics(); track metric.label) {
+    @for (metric of items; track metric.label) {
       <div class="doc-status__metric">
         <span class="doc-status__label">{{ metric.label }}</span>
         <span
@@ -15,18 +14,117 @@
       </div>
     }
   </div>
+</ng-template>
 
-  @if (showAction()) {
-    <button
-      type="button"
-      class="doc-status__btn"
-      (click)="onViewDetails($event)"
-    >
-      View details
-      <i
-        class="pi pi-arrow-right"
-        aria-hidden="true"
-      ></i>
-    </button>
+<ng-template
+  #contextSection
+  let-title
+  let-items="items"
+  let-toneClass="toneClass"
+>
+  <div class="doc-status__section" [class]="toneClass">
+    <span class="doc-status__section-title">{{ title }}</span>
+    <ng-container
+      *ngTemplateOutlet="metricGrid; context: { $implicit: items }"
+    />
+  </div>
+</ng-template>
+
+<ng-template #docStatusBody>
+  @if (loading()) {
+    <div class="doc-status__loading">
+      <span class="doc-status__spinner" aria-hidden="true"></span>
+      <span>Loading…</span>
+    </div>
+  } @else if (layoutMode() === 'both') {
+    <ng-container
+      *ngTemplateOutlet="
+        contextSection;
+        context: {
+          $implicit: 'Contractor',
+          items: contractorMetrics(),
+          toneClass: 'doc-status__section--contractor',
+        }
+      "
+    />
+    <ng-container
+      *ngTemplateOutlet="
+        contextSection;
+        context: {
+          $implicit: 'Vendor',
+          items: vendorMetrics(),
+          toneClass: 'doc-status__section--vendor doc-status__section--split',
+        }
+      "
+    />
+  } @else if (layoutMode() === 'contractor') {
+    <ng-container
+      *ngTemplateOutlet="
+        contextSection;
+        context: {
+          $implicit: 'Contractor',
+          items: contractorMetrics(),
+          toneClass: 'doc-status__section--contractor',
+        }
+      "
+    />
+  } @else if (layoutMode() === 'vendor') {
+    <ng-container
+      *ngTemplateOutlet="
+        contextSection;
+        context: {
+          $implicit: 'Vendor',
+          items: vendorMetrics(),
+          toneClass: 'doc-status__section--vendor',
+        }
+      "
+    />
+  } @else if (layoutMode() === 'single') {
+    @if (contextLabel(); as label) {
+      <ng-container
+        *ngTemplateOutlet="
+          contextSection;
+          context: {
+            $implicit: label,
+            items: metrics(),
+            toneClass:
+              label === 'Contractor'
+                ? 'doc-status__section--contractor'
+                : 'doc-status__section--vendor',
+          }
+        "
+      />
+    } @else {
+      <ng-container
+        *ngTemplateOutlet="metricGrid; context: { $implicit: metrics() }"
+      />
+    }
+  } @else {
+    <div class="doc-status__empty">No contractor or vendor linked</div>
   }
-</div>
+</ng-template>
+
+@if (interactive) {
+  <button
+    type="button"
+    class="doc-status doc-status--interactive"
+    [class.doc-status--sectioned]="layoutMode() !== 'none'"
+    [class.doc-status--dual]="layoutMode() === 'both'"
+    [class.doc-status--loading]="loading()"
+    [disabled]="loading() || layoutMode() === 'none'"
+    aria-label="View document status breakdown"
+    (click)="onViewDetails($event)"
+  >
+    <ng-container *ngTemplateOutlet="docStatusBody" />
+  </button>
+} @else {
+  <div
+    class="doc-status"
+    [class.doc-status--embedded]="embedded()"
+    [class.doc-status--sectioned]="layoutMode() !== 'none'"
+    [class.doc-status--dual]="layoutMode() === 'both'"
+    [class.doc-status--loading]="loading()"
+  >
+    <ng-container *ngTemplateOutlet="docStatusBody" />
+  </div>
+}

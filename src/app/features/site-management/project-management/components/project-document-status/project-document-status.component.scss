@@ -6,11 +6,41 @@
 .doc-status {
   display: grid;
   gap: 0.45rem;
+  min-width: 0;
+  width: 100%;
   padding: 0.45rem 0.55rem;
   border: 1px solid var(--border-light-color);
   border-radius: 10px;
   background: var(--background-paper-color);
   box-shadow: var(--shadow-sm);
+}
+
+.doc-status--interactive {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+
+  &:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--primary-color) 28%, var(--border-light-color));
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: default;
+    transform: none;
+  }
 }
 
 .doc-status__metrics {
@@ -43,57 +73,99 @@
   overflow: hidden;
   text-overflow: ellipsis;
 
-  &[data-tone="danger"] {
+  &[data-tone='danger'] {
     color: #dc2626;
   }
 
-  &[data-tone="warn"] {
+  &[data-tone='warn'] {
     color: #ea580c;
   }
 
-  &[data-tone="info"] {
+  &[data-tone='info'] {
     color: #4f46e5;
   }
 
-  &[data-tone="ok"] {
+  &[data-tone='ok'] {
     color: #16a34a;
   }
 }
 
-.doc-status__btn {
-  display: inline-flex;
+.doc-status--sectioned,
+.doc-status--dual {
+  .doc-status__section {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+
+    &--split {
+      padding-top: 0.4rem;
+      border-top: 1px solid var(--border-light-color);
+    }
+  }
+
+  .doc-status__section-title {
+    font-size: 0.5625rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--text-secondary-color);
+  }
+
+  .doc-status__section--contractor .doc-status__section-title {
+    color: #0369a1;
+  }
+
+  .doc-status__section--vendor .doc-status__section-title {
+    color: #6d28d9;
+  }
+}
+
+.doc-status__empty {
+  min-height: 3.5rem;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
-  width: 100%;
-  padding: 0.3rem 0.45rem;
-  border: 1px solid var(--border-light-color);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--text-secondary-color) 4%, var(--background-paper-color));
-  font: inherit;
   font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--primary-color);
-  cursor: pointer;
+  color: var(--text-secondary-color);
+  text-align: center;
+}
 
-  i {
-    font-size: 0.625rem;
-  }
+.doc-status--loading {
+  min-height: 4.5rem;
+}
 
-  &:hover {
-    background: color-mix(in srgb, var(--primary-color) 8%, var(--background-paper-color));
-    border-color: color-mix(in srgb, var(--primary-color) 25%, var(--border-light-color));
-  }
+.doc-status__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 3.5rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--text-secondary-color);
+}
 
-  &:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
+.doc-status__spinner {
+  width: 0.95rem;
+  height: 0.95rem;
+  border: 2px solid color-mix(in srgb, var(--primary-color) 15%, transparent);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: doc-status-spin 0.7s linear infinite;
+}
+
+@keyframes doc-status-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
 .doc-status--embedded {
   padding: 0.85rem 0;
-  border: 1px solid var(--border-light-color);
   border-radius: 0.5rem;
 
   .doc-status__metrics {
@@ -101,7 +173,6 @@
   }
 
   .doc-status__metric {
-    text-align: center;
     padding: 0 1rem;
 
     &:not(:last-child) {
@@ -111,16 +182,12 @@
 
   .doc-status__label {
     font-size: 0.6875rem;
-    font-weight: 600;
     letter-spacing: 0.03em;
     text-transform: uppercase;
-    color: var(--text-secondary-color);
   }
 
   .doc-status__value {
     font-size: 1.0625rem;
-    font-weight: 700;
-    line-height: 1.2;
     white-space: normal;
     overflow: visible;
     text-overflow: unset;
