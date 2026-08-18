@@ -11,6 +11,7 @@ import {
   EDocChainNodeState,
   EDocChainStage,
 } from '../types/project-document-status-detail.enum';
+import { IDocGraphBuildContext } from '../types/project-document-status-detail.interface';
 
 function approvalTone(done: number, total: number): 'ok' | 'warn' | 'danger' {
   if (total <= 0) {
@@ -110,9 +111,13 @@ function buildGraphApprovalMetrics(
 export function buildPoPanelMetrics(
   record: IPoBreakdownRecord,
   isSales: boolean,
-  formatCurrency: (value: number) => string
+  formatCurrency: (value: number) => string,
+  graphContext?: Pick<IDocGraphBuildContext, 'showPoUninvoicedBalanceNode'>
 ): IPoPanelMetrics {
-  const graph = buildPoDocumentGraph(record, { isSales });
+  const graph = buildPoDocumentGraph(record, {
+    isSales,
+    ...graphContext,
+  });
   const nodes = graph.nodes
     .map(node => node.data)
     .filter((data): data is IDocChainNodeVm => !!data);

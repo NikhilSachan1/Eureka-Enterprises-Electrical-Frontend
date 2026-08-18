@@ -4,6 +4,8 @@ export type { IDocChainNodeVm } from './po-breakdown.interface';
 
 export interface IDocGraphBuildContext {
   isSales: boolean;
+  /** PO-level uninvoiced balance node (direct from PO). Off for single-branch workspace views. */
+  showPoUninvoicedBalanceNode?: boolean;
 }
 
 export interface IDocGraph {
