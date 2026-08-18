@@ -122,7 +122,7 @@ export class ProjectDocumentStatusBlockComponent {
               return;
             }
 
-            this.breakdown.set(mapBreakdownResponse(project, response));
+            this.breakdown.set(mapBreakdownResponse(response, project));
           },
           error: error => {
             if (version !== this.loadVersion) {

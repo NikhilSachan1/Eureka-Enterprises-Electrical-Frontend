@@ -81,6 +81,14 @@
       word-break: break-word;
     }
 
+    .p-datatable-tbody > tr > td.project-doc-status-col,
+    .p-datatable-thead > tr > th.project-doc-status-col {
+      min-width: 14rem;
+      max-width: 17rem;
+      white-space: normal;
+      vertical-align: middle;
+    }
+
     .p-datatable-tbody > tr:hover {
       background: color-mix(in srgb, var(--primary-color) 14%, var(--surface-200)) !important;
     }

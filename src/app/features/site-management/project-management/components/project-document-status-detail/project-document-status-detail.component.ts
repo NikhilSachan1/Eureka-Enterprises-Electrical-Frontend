@@ -26,7 +26,6 @@ import { ICONS } from '@shared/constants';
 import { IndianCurrencyPipe } from '@shared/pipes/indian-currency.pipe';
 import { AvatarService, RouterNavigationService } from '@shared/services';
 import { DialogModule } from 'primeng/dialog';
-import { PanelModule } from 'primeng/panel';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { finalize } from 'rxjs';
 import { IPoBreakdownRecord } from '../../types/po-breakdown.interface';
@@ -42,7 +41,6 @@ import { DocumentStatusService } from '../../services/document-status.service';
 import { mapPoBreakdownRecords } from '../../utility/po-breakdown.mapper';
 import {
   buildGraphCardView,
-  buildMissingPoGraph,
   buildPoDocumentGraph,
 } from '../../utility/project-document-status-graph.util';
 import { buildPoPanelMetrics } from '../../utility/project-document-status-detail.util';
@@ -67,7 +65,6 @@ import { ProjectDocumentStatusComponent } from '../project-document-status/proje
   imports: [
     NgTemplateOutlet,
     DialogModule,
-    PanelModule,
     TagModule,
     FormsModule,
     SelectButtonModule,
@@ -141,13 +138,6 @@ export class ProjectDocumentStatusDetailComponent {
     return options;
   });
 
-  protected readonly showGraphLegend = computed(
-    () =>
-      !this.loading() &&
-      !this.loadError() &&
-      (this.showMissingPoChain() || this.displayTotalRecords() > 0)
-  );
-
   protected readonly showContextToggle = computed(
     () => this.contextOptions().length > 1
   );
@@ -181,18 +171,28 @@ export class ProjectDocumentStatusDetailComponent {
   });
   protected readonly displayRecords = computed(() => {
     const contextSnapshot = this.activeContextSnapshot();
-    if (contextSnapshot) {
+    const snapshotRecords = contextSnapshot?.records ?? [];
+
+    if (snapshotRecords.length) {
       const start = this.paginatorFirst();
-      return contextSnapshot.records.slice(start, start + this.pageSize);
+      return snapshotRecords.slice(start, start + this.pageSize);
     }
+
     return this.records();
   });
   protected readonly displayTotalRecords = computed(() => {
     const contextSnapshot = this.activeContextSnapshot();
-    if (contextSnapshot) {
-      return contextSnapshot.totalRecords;
+    const snapshotRecords = contextSnapshot?.records ?? [];
+
+    if (snapshotRecords.length) {
+      return contextSnapshot!.totalRecords;
     }
-    return this.totalRecords();
+
+    if (this.records().length || this.totalRecords()) {
+      return this.totalRecords();
+    }
+
+    return contextSnapshot?.totalRecords ?? 0;
   });
   protected readonly paginatorFirst = computed(
     () => (this.page() - 1) * this.pageSize
@@ -207,9 +207,10 @@ export class ProjectDocumentStatusDetailComponent {
         this.docContext()
       )
   );
-  protected readonly missingPoGraph = computed(() =>
-    buildMissingPoGraph({ isSales: this.isSales() })
-  );
+  protected readonly missingPoEmptyState = computed(() => ({
+    title: 'PO missing',
+    description: 'Please update PO first.',
+  }));
   protected readonly emptyState = computed(() =>
     this.loadError()
       ? {
@@ -228,7 +229,7 @@ export class ProjectDocumentStatusDetailComponent {
   });
   protected readonly summaryStatus = computed(() => {
     const contextSnapshot = this.activeContextSnapshot();
-    if (contextSnapshot) {
+    if (contextSnapshot?.records.length) {
       return contextSnapshot.summary;
     }
 
@@ -241,6 +242,14 @@ export class ProjectDocumentStatusDetailComponent {
       )
     ) {
       return EMPTY_PROJECT_DOCUMENT_STATUS;
+    }
+
+    if (this.records().length) {
+      return buildProjectDocumentStatusSummary(this.records(), this.isSales());
+    }
+
+    if (contextSnapshot) {
+      return contextSnapshot.summary;
     }
 
     return buildProjectDocumentStatusSummary(this.records(), this.isSales());
@@ -281,10 +290,24 @@ export class ProjectDocumentStatusDetailComponent {
 
       if (this.breakdownSnapshot()) {
         untracked(() => {
+          const contextSnapshot = this.activeContextSnapshot();
+          const snapshotNeedsRefetch =
+            !!contextSnapshot &&
+            contextSnapshot.totalRecords > 0 &&
+            !contextSnapshot.records.length;
+
+          if (snapshotNeedsRefetch) {
+            this.loading.set(true);
+            this.loadError.set(null);
+            this.loadPoBreakdown();
+            return;
+          }
+
           this.loading.set(false);
           this.loadError.set(null);
           this.records.set([]);
           this.totalRecords.set(0);
+          this.syncExpandedPoPanel();
         });
         return;
       }
@@ -301,6 +324,7 @@ export class ProjectDocumentStatusDetailComponent {
     this.page.set(1);
     this.expandedPoId.set(undefined);
     this.clearGraphCache();
+    this.syncExpandedPoPanel();
   }
 
   protected onPageChange(event: PaginatorState): void {
@@ -319,11 +343,9 @@ export class ProjectDocumentStatusDetailComponent {
     return this.expandedPoId() !== poId;
   }
 
-  protected onPoPanelCollapsedChange(poId: string, collapsed: boolean): void {
-    if (collapsed) {
-      if (this.expandedPoId() === poId) {
-        this.expandedPoId.set(undefined);
-      }
+  protected togglePoPanel(poId: string): void {
+    if (this.expandedPoId() === poId) {
+      this.expandedPoId.set(undefined);
       return;
     }
 
@@ -363,6 +385,10 @@ export class ProjectDocumentStatusDetailComponent {
       return '—';
     }
     return this.currencyPipe.transform(value, 'full') || String(value);
+  }
+
+  protected onDialogShow(): void {
+    this.syncExpandedPoPanel();
   }
 
   protected navigateToWorkspaceDoc(stage: EDocChainStage, event: Event): void {
@@ -445,6 +471,7 @@ export class ProjectDocumentStatusDetailComponent {
           this.records.set(mapPoBreakdownRecords(response.records));
           this.totalRecords.set(response.totalRecords);
           this.loadError.set(null);
+          this.syncExpandedPoPanel();
         },
         error: () => {
           if (version !== this.loadVersion) {
@@ -465,5 +492,20 @@ export class ProjectDocumentStatusDetailComponent {
 
   private clearGraphCache(): void {
     this.graphCache.clear();
+  }
+
+  private syncExpandedPoPanel(): void {
+    const expandedId = this.expandedPoId();
+    if (!expandedId) {
+      return;
+    }
+
+    const isExpandedPoVisible = this.displayRecords().some(
+      po => po.id === expandedId
+    );
+
+    if (!isExpandedPoVisible) {
+      this.expandedPoId.set(undefined);
+    }
   }
 }

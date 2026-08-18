@@ -49,21 +49,28 @@
   padding: 1rem 1.25rem 1.25rem;
 }
 
+:host ::ng-deep .docstat__body .empty-state-container {
+  min-height: 8rem;
+  padding: 1.25rem 1rem;
+}
+
+:host ::ng-deep .docstat__body .empty-state-icon {
+  font-size: 2rem;
+}
+
+:host ::ng-deep .docstat__body .empty-state-title {
+  font-size: 1rem;
+}
+
+:host ::ng-deep .docstat__body .empty-state-description {
+  font-size: 0.8125rem;
+}
+
 .docstat__loading {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 12rem;
-}
-
-.docstat__missing-po {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.docstat__graph--missing-po {
-  min-height: 10rem;
 }
 
 .docstat__panels {
@@ -74,25 +81,46 @@
   --docstat-white: #fff;
 }
 
-:host ::ng-deep .docstat__panels {
-  .p-panel {
-    border: 1px solid var(--border-light-color);
-    border-radius: 0.375rem;
-    overflow: hidden;
-    background: var(--docstat-white);
-  }
+.docstat-po-card {
+  border: 1px solid var(--border-light-color);
+  border-radius: 0.375rem;
+  overflow: hidden;
+  background: var(--docstat-white);
+}
 
-  .p-panel-header {
-    padding: 0.65rem 0.75rem;
-    background: var(--docstat-smoke);
-    border: 0;
-  }
+.docstat-po-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border: 0;
+  background: var(--docstat-smoke);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
 
-  .p-panel-content {
-    padding: 0.65rem 0.75rem 0.75rem;
-    background: var(--docstat-white);
-    border-top: 1px solid var(--border-light-color);
+  &:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
+    outline-offset: -2px;
   }
+}
+
+.docstat-po-card__chevron {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary-color);
+}
+
+.docstat-po-card__body {
+  padding: 0.65rem 0.75rem 0.75rem;
+  background: var(--docstat-white);
+  border-top: 1px solid var(--border-light-color);
+}
+
+.docstat-po-card--expanded .docstat-po-card__header {
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 .docstat__panel-head {
@@ -214,46 +242,6 @@
   }
 }
 
-.docstat__graph-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1rem;
-  margin-bottom: 0.75rem;
-  padding: 0.5rem 0.65rem;
-  border: 1px solid var(--border-light-color);
-  border-radius: 0.375rem;
-  background: #fff;
-}
-
-.docstat__legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.6875rem;
-  font-weight: 500;
-  color: var(--text-secondary-color);
-}
-
-.docstat__legend-swatch {
-  flex-shrink: 0;
-  width: 1rem;
-  height: 1rem;
-  border-radius: 0.1875rem;
-  background: #fff;
-
-  &--doc {
-    border: 1px solid #16a34a;
-  }
-
-  &--expected {
-    border: 1px dashed #d97706;
-  }
-
-  &--na {
-    border: 1px solid #cbd5e1;
-    background: #f8fafc;
-  }
-}
 
 .docstat__graph {
   width: 100%;

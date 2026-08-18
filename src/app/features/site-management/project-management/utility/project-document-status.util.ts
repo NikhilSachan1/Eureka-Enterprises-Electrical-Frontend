@@ -37,13 +37,16 @@ export function hasDocumentStatusStakeholders(
 }
 
 export function mapBreakdownResponse(
-  project: IProjectDocumentStatusTarget,
-  response: IPoBreakdownGetResponseDto
+  response: IPoBreakdownGetResponseDto,
+  project?: IProjectDocumentStatusTarget | null
 ): IProjectDocumentBreakdownCell {
-  const snapshot = sanitizePoBreakdownSnapshot(
-    buildPoBreakdownSnapshot(response),
-    getProjectDocContextAvailability(project)
-  );
+  const rawSnapshot = buildPoBreakdownSnapshot(response);
+  const snapshot = project
+    ? sanitizePoBreakdownSnapshot(
+        rawSnapshot,
+        getProjectDocContextAvailability(project)
+      )
+    : rawSnapshot;
 
   return {
     loading: false,

@@ -57,7 +57,6 @@ import {
     PageHeaderComponent,
     SearchFilterComponent,
   ],
-  providers: [ProjectWorkspaceContextService],
   templateUrl: './get-project-workspace.component.html',
   styleUrl: './get-project-workspace.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
