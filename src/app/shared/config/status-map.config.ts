@@ -134,6 +134,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   'expiring soon': { icon: ICONS.STATUS.EXPIRING_SOON, severity: 'warning' },
 
   // Calibration
+  valid: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   retired: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   'calibrated assets': { icon: ICONS.ASSET.BOX, severity: 'success' },
   'non calibrated assets': { icon: ICONS.ASSET.BOX, severity: 'info' },
@@ -155,6 +156,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   updated: { icon: ICONS.ACTIONS.EDIT, severity: 'info' },
 
   // Warranty
+  'under warranty': { icon: ICONS.SECURITY.SHIELD, severity: 'success' },
   'warranty expired': { icon: ICONS.STATUS.EXPIRED, severity: 'danger' },
   'warranty expiring soon': {
     icon: ICONS.STATUS.EXPIRING_SOON,
