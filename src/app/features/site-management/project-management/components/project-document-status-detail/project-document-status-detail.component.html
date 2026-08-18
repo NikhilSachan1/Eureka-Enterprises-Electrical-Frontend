@@ -5,7 +5,6 @@
   [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
   [maximizable]="true"
   [contentStyle]="{ padding: '0' }"
-  (onShow)="onDialogShow()"
 >
   <ng-template #header>
     <div class="flex items-center gap-3 w-full min-w-0 pr-2">
@@ -28,16 +27,6 @@
 
   <div class="docstat">
     <section class="docstat__summary">
-      <app-project-document-status
-        [status]="summaryStatus()"
-        [showContractor]="docContextAvailability().hasContractor"
-        [showVendor]="docContextAvailability().hasVendor"
-        [contextLabel]="isSales() ? 'Contractor' : 'Vendor'"
-        [missingStageLabel]="showMissingPoChain() ? 'PO' : null"
-        [showAction]="false"
-        [embedded]="true"
-      />
-
       @if (showContextToggle()) {
         <div class="docstat__toolbar">
           <p-selectButton
@@ -48,12 +37,38 @@
             optionValue="value"
             [allowEmpty]="false"
             ariaLabel="Document context"
-          />
+          >
+            <ng-template
+              let-option
+              pTemplate="item"
+            >
+              <span class="docstat__context-option">
+                <span>{{ option.label }}</span>
+                @if (option.count) {
+                  <span class="docstat__context-badge">{{ option.count }}</span>
+                }
+              </span>
+            </ng-template>
+          </p-selectButton>
         </div>
       }
+
+      <app-project-document-status
+        [status]="summaryStatus()"
+        [metricContext]="isSales() ? 'sales' : 'purchase'"
+        [showContractor]="docContextAvailability().hasContractor"
+        [showVendor]="docContextAvailability().hasVendor"
+        [missingStageLabel]="showMissingPoChain() ? 'PO' : null"
+        [showAction]="false"
+        [compactStages]="true"
+      />
     </section>
 
     <section class="docstat__body">
+      @if (showGraphLegend()) {
+        <ng-container *ngTemplateOutlet="graphLegend" />
+      }
+
       @if (loading()) {
         <div class="docstat__loading">
           <p-progressSpinner strokeWidth="4" ariaLabel="Loading" />
@@ -82,19 +97,17 @@
             @let metrics = poMetrics(po);
             @let missing = missingCount(po);
             @let pending = pendingCount(po);
-            @let graph = poGraph(po);
 
-            <p-panel [toggleable]="true">
+            <p-panel
+              [toggleable]="true"
+              [collapsed]="isPoCollapsed(po.id)"
+              (collapsedChange)="onPoPanelCollapsedChange(po.id, $event)"
+            >
               <ng-template pTemplate="header">
                 <div class="docstat__panel-head">
                   <div class="docstat__panel-title">
                     <strong>{{ po.poNumber }}</strong>
-                    <small>
-                      {{ po.partyName || '—' }}
-                      @if (po.totalAmount > 0) {
-                        · {{ formatCurrency(po.totalAmount) }}
-                      }
-                    </small>
+                    <small>{{ po.partyName || '—' }}</small>
                   </div>
                   <div class="docstat__panel-badges">
                     @if (missing) {
@@ -117,11 +130,11 @@
                 </div>
               </ng-template>
 
-              <div class="po-summary">
-                <div class="po-summary__strip">
-                  <div class="po-summary__group">
-                    @for (item of metrics.approvals; track item.label) {
-                      <div class="po-summary__item">
+              @if (expandedPoId() === po.id) {
+                <div class="po-summary po-summary--staged">
+                  <div class="po-summary__stage po-summary__stage--flow">
+                    @for (item of metrics.approvals; track item.label; let last = $last) {
+                      <div class="po-summary__stage-item">
                         <span class="po-summary__label">{{ item.label }}</span>
                         <span
                           class="po-summary__value"
@@ -130,11 +143,19 @@
                           {{ item.value }}
                         </span>
                       </div>
+                      @if (!last) {
+                        <span
+                          class="po-summary__stage-sep"
+                          aria-hidden="true"
+                        >
+                          <i class="pi pi-chevron-right"></i>
+                        </span>
+                      }
                     }
                   </div>
-                  <div class="po-summary__group po-summary__group--amounts">
+                  <div class="po-summary__stage po-summary__stage--amounts">
                     @for (item of metrics.amounts; track item.label) {
-                      <div class="po-summary__item">
+                      <div class="po-summary__stage-item">
                         <span class="po-summary__label">{{ item.label }}</span>
                         <span
                           class="po-summary__value"
@@ -146,17 +167,18 @@
                     }
                   </div>
                 </div>
-              </div>
 
-              <ng-container
-                *ngTemplateOutlet="
-                  docChainGraph;
-                  context: {
-                    graph: graph,
-                    graphClass: 'docstat__graph',
-                  }
-                "
-              />
+                @let graph = poGraph(po);
+                <ng-container
+                  *ngTemplateOutlet="
+                    docChainGraph;
+                    context: {
+                      graph: graph,
+                      graphClass: 'docstat__graph',
+                    }
+                  "
+                />
+              }
             </p-panel>
           }
         </div>
@@ -213,10 +235,22 @@
           ></i>
           <span class="doc-chain-card__type">{{ card.docName }}</span>
         </span>
-        <span class="doc-chain-card__badge">
-          <span class="doc-chain-card__badge-dot" aria-hidden="true"></span>
-          {{ card.statusLabel }}
-        </span>
+        <div class="doc-chain-card__actions">
+          <span class="doc-chain-card__badge">
+            <span class="doc-chain-card__badge-dot" aria-hidden="true"></span>
+            {{ card.statusLabel }}
+          </span>
+          <button
+            type="button"
+            class="doc-chain-card__open"
+            [attr.aria-label]="
+              'Open ' + card.docName + ' in project workspace'
+            "
+            (click)="navigateToWorkspaceDoc(node.data.stage, $event)"
+          >
+            <i [class]="icons.COMMON.EXTERNAL_LINK" aria-hidden="true"></i>
+          </button>
+        </div>
       </div>
 
       <div class="doc-chain-card__body">
@@ -255,11 +289,8 @@
 </ng-template>
 
 <ng-template #docChainGraph let-graph="graph" let-graphClass="graphClass">
-  <ng-container *ngTemplateOutlet="graphLegend" />
-
   <div [class]="graphClass">
     <ngx-graph
-      #poGraphRef
       [nodes]="graph.nodes"
       [links]="graph.links"
       [layout]="graphLayout"
@@ -271,7 +302,6 @@
       [autoCenter]="true"
       [maxZoomLevel]="4"
       [animate]="false"
-      (drawComplete)="onGraphDrawComplete(poGraphRef)"
     >
       <ng-template #nodeTemplate let-node>
         <svg:g>

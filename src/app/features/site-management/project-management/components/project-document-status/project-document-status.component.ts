@@ -42,9 +42,12 @@ export class ProjectDocumentStatusComponent {
   readonly showContractor = input(true);
   readonly showVendor = input(true);
   readonly contextLabel = input<'Contractor' | 'Vendor' | null>(null);
+  readonly metricContext = input<'sales' | 'purchase' | null>(null);
   readonly loading = input(false);
   readonly showAction = input(true);
   readonly embedded = input(false);
+  /** Compact horizontal pipeline for dialog/detail surfaces. */
+  readonly compactStages = input(false);
   /** When set and missing count > 0, shows e.g. "PO · Missing" instead of "Missing · 1". */
   readonly missingStageLabel = input<string | null>(null);
   readonly viewDetails = output<void>();
@@ -81,7 +84,10 @@ export class ProjectDocumentStatusComponent {
   });
 
   protected readonly metrics = computed((): IDocStatusMetric[] =>
-    this.buildMetrics(this.status() ?? EMPTY_PROJECT_DOCUMENT_STATUS)
+    this.buildMetrics(
+      this.status() ?? EMPTY_PROJECT_DOCUMENT_STATUS,
+      this.metricContext() ?? false
+    )
   );
 
   protected readonly contractorMetrics = computed((): IDocStatusMetric[] => {

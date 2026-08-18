@@ -7,10 +7,8 @@ import {
   inject,
   input,
   model,
-  QueryList,
   signal,
   untracked,
-  ViewChildren,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgTemplateOutlet } from '@angular/common';
@@ -26,7 +24,7 @@ import { PaginatorComponent } from '@shared/components/paginator/paginator.compo
 import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { ICONS } from '@shared/constants';
 import { IndianCurrencyPipe } from '@shared/pipes/indian-currency.pipe';
-import { AvatarService } from '@shared/services';
+import { AvatarService, RouterNavigationService } from '@shared/services';
 import { DialogModule } from 'primeng/dialog';
 import { PanelModule } from 'primeng/panel';
 import { SelectButtonModule } from 'primeng/selectbutton';
@@ -38,6 +36,7 @@ import {
   IProjectPoBreakdownSnapshot,
 } from '../../types/project-document-status.interface';
 import { IDocGraph } from '../../types/project-document-status-detail.interface';
+import { EDocChainStage } from '../../types/project-document-status-detail.enum';
 import { IProject } from '../../types/project.interface';
 import { DocumentStatusService } from '../../services/document-status.service';
 import { mapPoBreakdownRecords } from '../../utility/po-breakdown.mapper';
@@ -59,6 +58,7 @@ import {
   isProjectDocContextAvailable,
   sanitizePoBreakdownSnapshot,
 } from '../../utility/project-doc-context.util';
+import { buildProjectWorkspaceDocRoute } from '../../utility/project-workspace-navigation.util';
 import { ProjectDocumentStatusComponent } from '../project-document-status/project-document-status.component';
 
 @Component({
@@ -86,6 +86,7 @@ export class ProjectDocumentStatusDetailComponent {
   private readonly currencyPipe = inject(IndianCurrencyPipe);
   private readonly avatarService = inject(AvatarService);
   private readonly documentStatusService = inject(DocumentStatusService);
+  private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly graphCache = new Map<string, IDocGraph>();
   private loadVersion = 0;
@@ -105,15 +106,13 @@ export class ProjectDocumentStatusDetailComponent {
   };
   protected readonly buildGraphCardView = buildGraphCardView;
 
-  @ViewChildren('poGraphRef')
-  private readonly graphRefs?: QueryList<GraphComponent>;
-
   protected readonly docContext = signal<EDocContext>(EDocContext.SALES);
   protected readonly records = signal<IPoBreakdownRecord[]>([]);
   protected readonly totalRecords = signal(0);
   protected readonly page = signal(1);
   protected readonly loading = signal(false);
   protected readonly loadError = signal<string | null>(null);
+  protected readonly expandedPoId = signal<string | undefined>(undefined);
 
   protected readonly docContextAvailability = computed(() =>
     getProjectDocContextAvailability(this.project())
@@ -121,18 +120,33 @@ export class ProjectDocumentStatusDetailComponent {
 
   protected readonly contextOptions = computed(() => {
     const { hasContractor, hasVendor } = this.docContextAvailability();
-    const options: { label: string; value: EDocContext }[] = [];
+    const options: { label: string; value: EDocContext; count: number }[] = [];
 
     if (hasContractor) {
-      options.push({ label: 'Contractor', value: EDocContext.SALES });
+      options.push({
+        label: 'Contractor',
+        value: EDocContext.SALES,
+        count: this.getContextPoCount(EDocContext.SALES),
+      });
     }
 
     if (hasVendor) {
-      options.push({ label: 'Vendor', value: EDocContext.PURCHASE });
+      options.push({
+        label: 'Vendor',
+        value: EDocContext.PURCHASE,
+        count: this.getContextPoCount(EDocContext.PURCHASE),
+      });
     }
 
     return options;
   });
+
+  protected readonly showGraphLegend = computed(
+    () =>
+      !this.loading() &&
+      !this.loadError() &&
+      (this.showMissingPoChain() || this.displayTotalRecords() > 0)
+  );
 
   protected readonly showContextToggle = computed(
     () => this.contextOptions().length > 1
@@ -243,6 +257,7 @@ export class ProjectDocumentStatusDetailComponent {
           this.loadError.set(null);
           this.loading.set(false);
           this.clearGraphCache();
+          this.expandedPoId.set(undefined);
         });
         return;
       }
@@ -270,7 +285,6 @@ export class ProjectDocumentStatusDetailComponent {
           this.loadError.set(null);
           this.records.set([]);
           this.totalRecords.set(0);
-          this.scheduleFitAllGraphs();
         });
         return;
       }
@@ -285,12 +299,8 @@ export class ProjectDocumentStatusDetailComponent {
     }
     this.docContext.set(context);
     this.page.set(1);
+    this.expandedPoId.set(undefined);
     this.clearGraphCache();
-    this.scheduleFitAllGraphs();
-  }
-
-  protected onDialogShow(): void {
-    this.scheduleFitAllGraphs();
   }
 
   protected onPageChange(event: PaginatorState): void {
@@ -299,9 +309,25 @@ export class ProjectDocumentStatusDetailComponent {
       return;
     }
     this.page.set(nextPage);
+    this.expandedPoId.set(undefined);
     if (!this.usesSnapshot()) {
       this.clearGraphCache();
     }
+  }
+
+  protected isPoCollapsed(poId: string): boolean {
+    return this.expandedPoId() !== poId;
+  }
+
+  protected onPoPanelCollapsedChange(poId: string, collapsed: boolean): void {
+    if (collapsed) {
+      if (this.expandedPoId() === poId) {
+        this.expandedPoId.set(undefined);
+      }
+      return;
+    }
+
+    this.expandedPoId.set(poId);
   }
 
   protected missingCount(record: IPoBreakdownRecord): number {
@@ -332,10 +358,6 @@ export class ProjectDocumentStatusDetailComponent {
     return graph;
   }
 
-  protected onGraphDrawComplete(graphRef: GraphComponent): void {
-    this.scheduleGraphFit(graphRef);
-  }
-
   protected formatCurrency(value: number): string {
     if (value <= 0) {
       return '—';
@@ -343,38 +365,43 @@ export class ProjectDocumentStatusDetailComponent {
     return this.currencyPipe.transform(value, 'full') || String(value);
   }
 
-  private scheduleGraphFit(graphRef: GraphComponent): void {
-    const fit = (): void => {
-      this.fitGraph(graphRef);
-    };
+  protected navigateToWorkspaceDoc(stage: EDocChainStage, event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
 
-    requestAnimationFrame(() => {
-      fit();
-      setTimeout(fit, 150);
-      setTimeout(fit, 400);
-      setTimeout(fit, 700);
-    });
-  }
-
-  private scheduleFitAllGraphs(): void {
-    requestAnimationFrame(() => {
-      this.fitAllGraphs();
-      setTimeout(() => this.fitAllGraphs(), 150);
-      setTimeout(() => this.fitAllGraphs(), 400);
-      setTimeout(() => this.fitAllGraphs(), 700);
-    });
-  }
-
-  private fitAllGraphs(): void {
-    this.graphRefs?.forEach(graphRef => this.fitGraph(graphRef));
-  }
-
-  private fitGraph(graphRef: GraphComponent): void {
-    if (!graphRef.hasGraphDims?.() || !graphRef.hasNodeDims?.()) {
+    const projectId = this.project().id;
+    if (!projectId) {
       return;
     }
 
-    graphRef.zoomToFit({ autoCenter: true, force: true });
+    void this.routerNavigationService.navigateWithQueryParams(
+      buildProjectWorkspaceDocRoute(stage, this.isSales()),
+      { projectId }
+    );
+    this.visible.set(false);
+  }
+
+  private getContextPoCount(context: EDocContext): number {
+    const snapshot = this.sanitizedBreakdownSnapshot();
+    if (snapshot) {
+      return context === EDocContext.SALES
+        ? snapshot.sales.totalRecords
+        : snapshot.purchase.totalRecords;
+    }
+
+    if (
+      this.docContext() === context &&
+      !this.loading() &&
+      !this.loadError() &&
+      isProjectDocContextAvailable(
+        this.docContextAvailability(),
+        context
+      )
+    ) {
+      return this.displayTotalRecords();
+    }
+
+    return 0;
   }
 
   private loadPoBreakdown(): void {
@@ -418,7 +445,6 @@ export class ProjectDocumentStatusDetailComponent {
           this.records.set(mapPoBreakdownRecords(response.records));
           this.totalRecords.set(response.totalRecords);
           this.loadError.set(null);
-          this.scheduleFitAllGraphs();
         },
         error: () => {
           if (version !== this.loadVersion) {
