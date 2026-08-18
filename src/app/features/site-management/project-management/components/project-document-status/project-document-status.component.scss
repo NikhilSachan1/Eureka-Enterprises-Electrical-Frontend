@@ -49,6 +49,10 @@
   gap: 0.35rem;
 }
 
+.doc-status--two-metrics .doc-status__metrics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .doc-status__metric {
   display: grid;
   gap: 0.1rem;

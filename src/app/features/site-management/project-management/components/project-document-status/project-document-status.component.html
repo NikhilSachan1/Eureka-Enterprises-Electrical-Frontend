@@ -130,6 +130,7 @@
     class="doc-status doc-status--interactive"
     [class.doc-status--sectioned]="layoutMode() !== 'none'"
     [class.doc-status--dual]="layoutMode() === 'both'"
+    [class.doc-status--two-metrics]="!showToInvoiceMetric()"
     [class.doc-status--loading]="loading()"
     [disabled]="loading() || layoutMode() === 'none'"
     aria-label="View document status breakdown"
@@ -144,6 +145,7 @@
     [class.doc-status--compact-stages]="compactStages()"
     [class.doc-status--sectioned]="layoutMode() !== 'none' && !compactStages()"
     [class.doc-status--dual]="layoutMode() === 'both'"
+    [class.doc-status--two-metrics]="!showToInvoiceMetric()"
     [class.doc-status--loading]="loading()"
   >
     <ng-container *ngTemplateOutlet="docStatusBody" />

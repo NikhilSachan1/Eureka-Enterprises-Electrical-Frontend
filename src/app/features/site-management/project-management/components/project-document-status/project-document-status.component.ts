@@ -50,6 +50,7 @@ export class ProjectDocumentStatusComponent {
   readonly compactStages = input(false);
   /** When set and missing count > 0, shows e.g. "PO · Missing" instead of "Missing · 1". */
   readonly missingStageLabel = input<string | null>(null);
+  readonly showToInvoiceMetric = input(true);
   readonly viewDetails = output<void>();
 
   protected readonly isDual = computed(
@@ -130,23 +131,33 @@ export class ProjectDocumentStatusComponent {
 
     const missingStageLabel = this.missingStageLabel();
 
-    return [
+    const metrics: IDocStatusMetric[] = [
       this.buildMissingMetric(status, missingStageLabel, context !== false),
-      this.buildMetric(
-        invoiceLabel,
-        status.toBeInvoicedAmount,
-        EDocStatusMetricFormat.CURRENCY,
-        EDocStatusTone.WARN,
-        context !== false
-      ),
+    ];
+
+    if (this.showToInvoiceMetric()) {
+      metrics.push(
+        this.buildMetric(
+          invoiceLabel,
+          status.toBeInvoicedAmount,
+          EDocStatusMetricFormat.CURRENCY,
+          EDocStatusTone.WARN,
+          context !== false
+        )
+      );
+    }
+
+    metrics.push(
       this.buildMetric(
         'Pending',
         status.pendingApprovalsCount,
         EDocStatusMetricFormat.COUNT,
         EDocStatusTone.INFO,
         context !== false
-      ),
-    ];
+      )
+    );
+
+    return metrics;
   }
 
   private buildMissingMetric(

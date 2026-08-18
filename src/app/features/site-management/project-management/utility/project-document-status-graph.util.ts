@@ -24,8 +24,8 @@ import {
   needsAdditionalBookPayment,
 } from './project-document-status-chain.util';
 
-const NODE_WIDTH = 240;
-const NODE_HEIGHT = 118;
+const NODE_WIDTH = 252;
+const NODE_HEIGHT = 122;
 
 export function buildPoDocumentGraph(
   po: IPoBreakdownRecord,

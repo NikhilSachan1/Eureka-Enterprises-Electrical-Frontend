@@ -1,11 +1,13 @@
 <p-dialog
   [modal]="true"
   [(visible)]="visible"
+  appendTo="body"
   [style]="{ width: '70rem' }"
   [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
   [maximizable]="true"
-  [contentStyle]="{ padding: '0' }"
+  [contentStyle]="{ padding: '0', overflow: 'hidden' }"
   (onShow)="onDialogShow()"
+  (onHide)="onDialogHide()"
 >
   <ng-template #header>
     <div class="flex items-center gap-3 w-full min-w-0 pr-2">
@@ -88,7 +90,7 @@
             @let metrics = poMetrics(po);
             @let missing = missingCount(po);
             @let pending = pendingCount(po);
-            @let expanded = expandedPoId() === po.id;
+            @let expanded = isPoExpanded(po.id);
 
             <section
               class="docstat-po-card"
@@ -281,8 +283,11 @@
       [enableZoom]="true"
       [autoZoom]="true"
       [autoCenter]="true"
+      [minZoomLevel]="0.15"
       [maxZoomLevel]="4"
       [animate]="false"
+      [zoomToFit$]="graphZoomToFit$"
+      (drawComplete)="onGraphDrawComplete()"
     >
       <ng-template #nodeTemplate let-node>
         <svg:g>

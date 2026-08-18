@@ -27,7 +27,7 @@ import { IndianCurrencyPipe } from '@shared/pipes/indian-currency.pipe';
 import { AvatarService, RouterNavigationService } from '@shared/services';
 import { DialogModule } from 'primeng/dialog';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { finalize } from 'rxjs';
+import { finalize, Subject } from 'rxjs';
 import { IPoBreakdownRecord } from '../../types/po-breakdown.interface';
 import {
   EMPTY_PROJECT_DOCUMENT_STATUS,
@@ -57,6 +57,7 @@ import {
   sanitizePoBreakdownSnapshot,
 } from '../../utility/project-doc-context.util';
 import { buildProjectWorkspaceDocRoute } from '../../utility/project-workspace-navigation.util';
+import { normalizeWorkspaceRecordId } from '../../utility/workspace-document-status-row.util';
 import { ProjectDocumentStatusComponent } from '../project-document-status/project-document-status.component';
 
 @Component({
@@ -87,20 +88,27 @@ export class ProjectDocumentStatusDetailComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly graphCache = new Map<string, IDocGraph>();
   private loadVersion = 0;
+  private graphFitPass = 0;
   protected readonly pageSize =
     APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE;
 
   readonly visible = model(false);
   readonly project = input.required<IProject | IProjectDocumentStatusTarget>();
   readonly breakdownSnapshot = input<IProjectPoBreakdownSnapshot | null>(null);
+  readonly initialDocContext = input<EDocContext | null>(null);
+  readonly autoExpandPoId = input<string | null>(null);
 
   protected readonly icons = ICONS;
   protected readonly graphLayout = 'dagreNodesOnly';
   protected readonly graphLayoutSettings = {
     orientation: Orientation.LEFT_TO_RIGHT,
-    marginX: 24,
-    marginY: 24,
+    marginX: 72,
+    marginY: 40,
   };
+  protected readonly graphZoomToFit$ = new Subject<{
+    autoCenter?: boolean;
+    force?: boolean;
+  }>();
   protected readonly buildGraphCardView = buildGraphCardView;
 
   protected readonly docContext = signal<EDocContext>(EDocContext.SALES);
@@ -139,8 +147,10 @@ export class ProjectDocumentStatusDetailComponent {
   });
 
   protected readonly showContextToggle = computed(
-    () => this.contextOptions().length > 1
+    () => !this.initialDocContext() && this.contextOptions().length > 1
   );
+
+  protected readonly isScopedView = computed(() => !!this.autoExpandPoId());
 
   protected readonly isSales = computed(() =>
     isContractorDocContext(this.docContext())
@@ -259,7 +269,7 @@ export class ProjectDocumentStatusDetailComponent {
     effect(() => {
       if (!this.visible()) {
         untracked(() => {
-          this.docContext.set(EDocContext.SALES);
+          this.docContext.set(this.initialDocContext() ?? EDocContext.SALES);
           this.page.set(1);
           this.records.set([]);
           this.totalRecords.set(0);
@@ -273,14 +283,19 @@ export class ProjectDocumentStatusDetailComponent {
 
       const availability = this.docContextAvailability();
       const validContexts = this.contextOptions().map(option => option.value);
+      const lockedContext = this.initialDocContext();
 
       untracked(() => {
-        if (
+        if (lockedContext) {
+          this.docContext.set(lockedContext);
+        } else if (
           validContexts.length &&
           !validContexts.includes(this.docContext())
         ) {
           this.docContext.set(getDefaultProjectDocContext(availability));
         }
+
+        this.applyAutoExpandPoPanel(this.displayRecords());
       });
 
       this.project().id;
@@ -339,17 +354,27 @@ export class ProjectDocumentStatusDetailComponent {
     }
   }
 
-  protected isPoCollapsed(poId: string): boolean {
-    return this.expandedPoId() !== poId;
+  protected isPoExpanded(poId: string): boolean {
+    if (this.isScopedView()) {
+      return true;
+    }
+
+    return this.expandedPoId() === poId;
   }
 
   protected togglePoPanel(poId: string): void {
+    if (this.isScopedView()) {
+      return;
+    }
+
     if (this.expandedPoId() === poId) {
       this.expandedPoId.set(undefined);
       return;
     }
 
     this.expandedPoId.set(poId);
+    this.graphFitPass = 0;
+    this.scheduleGraphZoomToFit();
   }
 
   protected missingCount(record: IPoBreakdownRecord): number {
@@ -388,7 +413,23 @@ export class ProjectDocumentStatusDetailComponent {
   }
 
   protected onDialogShow(): void {
+    this.graphFitPass = 0;
+    this.applyAutoExpandPoPanel(this.displayRecords());
     this.syncExpandedPoPanel();
+    this.scheduleGraphZoomToFit();
+  }
+
+  protected onDialogHide(): void {
+    this.graphFitPass = 0;
+  }
+
+  protected onGraphDrawComplete(): void {
+    if (this.graphFitPass >= 2) {
+      return;
+    }
+
+    this.graphFitPass += 1;
+    this.scheduleGraphZoomToFit();
   }
 
   protected navigateToWorkspaceDoc(stage: EDocChainStage, event: Event): void {
@@ -405,6 +446,14 @@ export class ProjectDocumentStatusDetailComponent {
       { projectId }
     );
     this.visible.set(false);
+  }
+
+  private scheduleGraphZoomToFit(): void {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.graphZoomToFit$.next({ autoCenter: true, force: true });
+      });
+    });
   }
 
   private getContextPoCount(context: EDocContext): number {
@@ -495,17 +544,50 @@ export class ProjectDocumentStatusDetailComponent {
   }
 
   private syncExpandedPoPanel(): void {
+    const records = this.displayRecords();
+
+    if (this.autoExpandPoId()) {
+      this.applyAutoExpandPoPanel(records);
+      return;
+    }
+
     const expandedId = this.expandedPoId();
     if (!expandedId) {
       return;
     }
 
-    const isExpandedPoVisible = this.displayRecords().some(
-      po => po.id === expandedId
+    const isExpandedPoVisible = records.some(
+      po =>
+        po.id === expandedId ||
+        normalizeWorkspaceRecordId(po.id) ===
+          normalizeWorkspaceRecordId(expandedId)
     );
 
     if (!isExpandedPoVisible) {
       this.expandedPoId.set(undefined);
+    }
+  }
+
+  private applyAutoExpandPoPanel(records: readonly IPoBreakdownRecord[]): void {
+    const autoExpand = this.autoExpandPoId();
+    if (!autoExpand) {
+      return;
+    }
+
+    const match = records.find(
+      po =>
+        po.id === autoExpand ||
+        normalizeWorkspaceRecordId(po.id) ===
+          normalizeWorkspaceRecordId(autoExpand)
+    );
+
+    if (match) {
+      this.expandedPoId.set(match.id);
+      return;
+    }
+
+    if (this.isScopedView() && records.length === 1) {
+      this.expandedPoId.set(records[0].id);
     }
   }
 }

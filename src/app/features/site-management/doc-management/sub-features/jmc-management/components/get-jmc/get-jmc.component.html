@@ -6,6 +6,18 @@
 </ng-template>
 
 <ng-template
+  #workspaceDocumentStatus
+  let-row
+>
+  <app-workspace-document-status-cell
+    [recordId]="row.id"
+    scope="jmc"
+    [docContext]="docRouteContext()"
+    [workspaceContext]="row.docWorkspaceContext"
+  />
+</ng-template>
+
+<ng-template
   #jmcLockStatus
   let-row
 >
@@ -40,6 +52,7 @@
   [rowActions]="table.rowActions()"
   [customBodyTemplates]="{
     docWorkspaceContext: docWorkspaceContext,
+    workspaceDocumentStatus: workspaceDocumentStatus,
     jmcLockStatus: jmcLockStatus,
     documentReferenceChain: documentReferenceChain,
   }"

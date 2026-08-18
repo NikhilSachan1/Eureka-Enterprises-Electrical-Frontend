@@ -19,6 +19,7 @@ import {
   IProjectPoBreakdownSnapshot,
 } from '../../types/project-document-status.interface';
 import { DocumentStatusService } from '../../services/document-status.service';
+import { ProjectWorkspaceDocumentStatusService } from '../../services/project-workspace-document-status.service';
 import {
   buildDocumentStatusTargetFromOverview,
   emptyDocumentBreakdownCell,
@@ -43,6 +44,10 @@ import { ProjectDocumentStatusDetailComponent } from '../project-document-status
 })
 export class ProjectDocumentStatusBlockComponent {
   private readonly documentStatusService = inject(DocumentStatusService);
+  private readonly workspaceDocumentStatus = inject(
+    ProjectWorkspaceDocumentStatusService,
+    { optional: true }
+  );
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
@@ -56,8 +61,11 @@ export class ProjectDocumentStatusBlockComponent {
   readonly missingStageLabel = input<string | null>(null);
   readonly logSource = input('project-document-status-block');
 
-  protected readonly breakdown = signal<IProjectDocumentBreakdownCell>(
+  protected readonly localBreakdown = signal<IProjectDocumentBreakdownCell>(
     emptyDocumentBreakdownCell()
+  );
+  protected readonly breakdown = computed(() =>
+    this.workspaceDocumentStatus?.breakdown() ?? this.localBreakdown()
   );
   protected readonly detailVisible = signal(false);
   protected readonly detailSnapshot = signal<IProjectPoBreakdownSnapshot | null>(
@@ -99,15 +107,19 @@ export class ProjectDocumentStatusBlockComponent {
 
   constructor() {
     effect(() => {
+      if (this.workspaceDocumentStatus) {
+        return;
+      }
+
       const project = this.resolvedProject();
       const version = ++this.loadVersion;
 
       if (!project || !this.isVisible()) {
-        this.breakdown.set(emptyDocumentBreakdownCell());
+        this.localBreakdown.set(emptyDocumentBreakdownCell());
         return;
       }
 
-      this.breakdown.set(emptyDocumentBreakdownCell(true));
+      this.localBreakdown.set(emptyDocumentBreakdownCell(true));
 
       this.documentStatusService
         .getPoBreakdown({
@@ -122,14 +134,14 @@ export class ProjectDocumentStatusBlockComponent {
               return;
             }
 
-            this.breakdown.set(mapBreakdownResponse(response, project));
+            this.localBreakdown.set(mapBreakdownResponse(response, project));
           },
           error: error => {
             if (version !== this.loadVersion) {
               return;
             }
 
-            this.breakdown.set({
+            this.localBreakdown.set({
               ...emptyDocumentBreakdownCell(false),
               error: true,
             });

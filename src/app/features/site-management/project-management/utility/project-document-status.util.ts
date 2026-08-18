@@ -4,16 +4,21 @@ import {
   IPoBreakdownGetResponseDto,
 } from '../types/project.dto';
 import { IProject } from '../types/project.interface';
+import { IPoBreakdownRecord } from '../types/po-breakdown.interface';
 import {
   EMPTY_PROJECT_DOCUMENT_STATUS,
   IProjectDocumentBreakdownCell,
   IProjectDocumentStatusTarget,
+  IProjectPoBreakdownContextSnapshot,
+  IProjectPoBreakdownSnapshot,
 } from '../types/project-document-status.interface';
 import { buildPoBreakdownSnapshot } from './po-breakdown.mapper';
+import { buildProjectDocumentStatusSummary } from './project-document-status-chain.util';
 import {
   getProjectDocContextAvailability,
   sanitizePoBreakdownSnapshot,
 } from './project-doc-context.util';
+import { normalizeWorkspaceRecordId } from './workspace-document-status-row.util';
 
 export const PO_BREAKDOWN_PAGE_SIZE = 1000;
 
@@ -84,6 +89,48 @@ export function buildDocumentStatusTargetFromOverview(
         (vendor): vendor is NonNullable<typeof vendor> => vendor !== null
       ),
     },
+  };
+}
+
+export function mergePoBreakdownSnapshots(
+  base: IProjectPoBreakdownSnapshot | null,
+  incoming: IProjectPoBreakdownSnapshot | null
+): IProjectPoBreakdownSnapshot | null {
+  if (!base) {
+    return incoming;
+  }
+
+  if (!incoming) {
+    return base;
+  }
+
+  return {
+    sales: mergePoBreakdownContextSnapshots(base.sales, incoming.sales, true),
+    purchase: mergePoBreakdownContextSnapshots(
+      base.purchase,
+      incoming.purchase,
+      false
+    ),
+  };
+}
+
+function mergePoBreakdownContextSnapshots(
+  base: IProjectPoBreakdownContextSnapshot,
+  incoming: IProjectPoBreakdownContextSnapshot,
+  isSales: boolean
+): IProjectPoBreakdownContextSnapshot {
+  const recordMap = new Map<string, IPoBreakdownRecord>();
+
+  for (const record of [...base.records, ...incoming.records]) {
+    recordMap.set(normalizeWorkspaceRecordId(record.id), record);
+  }
+
+  const records = [...recordMap.values()];
+
+  return {
+    records,
+    totalRecords: records.length,
+    summary: buildProjectDocumentStatusSummary(records, isSales),
   };
 }
 
