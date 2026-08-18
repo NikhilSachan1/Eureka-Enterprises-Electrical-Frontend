@@ -436,17 +436,9 @@
   #projectDocumentStatus
   let-row
 >
-  @let r = $any(row);
-  @let breakdown = documentBreakdown(r.id);
-  @let contractors = r.stakeholders?.siteContractors ?? [];
-  @let vendors = r.stakeholders?.vendors ?? [];
-  <app-project-document-status
-    [showContractor]="contractors.length > 0"
-    [showVendor]="vendors.length > 0"
-    [salesStatus]="breakdown.sales"
-    [purchaseStatus]="breakdown.purchase"
-    [loading]="breakdown.loading"
-    (viewDetails)="onDocumentStatusViewDetails(r)"
+  <app-project-document-status-block
+    [project]="$any(row)"
+    logSource="get-project"
   />
 </ng-template>
 
@@ -468,11 +460,3 @@
   (bulkActionClick)="handleProjectTableActionClick($any($event), true)"
   (filterData)="onTableStateChange($event)"
 />
-
-@if (docStatusDetailProject(); as project) {
-  <app-project-document-status-detail
-    [(visible)]="docStatusDetailVisible"
-    [project]="project"
-    [breakdownSnapshot]="docStatusDetailSnapshot()"
-  />
-}

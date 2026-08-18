@@ -3,7 +3,6 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   inject,
   OnInit,
   signal,
@@ -21,7 +20,6 @@ import {
   TableService,
 } from '@shared/services';
 import { ProjectService } from '../../services/project.service';
-import { DocumentStatusService } from '../../services/document-status.service';
 import {
   EButtonActionType,
   EDataType,
@@ -64,18 +62,7 @@ import {
 } from '@shared/utility';
 import { SEARCH_FILTER_PROJECT_FORM_CONFIG } from '../../config/form/search-filter-project.config';
 import { ProjectSiteTypeChipsComponent } from '../project-site-type-chips/project-site-type-chips.component';
-import { ProjectDocumentStatusComponent } from '../project-document-status/project-document-status.component';
-import { ProjectDocumentStatusDetailComponent } from '../project-document-status-detail/project-document-status-detail.component';
-import {
-  EMPTY_PROJECT_DOCUMENT_STATUS,
-  IProjectDocumentBreakdownCell,
-  IProjectPoBreakdownSnapshot,
-} from '../../types/project-document-status.interface';
-import { buildPoBreakdownSnapshot } from '../../utility/po-breakdown.mapper';
-import {
-  getProjectDocContextAvailability,
-  sanitizePoBreakdownSnapshot,
-} from '../../utility/project-doc-context.util';
+import { ProjectDocumentStatusBlockComponent } from '../project-document-status-block/project-document-status-block.component';
 import {
   mapProjectSiteTypeDisplays,
   projectSiteTypeTagVariant,
@@ -94,22 +81,18 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
     DataTableComponent,
     PopoverModule,
     ProjectSiteTypeChipsComponent,
-    ProjectDocumentStatusComponent,
-    ProjectDocumentStatusDetailComponent,
+    ProjectDocumentStatusBlockComponent,
   ],
   templateUrl: './get-project.component.html',
   styleUrl: './get-project.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetProjectComponent implements OnInit {
-  private static readonly PO_BREAKDOWN_PAGE_SIZE = 1000;
-
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly projectService = inject(ProjectService);
-  private readonly documentStatusService = inject(DocumentStatusService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -168,34 +151,6 @@ export class GetProjectComponent implements OnInit {
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricGroups = computed(() => this.getMetricGroups());
-  protected readonly docStatusDetailVisible = signal(false);
-  protected readonly docStatusDetailProject = signal<IProject | null>(null);
-  protected readonly docStatusDetailSnapshot =
-    signal<IProjectPoBreakdownSnapshot | null>(null);
-  private readonly breakdownByProjectId = signal<
-    Record<string, IProjectDocumentBreakdownCell>
-  >({});
-
-  constructor() {
-    effect(() => {
-      if (!this.docStatusDetailVisible()) {
-        this.docStatusDetailProject.set(null);
-        this.docStatusDetailSnapshot.set(null);
-      }
-    });
-  }
-
-  protected documentBreakdown(projectId: string): IProjectDocumentBreakdownCell {
-    return (
-      this.breakdownByProjectId()[projectId] ?? {
-        loading: true,
-        error: false,
-        sales: EMPTY_PROJECT_DOCUMENT_STATUS,
-        purchase: EMPTY_PROJECT_DOCUMENT_STATUS,
-        snapshot: null,
-      }
-    );
-  }
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -222,7 +177,6 @@ export class GetProjectComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.projectStats.set(stats ?? null);
-          this.loadDocumentBreakdowns(mappedData);
           this.logger.logUserAction('Project records loaded successfully');
         },
         error: error => {
@@ -276,73 +230,6 @@ export class GetProjectComponent implements OnInit {
         originalRawData: record,
       } satisfies IProject;
     });
-  }
-
-  protected onDocumentStatusViewDetails(project: IProject): void {
-    const breakdown = this.documentBreakdown(project.id);
-    this.docStatusDetailProject.set(project);
-    this.docStatusDetailSnapshot.set(breakdown.snapshot);
-    this.docStatusDetailVisible.set(true);
-    this.logger.logUserAction('Document status view details opened', {
-      projectId: project.id,
-    });
-  }
-
-  private loadDocumentBreakdowns(projects: IProject[]): void {
-    this.breakdownByProjectId.set({});
-
-    for (const project of projects) {
-      this.patchDocumentBreakdown(project.id, {
-        loading: true,
-        error: false,
-        sales: EMPTY_PROJECT_DOCUMENT_STATUS,
-        purchase: EMPTY_PROJECT_DOCUMENT_STATUS,
-        snapshot: null,
-      });
-
-      this.documentStatusService
-        .getPoBreakdown({
-          siteId: [project.id],
-          page: 1,
-          pageSize: GetProjectComponent.PO_BREAKDOWN_PAGE_SIZE,
-        })
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: response => {
-            const availability = getProjectDocContextAvailability(project);
-            const snapshot = sanitizePoBreakdownSnapshot(
-              buildPoBreakdownSnapshot(response),
-              availability
-            );
-            this.patchDocumentBreakdown(project.id, {
-              loading: false,
-              error: false,
-              sales: snapshot.sales.summary,
-              purchase: snapshot.purchase.summary,
-              snapshot,
-            });
-          },
-          error: () => {
-            this.patchDocumentBreakdown(project.id, {
-              loading: false,
-              error: true,
-              sales: EMPTY_PROJECT_DOCUMENT_STATUS,
-              purchase: EMPTY_PROJECT_DOCUMENT_STATUS,
-              snapshot: null,
-            });
-          },
-        });
-    }
-  }
-
-  private patchDocumentBreakdown(
-    projectId: string,
-    value: IProjectDocumentBreakdownCell
-  ): void {
-    this.breakdownByProjectId.update(current => ({
-      ...current,
-      [projectId]: value,
-    }));
   }
 
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {

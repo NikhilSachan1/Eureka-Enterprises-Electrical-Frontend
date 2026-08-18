@@ -1,7 +1,7 @@
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
-import { IProject } from '../types/project.interface';
 import {
   EMPTY_PROJECT_PO_BREAKDOWN_CONTEXT,
+  IProjectDocumentStatusTarget,
   IProjectPoBreakdownSnapshot,
 } from '../types/project-document-status.interface';
 
@@ -11,7 +11,7 @@ export interface IProjectDocContextAvailability {
 }
 
 export function getProjectDocContextAvailability(
-  project: Pick<IProject, 'stakeholders'>
+  project: Pick<IProjectDocumentStatusTarget, 'stakeholders'>
 ): IProjectDocContextAvailability {
   return {
     hasContractor: (project.stakeholders.siteContractors?.length ?? 0) > 0,

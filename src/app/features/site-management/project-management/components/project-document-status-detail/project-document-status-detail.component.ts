@@ -34,6 +34,7 @@ import { finalize } from 'rxjs';
 import { IPoBreakdownRecord } from '../../types/po-breakdown.interface';
 import {
   EMPTY_PROJECT_DOCUMENT_STATUS,
+  IProjectDocumentStatusTarget,
   IProjectPoBreakdownSnapshot,
 } from '../../types/project-document-status.interface';
 import { IDocGraph } from '../../types/project-document-status-detail.interface';
@@ -92,7 +93,7 @@ export class ProjectDocumentStatusDetailComponent {
     APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE;
 
   readonly visible = model(false);
-  readonly project = input.required<IProject>();
+  readonly project = input.required<IProject | IProjectDocumentStatusTarget>();
   readonly breakdownSnapshot = input<IProjectPoBreakdownSnapshot | null>(null);
 
   protected readonly icons = ICONS;
