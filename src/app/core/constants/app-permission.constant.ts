@@ -23,6 +23,7 @@ export const APP_PERMISSION = {
     HANDOVER_CANCELLED: 'asset.handover-cancelled',
     DEALLOCATE: 'asset.deallocate',
     EVENT_HISTORY: 'asset.event-history-list',
+    EXPORT: 'asset.deallocate',
   },
   ATTENDANCE: {
     VIEW_DETAIL: 'attendance.view-detail',

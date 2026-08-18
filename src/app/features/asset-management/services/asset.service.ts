@@ -13,6 +13,8 @@ import {
   IAssetEditResponseDto,
   IAssetEventHistoryGetFormDto,
   IAssetEventHistoryGetResponseDto,
+  IAssetExportReportFormDto,
+  IAssetExportReportResponseDto,
   IAssetGetFormDto,
   IAssetGetResponseDto,
 } from '../types/asset.dto';
@@ -30,6 +32,8 @@ import {
   AssetEditResponseSchema,
   AssetEventHistoryGetRequestSchema,
   AssetEventHistoryGetResponseSchema,
+  AssetExportReportRequestSchema,
+  AssetExportReportResponseSchema,
   AssetGetRequestSchema,
   AssetGetResponseSchema,
 } from '../schemas';
@@ -280,6 +284,38 @@ export class AssetService {
             );
           } else {
             this.logger.logUserAction('Get Asset Event History Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  exportAssetReportPdf(
+    formData: IAssetExportReportFormDto
+  ): Observable<IAssetExportReportResponseDto> {
+    this.logger.logUserAction('Export Asset Report Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.ASSET.REPORT_PDF,
+        {
+          response: AssetExportReportResponseSchema,
+          request: AssetExportReportRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IAssetExportReportResponseDto) => {
+          this.logger.logUserAction('Export Asset Report Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Export Asset Report Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Export Asset Report Error', error);
           }
           return throwError(() => error);
         })

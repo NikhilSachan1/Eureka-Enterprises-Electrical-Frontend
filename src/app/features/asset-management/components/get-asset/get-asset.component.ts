@@ -321,6 +321,11 @@ export class GetAssetComponent implements OnInit {
       );
       return;
     }
+
+    if (actionType === EButtonActionType.DOWNLOAD) {
+      this.openExportAssetDialog(selectedRows, isBulk);
+      return;
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,
@@ -498,6 +503,29 @@ export class GetAssetComponent implements OnInit {
         navigationRoute
       );
     }
+  }
+
+  private openExportAssetDialog(
+    selectedRows: IAssetGetBaseResponseDto[],
+    isBulk: boolean
+  ): void {
+    const [selectedFirstRow] = selectedRows;
+
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.DOWNLOAD,
+      ASSET_ACTION_CONFIG_MAP[EButtonActionType.DOWNLOAD],
+      isBulk
+        ? null
+        : this.prepareAssetRecordDetail(
+            selectedFirstRow,
+            EButtonActionType.DOWNLOAD
+          ),
+      isBulk,
+      !isBulk,
+      {
+        selectedRecord: selectedRows,
+      }
+    );
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

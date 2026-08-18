@@ -28,6 +28,8 @@ import {
   AssetEventHistoryGetRequestSchema,
   AssetEventHistoryGetResponseSchema,
   AssetEventHistoryGetStatsResponseSchema,
+  AssetExportReportRequestSchema,
+  AssetExportReportResponseSchema,
 } from '../schemas';
 
 /*
@@ -105,4 +107,17 @@ export type IAssetEventHistoryGetResponseDto = z.infer<
 >;
 export type IAssetEventHistoryGetStatsResponseDto = z.infer<
   typeof AssetEventHistoryGetStatsResponseSchema
+>;
+
+/*
+  Asset Export Report
+*/
+export type IAssetExportReportRequestDto = z.infer<
+  typeof AssetExportReportRequestSchema
+>;
+export type IAssetExportReportFormDto = z.input<
+  typeof AssetExportReportRequestSchema
+>;
+export type IAssetExportReportResponseDto = z.infer<
+  typeof AssetExportReportResponseSchema
 >;

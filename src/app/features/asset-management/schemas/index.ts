@@ -30,3 +30,7 @@ export {
   AssetEventHistoryGetResponseSchema,
   AssetEventHistoryGetStatsResponseSchema,
 } from './get-asset-event-history.schema';
+export {
+  AssetExportReportRequestSchema,
+  AssetExportReportResponseSchema,
+} from './export-asset-report.schema';
