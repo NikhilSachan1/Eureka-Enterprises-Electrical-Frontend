@@ -8,7 +8,8 @@ import { IProjectDocumentStatus } from '../types/project-document-status.interfa
 
 export function countPoNextMissing(
   record: IPoBreakdownRecord,
-  isSales: boolean
+  isSales: boolean,
+  options?: { includePoUninvoicedBalance?: boolean }
 ): number {
   if (!record.jmcs.length) {
     return 1;
@@ -18,6 +19,10 @@ export function countPoNextMissing(
     (count, jmc) => count + countJmcBranchMissing(jmc, isSales),
     0
   );
+
+  if (options?.includePoUninvoicedBalance === false) {
+    return branchMissing;
+  }
 
   return branchMissing + countPoUninvoicedMissing(record);
 }

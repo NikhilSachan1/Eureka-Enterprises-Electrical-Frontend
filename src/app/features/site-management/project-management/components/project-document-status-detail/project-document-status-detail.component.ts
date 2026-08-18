@@ -57,7 +57,10 @@ import {
   sanitizePoBreakdownSnapshot,
 } from '../../utility/project-doc-context.util';
 import { buildProjectWorkspaceDocRoute } from '../../utility/project-workspace-navigation.util';
-import { normalizeWorkspaceRecordId } from '../../utility/workspace-document-status-row.util';
+import {
+  normalizeWorkspaceRecordId,
+  TWorkspaceDocStatusScope,
+} from '../../utility/workspace-document-status-row.util';
 import { ProjectDocumentStatusComponent } from '../project-document-status/project-document-status.component';
 
 @Component({
@@ -97,6 +100,7 @@ export class ProjectDocumentStatusDetailComponent {
   readonly breakdownSnapshot = input<IProjectPoBreakdownSnapshot | null>(null);
   readonly initialDocContext = input<EDocContext | null>(null);
   readonly autoExpandPoId = input<string | null>(null);
+  readonly workspaceScope = input<TWorkspaceDocStatusScope | null>(null);
 
   protected readonly icons = ICONS;
   protected readonly graphLayout = 'dagreNodesOnly';
@@ -378,7 +382,9 @@ export class ProjectDocumentStatusDetailComponent {
   }
 
   protected missingCount(record: IPoBreakdownRecord): number {
-    return countPoNextMissing(record, this.isSales());
+    return countPoNextMissing(record, this.isSales(), {
+      includePoUninvoicedBalance: this.shouldShowPoUninvoicedBalanceNode(),
+    });
   }
 
   protected pendingCount(record: IPoBreakdownRecord): number {
@@ -386,8 +392,11 @@ export class ProjectDocumentStatusDetailComponent {
   }
 
   protected poMetrics(record: IPoBreakdownRecord) {
-    return buildPoPanelMetrics(record, this.isSales(), value =>
-      this.formatCurrency(value)
+    return buildPoPanelMetrics(
+      record,
+      this.isSales(),
+      value => this.formatCurrency(value),
+      { showPoUninvoicedBalanceNode: this.shouldShowPoUninvoicedBalanceNode() }
     );
   }
 
@@ -400,6 +409,7 @@ export class ProjectDocumentStatusDetailComponent {
 
     const graph = buildPoDocumentGraph(record, {
       isSales: this.isSales(),
+      showPoUninvoicedBalanceNode: this.shouldShowPoUninvoicedBalanceNode(),
     });
     this.graphCache.set(key, graph);
     return graph;
@@ -536,7 +546,13 @@ export class ProjectDocumentStatusDetailComponent {
   }
 
   private graphCacheKey(recordId: string): string {
-    return `${this.docContext()}-${this.page()}-${recordId}`;
+    const scope = this.workspaceScope() ?? 'all';
+    return `${this.docContext()}-${this.page()}-${scope}-${recordId}`;
+  }
+
+  private shouldShowPoUninvoicedBalanceNode(): boolean {
+    const scope = this.workspaceScope();
+    return !scope || scope === 'po';
   }
 
   private clearGraphCache(): void {

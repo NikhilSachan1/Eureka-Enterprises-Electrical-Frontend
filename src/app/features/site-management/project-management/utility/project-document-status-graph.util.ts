@@ -62,7 +62,10 @@ export function buildPoDocumentGraph(
     appendJmcBranch(nodes, links, poNodeId, jmc, ctx);
   }
 
-  if (hasPoUninvoicedBalance(po)) {
+  if (
+    ctx.showPoUninvoicedBalanceNode !== false &&
+    hasPoUninvoicedBalance(po)
+  ) {
     pushExpectedMissingNode(
       nodes,
       links,
