@@ -280,6 +280,12 @@ export const ASSET_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IAssetGetResponseDto['records'][number]>
 >[] = [
   {
+    id: EButtonActionType.DOWNLOAD,
+    label: 'Export',
+    tooltip: 'Export selected assets as PDF',
+    permission: [APP_PERMISSION.ASSET.EXPORT],
+  },
+  {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Asset',
     permission: [APP_PERMISSION.ASSET.DELETE],

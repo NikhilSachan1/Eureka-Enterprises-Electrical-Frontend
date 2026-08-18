@@ -91,6 +91,7 @@ export const API_ROUTES = {
       `assets/public/${assetMasterId}`,
     ACTION: 'assets/action',
     GET_ASSET_EVENT_HISTORY: (assetId: string) => `asset-events/${assetId}`,
+    REPORT_PDF: 'assets/report/pdf',
   },
   VEHICLE: {
     LIST: 'vehicles',

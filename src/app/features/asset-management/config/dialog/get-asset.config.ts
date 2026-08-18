@@ -3,16 +3,40 @@ import {
   EButtonSeverity,
   IDialogActionConfig,
 } from '@shared/types';
-import { DELETE_CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
+import {
+  CONFIRMATION_DIALOG_CONFIG,
+  DELETE_CONFIRMATION_DIALOG_CONFIG,
+} from '@shared/config';
 import { ICONS } from '@shared/constants';
 import { DeleteAssetComponent } from '@features/asset-management/components/delete-asset/delete-asset.component';
 import { ActionAssetComponent } from '@features/asset-management/components/action-asset/action-asset.component';
 import { QrCodeAssetComponent } from '@features/asset-management/components/qr-code-asset/qr-code-asset.component';
+import { ExportAssetComponent } from '@features/asset-management/components/export-asset/export-asset.component';
 
 export const ASSET_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.DELETE]: {
     dialogConfig: DELETE_CONFIRMATION_DIALOG_CONFIG,
     dynamicComponent: DeleteAssetComponent,
+  },
+  [EButtonActionType.DOWNLOAD]: {
+    dialogConfig: {
+      ...CONFIRMATION_DIALOG_CONFIG,
+      header: 'Export asset report?',
+      message: 'Generate a PDF report for the selected asset(s)?',
+      icon: ICONS.COMMON.DOWNLOAD,
+      labels: {
+        actionWord: 'export',
+        singleLabel: 'Export',
+        bulkLabel: 'Export Selected',
+      },
+      acceptButtonProps: {
+        label: 'Export',
+        id: EButtonActionType.SUBMIT,
+        icon: ICONS.COMMON.DOWNLOAD,
+        severity: EButtonSeverity.PRIMARY,
+      },
+    },
+    dynamicComponent: ExportAssetComponent,
   },
   [EButtonActionType.HANDOVER_INITIATE]: {
     dynamicComponent: ActionAssetComponent,
