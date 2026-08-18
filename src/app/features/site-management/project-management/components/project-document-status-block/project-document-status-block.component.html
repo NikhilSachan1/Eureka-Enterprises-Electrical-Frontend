@@ -1,0 +1,38 @@
+@if (isVisible()) {
+  @let target = resolvedProject()!;
+  @let cell = breakdown();
+  @let availability = docContextAvailability();
+
+  <div
+    class="doc-status-block"
+    [class.doc-status-block--header]="showHeader()"
+  >
+    @if (showHeader()) {
+      <div class="doc-status-block__head">
+        <span class="doc-status-block__eyebrow">Document status</span>
+        <span class="doc-status-block__hint">
+          PO breakdown · missing docs and approvals
+        </span>
+      </div>
+    }
+
+    <app-project-document-status
+      [showContractor]="availability.hasContractor"
+      [showVendor]="availability.hasVendor"
+      [salesStatus]="cell.sales"
+      [purchaseStatus]="cell.purchase"
+      [loading]="cell.loading"
+      [embedded]="embedded()"
+      [showAction]="showAction()"
+      [missingStageLabel]="missingStageLabel()"
+      (viewDetails)="onViewDetails()"
+    />
+  </div>
+
+  <app-project-document-status-detail
+    [visible]="detailVisible()"
+    (visibleChange)="onDetailVisibleChange($event)"
+    [project]="target"
+    [breakdownSnapshot]="detailSnapshot()"
+  />
+}

@@ -72,7 +72,7 @@ function mapPoBreakdownRecord(
     partyName: record.partyName,
     status: record.status,
     totalAmount: record.totalAmount ?? 0,
-    counts: buildCounts(jmcs),
+    counts: buildPoBreakdownCounts(jmcs),
     jmcs,
   };
 }
@@ -164,7 +164,7 @@ function mapBankTransfer(transfer: {
   };
 }
 
-function buildCounts(jmcs: IPoBreakdownJmc[]): IPoBreakdownCounts {
+export function buildPoBreakdownCounts(jmcs: IPoBreakdownJmc[]): IPoBreakdownCounts {
   const invoices = jmcs
     .map(jmc => jmc.invoice)
     .filter((invoice): invoice is IPoBreakdownInvoice => invoice !== null);

@@ -45,6 +45,14 @@ export const JMC_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'workspaceDocumentStatus',
+    header: 'Doc status',
+    bodyTemplate: EDataType.TEXT,
+    customTemplateKey: 'workspaceDocumentStatus',
+    columnStyleClass: 'project-doc-status-col',
+    showSort: false,
+  },
+  {
     field: 'jmcNumber',
     header: 'JMC Number',
     bodyTemplate: EDataType.TEXT,

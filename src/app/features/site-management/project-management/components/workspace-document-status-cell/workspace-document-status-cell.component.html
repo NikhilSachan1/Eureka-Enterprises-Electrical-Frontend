@@ -1,0 +1,25 @@
+@if (workspaceDocumentStatus) {
+  <app-project-document-status
+    [status]="status()"
+    [metricContext]="metricContext()"
+    [loading]="loading()"
+    [showAction]="canOpenDetail()"
+    [showToInvoiceMetric]="scope() !== 'jmc'"
+    (viewDetails)="onViewDetails()"
+  />
+
+  @if (detailVisible()) {
+    @if (detailProject(); as target) {
+      <app-project-document-status-detail
+        [visible]="detailVisible()"
+        (visibleChange)="onDetailVisibleChange($event)"
+        [project]="target"
+        [breakdownSnapshot]="scopedBreakdownSnapshot()"
+        [initialDocContext]="docContext() ?? null"
+        [autoExpandPoId]="autoExpandPoId()"
+      />
+    }
+  }
+} @else {
+  <span class="workspace-doc-status-fallback">—</span>
+}

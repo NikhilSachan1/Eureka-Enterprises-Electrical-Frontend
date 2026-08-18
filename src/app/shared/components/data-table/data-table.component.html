@@ -116,12 +116,15 @@
           @let filterConfig = item.clientSideFilterConfig;
 
           @if (shouldShowColumn) {
+            @let isWorkspaceContextCol = item.customTemplateKey === 'docWorkspaceContext';
             <th
               [pSortableColumn]="shouldShowSort ? item.field : null"
               pFrozenColumn
               [frozen]="isColumnFrozen(item)"
               [alignFrozen]="getFrozenAlign(item)"
               [class]="item.columnStyleClass"
+              [class.cell-allow-wrap]="isWorkspaceContextCol"
+              [class.doc-workspace-context-col]="isWorkspaceContextCol"
               [style.width]="getColumnWidth(item)"
               [style.minWidth]="getColumnWidth(item)"
             >
@@ -228,6 +231,7 @@
             @let hasLead =
               column.icon || column.iconField || (column.showImage && (column.dummyImageField || column.iconField));
             @let isReadMoreCol = column.bodyTemplate === ALL_DATA_TYPES.TEXT_WITH_READ_MORE;
+            @let isWorkspaceContextCol = column.customTemplateKey === 'docWorkspaceContext';
             @let t = customBodyTemplates();
             <td
               pFrozenColumn
@@ -236,7 +240,8 @@
               [class]="column.columnStyleClass"
               [style.width]="getColumnWidth(column)"
               [style.minWidth]="getColumnWidth(column)"
-              [class.cell-allow-wrap]="hasLead || isReadMoreCol"
+              [class.cell-allow-wrap]="hasLead || isReadMoreCol || isWorkspaceContextCol"
+              [class.doc-workspace-context-col]="isWorkspaceContextCol"
             >
               <div
                 [class.flex]="hasLead"
@@ -251,7 +256,7 @@
                 }
                 <div
                   [class.flex-1]="hasLead"
-                  [class.min-w-0]="hasLead || isReadMoreCol"
+                  [class.min-w-0]="hasLead || isReadMoreCol || isWorkspaceContextCol"
                 >
                   @if (column.customTemplateKey && t?.[column.customTemplateKey]) {
                     <ng-container

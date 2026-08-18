@@ -1,5 +1,21 @@
 @let interactive = showAction() && !embedded();
 
+<ng-template #compactStageMetrics let-items>
+  <div class="doc-status__stages">
+    @for (metric of items; track metric.label) {
+      <div class="doc-status__stage">
+        <span class="doc-status__stage-label">{{ metric.label }}</span>
+        <span
+          class="doc-status__stage-value"
+          [attr.data-tone]="metric.tone"
+        >
+          {{ metric.displayValue }}
+        </span>
+      </div>
+    }
+  </div>
+</ng-template>
+
 <ng-template #metricGrid let-items>
   <div class="doc-status__metrics">
     @for (metric of items; track metric.label) {
@@ -80,7 +96,11 @@
       "
     />
   } @else if (layoutMode() === 'single') {
-    @if (contextLabel(); as label) {
+    @if (compactStages()) {
+      <ng-container
+        *ngTemplateOutlet="compactStageMetrics; context: { $implicit: metrics() }"
+      />
+    } @else if (contextLabel(); as label) {
       <ng-container
         *ngTemplateOutlet="
           contextSection;
@@ -110,6 +130,7 @@
     class="doc-status doc-status--interactive"
     [class.doc-status--sectioned]="layoutMode() !== 'none'"
     [class.doc-status--dual]="layoutMode() === 'both'"
+    [class.doc-status--two-metrics]="!showToInvoiceMetric()"
     [class.doc-status--loading]="loading()"
     [disabled]="loading() || layoutMode() === 'none'"
     aria-label="View document status breakdown"
@@ -121,8 +142,10 @@
   <div
     class="doc-status"
     [class.doc-status--embedded]="embedded()"
-    [class.doc-status--sectioned]="layoutMode() !== 'none'"
+    [class.doc-status--compact-stages]="compactStages()"
+    [class.doc-status--sectioned]="layoutMode() !== 'none' && !compactStages()"
     [class.doc-status--dual]="layoutMode() === 'both'"
+    [class.doc-status--two-metrics]="!showToInvoiceMetric()"
     [class.doc-status--loading]="loading()"
   >
     <ng-container *ngTemplateOutlet="docStatusBody" />

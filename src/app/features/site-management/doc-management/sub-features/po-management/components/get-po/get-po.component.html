@@ -6,6 +6,18 @@
 </ng-template>
 
 <ng-template
+  #workspaceDocumentStatus
+  let-row
+>
+  <app-workspace-document-status-cell
+    [recordId]="row.id"
+    scope="po"
+    [docContext]="docRouteContext()"
+    [workspaceContext]="row.docWorkspaceContext"
+  />
+</ng-template>
+
+<ng-template
   #poAmountBreakdown
   let-row
 >
@@ -47,6 +59,7 @@
   [rowActions]="table.rowActions()"
   [customBodyTemplates]="{
     docWorkspaceContext: docWorkspaceContext,
+    workspaceDocumentStatus: workspaceDocumentStatus,
     poAmountBreakdown: poAmountBreakdown,
     poInvoicePaymentSummary: poInvoicePaymentSummary,
     poLockStatus: poLockStatus,

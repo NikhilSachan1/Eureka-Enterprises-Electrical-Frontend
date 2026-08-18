@@ -55,7 +55,10 @@ import { GetJmcDetailComponent } from '../get-jmc-detail/get-jmc-detail.componen
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
+import { WorkspaceDocumentStatusCellComponent } from '@features/site-management/project-management/components/workspace-document-status-cell/workspace-document-status-cell.component';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
+import { ProjectWorkspaceDocumentStatusService } from '@features/site-management/project-management/services/project-workspace-document-status.service';
+import { ensureWorkspaceTableBreakdown } from '@features/site-management/project-management/utility/workspace-table-document-status.util';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
@@ -68,6 +71,7 @@ import { DocReferenceHierarchy } from '@features/site-management/doc-management/
     UnlockRequestComponent,
     DocReferenceComponent,
     DocWorkspaceContextComponent,
+    WorkspaceDocumentStatusCellComponent,
   ],
   templateUrl: './get-jmc.component.html',
   styleUrl: './get-jmc.component.scss',
@@ -91,8 +95,12 @@ export class GetJmcComponent implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
+  private readonly workspaceDocumentStatus = inject(
+    ProjectWorkspaceDocumentStatusService,
+    { optional: true }
+  );
 
-  private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
 
   protected readonly pageHeaderConfig = computed(
@@ -142,6 +150,7 @@ export class GetJmcComponent implements OnInit {
           const { records, totalRecords } = response;
           this.table.setData(this.mapTableData(records));
           this.table.updateTableConfig({ totalRecords });
+          ensureWorkspaceTableBreakdown(this.workspaceDocumentStatus, records);
           this.logger.logUserAction('JMC records loaded successfully');
         },
       });

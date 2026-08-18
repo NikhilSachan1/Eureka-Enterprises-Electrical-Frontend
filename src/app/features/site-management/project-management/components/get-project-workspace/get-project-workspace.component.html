@@ -33,6 +33,13 @@
         </div>
       }
     </div>
+
+    <app-project-document-status-block
+      [projectId]="selectedProjectId() ?? null"
+      [overview]="projectOverview()"
+      [showHeader]="true"
+      logSource="project-workspace"
+    />
   </section>
 }
 

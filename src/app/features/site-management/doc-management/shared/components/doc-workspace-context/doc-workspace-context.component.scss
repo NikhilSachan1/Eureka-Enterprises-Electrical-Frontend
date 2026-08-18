@@ -20,7 +20,7 @@ $meta-line: 0.875rem;
 
 .doc-ws-primary {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.5rem;
   min-width: 0;
 }
@@ -39,7 +39,9 @@ $meta-line: 0.875rem;
   line-height: 1.26;
   letter-spacing: -0.018em;
   color: var(--text-color);
+  white-space: normal;
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .doc-ws-loc {

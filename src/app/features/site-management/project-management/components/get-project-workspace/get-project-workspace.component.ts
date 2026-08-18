@@ -40,6 +40,7 @@ import { ProjectWorkspaceContextService } from '../../services/project-workspace
 import { IProjectOverviewGetResponseDto } from '../../types/project.dto';
 import { IProjectWorkspaceSearchFilterFormDto } from '../../types/project.interface';
 import { ProjectWorkspaceInfoCardComponent } from '../project-workspace-info-card/project-workspace-info-card.component';
+import { ProjectDocumentStatusBlockComponent } from '../project-document-status-block/project-document-status-block.component';
 import {
   applyProjectDateRangeFromOverview,
   resetProjectDateField,
@@ -52,10 +53,10 @@ import {
     NavTabsComponent,
     GetProjectTimelineComponent,
     ProjectWorkspaceInfoCardComponent,
+    ProjectDocumentStatusBlockComponent,
     PageHeaderComponent,
     SearchFilterComponent,
   ],
-  providers: [ProjectWorkspaceContextService],
   templateUrl: './get-project-workspace.component.html',
   styleUrl: './get-project-workspace.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

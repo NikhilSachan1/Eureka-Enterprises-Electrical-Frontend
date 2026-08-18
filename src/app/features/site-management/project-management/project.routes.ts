@@ -12,6 +12,8 @@ import { TDS_MANAGEMENT_ROUTES } from '@features/site-management/doc-management/
 import { DSR_MANAGEMENT_DAILY_PROGRESS_ROUTES } from '@features/site-management/dsr-management/dsr.routes';
 import { PROJECT_WORKSPACE_PROFITABILITY_ROUTES } from '@features/site-management/project-profitability/profitability.routes';
 import { PROJECT_WORKSPACE_SITE_ALLOCATION_ROUTES } from './site-allocation.routes';
+import { ProjectWorkspaceContextService } from './services/project-workspace-context.service';
+import { ProjectWorkspaceDocumentStatusService } from './services/project-workspace-document-status.service';
 
 export const PROJECT_MANAGEMENT_ROUTES: Routes = [
   {
@@ -68,6 +70,10 @@ export const PROJECT_MANAGEMENT_ROUTES: Routes = [
   },
   {
     path: ROUTES.SITE.PROJECT.WORKSPACE,
+    providers: [
+      ProjectWorkspaceContextService,
+      ProjectWorkspaceDocumentStatusService,
+    ],
     loadComponent: () =>
       import(
         './components/get-project-workspace/get-project-workspace.component'

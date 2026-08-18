@@ -1,6 +1,19 @@
 import { EDocStatusTone } from './project-document-status.enum';
 import { IPoBreakdownRecord } from './po-breakdown.interface';
 
+/** Minimal project shape required by document-status UI. */
+export interface IProjectDocumentStatusTarget {
+  id: string;
+  projectName: string;
+  projectStatus: string;
+  projectLocation: string | null;
+  stakeholders: {
+    company?: { name: string } | null;
+    siteContractors?: readonly unknown[] | null;
+    vendors?: readonly unknown[] | null;
+  };
+}
+
 export interface IProjectDocumentStatus {
   missingDocsCount: number;
   toBeInvoicedAmount: number;
@@ -33,11 +46,11 @@ export const EMPTY_PROJECT_DOCUMENT_STATUS: IProjectDocumentStatus = {
 };
 
 export const EMPTY_PROJECT_PO_BREAKDOWN_CONTEXT: IProjectPoBreakdownContextSnapshot =
-  {
-    records: [],
-    totalRecords: 0,
-    summary: EMPTY_PROJECT_DOCUMENT_STATUS,
-  };
+{
+  records: [],
+  totalRecords: 0,
+  summary: EMPTY_PROJECT_DOCUMENT_STATUS,
+};
 
 export interface IDocStatusMetric {
   label: string;

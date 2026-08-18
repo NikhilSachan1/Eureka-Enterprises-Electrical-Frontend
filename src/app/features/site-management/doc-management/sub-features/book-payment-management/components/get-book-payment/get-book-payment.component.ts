@@ -82,7 +82,7 @@ export class GetBookPaymentComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
-  private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
 
   protected readonly pageHeaderConfig = computed(() =>

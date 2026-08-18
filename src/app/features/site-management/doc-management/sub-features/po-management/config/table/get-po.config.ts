@@ -41,6 +41,14 @@ export const PO_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'workspaceDocumentStatus',
+    header: 'Doc status',
+    bodyTemplate: EDataType.TEXT,
+    customTemplateKey: 'workspaceDocumentStatus',
+    columnStyleClass: 'project-doc-status-col',
+    showSort: false,
+  },
+  {
     field: 'poNumber',
     header: 'PO Number',
     bodyTemplate: EDataType.TEXT,

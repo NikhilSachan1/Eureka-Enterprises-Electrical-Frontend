@@ -52,7 +52,10 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
+import { WorkspaceDocumentStatusCellComponent } from '@features/site-management/project-management/components/workspace-document-status-cell/workspace-document-status-cell.component';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
+import { ProjectWorkspaceDocumentStatusService } from '@features/site-management/project-management/services/project-workspace-document-status.service';
+import { ensureWorkspaceTableBreakdown } from '@features/site-management/project-management/utility/workspace-table-document-status.util';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 
 @Component({
@@ -64,6 +67,7 @@ import type { IDocAmountSegment } from '@features/site-management/doc-management
     UnlockRequestComponent,
     DocAmountComponent,
     DocWorkspaceContextComponent,
+    WorkspaceDocumentStatusCellComponent,
   ],
   templateUrl: './get-po.component.html',
   styleUrl: './get-po.component.scss',
@@ -86,8 +90,12 @@ export class GetPoComponent implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
+  private readonly workspaceDocumentStatus = inject(
+    ProjectWorkspaceDocumentStatusService,
+    { optional: true }
+  );
 
-  private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
 
   protected readonly pageHeaderConfig = computed(
@@ -137,6 +145,7 @@ export class GetPoComponent implements OnInit {
           const { records, totalRecords } = response;
           this.table.setData(this.mapTableData(records));
           this.table.updateTableConfig({ totalRecords });
+          ensureWorkspaceTableBreakdown(this.workspaceDocumentStatus, records);
           this.logger.logUserAction('PO records loaded successfully');
         },
       });
