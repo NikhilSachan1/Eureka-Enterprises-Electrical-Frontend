@@ -21,6 +21,8 @@ import {
   AddPoRequestSchema,
   EditPoRequestSchema,
   EditPoResponseSchema,
+  PoItemSuggestionsGetRequestSchema,
+  PoItemSuggestionsGetResponseSchema,
 } from '../schemas';
 import {
   IApprovePoFormDto,
@@ -41,7 +43,11 @@ import {
   IAddPoResponseDto,
   IEditPoFormDto,
   IEditPoResponseDto,
+  IPoItemSuggestionsGetRequestDto,
+  IPoItemSuggestionsGetResponseDto,
 } from '../types/po.dto';
+import { AttachmentsGetResponseSchema } from '@shared/schemas/attachments.schema';
+import { IAttachmentsGetResponseDto } from '@shared/types';
 
 @Injectable({
   providedIn: 'root',
@@ -347,6 +353,65 @@ export class PoService {
             );
           } else {
             this.logger.logUserAction('Get PO Detail By Id Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getPoItemSuggestions(
+    params?: IPoItemSuggestionsGetRequestDto
+  ): Observable<IPoItemSuggestionsGetResponseDto> {
+    this.logger.logUserAction('Get PO item suggestions Request', params);
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.DOCUMENT.PO.ITEM_SUGGESTIONS,
+        {
+          response: PoItemSuggestionsGetResponseSchema,
+          request: PoItemSuggestionsGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: IPoItemSuggestionsGetResponseDto) => {
+          this.logger.logUserAction('Get PO item suggestions Response', {
+            count: response.records.length,
+          });
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get PO item suggestions Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get PO item suggestions Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getPoPdf(poId: string): Observable<IAttachmentsGetResponseDto> {
+    this.logger.logUserAction('Get PO PDF Request', { poId });
+
+    return this.apiService
+      .getValidated(API_ROUTES.SITE.DOCUMENT.PO.PDF(poId), {
+        response: AttachmentsGetResponseSchema,
+      })
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction('Get PO PDF Response', {
+            poId,
+            key: response.key,
+          });
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Get PO PDF Error', error);
+          } else {
+            this.logger.logUserAction('Get PO PDF Error', error);
           }
           return throwError(() => error);
         })

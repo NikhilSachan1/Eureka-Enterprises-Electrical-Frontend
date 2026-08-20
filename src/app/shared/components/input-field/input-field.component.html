@@ -43,8 +43,8 @@
     </p-floatlabel>
   }
   @case (ALL_DATA_TYPES.NUMBER) {
-    <p-floatlabel [variant]="config.floatLabelVariant">
-      @let numberConfig = config.numberConfig || {};
+    @let numberConfig = config.numberConfig || {};
+    @if (showStandardLabel) {
       <p-inputnumber
         [inputId]="config.id"
         [fluid]="config.haveFullWidth"
@@ -67,16 +67,47 @@
         [step]="numberConfig?.step || 1"
         [disabled]="config.disabledInput || false"
         [readonly]="config.readonlyInput || false"
+        [placeholder]="effectivePlaceholder || undefined"
         [ngModel]="effectiveValue()"
         [ngModelOptions]="{ standalone: true }"
         [class]="invalidClass"
         (ngModelChange)="onValueChange($event)"
         (blur)="onBlur()"
       />
-      @if (!showStandardLabel) {
+    } @else {
+      <p-floatlabel [variant]="config.floatLabelVariant">
+        <p-inputnumber
+          [inputId]="config.id"
+          [fluid]="config.haveFullWidth"
+          [size]="config.fieldSize"
+          [mode]="numberConfig?.mode"
+          [min]="numberConfig?.minimumBoundaryValue"
+          [max]="numberConfig?.maximumBoundaryValue"
+          [minlength]="numberConfig?.minimumInputLength ?? null"
+          [maxlength]="numberConfig?.maximumInputLength ?? null"
+          [minFractionDigits]="numberConfig?.minimumFractionDigits"
+          [maxFractionDigits]="numberConfig?.maximumFractionDigits"
+          [useGrouping]="numberConfig?.allowNumberFormatting"
+          [locale]="numberConfig?.locale"
+          [currencyDisplay]="numberConfig?.currencyDisplay"
+          [currency]="numberConfig?.currency"
+          [prefix]="numberConfig?.prefix"
+          [suffix]="numberConfig?.suffix"
+          [showButtons]="numberConfig?.showUpAndDownButtons"
+          [buttonLayout]="numberConfig?.upAndDownButtonLayout || ALL_UP_AND_DOWN_BUTTON_LAYOUTS.Default"
+          [step]="numberConfig?.step || 1"
+          [disabled]="config.disabledInput || false"
+          [readonly]="config.readonlyInput || false"
+          [placeholder]="effectivePlaceholder || undefined"
+          [ngModel]="effectiveValue()"
+          [ngModelOptions]="{ standalone: true }"
+          [class]="invalidClass"
+          (ngModelChange)="onValueChange($event)"
+          (blur)="onBlur()"
+        />
         <label [for]="config.id">{{ config.label }}</label>
-      }
-    </p-floatlabel>
+      </p-floatlabel>
+    }
   }
   @case (ALL_DATA_TYPES.SELECT) {
     <p-floatlabel [variant]="config.floatLabelVariant">
@@ -728,6 +759,7 @@
             class="line-items"
             [formGroup]="fg"
             [style.--line-items-column-count]="tableConfig.columns.length"
+            [style.--line-items-columns]="lineItemsGridTemplate()"
           >
             <div class="line-items__header">
               <h4 class="line-items__title">{{ tableConfig.title }}</h4>

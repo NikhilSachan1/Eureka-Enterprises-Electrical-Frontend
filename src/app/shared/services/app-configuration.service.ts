@@ -29,6 +29,7 @@ import { applyIconsToDropdownOptions } from '@shared/config/dropdown-option-icon
 import {
   CONFIGURATION_TYPE_DATA,
   SITE_ALLOCATION_STATUS_DATA,
+  PO_GST_TYPE_DATA,
 } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IOptionDropdown } from '@shared/types';
@@ -177,6 +178,7 @@ export class AppConfigurationService {
   private readonly _projectAllocationStatuses = signal<IOptionDropdown[]>(
     SITE_ALLOCATION_STATUS_DATA
   );
+  private readonly _poGstTypes = signal<IOptionDropdown[]>(PO_GST_TYPE_DATA);
   private readonly _projectWorkTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectDocumentTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectList = signal<IOptionDropdown[]>([]);
@@ -253,6 +255,7 @@ export class AppConfigurationService {
   readonly projectStatus = this._projectStatus.asReadonly();
   readonly projectAllocationStatuses =
     this._projectAllocationStatuses.asReadonly();
+  readonly poGstTypes = this._poGstTypes.asReadonly();
   readonly projectWorkTypes = this._projectWorkTypes.asReadonly();
   readonly projectDocumentTypes = this._projectDocumentTypes.asReadonly();
   readonly projectList = this._projectList.asReadonly();
@@ -287,6 +290,9 @@ export class AppConfigurationService {
     [MODULE_NAMES.PROJECT]: {
       [CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS]:
         SITE_ALLOCATION_STATUS_DATA,
+    },
+    [MODULE_NAMES.FINANCIAL]: {
+      [CONFIGURATION_KEYS.FINANCIAL.GST_TYPES]: PO_GST_TYPE_DATA,
     },
   };
 
@@ -528,6 +534,10 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.PROJECT.PARTY_TYPES,
         signal: this._partyTypes,
+      },
+      {
+        key: CONFIGURATION_KEYS.FINANCIAL.GST_TYPES,
+        signal: this._poGstTypes,
       },
     ],
     [MODULE_NAMES.PERMISSION]: [
@@ -901,6 +911,7 @@ export class AppConfigurationService {
       CONFIGURATION_KEYS.COMMON.ROLE_LIST,
       CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
       CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS,
+      CONFIGURATION_KEYS.FINANCIAL.GST_TYPES,
       CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
       CONFIGURATION_KEYS.ASSET.ASSET_LIST,
       CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
@@ -1059,7 +1070,8 @@ export class AppConfigurationService {
             dropdown.key === CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST ||
             dropdown.key === CONFIGURATION_KEYS.VENDOR.VENDOR_LIST ||
             dropdown.key === CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS ||
-            dropdown.key === CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS
+            dropdown.key === CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS ||
+            dropdown.key === CONFIGURATION_KEYS.FINANCIAL.GST_TYPES
           ) {
             return;
           }

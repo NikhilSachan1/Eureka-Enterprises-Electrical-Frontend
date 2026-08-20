@@ -150,7 +150,10 @@ export class GetJmcComponent implements OnInit {
           const { records, totalRecords } = response;
           this.table.setData(this.mapTableData(records));
           this.table.updateTableConfig({ totalRecords });
-          ensureWorkspaceTableBreakdown(this.workspaceDocumentStatus, records);
+          ensureWorkspaceTableBreakdown(
+            this.workspaceDocumentStatus,
+            records
+          );
           this.logger.logUserAction('JMC records loaded successfully');
         },
       });

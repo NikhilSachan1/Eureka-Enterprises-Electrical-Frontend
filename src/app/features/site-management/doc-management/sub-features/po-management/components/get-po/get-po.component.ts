@@ -17,15 +17,20 @@ import {
   AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
+  GalleryService,
+  LoadingService,
+  NotificationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
 import {
   EButtonActionType,
   EDataType,
+  IAttachmentsGetResponseDto,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
+  IGalleryInputData,
   IPageHeaderConfig,
   ITableActionClickEvent,
 } from '@shared/types';
@@ -57,6 +62,7 @@ import { ProjectWorkspaceContextService } from '@features/site-management/projec
 import { ProjectWorkspaceDocumentStatusService } from '@features/site-management/project-management/services/project-workspace-document-status.service';
 import { ensureWorkspaceTableBreakdown } from '@features/site-management/project-management/utility/workspace-table-document-status.util';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
+import { isPoSystemGenerated } from '../../utils/po-table-row.util';
 
 @Component({
   selector: 'app-get-po',
@@ -86,6 +92,9 @@ export class GetPoComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly poService = inject(PoService);
+  private readonly galleryService = inject(GalleryService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly notificationService = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
@@ -145,7 +154,10 @@ export class GetPoComponent implements OnInit {
           const { records, totalRecords } = response;
           this.table.setData(this.mapTableData(records));
           this.table.updateTableConfig({ totalRecords });
-          ensureWorkspaceTableBreakdown(this.workspaceDocumentStatus, records);
+          ensureWorkspaceTableBreakdown(
+            this.workspaceDocumentStatus,
+            records
+          );
           this.logger.logUserAction('PO records loaded successfully');
         },
       });
@@ -260,7 +272,11 @@ export class GetPoComponent implements OnInit {
         gstAmount: record.gstAmount,
         totalAmount: record.totalAmount,
         fileKey: record.fileKey,
-        fileKeys: record.fileKey ? [record.fileKey] : [],
+        fileKeys: isPoSystemGenerated(record)
+          ? [record.id]
+          : record.fileKey
+            ? [record.fileKey]
+            : [],
         approvalStatus: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.projectDocumentApprovalStatuses(),
           record.approvalStatus
@@ -275,6 +291,9 @@ export class GetPoComponent implements OnInit {
         lastInvoiceAt: record.lastInvoiceAt,
         lastPaymentAt: record.lastPaymentAt,
         contractor: record.contractor,
+        items: record.items,
+        gstType: record.gstType,
+        isSystemGenerated: record.isSystemGenerated,
         originalRawData: record,
       } satisfies IPo;
     });
@@ -288,6 +307,11 @@ export class GetPoComponent implements OnInit {
   protected onHeaderButtonClick(actionName: string): void {
     if (actionName === 'addPo') {
       this.openAddPoDialog();
+      return;
+    }
+
+    if (actionName === 'generatePo') {
+      this.openGeneratePoDialog();
     }
   }
 
@@ -306,6 +330,78 @@ export class GetPoComponent implements OnInit {
         },
       }
     );
+  }
+
+  private openGeneratePoDialog(): void {
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.GENERATE,
+      PO_ACTION_CONFIG_MAP[EButtonActionType.GENERATE],
+      null,
+      false,
+      false,
+      {
+        docContext: this.docRouteContext(),
+        projectName: this.workspaceContext.activeProjectId(),
+        isSystemGenerated: true,
+        onSuccess: () => {
+          this.loadPoList();
+        },
+      }
+    );
+  }
+
+  protected openPoDoc(poId: string): void {
+    this.loadingService.show({
+      title: 'Loading PO DOC',
+      message: 'Fetching the PO document. Please wait…',
+    });
+
+    this.poService
+      .getPoPdf(poId)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IAttachmentsGetResponseDto) => {
+          this.galleryService.show([
+            {
+              mediaKey: response.key,
+              actualMediaUrl: response.url,
+            },
+          ]);
+        },
+        error: error => {
+          this.logger.logUserAction('Failed to load PO PDF', error);
+          this.notificationService.error(
+            'Could not load the PO document. Please try again.'
+          );
+        },
+      });
+  }
+
+  protected handleAttachmentClick(row: Record<string, unknown>): void {
+    const po = row as unknown as IPo;
+    if (!po.id) {
+      return;
+    }
+
+    if (isPoSystemGenerated(po.originalRawData)) {
+      this.openPoDoc(po.id);
+      return;
+    }
+
+    if (!po.fileKeys?.length) {
+      return;
+    }
+
+    const media: IGalleryInputData[] = po.fileKeys.map((key: string) => ({
+      mediaKey: key,
+      actualMediaUrl: '',
+    }));
+    this.galleryService.show(media);
   }
 
   protected handlePoTableActionClick(
@@ -406,6 +502,26 @@ export class GetPoComponent implements OnInit {
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {
+    const headerButtonConfig: IPageHeaderConfig['headerButtonConfig'] = [
+      {
+        ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
+        label: 'Add PO',
+        actionName: 'addPo',
+        permission: [APP_PERMISSION.PO_DOC.ADD],
+      },
+    ];
+
+    if (this.docRouteContext() === EDocContext.PURCHASE) {
+      headerButtonConfig.push({
+        ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
+        label: 'Generate PO',
+        actionName: 'generatePo',
+        permission: [
+          APP_PERMISSION.PO_DOC.GENERATE_PO_DOC,
+        ],
+      });
+    }
+
     return {
       title: '',
       subtitle: '',
@@ -413,14 +529,7 @@ export class GetPoComponent implements OnInit {
       showGoBackButton: false,
       showSearch: true,
       searchPlaceholder: 'Search by PO Number',
-      headerButtonConfig: [
-        {
-          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
-          label: 'Add PO',
-          actionName: 'addPo',
-          permission: [APP_PERMISSION.PO_DOC.ADD],
-        },
-      ],
+      headerButtonConfig,
     };
   }
 }

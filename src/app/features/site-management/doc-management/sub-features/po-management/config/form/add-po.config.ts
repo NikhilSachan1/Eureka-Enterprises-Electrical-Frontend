@@ -4,8 +4,13 @@ import {
   MODULE_NAMES,
   CONFIGURATION_KEYS,
   TEXT_INPUT_ACCEPT_STRIP,
+  ICONS,
 } from '@shared/constants';
+import { DEFAULT_BUTTON_CONFIG, PO_GST_TYPE_DATA } from '@shared/config';
 import {
+  EButtonActionType,
+  EButtonSeverity,
+  EButtonVariant,
   EDataType,
   EInputNumberMode,
   ETextCase,
@@ -16,6 +21,9 @@ import { IAddPoUIFormDto } from '../../types/po.dto';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 
 export const ADD_PO_DEFAULT_GST_PERCENT = 18;
+export const ADD_PO_DEFAULT_GST_TYPE = String(
+  PO_GST_TYPE_DATA[0]?.value ?? ''
+);
 
 const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
   projectName: {
@@ -88,7 +96,13 @@ const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
       textCase: ETextCase.UPPERCASE,
       regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPECIAL_CHARS,
     },
-    validators: [Validators.required],
+    disabledWhen: (context): boolean => !!context?.['isSystemGenerated'],
+    conditionalValidators: [
+      {
+        shouldApply: (context): boolean => !context['isSystemGenerated'],
+        validators: [Validators.required],
+      },
+    ],
   },
   poDate: {
     fieldType: EDataType.DATE,
@@ -101,16 +115,139 @@ const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
     },
     validators: [Validators.required],
   },
+  items: {
+    fieldType: EDataType.LINE_ITEMS,
+    id: 'items',
+    fieldName: 'items',
+    label: 'Line items',
+    lineItemsConfig: {
+      title: 'Line items',
+      minRows: 1,
+      addButton: {
+        ...DEFAULT_BUTTON_CONFIG,
+        id: EButtonActionType.ADD,
+        label: 'Add item',
+        tooltip: 'Add a line item',
+        icon: ICONS.COMMON.PLUS,
+        variant: EButtonVariant.OUTLINED,
+      },
+      removeButton: {
+        ...DEFAULT_BUTTON_CONFIG,
+        id: EButtonActionType.DELETE,
+        label: '',
+        tooltip: 'Remove item',
+        icon: ICONS.ACTIONS.TRASH,
+        severity: EButtonSeverity.DANGER,
+        variant: EButtonVariant.TEXT,
+      },
+      fields: {
+        itemName: {
+          fieldType: EDataType.AUTOCOMPLETE,
+          label: 'Item name',
+          showStandardLabel: true,
+          placeholder: 'Search item name',
+          columnWidth: 'minmax(14rem, 2.6fr)',
+          autocompleteConfig: {
+            optionsDropdown: [],
+            optionValue: 'label',
+          },
+          validators: [Validators.required, Validators.maxLength(255)],
+        },
+        make: {
+          fieldType: EDataType.TEXT,
+          label: 'Make',
+          showStandardLabel: true,
+          placeholder: 'Make',
+          columnWidth: 'minmax(12rem, 2fr)',
+          validators: [Validators.maxLength(255)],
+        },
+        hsnCode: {
+          fieldType: EDataType.TEXT,
+          label: 'HSN',
+          showStandardLabel: true,
+          placeholder: 'HSN',
+          columnWidth: '5.5rem',
+          validators: [Validators.maxLength(20)],
+        },
+        quantity: {
+          fieldType: EDataType.NUMBER,
+          label: 'Qty',
+          placeholder: 'Qty',
+          showStandardLabel: true,
+          columnWidth: '5.5rem',
+          numberConfig: {
+            mode: EInputNumberMode.Decimal,
+            allowNumberFormatting: false,
+            maximumFractionDigits: 3,
+          },
+          validators: [Validators.required, Validators.min(0)],
+        },
+        rate: {
+          fieldType: EDataType.NUMBER,
+          label: 'Rate',
+          placeholder: 'Rate',
+          showStandardLabel: true,
+          columnWidth: '7rem',
+          numberConfig: {
+            mode: EInputNumberMode.Currency,
+            currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+            maximumFractionDigits: 2,
+          },
+          validators: [Validators.required, Validators.min(0)],
+        },
+        amount: {
+          fieldType: EDataType.NUMBER,
+          label: 'Amount',
+          placeholder: 'Amount',
+          showStandardLabel: true,
+          readonlyInput: true,
+          columnWidth: '7.5rem',
+          numberConfig: {
+            mode: EInputNumberMode.Currency,
+            currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+            minimumBoundaryValue: 0,
+            maximumFractionDigits: 2,
+          },
+          validators: [Validators.required, Validators.min(0)],
+        },
+      },
+    },
+  },
   taxableAmount: {
     fieldType: EDataType.NUMBER,
     id: 'taxableAmount',
     fieldName: 'taxableAmount',
     label: 'PO Taxable Amount',
+    readonlyWhen: (context): boolean => !!context?.['isSystemGenerated'],
     numberConfig: {
       mode: EInputNumberMode.Currency,
       currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
     },
-    validators: [Validators.required, Validators.min(1)],
+    conditionalValidators: [
+      {
+        shouldApply: (context): boolean => !context['isSystemGenerated'],
+        validators: [Validators.required, Validators.min(1)],
+      },
+    ],
+  },
+  gstType: {
+    fieldType: EDataType.SELECT,
+    id: 'gstType',
+    fieldName: 'gstType',
+    label: 'GST type',
+    defaultValue: ADD_PO_DEFAULT_GST_TYPE,
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.FINANCIAL,
+        dropdownName: CONFIGURATION_KEYS.FINANCIAL.GST_TYPES,
+      },
+    },
+    conditionalValidators: [
+      {
+        shouldApply: (context): boolean => !!context['isSystemGenerated'],
+        validators: [Validators.required],
+      },
+    ],
   },
   gstPercent: {
     fieldType: EDataType.NUMBER,
@@ -147,7 +284,7 @@ const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
       currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
     },
     readonlyInput: true,
-    validators: [Validators.required, Validators.min(1)],
+    validators: [Validators.required, Validators.min(0)],
   },
   poAttachment: {
     fieldType: EDataType.ATTACHMENTS,
@@ -161,7 +298,12 @@ const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
         ...APP_CONFIG.MEDIA_CONFIG.PDF,
       ],
     },
-    validators: [Validators.required],
+    conditionalValidators: [
+      {
+        shouldApply: (context): boolean => !context['isSystemGenerated'],
+        validators: [Validators.required],
+      },
+    ],
   },
   remarks: {
     fieldType: EDataType.TEXT_AREA,

@@ -123,6 +123,7 @@ export class InputFieldConfigService {
         fieldConfig: resolvedFieldConfig,
         defaultValue:
           fieldConfig.defaultValue ?? this.getLineItemDefaultValue(fieldType),
+        columnWidth: fieldConfig.columnWidth,
       };
     });
   }

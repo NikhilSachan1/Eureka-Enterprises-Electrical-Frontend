@@ -27,6 +27,10 @@ export interface IInputFieldsConfig {
   autocomplete?: EAutocomplete;
   readonlyInput?: boolean;
   disabledInput?: boolean;
+  /** Resolved against createForm `context` into `disabledInput`. */
+  disabledWhen?: (context?: Record<string, unknown>) => boolean;
+  /** Resolved against createForm `context` into `readonlyInput`. */
+  readonlyWhen?: (context?: Record<string, unknown>) => boolean;
   showStandardLabel?: boolean;
   haveFullWidth: boolean;
   fieldSize: EFieldSize;
@@ -51,6 +55,8 @@ export interface IInputFieldsConfig {
   textConfig?: Partial<ITextFieldConfig>;
   individualNumberConfig?: Partial<IIndividualNumberFieldConfig>;
   lineItemsConfig?: ILineItemsTableConfig<Record<string, unknown>>;
+  /** Line-items grid only: CSS track size, e.g. `5.5rem` or `minmax(12rem, 2fr)`. */
+  columnWidth?: string;
   validators?: ValidatorFn[];
   conditionalValidators?: IConditionalValidator[];
 }

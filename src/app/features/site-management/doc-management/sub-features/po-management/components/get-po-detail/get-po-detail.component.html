@@ -21,11 +21,45 @@
   <app-doc-amount [segments]="docPoDrawerInvoicePaymentSegments(v)" />
 </ng-template>
 
+<ng-template
+  #poLineItems
+  let-entry
+>
+  @let items = $any(entry.value);
+  <section class="po-line-items">
+    <div class="po-line-items__table">
+      <div class="po-line-items__row po-line-items__row--header">
+        <span>#</span>
+        <span>Item name</span>
+        <span>Make</span>
+        <span>HSN</span>
+        <span>Qty</span>
+        <span>Rate</span>
+        <span>Amount</span>
+      </div>
+
+      @for (item of items; track $index; let i = $index) {
+        <div class="po-line-items__row">
+          <span class="po-line-items__index">{{ i + 1 }}</span>
+          <span class="po-line-items__value">{{ item.itemName }}</span>
+          <span class="po-line-items__value">{{ item.make || '—' }}</span>
+          <span class="po-line-items__value">{{ item.hsnCode || '—' }}</span>
+          <span class="po-line-items__value">{{ item.quantity }}</span>
+          <span class="po-line-items__value">{{ item.rate }}</span>
+          <span class="po-line-items__value">{{ item.amount }}</span>
+        </div>
+      }
+    </div>
+  </section>
+</ng-template>
+
 <app-view-detail
   [drawerDetails]="_poDetails()"
   [customTemplates]="{
     docWorkspaceContextDetail: docWorkspaceContextDetail,
     poDetailPoAmounts: poDetailPoAmounts,
     poDetailInvoiceTotals: poDetailInvoiceTotals,
+    poLineItems: poLineItems,
   }"
+  (attachmentClick)="handleDetailAttachmentClick($event)"
 />

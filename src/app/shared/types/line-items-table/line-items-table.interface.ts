@@ -10,6 +10,7 @@ export interface ILineItemsTableColumn {
   headerLabel: string;
   fieldConfig: Partial<IInputFieldsConfig>;
   defaultValue: unknown;
+  columnWidth?: string;
 }
 
 export interface ILineItemsTableConfig<

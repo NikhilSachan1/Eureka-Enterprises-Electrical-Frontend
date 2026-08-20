@@ -1,11 +1,14 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
+  computed,
   effect,
   inject,
   input,
   OnInit,
 } from '@angular/core';
+import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormBase } from '@shared/base/form.base';
 import {
   IEditPoFormDto,
@@ -16,6 +19,7 @@ import {
 import {
   IDialogActionHandler,
   IFinancialFileUploadResponseDto,
+  IInputFieldsConfig,
   ITrackedFields,
 } from '@shared/types';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
@@ -24,11 +28,10 @@ import {
   AttachmentsService,
   ConfirmationDialogService,
 } from '@shared/services';
-import { EDIT_PO_FORM_CONFIG } from '../../config';
-import { finalize, switchMap } from 'rxjs';
+import { EDIT_PO_FORM_CONFIG, ADD_PO_DEFAULT_GST_TYPE } from '../../config';
+import { finalize, map, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { ReactiveFormsModule } from '@angular/forms';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { roundCurrencyAmount } from '@shared/utility';
 import {
@@ -36,6 +39,12 @@ import {
   IProjectSiteDateRange,
   parseProjectDateOnly,
 } from '@features/site-management/project-management/utility/project-overview-date.util';
+import {
+  computePoLineItemAmount,
+  mapPoLineItemsForForm,
+  mapPoLineItemsForRequest,
+} from '../../utils/po-line-item.util';
+import { isPoSystemGenerated } from '../../utils/po-table-row.util';
 
 @Component({
   selector: 'app-edit-po',
@@ -46,16 +55,17 @@ import {
 })
 export class EditPoComponent
   extends FormBase<IEditPoUIFormDto>
-  implements OnInit, IDialogActionHandler
-{
+  implements OnInit, IDialogActionHandler {
   private readonly poService = inject(PoService);
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private trackedGstInputs!: ITrackedFields<IEditPoUIFormDto>;
 
   private allowGstAutoRecalc = false;
+  private allowLineItemAmountSync = false;
 
   /** Taxable / GST % values when the dialog opened; auto-GST runs only after either diverges. */
   private prefilledTaxableAmount: number | null = null;
@@ -64,6 +74,10 @@ export class EditPoComponent
   protected readonly selectedRecord = input.required<IPoGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
+
+  protected readonly isSystemGenerated = computed(() =>
+    isPoSystemGenerated(this.selectedRecord()[0])
+  );
 
   readonly EDocContext = EDocContext;
 
@@ -102,11 +116,21 @@ export class EditPoComponent
       return;
     }
 
+    this.initializeEditForm(record);
+  }
+
+  private initializeEditForm(record: IPoGetBaseResponseDto): void {
+    const systemGenerated = this.isSystemGenerated();
+    const lineItems = mapPoLineItemsForForm(record.items);
+
     this.form = this.formService.createForm<IEditPoUIFormDto>(
       EDIT_PO_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
-        context: { docContext: this.docContext() },
+        context: {
+          docContext: this.docContext(),
+          isSystemGenerated: systemGenerated,
+        },
         defaultValues: {
           projectName: record.siteId,
           contractorName: record.contractorId ?? undefined,
@@ -117,8 +141,10 @@ export class EditPoComponent
           gstPercent: Number(record.gstPercentage),
           gstAmount: Number(record.gstAmount),
           totalAmount: Number(record.totalAmount),
+          gstType: record.gstType ?? ADD_PO_DEFAULT_GST_TYPE,
           poAttachment: [],
           remarks: record.remarks ?? null,
+          ...(systemGenerated && lineItems.length ? { items: lineItems } : {}),
         },
       }
     );
@@ -147,7 +173,108 @@ export class EditPoComponent
         ? null
         : Number(gstPercent);
 
-    this.loadPrefillAttachmentFromKey(record.fileKey);
+    if (systemGenerated) {
+      this.setupPoItemNameTypeahead(lineItems);
+      this.setupLineItemAmountSync();
+      queueMicrotask(() => {
+        this.changeDetectorRef.detectChanges();
+        this.allowLineItemAmountSync = true;
+      });
+      return;
+    }
+
+    if (record.fileKey) {
+      this.loadPrefillAttachmentFromKey(record.fileKey);
+    }
+  }
+
+  private setupPoItemNameTypeahead(lineItems: IEditPoUIFormDto['items']): void {
+    const itemsConfig = this.form.fieldConfigs.items;
+    const lineItemsConfig = itemsConfig?.lineItemsConfig;
+    const itemNameField = lineItemsConfig?.fields?.['itemName'];
+
+    if (!itemsConfig || !lineItemsConfig || !itemNameField) {
+      return;
+    }
+
+    const seededOptions = [
+      ...new Map(
+        (lineItems ?? [])
+          .map(item => String(item.itemName ?? '').trim())
+          .filter(name => name.length > 0)
+          .map(name => [name, { label: name, value: name }] as const)
+      ).values(),
+    ];
+
+    this.form.fieldConfigs.items = {
+      ...itemsConfig,
+      lineItemsConfig: {
+        ...lineItemsConfig,
+        fields: {
+          ...lineItemsConfig.fields,
+          itemName: {
+            ...itemNameField,
+            autocompleteConfig: {
+              ...itemNameField.autocompleteConfig,
+              optionsDropdown: seededOptions,
+              onSearch: (query: string) => {
+                const search = query.trim();
+                return this.poService
+                  .getPoItemSuggestions(search ? { search } : {})
+                  .pipe(
+                    map(response =>
+                      response.records.map(name => ({
+                        label: name,
+                        value: name,
+                      }))
+                    )
+                  );
+              },
+              remoteSearchDebounceMs: 300,
+            },
+          },
+        },
+      },
+    } as IInputFieldsConfig;
+  }
+
+  private setupLineItemAmountSync(): void {
+    const items = this.form.formGroup.get('items') as FormArray<FormGroup> | null;
+    items?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (!this.allowLineItemAmountSync) {
+          return;
+        }
+        this.syncLineItemAmounts();
+      });
+  }
+
+  private syncLineItemAmounts(): void {
+    const items = this.form.formGroup.get('items') as FormArray<FormGroup> | null;
+    if (!items) {
+      return;
+    }
+
+    items.controls.forEach(group => {
+      const quantity = Number(group.get('quantity')?.value);
+      const rate = Number(group.get('rate')?.value);
+      const amount = computePoLineItemAmount(quantity, rate);
+      if (group.get('amount')?.value !== amount) {
+        group.get('amount')?.setValue(amount, { emitEvent: false, onlySelf: true });
+      }
+    });
+
+    const taxableAmount = roundCurrencyAmount(
+      items.controls.reduce((sum, group) => {
+        return sum + Number(group.get('amount')?.value || 0);
+      }, 0)
+    );
+
+    if (this.form.formGroup.get('taxableAmount')?.value !== taxableAmount) {
+      this.form.formGroup.patchValue({ taxableAmount });
+    }
+    this.changeDetectorRef.detectChanges();
   }
 
   private loadPrefillAttachmentFromKey(fileKey: string): void {
@@ -219,7 +346,7 @@ export class EditPoComponent
   }
 
   private executeEditPoAction(poId: string): void {
-    const file = this.form.getFieldData('poAttachment');
+    const isSystemGenerated = this.isSystemGenerated();
 
     this.loadingService.show({
       title: 'Updating PO',
@@ -228,13 +355,21 @@ export class EditPoComponent
     });
     this.form.disable();
 
-    this.attachmentsService
-      .uploadFinancialDocument(file[0])
+    const submit$ = isSystemGenerated
+      ? this.poService.editPo(this.prepareFormData(), poId)
+      : this.attachmentsService
+        .uploadFinancialDocument(this.form.getFieldData('poAttachment')[0])
+        .pipe(
+          switchMap(attachmentResponse =>
+            this.poService.editPo(
+              this.prepareFormData(attachmentResponse),
+              poId
+            )
+          )
+        );
+
+    submit$
       .pipe(
-        switchMap(attachmentResponse => {
-          const formData = this.prepareFormData(attachmentResponse);
-          return this.poService.editPo(formData, poId);
-        }),
         finalize(() => {
           this.loadingService.hide();
           this.isSubmitting.set(false);
@@ -258,7 +393,7 @@ export class EditPoComponent
   }
 
   private prepareFormData(
-    attachmentResponse: IFinancialFileUploadResponseDto
+    attachmentResponse: IFinancialFileUploadResponseDto | null = null
   ): IEditPoFormDto {
     const formData = this.form.getData();
     const record = { ...formData };
@@ -266,13 +401,23 @@ export class EditPoComponent
     delete (record as Record<string, unknown>)['projectName'];
     delete (record as Record<string, unknown>)['contractorName'];
     delete (record as Record<string, unknown>)['vendorName'];
+
+    if (this.isSystemGenerated()) {
+      return {
+        ...record,
+        poFileName: null,
+        poFileKey: null,
+        items: mapPoLineItemsForRequest(record.items),
+      };
+    }
+
     return {
       ...record,
       taxableAmount: roundCurrencyAmount(Number(record.taxableAmount)),
       gstAmount: roundCurrencyAmount(Number(record.gstAmount)),
       totalAmount: roundCurrencyAmount(Number(record.totalAmount)),
-      poFileKey: attachmentResponse.fileKey,
-      poFileName: attachmentResponse.fileName,
+      poFileKey: attachmentResponse?.fileKey ?? null,
+      poFileName: attachmentResponse?.fileName ?? null,
     };
   }
 }

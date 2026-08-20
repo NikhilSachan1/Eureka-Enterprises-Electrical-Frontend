@@ -50,10 +50,12 @@ export class FormService {
 
     const inputFieldsConfigs =
       this.inputFieldConfigService.initializeFieldConfigs(formConfig.fields);
+    this.resolveContextDrivenInputState(inputFieldsConfigs, context);
     const formGroup = this.createReactiveFormGroup(
       inputFieldsConfigs,
       (defaultValues ?? {}) as Record<string, unknown>
     );
+    this.reapplyDisabledInputFieldsFromConfig(formGroup, inputFieldsConfigs);
 
     this.applyConditionalValidators(
       formGroup,
@@ -250,6 +252,21 @@ export class FormService {
       }),
       {} as TFlattened
     );
+  }
+
+  /** Resolve `disabledInput` / `readonlyInput` callbacks from createForm context. */
+  private resolveContextDrivenInputState(
+    fieldConfigs: Record<string, IInputFieldsConfig>,
+    context?: Record<string, unknown>
+  ): void {
+    Object.values(fieldConfigs).forEach(config => {
+      if (config.disabledWhen) {
+        config.disabledInput = config.disabledWhen(context);
+      }
+      if (config.readonlyWhen) {
+        config.readonlyInput = config.readonlyWhen(context);
+      }
+    });
   }
 
   /** Re-disable fields with `disabledInput` after `formGroup.enable()` so they stay out of `getData()`. */

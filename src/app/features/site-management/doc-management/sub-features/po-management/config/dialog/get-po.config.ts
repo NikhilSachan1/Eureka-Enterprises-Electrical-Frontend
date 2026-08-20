@@ -1,9 +1,14 @@
-import { EButtonActionType, IDialogActionConfig } from '@shared/types';
+import {
+  EButtonActionType,
+  EDialogSize,
+  IDialogActionConfig,
+} from '@shared/types';
 import {
   APPROVE_CONFIRMATION_DIALOG_CONFIG,
   REJECT_CONFIRMATION_DIALOG_CONFIG,
   DELETE_CONFIRMATION_DIALOG_CONFIG,
 } from '@shared/config';
+import { ICONS } from '@shared/constants';
 import { ApprovePoComponent } from '../../components/approve-po/approve-po.component';
 import { RejectPoComponent } from '../../components/reject-po/reject-po.component';
 import { DeletePoComponent } from '../../components/delete-po/delete-po.component';
@@ -22,10 +27,21 @@ export const PO_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
     dynamicComponent: AddPoComponent,
   },
 
+  [EButtonActionType.GENERATE]: {
+    dialogConfig: {
+      header: 'Generate PO',
+      message: 'Create a system-generated purchase order with line items.',
+      icon: ICONS.PAYROLL.GENERATE,
+      size: EDialogSize.FULL,
+    },
+    dynamicComponent: AddPoComponent,
+  },
+
   [EButtonActionType.EDIT]: {
     dialogConfig: {
       header: 'Edit PO',
       message: 'Update purchase order details.',
+      size: EDialogSize.EXTRA_LARGE,
     },
     dynamicComponent: EditPoComponent,
   },

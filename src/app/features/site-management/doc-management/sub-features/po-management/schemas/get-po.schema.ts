@@ -54,8 +54,20 @@ export const PoGetRequestSchema = z
     }
   );
 
+export const PoItemGetResponseSchema = z.looseObject({
+  itemName: z.string(),
+  hsnCode: z.string().nullable().optional(),
+  make: z.string().nullable().optional(),
+  quantity: z.union([z.string(), z.number()]),
+  rate: z.union([z.string(), z.number()]),
+  amount: z.union([z.string(), z.number()]).nullable().optional(),
+});
+
 export const PoGetBaseResponseSchema = z.looseObject({
   ...PoBaseSchema.shape,
+  isSystemGenerated: z.boolean(),
+  gstType: z.string().nullable().optional(),
+  items: z.array(PoItemGetResponseSchema).nullable().optional(),
   isLocked: z.boolean(),
   unlockRequestedAt: isoDateTimeField.nullable(),
   unlockRequestedByUser: makeFieldsNullable(UserSchema).nullable(),

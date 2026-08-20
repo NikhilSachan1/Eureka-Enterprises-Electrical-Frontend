@@ -359,6 +359,17 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     );
   });
 
+  protected readonly lineItemsGridTemplate = computed(() => {
+    const tableConfig = this.resolvedLineItemsConfig();
+    if (!tableConfig) {
+      return null;
+    }
+    const tracks = tableConfig.columns
+      .map(column => column.columnWidth ?? 'minmax(0, 1fr)')
+      .join(' ');
+    return `2rem ${tracks} auto`;
+  });
+
   lineItemsFormArray = computed(() => {
     this.lineItemsRevision();
     const fg = this.formGroup();
@@ -806,6 +817,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       CONFIGURATION_KEYS.COMMON.ROLE_LIST,
       CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
       CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS,
+      CONFIGURATION_KEYS.FINANCIAL.GST_TYPES,
     ]);
 
     if (nonConfigurationDynamicKeys.has(dropdownName)) {

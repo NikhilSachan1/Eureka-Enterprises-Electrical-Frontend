@@ -20,6 +20,9 @@ import {
   UnlockRejectPoResponseSchema,
   UnlockRequestPoRequestSchema,
   UnlockRequestPoResponseSchema,
+  PoItemSuggestionsGetRequestSchema,
+  PoItemSuggestionsGetResponseSchema,
+  PoItemUpsertSchema,
 } from '../schemas';
 import { PoDetailGetRequestSchema } from '../schemas/get-po-detail.schema';
 
@@ -125,3 +128,15 @@ export type IPoDropdownRecordDto = z.infer<typeof PoDropdownRecordSchema>;
 export type IPoDropdownGetResponseDto = z.infer<
   typeof PoDropdownGetResponseSchema
 >;
+
+/** PO line item name typeahead */
+export type IPoItemSuggestionsGetRequestDto = z.input<
+  typeof PoItemSuggestionsGetRequestSchema
+>;
+export type IPoItemSuggestionsGetResponseDto = z.infer<
+  typeof PoItemSuggestionsGetResponseSchema
+>;
+
+/** PO line item (system-generated) */
+export type IPoItemUpsertDto = z.infer<typeof PoItemUpsertSchema>;
+export type IPoItemFormDto = z.input<typeof PoItemUpsertSchema>;

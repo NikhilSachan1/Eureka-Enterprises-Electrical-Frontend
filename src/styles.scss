@@ -484,3 +484,8 @@ p-card:has(app-nav-tabs) .p-card {
   width: min(96vw, 64rem);
   max-width: min(96vw, 64rem);
 }
+
+.p-dialog.confirmation-dialog-panel.confirmation-dialog-panel--2xl {
+  width: min(96vw, 80rem);
+  max-width: min(96vw, 80rem);
+}

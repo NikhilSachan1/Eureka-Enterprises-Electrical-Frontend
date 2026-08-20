@@ -351,9 +351,10 @@
 
 .line-items__row {
   display: grid;
-  grid-template-columns:
-    2rem repeat(var(--line-items-column-count, 1), minmax(0, 1fr))
-    auto;
+  grid-template-columns: var(
+    --line-items-columns,
+    2rem repeat(var(--line-items-column-count, 1), minmax(0, 1fr)) auto
+  );
   gap: 0.5rem;
   align-items: start;
 }
@@ -372,6 +373,16 @@
   font-size: 0.875rem;
   color: var(--text-color-secondary);
   text-align: center;
+}
+
+:host ::ng-deep .line-items {
+  p-floatlabel:not(:has(label)) input::placeholder,
+  p-floatlabel:not(:has(label)) .p-inputtext::placeholder,
+  .p-inputnumber input::placeholder,
+  .p-inputtext::placeholder {
+    opacity: 1;
+    color: var(--p-form-field-placeholder-color, var(--text-secondary-color));
+  }
 }
 
 @media (max-width: 768px) {
