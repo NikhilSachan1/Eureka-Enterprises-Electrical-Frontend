@@ -46,4 +46,18 @@ export const ATTENDANCE_MANAGEMENT_ROUTES: Routes = [
       permissions: [APP_PERMISSION.ATTENDANCE.FORCE],
     },
   },
+  {
+    path: ROUTES.ATTENDANCE.REGISTER,
+    loadComponent: () =>
+      import(
+        './components/attendance-register-panel/attendance-register-panel.component'
+      ).then(m => m.AttendanceRegisterPanelComponent),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [
+        APP_PERMISSION.ATTENDANCE.VIEW_REGISTER,
+        APP_PERMISSION.ATTENDANCE.TABLE_VIEW,
+      ],
+    },
+  },
 ];

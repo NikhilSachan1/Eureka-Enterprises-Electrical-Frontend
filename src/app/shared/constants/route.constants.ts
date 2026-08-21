@@ -76,6 +76,7 @@ export const ROUTES = {
     LIST: `list`,
     APPLY: `apply`,
     FORCE: `force`,
+    REGISTER: `register`,
   },
 
   EXPENSE: {
