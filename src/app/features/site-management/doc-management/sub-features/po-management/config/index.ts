@@ -6,5 +6,6 @@ export { UNLOCK_REQUEST_ACTION_PO_FORM_CONFIG } from './form/unlock-request-po.c
 export {
   ADD_PO_FORM_CONFIG,
   ADD_PO_DEFAULT_GST_PERCENT,
+  ADD_PO_DEFAULT_GST_TYPE,
 } from './form/add-po.config';
 export { EDIT_PO_FORM_CONFIG } from './form/edit-po.config';

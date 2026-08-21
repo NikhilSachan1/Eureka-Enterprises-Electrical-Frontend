@@ -10,6 +10,18 @@ export const EditPoRequestSchema = PoUpsertShapeSchema.omit({
 })
   .strict()
   .transform(data => {
+    const isSystemGenerated = Array.isArray(data.items) && data.items.length > 0;
+
+    if (isSystemGenerated) {
+      return {
+        poDate: transformDateFormat(data.poDate),
+        gstPercentage: data.gstPercent,
+        gstType: data.gstType,
+        remarks: data.remarks,
+        items: data.items,
+      };
+    }
+
     return {
       poNumber: data.poNumber,
       poDate: transformDateFormat(data.poDate),

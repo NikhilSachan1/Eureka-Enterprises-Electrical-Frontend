@@ -215,6 +215,11 @@ export function buildAssetTableRowActionsConfig(
       permission: [APP_PERMISSION.ASSET.VIEW_DETAIL],
     },
     {
+      id: EButtonActionType.DOWNLOAD,
+      tooltip: 'Export Asset Report',
+      permission: [APP_PERMISSION.ASSET.EXPORT],
+    },
+    {
       id: EButtonActionType.EVENT_HISTORY,
       tooltip: 'View Event History',
       permission: [APP_PERMISSION.ASSET.EVENT_HISTORY],

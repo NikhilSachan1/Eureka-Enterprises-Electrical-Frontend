@@ -13,11 +13,18 @@ import {
 } from '../../types/po.dto';
 import { PoService } from '../../services/po.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { AppConfigurationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  GalleryService,
+  LoadingService,
+  NotificationService,
+} from '@shared/services';
 import {
   EDataType,
+  IAttachmentsGetResponseDto,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
+  IDetailEntryData,
   IEntityViewDetails,
 } from '@shared/types';
 import { finalize } from 'rxjs';
@@ -28,6 +35,7 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
+import { isPoSystemGenerated } from '../../utils/po-table-row.util';
 
 @Component({
   selector: 'app-get-po-detail',
@@ -46,6 +54,9 @@ export class GetPoDetailComponent extends DrawerDetailBase {
   };
   private readonly poService = inject(PoService);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly galleryService = inject(GalleryService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly notificationService = inject(NotificationService);
 
   protected readonly _poDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -117,34 +128,62 @@ export class GetPoDetailComponent extends DrawerDetailBase {
         value: record.isLocked ? 'Locked' : 'Unlocked',
         type: EDataType.STATUS,
       },
-      {
-        label: 'PO amounts',
-        value: {
-          taxableAmount: record.taxableAmount,
-          gstAmount: record.gstAmount,
-          totalAmount: record.totalAmount,
-          gstPercentage: `${record.gstPercentage}%`,
-        },
-        customTemplateKey: 'poDetailPoAmounts',
-      },
-      {
-        label: 'Invoice & payment',
-        value: {
-          partyType: record.partyType,
-          invoicedTotal: record.invoicedTotal,
-          bookedTotal: record.bookedTotal,
-          paidTotal: record.paidTotal,
-          lastInvoiceAt: record.lastInvoiceAt,
-          lastPaymentAt: record.lastPaymentAt,
-        },
-        customTemplateKey: 'poDetailInvoiceTotals',
-      },
     ];
 
+    if (isPoSystemGenerated(record) && record.items?.length) {
+      entryData.push({
+        label: 'Line items',
+        value: record.items,
+        customTemplateKey: 'poLineItems',
+        detailTemplateFullRow: true,
+        detailTemplatePlain: true,
+      });
+    }
+
+    if (isPoSystemGenerated(record) && record.gstType) {
+      entryData.push({
+        label: 'GST type',
+        value: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.poGstTypes(),
+          record.gstType
+        ),
+        type: EDataType.TEXT,
+      });
+    }
+
     entryData.push({
-      label: 'Attachment(s)',
-      value: record.fileKey ? [record.fileKey] : [],
+      label: 'PO amounts',
+      value: {
+        taxableAmount: record.taxableAmount,
+        gstAmount: record.gstAmount,
+        totalAmount: record.totalAmount,
+        gstPercentage: `${record.gstPercentage}%`,
+      },
+      customTemplateKey: 'poDetailPoAmounts',
+    });
+
+    entryData.push({
+      label: 'Invoice & payment',
+      value: {
+        partyType: record.partyType,
+        invoicedTotal: record.invoicedTotal,
+        bookedTotal: record.bookedTotal,
+        paidTotal: record.paidTotal,
+        lastInvoiceAt: record.lastInvoiceAt,
+        lastPaymentAt: record.lastPaymentAt,
+      },
+      customTemplateKey: 'poDetailInvoiceTotals',
+    });
+
+    entryData.push({
+      label: 'Attachments',
+      value: isPoSystemGenerated(record)
+        ? [record.id]
+        : record.fileKey
+          ? [record.fileKey]
+          : [],
       type: EDataType.ATTACHMENTS,
+      enableAttachmentGallery: !isPoSystemGenerated(record),
     });
 
     const detail: IDataViewDetails = {
@@ -185,6 +224,46 @@ export class GetPoDetailComponent extends DrawerDetailBase {
       name: parts.length > 0 ? parts.join(' · ') : 'Purchase order',
       subtitle: poNumber,
     };
+  }
+
+  protected handleDetailAttachmentClick(entry: IDetailEntryData): void {
+    const poId = (entry.value as string[])?.[0];
+    if (!poId) {
+      return;
+    }
+    this.openPoDoc(poId);
+  }
+
+  protected openPoDoc(poId: string): void {
+    this.loadingService.show({
+      title: 'Loading PO DOC',
+      message: 'Fetching the PO document. Please wait…',
+    });
+
+    this.poService
+      .getPoPdf(poId)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IAttachmentsGetResponseDto) => {
+          this.galleryService.show([
+            {
+              mediaKey: response.key,
+              actualMediaUrl: response.url,
+            },
+          ]);
+        },
+        error: error => {
+          this.logger.logUserAction('Failed to load PO PDF', error);
+          this.notificationService.error(
+            'Could not load the PO document. Please try again.'
+          );
+        },
+      });
   }
 
   protected docPoDrawerTaxGstSegments(v: {

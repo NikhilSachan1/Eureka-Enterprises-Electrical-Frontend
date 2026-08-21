@@ -7,6 +7,7 @@ import {
   input,
   OnInit,
 } from '@angular/core';
+import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormBase } from '@shared/base/form.base';
 import {
   IAddPoFormDto,
@@ -26,10 +27,9 @@ import {
   ConfirmationDialogService,
 } from '@shared/services';
 import { ADD_PO_FORM_CONFIG } from '../../config';
-import { finalize, switchMap } from 'rxjs';
+import { finalize, map, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { ReactiveFormsModule } from '@angular/forms';
 import { roundCurrencyAmount } from '@shared/utility';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
 import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
@@ -38,6 +38,10 @@ import {
   resetProjectDateField,
   setProjectDateFieldLoading,
 } from '@features/site-management/project-management/utility/project-overview-date.util';
+import {
+  computePoLineItemAmount,
+  mapPoLineItemsForRequest,
+} from '../../utils/po-line-item.util';
 
 type AddPoStakeholderField = 'contractorName' | 'vendorName';
 
@@ -50,8 +54,7 @@ type AddPoStakeholderField = 'contractorName' | 'vendorName';
 })
 export class AddPoComponent
   extends FormBase<IAddPoUIFormDto>
-  implements OnInit, IDialogActionHandler
-{
+  implements OnInit, IDialogActionHandler {
   private readonly poService = inject(PoService);
   private readonly projectService = inject(ProjectService);
   private readonly attachmentsService = inject(AttachmentsService);
@@ -65,6 +68,7 @@ export class AddPoComponent
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
   protected readonly projectName = input<string>();
+  protected readonly isSystemGenerated = input(false);
 
   readonly EDocContext = EDocContext;
 
@@ -96,6 +100,7 @@ export class AddPoComponent
         destroyRef: this.destroyRef,
         context: {
           docContext: this.docContext(),
+          isSystemGenerated: this.isSystemGenerated(),
         },
         defaultValues: {
           projectName: this.projectName(),
@@ -109,6 +114,86 @@ export class AddPoComponent
         ['projectName', 'taxableAmount', 'gstPercent'],
         this.destroyRef
       );
+
+    if (this.isSystemGenerated()) {
+      this.setupPoItemNameTypeahead();
+      this.setupLineItemAmountSync();
+      queueMicrotask(() => this.changeDetectorRef.detectChanges());
+    }
+  }
+
+  private setupPoItemNameTypeahead(): void {
+    const itemsConfig = this.form.fieldConfigs.items;
+    const lineItemsConfig = itemsConfig?.lineItemsConfig;
+    const itemNameField = lineItemsConfig?.fields?.['itemName'];
+
+    if (!itemsConfig || !lineItemsConfig || !itemNameField) {
+      return;
+    }
+
+    this.form.fieldConfigs.items = {
+      ...itemsConfig,
+      lineItemsConfig: {
+        ...lineItemsConfig,
+        fields: {
+          ...lineItemsConfig.fields,
+          itemName: {
+            ...itemNameField,
+            autocompleteConfig: {
+              ...itemNameField.autocompleteConfig,
+              onSearch: (query: string) => {
+                const search = query.trim();
+                return this.poService
+                  .getPoItemSuggestions(search ? { search } : {})
+                  .pipe(
+                    map(response =>
+                      response.records.map(name => ({
+                        label: name,
+                        value: name,
+                      }))
+                    )
+                  );
+              },
+              remoteSearchDebounceMs: 300,
+            },
+          },
+        },
+      },
+    } as IInputFieldsConfig;
+  }
+
+  private setupLineItemAmountSync(): void {
+    const items = this.form.formGroup.get('items') as FormArray<FormGroup> | null;
+    items?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncLineItemAmounts());
+  }
+
+  private syncLineItemAmounts(): void {
+    const items = this.form.formGroup.get('items') as FormArray<FormGroup> | null;
+    if (!items) {
+      return;
+    }
+
+    items.controls.forEach(group => {
+      const quantity = Number(group.get('quantity')?.value);
+      const rate = Number(group.get('rate')?.value);
+      const amount = computePoLineItemAmount(quantity, rate);
+      if (group.get('amount')?.value !== amount) {
+        group.get('amount')?.setValue(amount, { emitEvent: true, onlySelf: true });
+      }
+    });
+
+    const taxableAmount = roundCurrencyAmount(
+      items.controls.reduce((sum, group) => {
+        return sum + Number(group.get('amount')?.value || 0);
+      }, 0)
+    );
+
+    if (this.form.formGroup.get('taxableAmount')?.value !== taxableAmount) {
+      this.form.formGroup.patchValue({ taxableAmount });
+    }
+    this.changeDetectorRef.detectChanges();
   }
 
   private loadProjectStakeholderOptions(projectId: string): void {
@@ -202,16 +287,16 @@ export class AddPoComponent
         ...defaultSelectConfig,
         ...(hasOptions
           ? {
-              filterOptions: {
-                include: availableIds,
-              },
-            }
+            filterOptions: {
+              include: availableIds,
+            },
+          }
           : {
-              optionsDropdown: [],
-              dynamicDropdown: undefined,
-              filterOptions: undefined,
-              emptyMessage,
-            }),
+            optionsDropdown: [],
+            dynamicDropdown: undefined,
+            filterOptions: undefined,
+            emptyMessage,
+          }),
         loading,
       },
     } as IInputFieldsConfig;
@@ -255,22 +340,28 @@ export class AddPoComponent
   }
 
   private executeAddPoAction(): void {
-    const file = this.form.getFieldData('poAttachment');
+    const isGenerate = this.isSystemGenerated();
 
     this.loadingService.show({
-      title: 'Adding PO',
-      message:
-        "Please wait while we're adding the PO. This will just take a moment.",
+      title: isGenerate ? 'Generating PO' : 'Adding PO',
+      message: isGenerate
+        ? "Please wait while we're generating the PO. This will just take a moment."
+        : "Please wait while we're adding the PO. This will just take a moment.",
     });
     this.form.disable();
 
-    this.attachmentsService
-      .uploadFinancialDocument(file[0])
+    const submit$ = isGenerate
+      ? this.poService.addPo(this.prepareFormData())
+      : this.attachmentsService
+        .uploadFinancialDocument(this.form.getFieldData('poAttachment')[0])
+        .pipe(
+          switchMap(attachmentResponse =>
+            this.poService.addPo(this.prepareFormData(attachmentResponse))
+          )
+        );
+
+    submit$
       .pipe(
-        switchMap(attachmentResponse => {
-          const formData = this.prepareFormData(attachmentResponse);
-          return this.poService.addPo(formData);
-        }),
         finalize(() => {
           this.loadingService.hide();
           this.isSubmitting.set(false);
@@ -285,28 +376,44 @@ export class AddPoComponent
           this.confirmationDialogService.closeDialog();
         },
         error: error => {
-          this.logger.error('Failed to add PO', error);
+          this.logger.error(
+            isGenerate ? 'Failed to generate PO' : 'Failed to add PO',
+            error
+          );
           this.notificationService.error(
-            'Could not add the PO. Please try again.'
+            isGenerate
+              ? 'Could not generate the PO. Please try again.'
+              : 'Could not add the PO. Please try again.'
           );
         },
       });
   }
 
   private prepareFormData(
-    attachmentResponse: IFinancialFileUploadResponseDto
+    attachmentResponse: IFinancialFileUploadResponseDto | null = null
   ): IAddPoFormDto {
     const formData = this.form.getData();
     const record = { ...formData };
     delete (record as Record<string, unknown>)['poAttachment'];
+
+    if (this.isSystemGenerated()) {
+      return {
+        ...record,
+        poFileName: null,
+        poFileKey: null,
+        docType: this.docContext(),
+        items: mapPoLineItemsForRequest(record.items),
+      };
+    }
+
     return {
       ...record,
       taxableAmount: roundCurrencyAmount(Number(record.taxableAmount)),
       gstAmount: roundCurrencyAmount(Number(record.gstAmount)),
       totalAmount: roundCurrencyAmount(Number(record.totalAmount)),
       docType: this.docContext(),
-      poFileKey: attachmentResponse.fileKey,
-      poFileName: attachmentResponse.fileName,
+      poFileKey: attachmentResponse?.fileKey ?? null,
+      poFileName: attachmentResponse?.fileName ?? null,
     };
   }
 }

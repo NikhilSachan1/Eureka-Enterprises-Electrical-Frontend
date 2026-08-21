@@ -125,26 +125,25 @@ export class ProjectWorkspaceDocumentStatusService {
   }
 
   ensureBreakdownForSiteIds(siteIds: readonly string[]): void {
-    const missingSiteIds = [
+    const requestedSiteIds = [
       ...new Set(siteIds.map(id => id?.trim()).filter(Boolean)),
-    ].filter(
-      siteId =>
-        !this.loadedTableSiteIds.has(siteId) &&
-        !this.pendingTableSiteIds.has(siteId)
-    );
+    ].filter(siteId => !this.pendingTableSiteIds.has(siteId));
 
-    if (!missingSiteIds.length) {
+    if (!requestedSiteIds.length) {
       return;
     }
 
-    missingSiteIds.forEach(siteId => this.pendingTableSiteIds.add(siteId));
+    requestedSiteIds.forEach(siteId => {
+      this.loadedTableSiteIds.delete(siteId);
+      this.pendingTableSiteIds.add(siteId);
+    });
     this.tableBreakdownLoading.set(true);
 
     const version = ++this.tableLoadVersion;
 
     this.documentStatusService
       .getPoBreakdown({
-        siteId: missingSiteIds,
+        siteId: requestedSiteIds,
         page: 1,
         pageSize: PO_BREAKDOWN_PAGE_SIZE,
       })
@@ -162,7 +161,7 @@ export class ProjectWorkspaceDocumentStatusService {
             return;
           }
 
-          this.finalizeTableSiteLoad(missingSiteIds);
+          this.finalizeTableSiteLoad(requestedSiteIds);
           this.mergeResponseIntoRowIndex(response);
           this.tableBreakdownTick.update(value => value + 1);
         },
@@ -171,7 +170,7 @@ export class ProjectWorkspaceDocumentStatusService {
             return;
           }
 
-          this.finalizeTableSiteLoad(missingSiteIds);
+          this.finalizeTableSiteLoad(requestedSiteIds);
           this.logger.error('Failed to load workspace table document breakdown', error);
         },
       });

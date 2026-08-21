@@ -16,6 +16,16 @@ function isPoApproved(row: IPoGetBaseResponseDto): boolean {
   );
 }
 
+export function isPoSystemGenerated(row: IPoGetBaseResponseDto): boolean {
+  if (row.isSystemGenerated === true) {
+    return true;
+  }
+  if (row.isSystemGenerated === false) {
+    return false;
+  }
+  return Array.isArray(row.items) && row.items.length > 0;
+}
+
 function isPoRejected(row: IPoGetBaseResponseDto): boolean {
   return (
     normalizePoApprovalStatus(row.approvalStatus) === EApprovalStatus.REJECTED

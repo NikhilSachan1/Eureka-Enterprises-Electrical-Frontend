@@ -17,10 +17,21 @@ export const PoBaseSchema = z.looseObject({
   gstPercentage: z.string(),
   gstAmount: z.string(),
   totalAmount: z.string(),
-  fileKey: z.string(),
+  fileKey: z.string().nullable(),
   contractorId: uuidField.nullable(),
   vendorId: uuidField.nullable(),
 });
+
+export const PoItemUpsertSchema = z
+  .object({
+    itemName: z.string().min(1).max(255),
+    hsnCode: z.string().max(20).nullable().optional(),
+    make: z.string().max(255).nullable().optional(),
+    quantity: z.number().min(0),
+    rate: z.number().min(0),
+    amount: z.number().min(0),
+  })
+  .strict();
 
 export const PoUpsertShapeSchema = z
   .object({
@@ -28,14 +39,16 @@ export const PoUpsertShapeSchema = z
     docType: z.enum(EDocContext),
     contractorName: uuidField.nullable(),
     vendorName: uuidField.nullable(),
-    poNumber: z.string(),
+    poNumber: z.string().nullable(),
     poDate: dateField,
-    taxableAmount: z.number(),
-    gstPercent: z.number(),
-    gstAmount: z.number(),
-    totalAmount: z.number(),
-    poFileName: z.string(),
-    poFileKey: z.string(),
+    taxableAmount: z.number().nullable(),
+    gstPercent: z.number().nullable(),
+    gstAmount: z.number().nullable(),
+    totalAmount: z.number().nullable(),
+    poFileName: z.string().nullable(),
+    poFileKey: z.string().nullable(),
+    gstType: z.string().nullable(),
     remarks: z.string().nullable(),
+    items: z.array(PoItemUpsertSchema).nullable(),
   })
   .strict();

@@ -257,6 +257,8 @@ export const API_ROUTES = {
         UNLOCK_REQUEST_REJECT: (poId: string) =>
           `purchase-orders/${poId}/unlock-reject`,
         DELETE: (poId: string) => `purchase-orders/${poId}`,
+        ITEM_SUGGESTIONS: 'purchase-orders/items/suggestions',
+        PDF: (poId: string) => `purchase-orders/${poId}/pdf`,
       },
       JMC: {
         ADD: 'jmcs',

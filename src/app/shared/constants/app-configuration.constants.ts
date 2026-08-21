@@ -107,6 +107,9 @@ export const CONFIGURATION_KEYS = {
     PARTY_TYPES: 'PARTY_TYPES',
     ALLOCATION_STATUS: 'site_allocation_statuses',
   },
+  FINANCIAL: {
+    GST_TYPES: 'gst_types',
+  },
   PERMISSION: {
     MODULE_CONFIG_DROPDOWN: 'modules',
   },

@@ -82,6 +82,8 @@ export const PO_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     header: 'Attachments',
     bodyTemplate: EDataType.ATTACHMENTS,
     showSort: false,
+    showFilter: false,
+    enableAttachmentGallery: false,
   },
   {
     field: 'approvalStatus',

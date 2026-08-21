@@ -222,6 +222,7 @@ export const APP_PERMISSION = {
     UNLOCK: 'financials.purchase-orders.unlock',
     UNLOCK_GRANT: 'financials.purchase-orders.unlock-grant',
     UNLOCK_REQUEST_REJECT: 'financials.purchase-orders.unlock-request-reject',
+    GENERATE_PO_DOC: 'financials.purchase-orders.generate',
   },
   JMC_DOC: {
     VIEW_DETAIL: 'financials.jmcs.view-detail',

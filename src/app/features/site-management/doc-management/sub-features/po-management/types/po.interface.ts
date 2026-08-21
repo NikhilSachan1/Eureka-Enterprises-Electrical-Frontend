@@ -24,6 +24,9 @@ export interface IPo
     | 'lastInvoiceAt'
     | 'lastPaymentAt'
     | 'contractor'
+    | 'items'
+    | 'gstType'
+    | 'isSystemGenerated'
   > {
   docWorkspaceContext: IDocWorkspaceContextView;
   fileKeys: string[];

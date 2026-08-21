@@ -1,8 +1,13 @@
-export { PoBaseSchema, PoUpsertShapeSchema } from './base-po.schema';
+export {
+  PoBaseSchema,
+  PoUpsertShapeSchema,
+  PoItemUpsertSchema,
+} from './base-po.schema';
 export {
   PoGetRequestSchema,
   PoGetBaseResponseSchema,
   PoGetResponseSchema,
+  PoItemGetResponseSchema,
 } from './get-po.schema';
 export {
   PoDetailGetResponseSchema,
@@ -30,3 +35,7 @@ export {
   PoDropdownGetResponseSchema,
   PoDropdownRecordSchema,
 } from './get-po-dropdown.schema';
+export {
+  PoItemSuggestionsGetRequestSchema,
+  PoItemSuggestionsGetResponseSchema,
+} from './get-po-item-suggestions.schema';
