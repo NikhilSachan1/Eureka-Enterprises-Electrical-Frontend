@@ -1,4 +1,114 @@
+import { EDataType } from '@shared/types';
+import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
+import { EDocReferenceHierarchyKind } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
 import { IPaymentRequestGetBaseResponseDto } from '../types/payment-request.dto';
+
+export interface IPaymentRequestLinkedDocView {
+  kind: EDocReferenceHierarchyKind;
+  number: string;
+  date: string | null;
+  amountSegments: IDocAmountSegment[];
+}
+
+type PaymentRequestLinkedInvoice = NonNullable<
+  IPaymentRequestGetBaseResponseDto['invoice']
+>;
+type PaymentRequestLinkedPo = NonNullable<
+  IPaymentRequestGetBaseResponseDto['po']
+>;
+
+function displayDocNumber(value: string | null | undefined): string {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : '—';
+}
+
+function displayDocDate(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function linkedDocAmountSegments(input: {
+  taxableAmount?: string | number | null;
+  tdsAmount?: string | number | null;
+  gstAmount?: string | number | null;
+  totalAmount?: string | number | null;
+  includeTds?: boolean;
+}): IDocAmountSegment[] {
+  const segments: IDocAmountSegment[] = [
+    {
+      dataType: EDataType.CURRENCY,
+      label: 'Taxable',
+      value: input.taxableAmount,
+    },
+  ];
+
+  if (input.includeTds) {
+    segments.push({
+      dataType: EDataType.CURRENCY,
+      label: 'TDS',
+      value: input.tdsAmount,
+    });
+  }
+
+  segments.push(
+    {
+      dataType: EDataType.CURRENCY,
+      label: 'GST',
+      value: input.gstAmount,
+    },
+    {
+      dataType: EDataType.CURRENCY,
+      label: 'Total',
+      value: input.totalAmount,
+    }
+  );
+
+  return segments;
+}
+
+function buildInvoiceLinkedDoc(
+  invoice: PaymentRequestLinkedInvoice | null | undefined
+): IPaymentRequestLinkedDocView {
+  return {
+    kind: EDocReferenceHierarchyKind.Invoice,
+    number: displayDocNumber(invoice?.invoiceNumber),
+    date: displayDocDate(invoice?.invoiceDate),
+    amountSegments: linkedDocAmountSegments({
+      taxableAmount: invoice?.taxableAmount,
+      tdsAmount: invoice?.tdsAmount,
+      gstAmount: invoice?.gstAmount,
+      totalAmount: invoice?.totalAmount,
+      includeTds: true,
+    }),
+  };
+}
+
+function buildPoLinkedDoc(
+  po: PaymentRequestLinkedPo | null | undefined
+): IPaymentRequestLinkedDocView {
+  return {
+    kind: EDocReferenceHierarchyKind.Po,
+    number: displayDocNumber(po?.poNumber),
+    date: displayDocDate(po?.poDate),
+    amountSegments: linkedDocAmountSegments({
+      taxableAmount: po?.taxableAmount,
+      gstAmount: po?.gstAmount,
+      totalAmount: po?.totalAmount,
+    }),
+  };
+}
+
+export function buildPaymentRequestInvoiceDoc(
+  record: IPaymentRequestGetBaseResponseDto
+): IPaymentRequestLinkedDocView {
+  return buildInvoiceLinkedDoc(record.invoice);
+}
+
+export function buildPaymentRequestPoDoc(
+  record: IPaymentRequestGetBaseResponseDto
+): IPaymentRequestLinkedDocView {
+  return buildPoLinkedDoc(record.po);
+}
 
 function normalizePaymentRequestStatus(
   status: string | null | undefined

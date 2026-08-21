@@ -33,9 +33,17 @@ export const PAYMENT_REQUEST_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfi
       showSort: false,
     },
     {
-      field: 'invoiceNumber',
-      header: 'Invoice Number',
+      field: 'invoiceDoc',
+      header: 'Invoice',
       bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'paymentRequestInvoice',
+      showSort: false,
+    },
+    {
+      field: 'poDoc',
+      header: 'PO',
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'paymentRequestPo',
       showSort: false,
     },
     {

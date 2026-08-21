@@ -20,6 +20,8 @@ export const PaymentRequestDetailGetResponseSchema = z.looseObject({
   ...PaymentRequestGetBaseResponseSchema.shape,
   createdAt,
   updatedAt,
+  remarks: z.string().nullable().optional(),
+  rejectionReason: z.string().nullable().optional(),
   approvalByUser: makeFieldsNullable(UserSchema).nullable().optional(),
   approvalAt: isoDateTimeField.nullable().optional(),
   createdByUser: UserSchema.optional(),

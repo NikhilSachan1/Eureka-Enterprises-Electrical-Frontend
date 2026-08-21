@@ -1,4 +1,5 @@
 import type { IDocWorkspaceContextView } from '@features/site-management/doc-management/shared/types/doc-workspace-context.interface';
+import type { IPaymentRequestLinkedDocView } from '../utils/payment-request-table-row.util';
 import { IPaymentRequestGetBaseResponseDto } from './payment-request.dto';
 
 export interface IPaymentRequest
@@ -13,6 +14,7 @@ export interface IPaymentRequest
     | 'vendor'
   > {
   docWorkspaceContext: IDocWorkspaceContextView;
-  invoiceNumber: string;
+  invoiceDoc: IPaymentRequestLinkedDocView;
+  poDoc: IPaymentRequestLinkedDocView;
   originalRawData: IPaymentRequestGetBaseResponseDto;
 }

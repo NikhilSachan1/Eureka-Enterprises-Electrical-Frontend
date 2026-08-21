@@ -1,3 +1,4 @@
+import { formatDate, NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -48,6 +49,10 @@ import { DocWorkspaceContextComponent } from '@features/site-management/doc-mana
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
+import {
+  buildPaymentRequestInvoiceDoc,
+  buildPaymentRequestPoDoc,
+} from '../../utils/payment-request-table-row.util';
 
 @Component({
   selector: 'app-get-payment-request',
@@ -57,6 +62,7 @@ import { ProjectWorkspaceContextService } from '@features/site-management/projec
     DataTableComponent,
     DocWorkspaceContextComponent,
     DocAmountComponent,
+    NgTemplateOutlet,
   ],
   templateUrl: './get-payment-request.component.html',
   styleUrl: './get-payment-request.component.scss',
@@ -179,7 +185,8 @@ export class GetPaymentRequestComponent implements OnInit {
         reason: record.reason,
         invoice: record.invoice,
         vendor: record.vendor,
-        invoiceNumber: record.invoice?.invoiceNumber?.trim() || '—',
+        invoiceDoc: buildPaymentRequestInvoiceDoc(record),
+        poDoc: buildPaymentRequestPoDoc(record),
         docWorkspaceContext: {
           companyName: record.site?.company?.name ?? '',
           partyName: record.vendor?.name ?? '',
@@ -191,6 +198,21 @@ export class GetPaymentRequestComponent implements OnInit {
         originalRawData: record,
       } satisfies IPaymentRequest;
     });
+  }
+
+  protected formatLinkedDocDate(value: string | null): string {
+    if (!value) {
+      return '—';
+    }
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return '—';
+    }
+    return formatDate(
+      parsed,
+      APP_CONFIG.DATE_FORMATS.DEFAULT,
+      APP_CONFIG.DATE_FORMATS.DISPLAY_LOCALE
+    );
   }
 
   protected docPaymentRequestAmountSegments(
