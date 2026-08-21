@@ -260,6 +260,15 @@ export const APP_PERMISSION = {
     UNLOCK_GRANT: 'financials.invoices.unlock-grant',
     UNLOCK_REQUEST_REJECT: 'financials.invoices.unlock-request-reject',
   },
+  PAYMENT_REQUEST_DOC: {
+    VIEW_DETAIL: 'financials.payment-requests.view-list',
+    TABLE_VIEW: 'financials.payment-requests.view-list',
+    ADD: 'financials.payment-requests.create',
+    EDIT: 'financials.payment-requests.approve',
+    DELETE: 'financials.payment-requests.approve',
+    APPROVE: 'financials.payment-requests.approve',
+    REJECT: 'financials.payment-requests.approve',
+  },
   BOOK_PAYMENT_DOC: {
     VIEW_DETAIL: 'financials.book-payments.view-detail',
     TABLE_VIEW: 'financials.book-payments.view-list',

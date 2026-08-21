@@ -10,6 +10,7 @@ const {
   JMC_DOC,
   REPORT_DOC,
   INVOICE_DOC,
+  PAYMENT_REQUEST_DOC,
   BOOK_PAYMENT_DOC,
   BANK_TRANSFER_DOC,
 } = APP_PERMISSION;
@@ -100,6 +101,15 @@ const DOC_WORKSPACE_PURCHASE_CHILDREN: Routes = [
       ).then(m => m.GetInvoiceComponent),
     canActivate: [permissionGuard],
     data: { permissions: [INVOICE_DOC.TABLE_VIEW] },
+  },
+  {
+    path: WORKSPACE_DOC.PAYMENT_REQUEST,
+    loadComponent: () =>
+      import(
+        './sub-features/payment-request-management/components/get-payment-request/get-payment-request.component'
+      ).then(m => m.GetPaymentRequestComponent),
+    canActivate: [permissionGuard],
+    data: { permissions: [PAYMENT_REQUEST_DOC.TABLE_VIEW] },
   },
   {
     path: WORKSPACE_DOC.BOOK_PAYMENT,

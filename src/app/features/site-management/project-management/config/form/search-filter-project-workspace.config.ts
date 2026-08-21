@@ -93,6 +93,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
         WORKSPACE_DOC.PO,
         WORKSPACE_DOC.JMC,
         WORKSPACE_DOC.INVOICE,
+        WORKSPACE_DOC.PAYMENT_REQUEST,
       ],
       multiSelectConfig: {
         dynamicDropdown: {

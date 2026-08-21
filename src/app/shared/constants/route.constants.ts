@@ -139,6 +139,7 @@ export const ROUTES = {
         JMC: `jmc`,
         INVOICE: `invoice`,
         REPORT: `report`,
+        PAYMENT_REQUEST: `payment-request`,
         BOOK_PAYMENT: `book-payment`,
         BANK_TRANSFER: `bank-transfer`,
       },

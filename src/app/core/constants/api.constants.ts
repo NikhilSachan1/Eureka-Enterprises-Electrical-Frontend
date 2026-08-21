@@ -305,6 +305,15 @@ export const API_ROUTES = {
           `site-invoices/${invoiceId}/unlock-reject`,
         DELETE: (invoiceId: string) => `site-invoices/${invoiceId}`,
       },
+      PAYMENT_REQUEST: {
+        ADD: 'payment-requests',
+        LIST: 'payment-requests',
+        GET_BY_ID: (id: string) => `payment-requests/${id}`,
+        EDIT: (id: string) => `payment-requests/${id}`,
+        DELETE: (id: string) => `payment-requests/${id}`,
+        APPROVE: (id: string) => `payment-requests/${id}/approve`,
+        REJECT: (id: string) => `payment-requests/${id}/reject`,
+      },
       BOOK_PAYMENT: {
         ADD: 'book-payments',
         EDIT: (id: string) => `book-payments/${id}`,
