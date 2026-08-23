@@ -10,6 +10,8 @@ const { pageSize, page, search } = FilterSchema.shape;
 export const PaymentRequestGetRequestSchema = z
   .object({
     projectName: uuidField.nullable().optional(),
+    companyName: z.array(uuidField).nullable().optional(),
+    vendorName: z.array(uuidField).nullable().optional(),
     approvalStatus: z.array(z.string()).nullable().optional(),
     invoiceId: uuidField.nullable().optional(),
     invoiceNumber: z.string().nullable().optional(),
@@ -20,16 +22,19 @@ export const PaymentRequestGetRequestSchema = z
   .transform(
     ({
       projectName,
+      companyName,
+      vendorName,
       approvalStatus,
       invoiceId,
       invoiceNumber,
       page,
       pageSize,
-      search,
     }) => {
       const [status] = approvalStatus ?? [];
       return {
         siteId: projectName ? [projectName] : undefined,
+        companyId: companyName?.length ? companyName : undefined,
+        vendorId: vendorName?.length ? vendorName : undefined,
         invoiceId: invoiceId || undefined,
         invoiceNumber: invoiceNumber || undefined,
         status: status || undefined,
