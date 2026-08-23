@@ -393,16 +393,16 @@ export class GetJmcComponent implements OnInit {
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {
-    const headerButtonConfig: IPageHeaderConfig['headerButtonConfig'] = [
-      {
+    const isContractorContext = this.docRouteContext() === EDocContext.SALES;
+    const headerButtonConfig: IPageHeaderConfig['headerButtonConfig'] = [];
+
+    if (isContractorContext) {
+      headerButtonConfig.push({
         ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
         label: 'Add JMC',
         actionName: 'addJmc',
         permission: [APP_PERMISSION.JMC_DOC.ADD],
-      },
-    ];
-
-    if (this.docRouteContext() === EDocContext.SALES) {
+      });
       headerButtonConfig.push({
         ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
         label: 'Generate JMC',
@@ -414,7 +414,7 @@ export class GetJmcComponent implements OnInit {
     return {
       title: '',
       subtitle: '',
-      showHeaderButton: true,
+      showHeaderButton: headerButtonConfig.length > 0,
       showGoBackButton: false,
       showSearch: true,
       searchPlaceholder: 'Search by JMC Number',

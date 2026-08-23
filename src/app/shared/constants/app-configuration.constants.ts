@@ -106,6 +106,7 @@ export const CONFIGURATION_KEYS = {
     PROJECT_DOCUMENT_APPROVAL_STATUSES: 'FINANCIAL_APPROVAL_STATUSES',
     PARTY_TYPES: 'PARTY_TYPES',
     ALLOCATION_STATUS: 'site_allocation_statuses',
+    SITE_ROLES: 'site_roles',
   },
   FINANCIAL: {
     GST_TYPES: 'gst_types',

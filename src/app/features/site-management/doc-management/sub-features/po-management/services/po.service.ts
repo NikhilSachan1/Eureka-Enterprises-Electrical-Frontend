@@ -11,6 +11,8 @@ import {
   PoDropdownGetResponseSchema,
   RejectPoRequestSchema,
   RejectPoResponseSchema,
+  PoCanCreateGetRequestSchema,
+  PoCanCreateGetResponseSchema,
   PoGetRequestSchema,
   PoGetResponseSchema,
   UnlockRequestPoResponseSchema,
@@ -30,6 +32,7 @@ import {
   IPoDetailGetResponseDto,
   IPoDropdownGetRequestDto,
   IPoDropdownGetResponseDto,
+  IPoCanCreateGetResponseDto,
   IPoGetFormDto,
   IPoGetResponseDto,
   IRejectPoFormDto,
@@ -55,6 +58,36 @@ import { IAttachmentsGetResponseDto } from '@shared/types';
 export class PoService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
+
+  getPoCanCreate(siteId: string): Observable<IPoCanCreateGetResponseDto> {
+    this.logger.logUserAction('Get PO Can Create Request', { siteId });
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.DOCUMENT.PO.CAN_CREATE,
+        {
+          response: PoCanCreateGetResponseSchema,
+          request: PoCanCreateGetRequestSchema,
+        },
+        { siteId }
+      )
+      .pipe(
+        tap((response: IPoCanCreateGetResponseDto) => {
+          this.logger.logUserAction('Get PO Can Create Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get PO Can Create Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get PO Can Create Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
 
   addPo(formData: IAddPoFormDto): Observable<IAddPoResponseDto> {
     this.logger.logUserAction('Add PO Request');

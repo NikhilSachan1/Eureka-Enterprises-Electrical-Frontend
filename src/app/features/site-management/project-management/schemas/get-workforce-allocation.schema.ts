@@ -41,6 +41,7 @@ export const WorkforceAllocationCurrentProjectSchema = z.looseObject({
   company: WorkforceCompanyRefSchema,
   since: isoDateTimeField,
   allocationId: uuidField,
+  role: z.string().optional().nullable(),
 });
 
 export const WorkforceAllocationGetBaseResponseSchema = z.looseObject({
@@ -48,6 +49,7 @@ export const WorkforceAllocationGetBaseResponseSchema = z.looseObject({
   employeeName: z.string(),
   employeeCode: z.string(),
   status: z.enum(['ALLOCATED', 'FREE']),
+  role: z.string().optional().nullable(),
   currentProject: WorkforceAllocationCurrentProjectSchema.nullable(),
 });
 

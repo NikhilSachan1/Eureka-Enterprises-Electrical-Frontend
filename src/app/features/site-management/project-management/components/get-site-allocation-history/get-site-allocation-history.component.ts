@@ -187,6 +187,7 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
           fullName,
           employeeId: user.employeeId,
         },
+        role: record.role?.trim() || '—',
         allocationPeriod: deallocatedAt
           ? [allocatedAt, deallocatedAt]
           : [allocatedAt],

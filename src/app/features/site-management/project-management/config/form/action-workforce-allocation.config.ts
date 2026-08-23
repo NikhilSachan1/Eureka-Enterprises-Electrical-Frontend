@@ -9,6 +9,7 @@ import {
 
 export type IWorkforceAllocationActionFormDto = {
   projectName: string | undefined;
+  role: string | undefined;
   allocateDate: Date | undefined;
   releaseDate: Date | undefined;
 } & Record<string, unknown>;
@@ -33,6 +34,26 @@ const WORKFORCE_ALLOCATION_ACTION_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IWo
         dynamicDropdown: {
           moduleName: MODULE_NAMES.PROJECT,
           dropdownName: CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
+        },
+      },
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean =>
+            isAllocateAction(context) || isTransferAction(context),
+          validators: [Validators.required],
+          resetOnFalse: true,
+        },
+      ],
+    },
+    role: {
+      fieldType: EDataType.SELECT,
+      id: 'role',
+      fieldName: 'role',
+      label: 'Role',
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.PROJECT,
+          dropdownName: CONFIGURATION_KEYS.PROJECT.SITE_ROLES,
         },
       },
       conditionalValidators: [

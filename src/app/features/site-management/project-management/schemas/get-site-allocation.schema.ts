@@ -46,6 +46,7 @@ export const SiteAllocationGetBaseResponseSchema = z.looseObject({
   allocatedAt: onlyDateStringField,
   deallocatedAt: onlyDateStringField.nullable(),
   isCurrentlyAllocated: z.boolean(),
+  role: z.string().optional().nullable(),
   site: SiteAllocationSiteSchema,
   user: SiteAllocationUserSchema,
 });

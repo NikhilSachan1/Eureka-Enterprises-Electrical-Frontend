@@ -10,6 +10,10 @@ export {
   PoItemGetResponseSchema,
 } from './get-po.schema';
 export {
+  PoCanCreateGetRequestSchema,
+  PoCanCreateGetResponseSchema,
+} from './get-po-can-create.schema';
+export {
   PoDetailGetResponseSchema,
   PoDetailGetRequestSchema,
 } from './get-po-detail.schema';

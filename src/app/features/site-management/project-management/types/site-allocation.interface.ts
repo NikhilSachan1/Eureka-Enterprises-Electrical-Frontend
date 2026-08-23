@@ -8,6 +8,7 @@ export interface ISiteAllocationHistory {
     fullName: string;
     employeeId: string;
   };
+  role: string;
   allocationPeriod: Date[];
   createdAt: Date;
   allocationStatus: string;

@@ -11,7 +11,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { AppConfigurationService } from '@shared/services';
-import { LoggerService } from '@core/services';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { AppPermissionService, LoggerService } from '@core/services';
 import { IPoBreakdownGetResponseDto } from '../types/project.dto';
 import {
   EMPTY_PROJECT_DOCUMENT_STATUS,
@@ -45,6 +46,7 @@ export class ProjectWorkspaceDocumentStatusService {
   private readonly documentStatusService = inject(DocumentStatusService);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly logger = inject(LoggerService);
+  private readonly appPermissionService = inject(AppPermissionService);
   private readonly destroyRef = inject(DestroyRef);
 
   private primaryLoadVersion = 0;
@@ -85,7 +87,11 @@ export class ProjectWorkspaceDocumentStatusService {
 
   readonly isAvailable = computed(() => {
     const target = this.documentTarget();
-    return !!target && hasDocumentStatusStakeholders(target);
+    return (
+      this.canViewDocumentStatus() &&
+      !!target &&
+      hasDocumentStatusStakeholders(target)
+    );
   });
 
   readonly snapshotForDetail = computed(() =>
@@ -106,7 +112,7 @@ export class ProjectWorkspaceDocumentStatusService {
 
       const siteId = this.resolveWorkspaceProjectId();
 
-      if (siteId) {
+      if (siteId && this.canViewDocumentStatus()) {
         this.loadPrimaryBreakdownForSite(siteId);
       } else {
         this.resetBreakdownState();
@@ -124,7 +130,17 @@ export class ProjectWorkspaceDocumentStatusService {
     });
   }
 
+  private canViewDocumentStatus(): boolean {
+    return this.appPermissionService.hasPermission(
+      APP_PERMISSION.UI.PROJECT.DOCUMENT_STATUS
+    );
+  }
+
   ensureBreakdownForSiteIds(siteIds: readonly string[]): void {
+    if (!this.canViewDocumentStatus()) {
+      return;
+    }
+
     const requestedSiteIds = [
       ...new Set(siteIds.map(id => id?.trim()).filter(Boolean)),
     ].filter(siteId => !this.pendingTableSiteIds.has(siteId));

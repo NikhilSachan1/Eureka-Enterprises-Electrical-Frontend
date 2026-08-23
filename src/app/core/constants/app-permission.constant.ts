@@ -371,6 +371,7 @@ export const APP_PERMISSION = {
       SEARCH_FILTER_COMPANY_NAME: 'ui_project_search_filter_company_name',
       SEARCH_FILTER_CONTRACTOR_NAME: 'ui_project_search_filter_contractor_name',
       SEARCH_FILTER_VENDOR_NAME: 'ui_project_search_filter_vendor_name',
+      DOCUMENT_STATUS: 'ui_project_document_status',
     },
     DSR: {
       TABLE_EMPLOYEE_NAME: 'ui_dsr_table_employee_name',
@@ -532,6 +533,14 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.HR]: true,
     },
     SEARCH_FILTER_VENDOR_NAME: {
+      [EUserRole.ADMIN]: true,
+      [EUserRole.DRIVER]: false,
+      [EUserRole.EMPLOYEE]: true,
+      [EUserRole.OPERATION_MANAGER]: true,
+      [EUserRole.SUPER_ADMIN]: true,
+      [EUserRole.HR]: true,
+    },
+    DOCUMENT_STATUS: {
       [EUserRole.ADMIN]: true,
       [EUserRole.DRIVER]: false,
       [EUserRole.EMPLOYEE]: false,

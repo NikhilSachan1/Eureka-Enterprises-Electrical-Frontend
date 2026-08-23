@@ -9,7 +9,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { AppPermissionService, LoggerService } from '@core/services';
 import { AppConfigurationService } from '@shared/services';
 import { IProjectOverviewGetResponseDto } from '../../types/project.dto';
 import { IProject } from '../../types/project.interface';
@@ -50,6 +51,7 @@ export class ProjectDocumentStatusBlockComponent {
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly logger = inject(LoggerService);
+  private readonly appPermissionService = inject(AppPermissionService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly project = input<IProject | IProjectDocumentStatusTarget | null>(null);
@@ -95,7 +97,13 @@ export class ProjectDocumentStatusBlockComponent {
 
   protected readonly isVisible = computed(() => {
     const project = this.resolvedProject();
-    return !!project && hasDocumentStatusStakeholders(project);
+    return (
+      this.appPermissionService.hasPermission(
+        APP_PERMISSION.UI.PROJECT.DOCUMENT_STATUS
+      ) &&
+      !!project &&
+      hasDocumentStatusStakeholders(project)
+    );
   });
 
   protected readonly docContextAvailability = computed(() => {

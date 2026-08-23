@@ -40,6 +40,7 @@ import {
   createPoTableEnhancedConfig,
 } from '../../config';
 import {
+  IPoCanCreateGetResponseDto,
   IPoGetBaseResponseDto,
   IPoGetFormDto,
   IPoGetResponseDto,
@@ -106,6 +107,10 @@ export class GetPoComponent implements OnInit {
 
   protected readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
+  private readonly poCanCreate = signal<IPoCanCreateGetResponseDto | null>(
+    null
+  );
+  private readonly canCreateTrigger$ = new Subject<string | undefined>();
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
@@ -116,11 +121,42 @@ export class GetPoComponent implements OnInit {
   private readonly loadTrigger$ = new Subject<void>();
 
   constructor() {
+    this.canCreateTrigger$
+      .pipe(
+        switchMap(siteId => {
+          if (!siteId) {
+            this.poCanCreate.set(null);
+            return EMPTY;
+          }
+
+          return this.poService.getPoCanCreate(siteId).pipe(
+            catchError(error => {
+              this.poCanCreate.set(null);
+              this.logger.logUserAction('Failed to load PO can-create', error);
+              return EMPTY;
+            })
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IPoCanCreateGetResponseDto) => {
+          this.poCanCreate.set(response);
+        },
+      });
+
     effect(() => {
       this.workspaceContext.filterSubmitVersion();
       if (this.tableFilterData) {
         this.loadPoList();
       }
+    });
+
+    effect(() => {
+      const siteId =
+        this.workspaceContext.selectedProjectId() ??
+        this.workspaceContext.activeProjectId();
+      this.canCreateTrigger$.next(siteId);
     });
   }
 
@@ -306,11 +342,17 @@ export class GetPoComponent implements OnInit {
 
   protected onHeaderButtonClick(actionName: string): void {
     if (actionName === 'addPo') {
+      if (this.poCanCreate()?.allowed === false) {
+        return;
+      }
       this.openAddPoDialog();
       return;
     }
 
     if (actionName === 'generatePo') {
+      if (this.poCanCreate()?.allowed === false) {
+        return;
+      }
       this.openGeneratePoDialog();
     }
   }
@@ -502,30 +544,33 @@ export class GetPoComponent implements OnInit {
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {
-    const headerButtonConfig: IPageHeaderConfig['headerButtonConfig'] = [
-      {
+    const canCreate = this.poCanCreate();
+    const isVendorContext = this.docRouteContext() === EDocContext.PURCHASE;
+    const headerButtonConfig: IPageHeaderConfig['headerButtonConfig'] = [];
+
+    if (isVendorContext) {
+      headerButtonConfig.push({
         ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
         label: 'Add PO',
         actionName: 'addPo',
         permission: [APP_PERMISSION.PO_DOC.ADD],
-      },
-    ];
-
-    if (this.docRouteContext() === EDocContext.PURCHASE) {
+        disabled: canCreate?.allowed === false,
+        disabledTooltip: canCreate?.reason ?? undefined,
+      });
       headerButtonConfig.push({
         ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
         label: 'Generate PO',
         actionName: 'generatePo',
-        permission: [
-          APP_PERMISSION.PO_DOC.GENERATE_PO_DOC,
-        ],
+        permission: [APP_PERMISSION.PO_DOC.GENERATE_PO_DOC],
+        disabled: canCreate?.allowed === false,
+        disabledTooltip: canCreate?.reason ?? undefined,
       });
     }
 
     return {
       title: '',
       subtitle: '',
-      showHeaderButton: true,
+      showHeaderButton: headerButtonConfig.length > 0,
       showGoBackButton: false,
       showSearch: true,
       searchPlaceholder: 'Search by PO Number',

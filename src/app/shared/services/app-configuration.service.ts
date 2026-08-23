@@ -178,6 +178,7 @@ export class AppConfigurationService {
   private readonly _projectAllocationStatuses = signal<IOptionDropdown[]>(
     SITE_ALLOCATION_STATUS_DATA
   );
+  private readonly _siteRoles = signal<IOptionDropdown[]>([]);
   private readonly _poGstTypes = signal<IOptionDropdown[]>(PO_GST_TYPE_DATA);
   private readonly _projectWorkTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectDocumentTypes = signal<IOptionDropdown[]>([]);
@@ -255,6 +256,7 @@ export class AppConfigurationService {
   readonly projectStatus = this._projectStatus.asReadonly();
   readonly projectAllocationStatuses =
     this._projectAllocationStatuses.asReadonly();
+  readonly siteRoles = this._siteRoles.asReadonly();
   readonly poGstTypes = this._poGstTypes.asReadonly();
   readonly projectWorkTypes = this._projectWorkTypes.asReadonly();
   readonly projectDocumentTypes = this._projectDocumentTypes.asReadonly();
@@ -516,6 +518,10 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS,
         signal: this._projectAllocationStatuses,
+      },
+      {
+        key: CONFIGURATION_KEYS.PROJECT.SITE_ROLES,
+        signal: this._siteRoles,
       },
       {
         key: CONFIGURATION_KEYS.PROJECT.PROJECT_WORK_TYPES,
