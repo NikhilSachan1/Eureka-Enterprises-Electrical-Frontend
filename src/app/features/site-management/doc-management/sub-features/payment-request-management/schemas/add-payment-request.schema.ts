@@ -12,7 +12,7 @@ export const AddPaymentRequestRequestSchema =
     .transform(data => ({
       invoiceId: data.invoiceNumber,
       requestedAmount: roundCurrencyAmount(Number(data.requestedAmount)),
-      reason: data.reason?.trim() ? data.reason.trim() : undefined,
+      reason: data.reason.trim(),
     }));
 
 export const AddPaymentRequestResponseSchema = z.looseObject({

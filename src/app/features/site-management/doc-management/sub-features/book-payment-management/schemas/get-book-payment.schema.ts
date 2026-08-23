@@ -11,7 +11,7 @@ import {
 import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
 import z from 'zod';
 
-const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
+const { sortOrder, sortField, pageSize, page } = FilterSchema.shape;
 const { createdBy } = AuditSchema.shape;
 
 export const BookPaymentGetRequestSchema = z
@@ -23,11 +23,11 @@ export const BookPaymentGetRequestSchema = z
     docType: z.enum(EDocContext).optional(),
     dateRange: z.array(dateField).nullable().optional(),
     poNumber: z.string().nullable().optional(),
+    invoiceNumber: z.string().nullable().optional(),
     sortOrder,
     sortField,
     pageSize,
     page,
-    search,
   })
   .strict()
   .transform(

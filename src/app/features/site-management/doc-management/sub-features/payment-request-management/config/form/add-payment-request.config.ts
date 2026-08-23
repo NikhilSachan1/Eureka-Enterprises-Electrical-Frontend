@@ -55,6 +55,7 @@ const ADD_PAYMENT_REQUEST_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPayment
       id: 'reason',
       fieldName: 'reason',
       label: 'Reason',
+      validators: [Validators.required],
     },
   };
 

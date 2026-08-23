@@ -4,7 +4,7 @@ import { roundCurrencyAmount } from '@shared/utility';
 export const ApprovePaymentRequestRequestSchema = z
   .object({
     approvedAmount: z.number().min(0.01),
-    remarks: z.string().nullable().optional(),
+    remarks: z.string().nullable(),
   })
   .strict()
   .transform(data => ({

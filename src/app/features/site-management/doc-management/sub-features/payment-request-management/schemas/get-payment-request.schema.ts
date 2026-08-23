@@ -12,20 +12,29 @@ export const PaymentRequestGetRequestSchema = z
     projectName: uuidField.nullable().optional(),
     approvalStatus: z.array(z.string()).nullable().optional(),
     invoiceId: uuidField.nullable().optional(),
+    invoiceNumber: z.string().nullable().optional(),
     pageSize,
     page,
     search,
   })
   .transform(
-    ({ projectName, approvalStatus, invoiceId, page, pageSize, search }) => {
+    ({
+      projectName,
+      approvalStatus,
+      invoiceId,
+      invoiceNumber,
+      page,
+      pageSize,
+      search,
+    }) => {
       const [status] = approvalStatus ?? [];
       return {
         siteId: projectName ? [projectName] : undefined,
         invoiceId: invoiceId || undefined,
+        invoiceNumber: invoiceNumber || undefined,
         status: status || undefined,
         page,
         pageSize,
-        search: search || undefined,
       };
     }
   );

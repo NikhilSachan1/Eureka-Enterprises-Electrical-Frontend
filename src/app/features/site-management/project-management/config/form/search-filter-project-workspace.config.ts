@@ -106,7 +106,9 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
     dateRange: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
       label: 'start - end date',
-      visibleOnTabs: WORKSPACE_TABS_EXCEPT_PROFITABILITY,
+      visibleOnTabs: WORKSPACE_TABS_EXCEPT_PROFITABILITY.filter(
+        tab => tab !== WORKSPACE_DOC.PAYMENT_REQUEST
+      ),
       dateConfig: {
         ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange.dateConfig,
         maxDate: new Date(),
@@ -117,7 +119,9 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
       id: 'search',
       fieldName: 'search',
       label: 'Search By PO Number',
-      visibleOnTabs: ALL_DOC_TABS,
+      visibleOnTabs: ALL_DOC_TABS.filter(
+        tab => tab !== WORKSPACE_DOC.PAYMENT_REQUEST
+      ),
     },
   };
 

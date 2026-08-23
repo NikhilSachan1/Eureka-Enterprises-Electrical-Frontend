@@ -164,7 +164,7 @@ export class GetPaymentRequestComponent implements OnInit {
       ...workspaceFilters,
       ...base,
       ...(workspaceSearch ? { poNumber: workspaceSearch } : {}),
-      ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
+      ...(this.searchTerm() ? { invoiceNumber: this.searchTerm() } : {}),
     };
   }
 

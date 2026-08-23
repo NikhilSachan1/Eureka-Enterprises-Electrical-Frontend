@@ -357,13 +357,13 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
     const selectedRecord =
       actionType === EButtonActionType.SEND_EMAIL && raw.paymentAdvice
         ? [
-            {
-              id: raw.paymentAdvice.id,
-              referenceNumber: raw.paymentAdvice.referenceNumber,
-              pdfKey: raw.paymentAdvice.pdfKey,
-              vendor: { email: raw.vendor?.email ?? null },
-            },
-          ]
+          {
+            id: raw.paymentAdvice.id,
+            referenceNumber: raw.paymentAdvice.referenceNumber,
+            pdfKey: raw.paymentAdvice.pdfKey,
+            vendor: { email: raw.vendor?.email ?? null },
+          },
+        ]
         : [raw];
 
     const dynamicComponentInputs: Record<string, unknown> = {

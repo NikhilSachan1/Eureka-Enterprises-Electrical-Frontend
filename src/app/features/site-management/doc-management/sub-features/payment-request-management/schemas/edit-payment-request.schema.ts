@@ -10,7 +10,7 @@ export const EditPaymentRequestRequestSchema =
     .strict()
     .transform(data => ({
       requestedAmount: roundCurrencyAmount(Number(data.requestedAmount)),
-      reason: data.reason?.trim() ? data.reason.trim() : undefined,
+      reason: data.reason.trim(),
     }));
 
 export const EditPaymentRequestResponseSchema = z.looseObject({
