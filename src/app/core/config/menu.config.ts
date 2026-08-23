@@ -42,6 +42,15 @@ export const appMenu: ApplicationMenu = {
               permission: [APP_PERMISSION.ATTENDANCE.TABLE_VIEW],
             },
             {
+              label: 'Attendance Register',
+              icon: ICONS.COMMON.CHART,
+              routerLink: ROUTES.ATTENDANCE.REGISTER,
+              permission: [
+                APP_PERMISSION.ATTENDANCE.VIEW_REGISTER,
+                APP_PERMISSION.ATTENDANCE.TABLE_VIEW,
+              ],
+            },
+            {
               label: 'Mark Attendance',
               icon: ICONS.ATTENDANCE.CHECK_IN,
               routerLink: ROUTES.ATTENDANCE.APPLY,

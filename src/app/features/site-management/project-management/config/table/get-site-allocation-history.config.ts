@@ -32,6 +32,12 @@ export const SITE_ALLOCATION_HISTORY_TABLE_HEADER_CONFIG: Partial<IDataTableHead
       showSort: false,
     },
     {
+      field: 'role',
+      header: 'Role',
+      bodyTemplate: EDataType.TEXT,
+      showSort: false,
+    },
+    {
       field: 'allocationPeriod',
       header: 'Period',
       bodyTemplate: EDataType.RANGE,

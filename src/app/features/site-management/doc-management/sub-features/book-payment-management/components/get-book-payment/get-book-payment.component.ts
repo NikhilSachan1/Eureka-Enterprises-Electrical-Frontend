@@ -160,7 +160,7 @@ export class GetBookPaymentComponent implements OnInit {
       ...workspaceFilters,
       ...base,
       ...(workspaceSearch ? { poNumber: workspaceSearch } : {}),
-      ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
+      ...(this.searchTerm() ? { invoiceNumber: this.searchTerm() } : {}),
     };
   }
 
@@ -320,7 +320,7 @@ export class GetBookPaymentComponent implements OnInit {
       showHeaderButton: true,
       showGoBackButton: false,
       showSearch: true,
-      searchPlaceholder: 'Search by Book Payment Number',
+      searchPlaceholder: 'Search by Invoice Number',
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,

@@ -141,6 +141,9 @@ export class GetWorkforceAllocationComponent implements OnInit {
         id: record.userId,
         employeeName: toTitleCase(record.employeeName),
         employeeCode: record.employeeCode,
+        role: this.resolveSiteRoleLabel(
+          record.role ?? record.currentProject?.role
+        ),
         allocatedStatus: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.projectAllocationStatuses(),
           record.status
@@ -162,6 +165,19 @@ export class GetWorkforceAllocationComponent implements OnInit {
         originalRawData: record,
       } satisfies IWorkforceAllocation;
     });
+  }
+
+  private resolveSiteRoleLabel(role?: string | null): string {
+    if (!role?.trim()) {
+      return '—';
+    }
+
+    return (
+      getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.siteRoles(),
+        role
+      ) || role
+    );
   }
 
   private formatCityState(
@@ -239,6 +255,12 @@ export class GetWorkforceAllocationComponent implements OnInit {
     if (currentProject) {
       entryData.push(
         {
+          label: 'Role',
+          value: this.resolveSiteRoleLabel(
+            selectedRow.role ?? currentProject.role
+          ),
+        },
+        {
           label: 'Current Project',
           value: currentProject.siteName,
         },
@@ -264,10 +286,16 @@ export class GetWorkforceAllocationComponent implements OnInit {
         });
       }
     } else {
-      entryData.push({
-        label: 'Current Project',
-        value: '—',
-      });
+      entryData.push(
+        {
+          label: 'Role',
+          value: this.resolveSiteRoleLabel(selectedRow.role),
+        },
+        {
+          label: 'Current Project',
+          value: '—',
+        }
+      );
     }
 
     return {

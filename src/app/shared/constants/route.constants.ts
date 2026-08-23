@@ -76,6 +76,7 @@ export const ROUTES = {
     LIST: `list`,
     APPLY: `apply`,
     FORCE: `force`,
+    REGISTER: `register`,
   },
 
   EXPENSE: {
@@ -139,6 +140,7 @@ export const ROUTES = {
         JMC: `jmc`,
         INVOICE: `invoice`,
         REPORT: `report`,
+        PAYMENT_REQUEST: `payment-request`,
         BOOK_PAYMENT: `book-payment`,
         BANK_TRANSFER: `bank-transfer`,
       },

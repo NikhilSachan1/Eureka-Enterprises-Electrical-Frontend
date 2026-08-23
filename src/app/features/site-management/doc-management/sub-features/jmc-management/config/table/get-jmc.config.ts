@@ -51,6 +51,7 @@ export const JMC_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     customTemplateKey: 'workspaceDocumentStatus',
     columnStyleClass: 'project-doc-status-col',
     showSort: false,
+    permission: [APP_PERMISSION.UI.PROJECT.DOCUMENT_STATUS],
   },
   {
     field: 'jmcNumber',

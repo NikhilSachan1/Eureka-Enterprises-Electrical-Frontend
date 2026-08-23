@@ -40,6 +40,7 @@ export class DocIntegrationComponent {
       JMC_DOC,
       REPORT_DOC,
       INVOICE_DOC,
+      PAYMENT_REQUEST_DOC,
       BOOK_PAYMENT_DOC,
       BANK_TRANSFER_DOC,
     } = APP_PERMISSION;
@@ -70,6 +71,16 @@ export class DocIntegrationComponent {
         visible: this.appPermissionService.hasPermission(
           INVOICE_DOC.TABLE_VIEW
         ),
+      },
+      {
+        route: ROUTES.SITE.PROJECT.WORKSPACE_DOC.PAYMENT_REQUEST,
+        label: 'Payment Request',
+        icon: ICONS.COMMON.FILE,
+        visible:
+          ctx === EDocContext.PURCHASE &&
+          this.appPermissionService.hasPermission(
+            PAYMENT_REQUEST_DOC.TABLE_VIEW
+          ),
       },
       {
         route: ROUTES.SITE.PROJECT.WORKSPACE_DOC.BOOK_PAYMENT,

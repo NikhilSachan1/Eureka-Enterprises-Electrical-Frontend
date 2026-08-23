@@ -260,6 +260,15 @@ export const APP_PERMISSION = {
     UNLOCK_GRANT: 'financials.invoices.unlock-grant',
     UNLOCK_REQUEST_REJECT: 'financials.invoices.unlock-request-reject',
   },
+  PAYMENT_REQUEST_DOC: {
+    VIEW_DETAIL: 'financials.payment-requests.view-list',
+    TABLE_VIEW: 'financials.payment-requests.view-list',
+    ADD: 'financials.payment-requests.create',
+    EDIT: 'financials.payment-requests.update',
+    DELETE: 'financials.payment-requests.delete',
+    APPROVE: 'financials.payment-requests.approve',
+    REJECT: 'financials.payment-requests.approve',
+  },
   BOOK_PAYMENT_DOC: {
     VIEW_DETAIL: 'financials.book-payments.view-detail',
     TABLE_VIEW: 'financials.book-payments.view-list',
@@ -362,6 +371,7 @@ export const APP_PERMISSION = {
       SEARCH_FILTER_COMPANY_NAME: 'ui_project_search_filter_company_name',
       SEARCH_FILTER_CONTRACTOR_NAME: 'ui_project_search_filter_contractor_name',
       SEARCH_FILTER_VENDOR_NAME: 'ui_project_search_filter_vendor_name',
+      DOCUMENT_STATUS: 'ui_project_document_status',
     },
     DSR: {
       TABLE_EMPLOYEE_NAME: 'ui_dsr_table_employee_name',
@@ -523,6 +533,14 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.HR]: true,
     },
     SEARCH_FILTER_VENDOR_NAME: {
+      [EUserRole.ADMIN]: true,
+      [EUserRole.DRIVER]: false,
+      [EUserRole.EMPLOYEE]: true,
+      [EUserRole.OPERATION_MANAGER]: true,
+      [EUserRole.SUPER_ADMIN]: true,
+      [EUserRole.HR]: true,
+    },
+    DOCUMENT_STATUS: {
       [EUserRole.ADMIN]: true,
       [EUserRole.DRIVER]: false,
       [EUserRole.EMPLOYEE]: false,

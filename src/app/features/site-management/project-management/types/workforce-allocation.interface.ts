@@ -4,6 +4,7 @@ export interface IWorkforceAllocation {
   id: string;
   employeeName: string;
   employeeCode: string;
+  role: string;
   allocatedStatus: string;
   projectName: string | null;
   projectLocation: string | null;

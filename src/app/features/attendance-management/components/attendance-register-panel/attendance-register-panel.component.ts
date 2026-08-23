@@ -25,7 +25,8 @@ import { EEmployeeStatus } from '@features/employee-management/types/employee.ty
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { TableService } from '@shared/services';
-import { IDataTableHeaderConfig, IEnhancedTable } from '@shared/types';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { IDataTableHeaderConfig, IEnhancedTable, IPageHeaderConfig } from '@shared/types';
 import { AttendanceService } from '../../services/attendance.service';
 import {
   IAttendanceGetBaseResponseDto,
@@ -54,7 +55,7 @@ import {
 @Component({
   selector: 'app-attendance-register-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SearchFilterComponent, DataTableComponent],
+  imports: [PageHeaderComponent, SearchFilterComponent, DataTableComponent],
   templateUrl: './attendance-register-panel.component.html',
   styleUrl: './attendance-register-panel.component.scss',
 })
@@ -75,6 +76,11 @@ export class AttendanceRegisterPanelComponent implements OnInit {
     monthYear: getCurrentRegisterMonth(),
   };
   protected readonly getSummaryTone = getRegisterSummaryTone;
+  protected readonly pageHeaderConfig: IPageHeaderConfig = {
+    title: 'Attendance Register',
+    subtitle: 'Monthly attendance register',
+    showHeaderButton: false,
+  };
 
   ngOnInit(): void {
     this.loadReport(getCurrentRegisterMonth());

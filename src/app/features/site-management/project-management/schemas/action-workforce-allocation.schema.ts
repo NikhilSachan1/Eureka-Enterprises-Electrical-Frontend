@@ -13,6 +13,7 @@ export const WorkforceAllocationActionRequestSchema = z
     projectName: uuidField.nullable().optional(),
     allocateDate: dateField.nullable().optional(),
     releaseDate: dateField.nullable().optional(),
+    role: z.string().trim().min(1).nullable().optional(),
     userId: uuidField,
     allocationId: uuidField.nullable().optional(),
   })
@@ -23,6 +24,7 @@ export const WorkforceAllocationActionRequestSchema = z
       projectName,
       allocateDate,
       releaseDate,
+      role,
       userId,
       allocationId,
     }) => {
@@ -33,6 +35,7 @@ export const WorkforceAllocationActionRequestSchema = z
               siteId: projectName as string,
               userId,
               allocatedAt: transformDateFormat(allocateDate as Date),
+              role: role as string,
             },
           ],
           deallocations: [],
@@ -57,6 +60,7 @@ export const WorkforceAllocationActionRequestSchema = z
             siteId: projectName as string,
             userId,
             allocatedAt: transformDateFormat(allocateDate as Date),
+            role: role as string,
           },
         ],
         deallocations: [

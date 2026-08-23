@@ -114,8 +114,15 @@ export class GetProjectWorkspaceComponent {
     this.buildProjectWorkspaceSearchFilterConfig()
   );
 
+  protected readonly workspaceDocContext = computed(() =>
+    this.resolveWorkspaceDocContext(this.routerUrl())
+  );
+
   protected readonly visibleFilterFieldNames = computed(() =>
-    this.getVisibleFilterFieldNames(this.activeFilterTab())
+    this.getVisibleFilterFieldNames(
+      this.activeFilterTab(),
+      this.workspaceDocContext()
+    )
   );
 
   protected readonly visibleWorkspaceTabs = computed((): ITabItem[] =>
@@ -146,8 +153,10 @@ export class GetProjectWorkspaceComponent {
     });
 
     effect(() => {
-      const tab = this.activeFilterTab();
-      this.syncAppliedFiltersToActiveTab(tab);
+      this.syncAppliedFiltersToActiveTab(
+        this.activeFilterTab(),
+        this.workspaceDocContext()
+      );
     });
   }
 
@@ -472,6 +481,21 @@ export class GetProjectWorkspaceComponent {
     this.syncWorkspaceDateRangeFieldConfig();
   }
 
+  private resolveWorkspaceDocContext(url: string): string | null {
+    const { CONTRACTOR_DOC, VENDOR_DOC } = ROUTES.SITE.PROJECT;
+    const segments = url.split('?')[0].split('/').filter(Boolean);
+
+    if (segments.includes(VENDOR_DOC)) {
+      return VENDOR_DOC;
+    }
+
+    if (segments.includes(CONTRACTOR_DOC)) {
+      return CONTRACTOR_DOC;
+    }
+
+    return null;
+  }
+
   private resolveProjectWorkspaceFilterTab(url: string): string {
     const {
       PROFITABILITY,
@@ -514,11 +538,33 @@ export class GetProjectWorkspaceComponent {
     return { ...SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG, fields };
   }
 
-  private getVisibleFilterFieldNames(tab: string): string[] {
+  private getVisibleFilterFieldNames(
+    tab: string,
+    docContext: string | null
+  ): string[] {
+    const { CONTRACTOR_DOC, VENDOR_DOC } = ROUTES.SITE.PROJECT;
+
     return Object.entries(SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG.fields)
-      .filter(([, field]) =>
-        this.isFieldVisibleForTab(field as { visibleOnTabs?: string[] }, tab)
-      )
+      .filter(([fieldName, field]) => {
+        if (
+          !this.isFieldVisibleForTab(
+            field as { visibleOnTabs?: string[] },
+            tab
+          )
+        ) {
+          return false;
+        }
+
+        if (docContext === VENDOR_DOC && fieldName === 'contractorName') {
+          return false;
+        }
+
+        if (docContext === CONTRACTOR_DOC && fieldName === 'vendorName') {
+          return false;
+        }
+
+        return true;
+      })
       .map(([fieldName]) => fieldName);
   }
 
@@ -553,7 +599,10 @@ export class GetProjectWorkspaceComponent {
     return true;
   }
 
-  private syncAppliedFiltersToActiveTab(tab: string): void {
+  private syncAppliedFiltersToActiveTab(
+    tab: string,
+    docContext: string | null
+  ): void {
     const appliedFilters = this.workspaceContext.filters();
     if (!Object.keys(appliedFilters).length) {
       return;
@@ -561,7 +610,7 @@ export class GetProjectWorkspaceComponent {
 
     const visibleFilters = this.pickVisibleFilterValues(
       appliedFilters as Record<string, unknown>,
-      this.getVisibleFilterFieldNames(tab)
+      this.getVisibleFilterFieldNames(tab, docContext)
     );
 
     if (this.areWorkspaceFiltersEqual(appliedFilters, visibleFilters)) {
@@ -606,6 +655,7 @@ export class GetProjectWorkspaceComponent {
       JMC_DOC,
       REPORT_DOC,
       INVOICE_DOC,
+      PAYMENT_REQUEST_DOC,
       BOOK_PAYMENT_DOC,
       BANK_TRANSFER_DOC,
       GST,
@@ -641,6 +691,7 @@ export class GetProjectWorkspaceComponent {
           JMC_DOC.TABLE_VIEW,
           REPORT_DOC.TABLE_VIEW,
           INVOICE_DOC.TABLE_VIEW,
+          PAYMENT_REQUEST_DOC.TABLE_VIEW,
           BANK_TRANSFER_DOC.TABLE_VIEW,
           BOOK_PAYMENT_DOC.TABLE_VIEW,
         ]),

@@ -36,6 +36,12 @@ export const WORKFORCE_ALLOCATION_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderC
       showSort: false,
     },
     {
+      field: 'role',
+      header: 'Role',
+      bodyTemplate: EDataType.TEXT,
+      showSort: false,
+    },
+    {
       field: 'allocatedStatus',
       header: 'Status',
       bodyTemplate: EDataType.STATUS,

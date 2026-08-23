@@ -60,6 +60,7 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     customTemplateKey: 'projectDocumentStatus',
     columnStyleClass: 'project-doc-status-col',
     showSort: false,
+    permission: [APP_PERMISSION.UI.PROJECT.DOCUMENT_STATUS],
   },
   {
     field: 'timeLine',

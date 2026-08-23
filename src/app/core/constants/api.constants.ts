@@ -246,6 +246,7 @@ export const API_ROUTES = {
         ADD: 'purchase-orders',
         EDIT: (poId: string) => `purchase-orders/${poId}`,
         LIST: 'purchase-orders',
+        CAN_CREATE: 'purchase-orders/can-create',
         DROPDOWN: 'purchase-orders/dropdown',
         GET_PO_BY_ID: (poId: string) => `purchase-orders/${poId}`,
         APPROVE: (poId: string) => `purchase-orders/${poId}/approve`,
@@ -304,6 +305,15 @@ export const API_ROUTES = {
         UNLOCK_REQUEST_REJECT: (invoiceId: string) =>
           `site-invoices/${invoiceId}/unlock-reject`,
         DELETE: (invoiceId: string) => `site-invoices/${invoiceId}`,
+      },
+      PAYMENT_REQUEST: {
+        ADD: 'payment-requests',
+        LIST: 'payment-requests',
+        GET_BY_ID: (id: string) => `payment-requests/${id}`,
+        EDIT: (id: string) => `payment-requests/${id}`,
+        DELETE: (id: string) => `payment-requests/${id}`,
+        APPROVE: (id: string) => `payment-requests/${id}/approve`,
+        REJECT: (id: string) => `payment-requests/${id}/reject`,
       },
       BOOK_PAYMENT: {
         ADD: 'book-payments',

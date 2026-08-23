@@ -12,6 +12,8 @@ import {
   PoDropdownGetResponseSchema,
   PoDropdownRecordSchema,
   PoGetBaseResponseSchema,
+  PoCanCreateGetRequestSchema,
+  PoCanCreateGetResponseSchema,
   PoGetRequestSchema,
   PoGetResponseSchema,
   RejectPoRequestSchema,
@@ -34,6 +36,12 @@ export type IPoGetBaseResponseDto = z.infer<typeof PoGetBaseResponseSchema>;
 export type IPoGetResponseDto = z.infer<typeof PoGetResponseSchema>;
 export type IPoGetRequestDto = z.infer<typeof PoGetRequestSchema>;
 export type IPoGetFormDto = z.input<typeof PoGetRequestSchema>;
+export type IPoCanCreateGetRequestDto = z.input<
+  typeof PoCanCreateGetRequestSchema
+>;
+export type IPoCanCreateGetResponseDto = z.infer<
+  typeof PoCanCreateGetResponseSchema
+>;
 
 /*
   PO Detail Get
