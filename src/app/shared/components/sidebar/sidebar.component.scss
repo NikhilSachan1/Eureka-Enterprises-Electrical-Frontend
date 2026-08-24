@@ -268,7 +268,7 @@
   .sidebar {
     transform: translateX(-100%);
     box-shadow: var(--shadow-lg);
-    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
 
     &--collapsed {
       transform: translateX(-100%);
