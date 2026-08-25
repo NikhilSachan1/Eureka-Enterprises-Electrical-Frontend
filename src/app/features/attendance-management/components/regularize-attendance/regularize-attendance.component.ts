@@ -53,8 +53,7 @@ type EmployeeApplyValue = z.infer<typeof EmployeeBaseSchema>;
 })
 export class RegularizeAttendanceComponent
   extends FormBase<IAttendanceRegularizedUIFormDto>
-  implements OnInit, IDialogActionHandler
-{
+  implements OnInit, IDialogActionHandler {
   private readonly attendanceService = inject(AttendanceService);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly confirmationDialogService = inject(
@@ -103,15 +102,25 @@ export class RegularizeAttendanceComponent
       );
       this.formContext.isAssignmentApplicable = this.showAssignmentFields();
 
-      if (this.form) {
-        this.formService.refreshConditionalValidators(
-          this.form.formGroup,
-          this.form.fieldConfigs,
-          this.formContext
-        );
+      if (!this.form) {
+        return;
       }
 
-      if (!this.showAssignmentFields() && this.form) {
+      this.formService.refreshConditionalValidators(
+        this.form.formGroup,
+        this.form.fieldConfigs,
+        this.formContext
+      );
+
+      if (this.showAssignmentFields()) {
+        const snapshot = this.selectedRecord()[0]?.assignmentSnapshot;
+        this.form.patch({
+          company: snapshot?.company?.id ?? null,
+          contractor: snapshot?.contractors?.[0]?.id ?? null,
+          vehicle: snapshot?.vehicle?.id ?? null,
+          assignedEngineer: snapshot?.assignedEngineer?.id ?? null,
+        });
+      } else {
         this.form.patch({ ...NULL_ASSIGNMENT_FORM_VALUES });
       }
     });
@@ -228,35 +237,35 @@ export class RegularizeAttendanceComponent
       company: this.isBlankId(companyId)
         ? null
         : ((getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.companyList(),
-            companyId,
-            'value',
-            'data'
-          ) as ICompanyGetBaseResponseDto) ?? null),
+          this.appConfigurationService.companyList(),
+          companyId,
+          'value',
+          'data'
+        ) as ICompanyGetBaseResponseDto) ?? null),
       contractor: this.isBlankId(contractorId)
         ? null
         : ((getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.contractorList(),
-            contractorId,
-            'value',
-            'data'
-          ) as IContractorGetBaseResponseDto) ?? null),
+          this.appConfigurationService.contractorList(),
+          contractorId,
+          'value',
+          'data'
+        ) as IContractorGetBaseResponseDto) ?? null),
       vehicle: this.isBlankId(vehicleId)
         ? null
         : ((getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.vehicleList(),
-            vehicleId,
-            'value',
-            'data'
-          ) as VehicleApplyValue) ?? null),
+          this.appConfigurationService.vehicleList(),
+          vehicleId,
+          'value',
+          'data'
+        ) as VehicleApplyValue) ?? null),
       assignedEngineer: this.isBlankId(engineerId)
         ? null
         : ((getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.employeeList(),
-            engineerId,
-            'value',
-            'data'
-          ) as EmployeeApplyValue) ?? null),
+          this.appConfigurationService.employeeList(),
+          engineerId,
+          'value',
+          'data'
+        ) as EmployeeApplyValue) ?? null),
     } satisfies IAttendanceRegularizedFormDto;
   }
 
