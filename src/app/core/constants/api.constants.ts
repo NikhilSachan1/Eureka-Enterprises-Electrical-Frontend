@@ -47,8 +47,7 @@ export const API_ROUTES = {
     CURRENT_STATUS: 'attendance/current-status',
     APPLY: 'attendance/action',
     FORCE: 'attendance/force',
-    EDIT: (attendanceId: string) => `attendance/${attendanceId}`,
-    DELETE: 'attendance',
+    DELETE: (attendanceId: string) => `attendance/${attendanceId}`,
     REGULARIZE: (attendanceId: string) =>
       `attendance/${attendanceId}/regularize`,
     APPROVAL_ACTION: 'attendance/approval',

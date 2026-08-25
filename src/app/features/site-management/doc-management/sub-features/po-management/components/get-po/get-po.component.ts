@@ -545,18 +545,18 @@ export class GetPoComponent implements OnInit {
 
   private getPageHeaderConfig(): IPageHeaderConfig {
     const canCreate = this.poCanCreate();
-    const isVendorContext = this.docRouteContext() === EDocContext.PURCHASE;
-    const headerButtonConfig: IPageHeaderConfig['headerButtonConfig'] = [];
-
-    if (isVendorContext) {
-      headerButtonConfig.push({
+    const headerButtonConfig: IPageHeaderConfig['headerButtonConfig'] = [
+      {
         ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
         label: 'Add PO',
         actionName: 'addPo',
         permission: [APP_PERMISSION.PO_DOC.ADD],
         disabled: canCreate?.allowed === false,
         disabledTooltip: canCreate?.reason ?? undefined,
-      });
+      },
+    ];
+
+    if (this.docRouteContext() === EDocContext.PURCHASE) {
       headerButtonConfig.push({
         ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
         label: 'Generate PO',
@@ -570,7 +570,7 @@ export class GetPoComponent implements OnInit {
     return {
       title: '',
       subtitle: '',
-      showHeaderButton: headerButtonConfig.length > 0,
+      showHeaderButton: true,
       showGoBackButton: false,
       showSearch: true,
       searchPlaceholder: 'Search by PO Number',

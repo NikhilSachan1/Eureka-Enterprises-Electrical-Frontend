@@ -17,9 +17,6 @@ import {
   IAttendanceHistoryGetResponseDto,
   IAttendanceRegularizedFormDto,
   IAttendanceRegularizedResponseDto,
-  IAttendanceEditFormDto,
-  IAttendanceEditResponseDto,
-  IAttendanceDeleteFormDto,
   IAttendanceDeleteResponseDto,
 } from '../types/attendance.dto';
 import {
@@ -37,9 +34,6 @@ import {
   AttendanceGetRequestSchema,
   AttendanceGetResponseSchema,
   AttendanceCurrentStatusGetFormSchema,
-  AttendanceEditRequestSchema,
-  AttendanceEditResponseSchema,
-  AttendanceDeleteRequestSchema,
   AttendanceDeleteResponseSchema,
 } from '../schemas';
 
@@ -108,50 +102,15 @@ export class AttendanceService {
       );
   }
 
-  editAttendance(
-    formData: IAttendanceEditFormDto,
-    attendanceId: string
-  ): Observable<IAttendanceEditResponseDto> {
-    this.logger.logUserAction('Edit Attendance Request');
-
-    return this.apiService
-      .patchValidated(
-        API_ROUTES.ATTENDANCE.EDIT(attendanceId),
-        {
-          response: AttendanceEditResponseSchema,
-          request: AttendanceEditRequestSchema,
-        },
-        formData
-      )
-      .pipe(
-        tap((response: IAttendanceEditResponseDto) => {
-          this.logger.logUserAction('Edit Attendance Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Edit Attendance Error', error);
-          } else {
-            this.logger.logUserAction('Edit Attendance Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
-  }
-
   deleteAttendance(
-    formData: IAttendanceDeleteFormDto
+    attendanceId: string
   ): Observable<IAttendanceDeleteResponseDto> {
-    this.logger.logUserAction('Delete Attendance Request');
+    this.logger.logUserAction('Delete Attendance', { attendanceId });
 
     return this.apiService
-      .deleteValidated(
-        API_ROUTES.ATTENDANCE.DELETE,
-        {
-          response: AttendanceDeleteResponseSchema,
-          request: AttendanceDeleteRequestSchema,
-        },
-        formData
-      )
+      .deleteValidated(API_ROUTES.ATTENDANCE.DELETE(attendanceId), {
+        response: AttendanceDeleteResponseSchema,
+      })
       .pipe(
         tap((response: IAttendanceDeleteResponseDto) => {
           this.logger.logUserAction('Delete Attendance Response', response);

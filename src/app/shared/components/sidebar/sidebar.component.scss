@@ -1,6 +1,7 @@
 :host {
   display: block;
   height: 100vh;
+  height: 100dvh;
   width: 100%;
 
   // Light theme: inherit from global theme variables
@@ -39,6 +40,7 @@
   top: 0;
   left: 0;
   height: 100vh;
+  height: 100dvh;
   width: var(--sidebar-width);
   z-index: 1000;
   background: var(--sidebar-bg);
@@ -254,6 +256,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background-color: rgba(15, 23, 42, 0.3);
   z-index: 999;
   backdrop-filter: blur(4px);
@@ -265,6 +268,7 @@
   .sidebar {
     transform: translateX(-100%);
     box-shadow: var(--shadow-lg);
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
 
     &--collapsed {
       transform: translateX(-100%);
