@@ -88,10 +88,10 @@ function isApprovalAlreadyRejected(
 const VIEW_DISABLED_NOT_MARKED_REASON =
   'View is available only after the employee checks in and attendance is recorded for the day.';
 
-// const EDIT_DELETE_DISABLED_NOT_MARKED_REASON =
-//   'Edit and delete are available only after the employee checks in and attendance is recorded for the day.';
-// const EDIT_DELETE_DISABLED_PAYROLL_LOCKED_REASON =
-//   'Edit and delete are not available because payroll has already been processed for this period.';
+const EDIT_DELETE_DISABLED_TODAY_REASON =
+  "Today's attendance cannot be deleted.";
+const EDIT_DELETE_DISABLED_PAYROLL_LOCKED_REASON =
+  'Delete is not available because payroll has already been processed for this period.';
 
 // ─── Row tooltips: Regularize ────────────────────────────────────────────────
 
@@ -177,11 +177,6 @@ const BULK_REJECT_DISABLED_PAYROLL_LOCKED_REASON =
   'Some selected records fall in a payroll-locked period and cannot be rejected.';
 const BULK_REJECT_DISABLED_ALREADY_REJECTED_REASON =
   'Some selected records are already rejected.';
-
-const BULK_DELETE_DISABLED_NOT_MARKED_REASON =
-  'Some selected records do not have a check-in and cannot be deleted.';
-const BULK_DELETE_DISABLED_PAYROLL_LOCKED_REASON =
-  'Some selected records fall in a payroll-locked period and cannot be deleted.';
 
 /** Shared priority for approve/reject disable (first match wins). */
 type ApproveRejectSharedBlock =
@@ -391,13 +386,13 @@ function getViewDisableReason(
   return undefined;
 }
 
-type EditDeleteDisableBlock = 'notMarked' | 'payrollLocked';
+type EditDeleteDisableBlock = 'today' | 'payrollLocked';
 
 function getEditDeleteDisableBlock(
   row: IAttendanceGetBaseResponseDto
 ): EditDeleteDisableBlock | undefined {
-  if (isAttendanceNotMarkedYetForViewRegularize(row)) {
-    return 'notMarked';
+  if (isSameLocalCalendarDayAsToday(row.attendanceDate)) {
+    return 'today';
   }
   if (isPayrollLocked(row.attendanceDate)) {
     return 'payrollLocked';
@@ -411,27 +406,14 @@ function shouldDisableEditOrDelete(
   return getEditDeleteDisableBlock(row) !== undefined;
 }
 
-// function getEditDeleteDisableReason(
-//   row: IAttendanceGetBaseResponseDto
-// ): string | undefined {
-//   switch (getEditDeleteDisableBlock(row)) {
-//     case 'notMarked':
-//       return EDIT_DELETE_DISABLED_NOT_MARKED_REASON;
-//     case 'payrollLocked':
-//       return EDIT_DELETE_DISABLED_PAYROLL_LOCKED_REASON;
-//     default:
-//       return undefined;
-//   }
-// }
-
-function getBulkDeleteDisableReason(
+function getEditDeleteDisableReason(
   row: IAttendanceGetBaseResponseDto
 ): string | undefined {
   switch (getEditDeleteDisableBlock(row)) {
-    case 'notMarked':
-      return BULK_DELETE_DISABLED_NOT_MARKED_REASON;
+    case 'today':
+      return EDIT_DELETE_DISABLED_TODAY_REASON;
     case 'payrollLocked':
-      return BULK_DELETE_DISABLED_PAYROLL_LOCKED_REASON;
+      return EDIT_DELETE_DISABLED_PAYROLL_LOCKED_REASON;
     default:
       return undefined;
   }
@@ -514,13 +496,13 @@ export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   //   disableWhen: shouldDisableEditOrDelete,
   //   disableReason: getEditDeleteDisableReason,
   // },
-  // {
-  //   ...COMMON_ROW_ACTIONS.DELETE,
-  //   tooltip: 'Delete Attendance',
-  //   // permission: [APP_PERMISSION.ATTENDANCE.DELETE],
-  //   disableWhen: shouldDisableEditOrDelete,
-  //   disableReason: getEditDeleteDisableReason,
-  // },
+  {
+    ...COMMON_ROW_ACTIONS.DELETE,
+    tooltip: 'Delete Attendance',
+    permission: [APP_PERMISSION.ATTENDANCE.DELETE],
+    disableWhen: shouldDisableEditOrDelete,
+    disableReason: getEditDeleteDisableReason,
+  },
   {
     id: EButtonActionType.REGULARIZE,
     tooltip: 'Regularize Attendance',
@@ -547,13 +529,6 @@ export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<
 export const ATTENDANCE_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IAttendanceGetBaseResponseDto>
 >[] = [
-  {
-    ...COMMON_BULK_ACTIONS.DELETE,
-    tooltip: 'Delete Selected Attendance',
-    permission: [APP_PERMISSION.ATTENDANCE.DELETE],
-    disableWhen: shouldDisableEditOrDelete,
-    disableReason: getBulkDeleteDisableReason,
-  },
   {
     ...COMMON_BULK_ACTIONS.APPROVE,
     tooltip: 'Approve Selected Attendance',

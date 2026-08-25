@@ -1,108 +1,91 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   input,
   OnInit,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
-import { FormBase } from '@shared/base/form.base';
-import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { ConfirmationDialogService } from '@shared/services';
+import { LoggerService } from '@core/services';
+import {
+  ConfirmationDialogService,
+  LoadingService,
+  NotificationService,
+} from '@shared/services';
 import { IDialogActionHandler } from '@shared/types';
+import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import { finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
 import {
-  IAttendanceDeleteFormDto,
   IAttendanceDeleteResponseDto,
   IAttendanceGetBaseResponseDto,
 } from '@features/attendance-management/types/attendance.dto';
 
 @Component({
   selector: 'app-delete-attendance',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   templateUrl: './delete-attendance.component.html',
   styleUrl: './delete-attendance.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeleteAttendanceComponent
-  extends FormBase<IAttendanceDeleteFormDto>
-  implements IDialogActionHandler, OnInit
+  implements OnInit, IDialogActionHandler
 {
   private readonly attendanceService = inject(AttendanceService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly loadingService = inject(LoadingService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly logger = inject(LoggerService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly selectedRecord =
     input.required<IAttendanceGetBaseResponseDto[]>();
-  protected readonly onSuccess = input<() => void>();
+  protected readonly onSuccess = input.required<() => void>();
+
+  private attendanceId?: string;
 
   ngOnInit(): void {
-    const record = this.selectedRecord();
-    if (!record?.length) {
+    const rows = this.selectedRecord();
+    if (!rows?.length) {
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
       this.logger.error(
         'Selected record is required to delete attendance but was not provided'
       );
+      return;
     }
+    this.attendanceId = rows[0].id;
   }
 
   onDialogAccept(): void {
-    this.handleSubmit();
+    if (!this.attendanceId) {
+      return;
+    }
+    this.executeAttendanceDeleteAction(this.attendanceId);
   }
 
-  protected override handleSubmit(): void {
-    const formData = this.prepareFormData(this.selectedRecord());
-    this.executeAttendanceDeleteAction(formData);
-  }
-
-  private prepareFormData(
-    records: IAttendanceGetBaseResponseDto[]
-  ): IAttendanceDeleteFormDto {
-    return {
-      attendanceIds: records.map(row => row.id),
-    };
-  }
-
-  private executeAttendanceDeleteAction(
-    formData: IAttendanceDeleteFormDto
-  ): void {
+  private executeAttendanceDeleteAction(attendanceId: string): void {
     this.loadingService.show({
       title: 'Deleting Attendance',
       message: "We're removing the attendance. This will just take a moment.",
     });
 
     this.attendanceService
-      .deleteAttendance(formData)
+      .deleteAttendance(attendanceId)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
-          this.isSubmitting.set(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (response: IAttendanceDeleteResponseDto) => {
-          this.notificationService.bulkOperationFromResponse(response, {
-            successItemsPath: 'result',
-            errorItemsPath: 'errors',
-            successMessageKey: 'message',
-            errorMessageKey: 'error',
-            fallbacks: {
-              success: (count: number) =>
-                count === 1
-                  ? 'Attendance deleted successfully.'
-                  : `Successfully deleted ${count} attendance records.`,
-              error: 'Failed to delete attendance.',
-              empty: 'Failed to delete attendance.',
-            },
-          });
-
-          const successCallback = this.onSuccess();
-          successCallback?.();
+          this.notificationService.success(response.message);
+          this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
         error: error => {

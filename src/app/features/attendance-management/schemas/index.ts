@@ -33,7 +33,4 @@ export {
   AttendanceEditRequestSchema,
   AttendanceEditResponseSchema,
 } from './edit-attendance.schema';
-export {
-  AttendanceDeleteRequestSchema,
-  AttendanceDeleteResponseSchema,
-} from './delete-attendance.schema';
+export { AttendanceDeleteResponseSchema } from './delete-attendance.schema';

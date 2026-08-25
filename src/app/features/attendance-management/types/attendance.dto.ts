@@ -18,7 +18,6 @@ import {
   AttendanceCurrentStatusGetFormSchema,
   AttendanceEditRequestSchema,
   AttendanceEditResponseSchema,
-  AttendanceDeleteRequestSchema,
   AttendanceDeleteResponseSchema,
 } from '../schemas';
 
@@ -168,12 +167,6 @@ export type IAttendanceEditUIFormDto = IAttendanceForceUIFormDto;
 /**
  * Attendance Delete
  */
-export type IAttendanceDeleteRequestDto = z.infer<
-  typeof AttendanceDeleteRequestSchema
->;
-export type IAttendanceDeleteFormDto = z.input<
-  typeof AttendanceDeleteRequestSchema
->;
 export type IAttendanceDeleteResponseDto = z.infer<
   typeof AttendanceDeleteResponseSchema
 >;

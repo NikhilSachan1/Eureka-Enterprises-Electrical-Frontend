@@ -39,7 +39,12 @@ export const ATTENDANCE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> =
     },
 
     [EButtonActionType.DELETE]: {
-      dialogConfig: DELETE_CONFIRMATION_DIALOG_CONFIG,
+      dialogConfig: {
+        ...DELETE_CONFIRMATION_DIALOG_CONFIG,
+        header: 'Delete attendance?',
+        message:
+          'This removes the attendance for that day. Food allowance credited for it will be reversed, and a single-day leave will be restored to the balance. This cannot be undone.',
+      },
       dynamicComponent: DeleteAttendanceComponent,
     },
   };

@@ -19,7 +19,6 @@ import {
   IAttendanceRegularizedResponseDto,
   IAttendanceEditFormDto,
   IAttendanceEditResponseDto,
-  IAttendanceDeleteFormDto,
   IAttendanceDeleteResponseDto,
 } from '../types/attendance.dto';
 import {
@@ -39,7 +38,6 @@ import {
   AttendanceCurrentStatusGetFormSchema,
   AttendanceEditRequestSchema,
   AttendanceEditResponseSchema,
-  AttendanceDeleteRequestSchema,
   AttendanceDeleteResponseSchema,
 } from '../schemas';
 
@@ -139,19 +137,14 @@ export class AttendanceService {
   }
 
   deleteAttendance(
-    formData: IAttendanceDeleteFormDto
+    attendanceId: string
   ): Observable<IAttendanceDeleteResponseDto> {
-    this.logger.logUserAction('Delete Attendance Request');
+    this.logger.logUserAction('Delete Attendance', { attendanceId });
 
     return this.apiService
-      .deleteValidated(
-        API_ROUTES.ATTENDANCE.DELETE,
-        {
-          response: AttendanceDeleteResponseSchema,
-          request: AttendanceDeleteRequestSchema,
-        },
-        formData
-      )
+      .deleteValidated(API_ROUTES.ATTENDANCE.DELETE(attendanceId), {
+        response: AttendanceDeleteResponseSchema,
+      })
       .pipe(
         tap((response: IAttendanceDeleteResponseDto) => {
           this.logger.logUserAction('Delete Attendance Response', response);
