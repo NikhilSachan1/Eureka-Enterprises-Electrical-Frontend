@@ -489,13 +489,6 @@ export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     disableWhen: isAttendanceNotMarkedYetForViewRegularize,
     disableReason: getViewDisableReason,
   },
-  // {
-  //   ...COMMON_ROW_ACTIONS.EDIT,
-  //   tooltip: 'Edit Attendance',
-  //   // permission: [APP_PERMISSION.ATTENDANCE.EDIT],
-  //   disableWhen: shouldDisableEditOrDelete,
-  //   disableReason: getEditDeleteDisableReason,
-  // },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Attendance',

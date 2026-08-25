@@ -17,8 +17,6 @@ import {
   IAttendanceHistoryGetResponseDto,
   IAttendanceRegularizedFormDto,
   IAttendanceRegularizedResponseDto,
-  IAttendanceEditFormDto,
-  IAttendanceEditResponseDto,
   IAttendanceDeleteResponseDto,
 } from '../types/attendance.dto';
 import {
@@ -36,8 +34,6 @@ import {
   AttendanceGetRequestSchema,
   AttendanceGetResponseSchema,
   AttendanceCurrentStatusGetFormSchema,
-  AttendanceEditRequestSchema,
-  AttendanceEditResponseSchema,
   AttendanceDeleteResponseSchema,
 } from '../schemas';
 
@@ -100,36 +96,6 @@ export class AttendanceService {
             this.logger.logDtoValidationErrors('Force Attendance Error', error);
           } else {
             this.logger.logUserAction('Force Attendance Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
-  }
-
-  editAttendance(
-    formData: IAttendanceEditFormDto,
-    attendanceId: string
-  ): Observable<IAttendanceEditResponseDto> {
-    this.logger.logUserAction('Edit Attendance Request');
-
-    return this.apiService
-      .patchValidated(
-        API_ROUTES.ATTENDANCE.EDIT(attendanceId),
-        {
-          response: AttendanceEditResponseSchema,
-          request: AttendanceEditRequestSchema,
-        },
-        formData
-      )
-      .pipe(
-        tap((response: IAttendanceEditResponseDto) => {
-          this.logger.logUserAction('Edit Attendance Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Edit Attendance Error', error);
-          } else {
-            this.logger.logUserAction('Edit Attendance Error', error);
           }
           return throwError(() => error);
         })

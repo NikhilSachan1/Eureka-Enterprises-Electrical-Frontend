@@ -1,13 +1,12 @@
 import { ApprovalAttendanceComponent } from '@features/attendance-management/components/approval-attendance/approval-attendance.component';
 import { DeleteAttendanceComponent } from '@features/attendance-management/components/delete-attendance/delete-attendance.component';
-import { EditAttendanceComponent } from '@features/attendance-management/components/edit-attendance/edit-attendance.component';
 import { RegularizeAttendanceComponent } from '@features/attendance-management/components/regularize-attendance/regularize-attendance.component';
-import { EButtonActionType, IDialogActionConfig } from '@shared/types';
 import {
   APPROVE_CONFIRMATION_DIALOG_CONFIG,
   DELETE_CONFIRMATION_DIALOG_CONFIG,
   REJECT_CONFIRMATION_DIALOG_CONFIG,
 } from '@shared/config';
+import { EButtonActionType, EDialogSize, IDialogActionConfig } from '@shared/types';
 
 export const ATTENDANCE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> =
   {
@@ -26,15 +25,8 @@ export const ATTENDANCE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> =
       dialogConfig: {
         header: 'Regularize attendance',
         message:
-          'Submit a regularization for this attendance record? Add details below.',
-      },
-    },
-
-    [EButtonActionType.EDIT]: {
-      dynamicComponent: EditAttendanceComponent,
-      dialogConfig: {
-        header: 'Edit attendance',
-        message: 'Update attendance details below. Employee cannot be changed.',
+          'Update status and assignment for this day. Food allowance follows the engineer on the snapshot.',
+        size: EDialogSize.LARGE,
       },
     },
 

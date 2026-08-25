@@ -275,7 +275,7 @@ export class GetAttendanceComponent implements OnInit {
       dynamicComponentInputs.dialogActionType = actionType;
     }
 
-    const showRecordSummary = actionType !== EButtonActionType.EDIT && !isBulk;
+    const showRecordSummary = !isBulk;
     const recordDetail =
       showRecordSummary || isBulk
         ? this.prepareAttendanceRecordDetail(selectedFirstRow)
