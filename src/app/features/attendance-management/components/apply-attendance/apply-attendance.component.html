@@ -96,127 +96,20 @@
               }
             </ul>
           </div>
-          <div class="assignment-card">
-            <div class="assignment-card__header">
-              <h3 class="assignment-card__title">Assignment Details</h3>
-              <app-button
-                [buttonConfig]="assignmentHeaderButtonConfig()"
-                (onButtonClick)="toggleAssignmentEditing()"
-              />
-            </div>
-            <div class="assignment-rows">
-              @if (isEditingAssignment() && isEmployeeUser) {
-                <div class="assignment-row">
-                  <div class="assignment-row__content assignment-row__content--full">
-                    <app-input-field
-                      [formGroup]="form.formGroup"
-                      [inputFieldConfig]="form.fieldConfigs.company"
-                    />
-                  </div>
-                </div>
-                <div class="assignment-row">
-                  <div class="assignment-row__content assignment-row__content--full">
-                    <app-input-field
-                      [formGroup]="form.formGroup"
-                      [inputFieldConfig]="form.fieldConfigs.contractor"
-                    />
-                  </div>
-                </div>
-                <div class="assignment-row assignment-row--full">
-                  <div class="assignment-row__content assignment-row__content--full">
-                    <app-input-field
-                      [formGroup]="form.formGroup"
-                      [inputFieldConfig]="form.fieldConfigs.vehicle"
-                    />
-                  </div>
-                </div>
-              }
-
-              @if (isEditingAssignment() && isDriverUser) {
-                <div class="assignment-row assignment-row--full">
-                  <div class="assignment-row__content assignment-row__content--full">
-                    <app-input-field
-                      [formGroup]="form.formGroup"
-                      [inputFieldConfig]="form.fieldConfigs.assignedEngineer"
-                    />
-                  </div>
-                </div>
-              }
-
-              @if (!isEditingAssignment()) {
-                <div class="assignment-row">
-                  <div class="assignment-row__icon assignment-row__icon--location">
-                    <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
-                  </div>
-                  <div class="assignment-row__content">
-                    <span class="assignment-row__label">Company</span>
-                    <span class="assignment-row__value">
-                      {{ assignmentDisplayLabels().companyName | textCase: 'title' }}
-                    </span>
-                    @if (
-                      assignmentDisplayLabels().companyCity !== '-' || assignmentDisplayLabels().companyState !== '-'
-                    ) {
-                      <span class="assignment-row__meta">
-                        @if (assignmentDisplayLabels().companyCity !== '-') {
-                          {{ assignmentDisplayLabels().companyCity | textCase: 'title' }}
-                        }
-                        @if (
-                          assignmentDisplayLabels().companyCity !== '-' &&
-                          assignmentDisplayLabels().companyState !== '-'
-                        ) {
-                          <span class="assignment-row__meta-sep">·</span>
-                        }
-                        @if (assignmentDisplayLabels().companyState !== '-') {
-                          {{ assignmentDisplayLabels().companyState | textCase: 'title' }}
-                        }
-                      </span>
-                    }
-                  </div>
-                </div>
-
-                <div class="assignment-row">
-                  <div class="assignment-row__icon assignment-row__icon--client">
-                    <i [class]="ALL_ICONS.COMMON.USER"></i>
-                  </div>
-                  <div class="assignment-row__content">
-                    <span class="assignment-row__label">Contractor</span>
-                    <span class="assignment-row__value">
-                      {{ assignmentDisplayLabels().contractorName | textCase: 'title' }}
-                    </span>
-                  </div>
-                </div>
-
-                <div
-                  class="assignment-row"
-                  [class.assignment-row--full]="isEmployeeUser"
-                >
-                  <div class="assignment-row__icon assignment-row__icon--vehicle">
-                    <i [class]="ALL_ICONS.COMMON.CAR"></i>
-                  </div>
-                  <div class="assignment-row__content">
-                    <span class="assignment-row__label">Vehicle</span>
-                    <span class="assignment-row__value">
-                      {{ assignmentDisplayLabels().vehicle | textCase: 'title' }}
-                    </span>
-                  </div>
-                </div>
-
-                @if (isDriverUser) {
-                  <div class="assignment-row">
-                    <div class="assignment-row__icon assignment-row__icon--associate">
-                      <i [class]="ALL_ICONS.COMMON.USER"></i>
-                    </div>
-                    <div class="assignment-row__content">
-                      <span class="assignment-row__label">Assigned Engineer</span>
-                      <span class="assignment-row__value">
-                        {{ assignmentDisplayLabels().engineer | textCase: 'title' }}
-                      </span>
-                    </div>
-                  </div>
-                }
-              }
-            </div>
-          </div>
+          <app-attendance-assignment-fields
+            [formGroup]="form.formGroup"
+            [fieldConfigs]="form.fieldConfigs"
+            [isDriver]="isDriverUser"
+            [viewOnly]="!isEditingAssignment()"
+            [previewSiteFields]="false"
+            [assignmentPayload]="currentStatusData()"
+            [(submitPayload)]="assignmentSubmitPayload"
+          >
+            <app-button
+              [buttonConfig]="assignmentHeaderButtonConfig()"
+              (onButtonClick)="toggleAssignmentEditing()"
+            />
+          </app-attendance-assignment-fields>
           <app-input-field
             [formGroup]="form.formGroup"
             [inputFieldConfig]="form.fieldConfigs.remark"

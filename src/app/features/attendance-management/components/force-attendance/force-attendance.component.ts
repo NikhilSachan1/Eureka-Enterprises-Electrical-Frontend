@@ -5,6 +5,7 @@ import {
   effect,
   inject,
   OnInit,
+  signal,
 } from '@angular/core';
 import { AttendanceService } from '../../services/attendance.service';
 import {
@@ -27,23 +28,15 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBase } from '@shared/base/form.base';
-import {
-  getMappedValueFromArrayOfObjects,
-  getSelectedEmployeeRole,
-} from '@shared/utility';
-import { ICompanyGetBaseResponseDto } from '@features/site-management/company-management/types/company.dto';
-import { IContractorGetBaseResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
-import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
-import { EmployeeBaseSchema } from '@features/employee-management/schemas/base-employee.schema';
-import type { z } from 'zod';
+import { AttendanceAssignmentFieldsComponent } from '@features/attendance-management/components/attendance-assignment-fields/attendance-assignment-fields.component';
+import { getSelectedEmployeeRole } from '@shared/utility';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
+import { IAttendanceAssignmentSubmitPayload } from '@features/attendance-management/types/attendance.interface';
 import {
+  getAssignmentSiteFormValues,
   isAttendanceAssignmentApplicable,
   NULL_ASSIGNMENT_FORM_VALUES,
 } from '@features/attendance-management/utility/attendance-assignment.util';
-
-type VehicleApplyValue = z.infer<typeof VehicleBaseSchema>;
-type EmployeeApplyValue = z.infer<typeof EmployeeBaseSchema>;
 
 @Component({
   selector: 'app-force-attendance',
@@ -52,6 +45,7 @@ type EmployeeApplyValue = z.infer<typeof EmployeeBaseSchema>;
     InputFieldComponent,
     ButtonComponent,
     ReactiveFormsModule,
+    AttendanceAssignmentFieldsComponent,
   ],
   templateUrl: './force-attendance.component.html',
   styleUrl: './force-attendance.component.scss',
@@ -96,6 +90,8 @@ export class ForceAttendanceComponent
       this.showAssignmentFields() &&
       this.employeeRoles().includes(EUserRole.DRIVER)
   );
+  protected readonly assignmentSubmitPayload =
+    signal<IAttendanceAssignmentSubmitPayload>(NULL_ASSIGNMENT_FORM_VALUES);
   protected readonly employeeRoles = computed(() => {
     const employeeName = this.trackedAttendanceFields?.employeeName?.();
     if (employeeName && typeof employeeName === 'string') {
@@ -109,6 +105,11 @@ export class ForceAttendanceComponent
 
   constructor() {
     super();
+    effect(() => {
+      if (!this.showRoleAssignmentFields()) {
+        this.assignmentSubmitPayload.set(NULL_ASSIGNMENT_FORM_VALUES);
+      }
+    });
     effect(() => {
       if (!this.trackedAttendanceFields?.employeeName) {
         return;
@@ -148,29 +149,6 @@ export class ForceAttendanceComponent
     });
 
     effect(() => {
-      if (!this.trackedAttendanceFields?.assignedEngineer) {
-        return;
-      }
-
-      if (!this.employeeRoles().includes(EUserRole.DRIVER)) {
-        return;
-      }
-
-      const assignedEngineer = this.trackedAttendanceFields.assignedEngineer();
-
-      if (typeof assignedEngineer !== 'string' || !assignedEngineer.trim()) {
-        this.lastLoadedStatusUserId = null;
-        this.cachedAssignmentResponse = null;
-        return;
-      }
-
-      if (assignedEngineer !== this.lastLoadedStatusUserId) {
-        this.lastLoadedStatusUserId = assignedEngineer;
-        this.loadCurrentStatusDetail(assignedEngineer);
-      }
-    });
-
-    effect(() => {
       if (!this.trackedAttendanceFields) {
         return;
       }
@@ -191,7 +169,11 @@ export class ForceAttendanceComponent
         );
       }
 
-      if (this.showAssignmentFields() && this.cachedAssignmentResponse) {
+      if (
+        this.showAssignmentFields() &&
+        this.formContext.isEmployee &&
+        this.cachedAssignmentResponse
+      ) {
         this.applyPrefilledAssignmentData(this.cachedAssignmentResponse);
       } else if (!this.showAssignmentFields()) {
         this.clearAssignmentFields();
@@ -212,6 +194,9 @@ export class ForceAttendanceComponent
       'employeeName',
       'attendanceStatus',
       'assignedEngineer',
+      'company',
+      'contractor',
+      'vehicle',
     ];
     this.trackedAttendanceFields =
       this.formService.trackMultipleFieldChanges<IAttendanceForceUIFormDto>(
@@ -270,11 +255,7 @@ export class ForceAttendanceComponent
   private preparePrefilledFormData(
     response: IAttendanceCurrentStatusGetResponseDto
   ): Partial<IAttendanceForceUIFormDto> {
-    return {
-      company: response.company?.id ?? null,
-      contractor: response.contractors?.[0]?.id ?? null,
-      vehicle: response.vehicle?.id ?? null,
-    };
+    return getAssignmentSiteFormValues(response);
   }
 
   private applyPrefilledAssignmentData(
@@ -294,62 +275,17 @@ export class ForceAttendanceComponent
 
   private prepareFormData(): IAttendanceForceFormDto {
     const formData = this.form.getData();
-
-    if (!isAttendanceAssignmentApplicable(formData.attendanceStatus)) {
-      return {
-        ...formData,
-        remark: formData.remark?.trim() ? formData.remark.trim() : null,
-        ...NULL_ASSIGNMENT_FORM_VALUES,
-      } satisfies IAttendanceForceFormDto;
-    }
-
-    const companyId = formData.company;
-    const contractorId = formData.contractor;
-    const vehicleId = formData.vehicle;
-    const engineerId = formData.assignedEngineer;
+    const assignment = isAttendanceAssignmentApplicable(
+      formData.attendanceStatus
+    )
+      ? this.assignmentSubmitPayload()
+      : NULL_ASSIGNMENT_FORM_VALUES;
 
     return {
       ...formData,
       remark: formData.remark?.trim() ? formData.remark.trim() : null,
-      company: this.isBlankId(companyId)
-        ? null
-        : ((getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.companyList(),
-            companyId,
-            'value',
-            'data'
-          ) as ICompanyGetBaseResponseDto) ?? null),
-      contractor: this.isBlankId(contractorId)
-        ? null
-        : ((getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.contractorList(),
-            contractorId,
-            'value',
-            'data'
-          ) as IContractorGetBaseResponseDto) ?? null),
-      vehicle: this.isBlankId(vehicleId)
-        ? null
-        : ((getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.vehicleList(),
-            vehicleId,
-            'value',
-            'data'
-          ) as VehicleApplyValue) ?? null),
-      assignedEngineer: this.isBlankId(engineerId)
-        ? null
-        : ((getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.employeeList(),
-            engineerId,
-            'value',
-            'data'
-          ) as EmployeeApplyValue) ?? null),
+      ...assignment,
     } satisfies IAttendanceForceFormDto;
-  }
-
-  private isBlankId(
-    value: string | null | undefined
-  ): value is null | undefined | '' {
-    return value === null || value === undefined || value === '';
   }
 
   private executeForceAttendance(formData: IAttendanceForceFormDto): void {
