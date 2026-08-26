@@ -11,23 +11,16 @@ import {
 import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
-import type { z } from 'zod';
 import { FormBase } from '@shared/base/form.base';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { AttendanceAssignmentFieldsComponent } from '@features/attendance-management/components/attendance-assignment-fields/attendance-assignment-fields.component';
 import { EUserRole, FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
 } from '@shared/services';
 import { IDialogActionHandler, ITrackedFields } from '@shared/types';
-import {
-  getMappedValueFromArrayOfObjects,
-  getSelectedEmployeeRole,
-} from '@shared/utility';
-import { ICompanyGetBaseResponseDto } from '@features/site-management/company-management/types/company.dto';
-import { IContractorGetBaseResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
-import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
-import { EmployeeBaseSchema } from '@features/employee-management/schemas/base-employee.schema';
+import { getSelectedEmployeeRole } from '@shared/utility';
 import { REGULARIZE_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/regularize-attendance.config';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
 import {
@@ -37,17 +30,20 @@ import {
   IAttendanceRegularizedUIFormDto,
 } from '@features/attendance-management/types/attendance.dto';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
+import { IAttendanceAssignmentSubmitPayload } from '@features/attendance-management/types/attendance.interface';
 import {
+  getAssignmentFormValues,
   isAttendanceAssignmentApplicable,
   NULL_ASSIGNMENT_FORM_VALUES,
 } from '@features/attendance-management/utility/attendance-assignment.util';
 
-type VehicleApplyValue = z.infer<typeof VehicleBaseSchema>;
-type EmployeeApplyValue = z.infer<typeof EmployeeBaseSchema>;
-
 @Component({
   selector: 'app-regularize-attendance',
-  imports: [InputFieldComponent, ReactiveFormsModule],
+  imports: [
+    InputFieldComponent,
+    ReactiveFormsModule,
+    AttendanceAssignmentFieldsComponent,
+  ],
   templateUrl: './regularize-attendance.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -84,9 +80,16 @@ export class RegularizeAttendanceComponent
       this.showAssignmentFields() &&
       this.employeeRoles().includes(EUserRole.DRIVER)
   );
+  protected readonly assignmentSubmitPayload =
+    signal<IAttendanceAssignmentSubmitPayload>(NULL_ASSIGNMENT_FORM_VALUES);
 
   constructor() {
     super();
+    effect(() => {
+      if (!this.showRoleAssignmentFields()) {
+        this.assignmentSubmitPayload.set(NULL_ASSIGNMENT_FORM_VALUES);
+      }
+    });
     effect(() => {
       if (!this.trackedRegularizeAttendanceFields) {
         return;
@@ -114,12 +117,13 @@ export class RegularizeAttendanceComponent
 
       if (this.showAssignmentFields()) {
         const snapshot = this.selectedRecord()[0]?.assignmentSnapshot;
-        this.form.patch({
-          company: snapshot?.company?.id ?? null,
-          contractor: snapshot?.contractors?.[0]?.id ?? null,
-          vehicle: snapshot?.vehicle?.id ?? null,
-          assignedEngineer: snapshot?.assignedEngineer?.id ?? null,
-        });
+        if (this.showDriverAssignmentFields()) {
+          this.form.patch({
+            assignedEngineer: snapshot?.assignedEngineer?.id ?? null,
+          });
+        } else {
+          this.form.patch(getAssignmentFormValues(snapshot));
+        }
       } else {
         this.form.patch({ ...NULL_ASSIGNMENT_FORM_VALUES });
       }
@@ -145,11 +149,20 @@ export class RegularizeAttendanceComponent
       )
     );
 
+    this.formContext.isEmployee = this.employeeRoles().includes(
+      EUserRole.EMPLOYEE
+    );
+    this.formContext.isDriver = this.employeeRoles().includes(EUserRole.DRIVER);
+    this.formContext.isAssignmentApplicable = isAttendanceAssignmentApplicable(
+      record.status
+    );
+
     this.form = this.formService.createForm<IAttendanceRegularizedUIFormDto>(
       REGULARIZE_ATTENDANCE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
         defaultValues: this.preparePrefilledFormData(record),
+        context: this.formContext,
       }
     );
 
@@ -160,12 +173,7 @@ export class RegularizeAttendanceComponent
         this.destroyRef
       );
 
-    this.formContext.isEmployee = this.employeeRoles().includes(
-      EUserRole.EMPLOYEE
-    );
-    this.formContext.isDriver = this.employeeRoles().includes(EUserRole.DRIVER);
     this.formContext.isAssignmentApplicable = this.showAssignmentFields();
-
     this.formService.refreshConditionalValidators(
       this.form.formGroup,
       this.form.fieldConfigs,
@@ -202,77 +210,31 @@ export class RegularizeAttendanceComponent
       EAttendanceStatus.HOLIDAY,
     ];
     const snapshot = record.assignmentSnapshot;
+    const isDriver = this.employeeRoles().includes(EUserRole.DRIVER);
 
     return {
       ...(allowedStatuses.includes(record.status as EAttendanceStatus)
         ? { attendanceStatus: record.status }
         : {}),
-      company: snapshot?.company?.id ?? null,
-      contractor: snapshot?.contractors?.[0]?.id ?? null,
-      vehicle: snapshot?.vehicle?.id ?? null,
-      assignedEngineer: snapshot?.assignedEngineer?.id ?? null,
+      ...getAssignmentFormValues(snapshot, { includeSiteFields: !isDriver }),
     };
   }
 
   private prepareFormData(userId: string): IAttendanceRegularizedFormDto {
     const formData = this.form.getData();
     const isDriver = this.employeeRoles().includes(EUserRole.DRIVER);
-
-    if (!isAttendanceAssignmentApplicable(formData.attendanceStatus)) {
-      return {
-        attendanceStatus: formData.attendanceStatus,
-        employeeName: userId,
-        ...NULL_ASSIGNMENT_FORM_VALUES,
-      } satisfies IAttendanceRegularizedFormDto;
-    }
-
-    const companyId = formData.company;
-    const contractorId = formData.contractor;
-    const vehicleId = formData.vehicle;
-    const engineerId = isDriver ? formData.assignedEngineer : null;
+    const assignment = isAttendanceAssignmentApplicable(
+      formData.attendanceStatus
+    )
+      ? this.assignmentSubmitPayload()
+      : NULL_ASSIGNMENT_FORM_VALUES;
 
     return {
       attendanceStatus: formData.attendanceStatus,
       employeeName: userId,
-      company: this.isBlankId(companyId)
-        ? null
-        : ((getMappedValueFromArrayOfObjects(
-          this.appConfigurationService.companyList(),
-          companyId,
-          'value',
-          'data'
-        ) as ICompanyGetBaseResponseDto) ?? null),
-      contractor: this.isBlankId(contractorId)
-        ? null
-        : ((getMappedValueFromArrayOfObjects(
-          this.appConfigurationService.contractorList(),
-          contractorId,
-          'value',
-          'data'
-        ) as IContractorGetBaseResponseDto) ?? null),
-      vehicle: this.isBlankId(vehicleId)
-        ? null
-        : ((getMappedValueFromArrayOfObjects(
-          this.appConfigurationService.vehicleList(),
-          vehicleId,
-          'value',
-          'data'
-        ) as VehicleApplyValue) ?? null),
-      assignedEngineer: this.isBlankId(engineerId)
-        ? null
-        : ((getMappedValueFromArrayOfObjects(
-          this.appConfigurationService.employeeList(),
-          engineerId,
-          'value',
-          'data'
-        ) as EmployeeApplyValue) ?? null),
+      ...assignment,
+      assignedEngineer: isDriver ? assignment.assignedEngineer : null,
     } satisfies IAttendanceRegularizedFormDto;
-  }
-
-  private isBlankId(
-    value: string | null | undefined
-  ): value is null | undefined | '' {
-    return value === null || value === undefined || value === '';
   }
 
   private executeRegularizeAttendance(

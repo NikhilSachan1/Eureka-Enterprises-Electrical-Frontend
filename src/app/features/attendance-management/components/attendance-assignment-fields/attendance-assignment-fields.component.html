@@ -1,0 +1,101 @@
+<div class="assignment-card">
+  <div class="assignment-card__header">
+    <h3 class="assignment-card__title">Assignment Details</h3>
+    <ng-content />
+  </div>
+
+  <div class="assignment-rows">
+    @if (!viewOnly() && !isDriver()) {
+      <div class="assignment-row assignment-row--input">
+        <app-input-field
+          [formGroup]="formGroup()"
+          [inputFieldConfig]="fieldConfigs().company"
+        />
+      </div>
+      <div class="assignment-row assignment-row--input">
+        <app-input-field
+          [formGroup]="formGroup()"
+          [inputFieldConfig]="fieldConfigs().contractor"
+        />
+      </div>
+      <div class="assignment-row assignment-row--input assignment-row--full">
+        <app-input-field
+          [formGroup]="formGroup()"
+          [inputFieldConfig]="fieldConfigs().vehicle"
+        />
+      </div>
+    }
+
+    @if (!viewOnly() && isDriver()) {
+      <div class="assignment-row assignment-row--input assignment-row--full">
+        <app-input-field
+          [formGroup]="formGroup()"
+          [inputFieldConfig]="fieldConfigs().assignedEngineer"
+        />
+      </div>
+    }
+
+    @if (viewOnly() || (isDriver() && previewSiteFields())) {
+      @let labels = displayLabels();
+      @let showDriverLabels = viewOnly() && isDriver();
+
+      @if (showDriverLabels) {
+        <div class="assignment-row">
+          <div class="assignment-row__icon assignment-row__icon--associate">
+            <i [class]="ALL_ICONS.COMMON.USER"></i>
+          </div>
+          <div class="assignment-row__content">
+            <span class="assignment-row__label">Assigned Engineer</span>
+            <span class="assignment-row__value">{{ labels.engineer | textCase: 'title' }}</span>
+          </div>
+        </div>
+      }
+
+      <div class="assignment-row">
+        <div class="assignment-row__icon assignment-row__icon--location">
+          <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
+        </div>
+        <div class="assignment-row__content">
+          <span class="assignment-row__label">Company</span>
+          <span class="assignment-row__value">{{ labels.companyName | textCase: 'title' }}</span>
+          @if (labels.companyCity !== '-' || labels.companyState !== '-') {
+            <span class="assignment-row__meta">
+              @if (labels.companyCity !== '-') {
+                {{ labels.companyCity | textCase: 'title' }}
+              }
+              @if (labels.companyCity !== '-' && labels.companyState !== '-') {
+                <span class="assignment-row__meta-sep">·</span>
+              }
+              @if (labels.companyState !== '-') {
+                {{ labels.companyState | textCase: 'title' }}
+              }
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="assignment-row">
+        <div class="assignment-row__icon assignment-row__icon--client">
+          <i [class]="ALL_ICONS.COMMON.USER"></i>
+        </div>
+        <div class="assignment-row__content">
+          <span class="assignment-row__label">Contractor</span>
+          <span class="assignment-row__value">{{ labels.contractorName | textCase: 'title' }}</span>
+        </div>
+      </div>
+
+      <div
+        class="assignment-row"
+        [class.assignment-row--full]="!showDriverLabels"
+      >
+        <div class="assignment-row__icon assignment-row__icon--vehicle">
+          <i [class]="ALL_ICONS.COMMON.CAR"></i>
+        </div>
+        <div class="assignment-row__content">
+          <span class="assignment-row__label">Vehicle</span>
+          <span class="assignment-row__value">{{ labels.vehicle | textCase: 'title' }}</span>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -7,29 +7,13 @@
     [inputFieldConfig]="form.fieldConfigs.attendanceStatus"
   />
 
-  @if (showDriverAssignmentFields()) {
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.assignedEngineer"
-    />
-  }
-
   @if (showRoleAssignmentFields()) {
-    <div class="grid grid-cols-1 md:grid-cols-2">
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs.company"
-      />
-
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs.contractor"
-      />
-    </div>
-
-    <app-input-field
+    <app-attendance-assignment-fields
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.vehicle"
+      [fieldConfigs]="form.fieldConfigs"
+      [isDriver]="showDriverAssignmentFields()"
+      [assignmentPayload]="selectedRecord()[0]?.assignmentSnapshot ?? null"
+      [(submitPayload)]="assignmentSubmitPayload"
     />
   }
 </form>
