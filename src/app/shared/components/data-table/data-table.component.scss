@@ -21,6 +21,52 @@
   background-color: var(--primary-color);
 }
 
+.data-table-expand-col {
+  width: 2.75rem;
+}
+
+.data-table-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: var(--text-secondary-color);
+  cursor: pointer;
+
+  &:hover {
+    background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+    color: var(--primary-color);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 1px;
+  }
+
+  &--open {
+    background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+    color: var(--primary-color);
+  }
+}
+
+:host ::ng-deep tr.data-table-row-expanded > td {
+  background: color-mix(in srgb, var(--primary-color) 6%, transparent);
+}
+
+.data-table-expansion {
+  padding: 0.5rem 0 0.75rem;
+}
+
+:host ::ng-deep .data-table-expansion .data-table-panel {
+  border-radius: 0.75rem !important;
+  box-shadow: none !important;
+}
+
 // === DATA TABLE PANEL ===
 ::ng-deep .data-table-panel {
   border-radius: 16px !important;

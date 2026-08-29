@@ -21,6 +21,8 @@ import {
   TableFilterEvent,
   TableLazyLoadEvent,
   TableModule,
+  TableRowCollapseEvent,
+  TableRowExpandEvent,
 } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -167,6 +169,8 @@ export class DataTableComponent {
   bulkActionButtons = input<ITableActionConfig[]>([]);
   rowActions = input<ITableActionConfig[]>([]);
   customBodyTemplates = input<Record<string, TemplateRef<unknown>>>({});
+  rowExpansionTemplate = input<TemplateRef<unknown> | undefined>(undefined);
+  isRowExpandable = input<(row: Record<string, unknown>) => boolean>();
 
   bulkActionClick = output<ITableActionClickEvent>();
   rowActionClick = output<ITableActionClickEvent>();
@@ -274,6 +278,9 @@ export class DataTableComponent {
   /** Colspan for empty state row: data columns + optional checkbox + optional actions */
   protected emptyMessageColSpan = computed(() => {
     let span = this.visibleTableHeaders().length;
+    if (this.hasRowExpansion()) {
+      span += 1;
+    }
     if (this.showBulkSelectionCheckbox()) {
       span += 1;
     }
@@ -283,8 +290,51 @@ export class DataTableComponent {
     return span;
   });
 
+  protected readonly hasRowExpansion = computed(
+    () => this.rowExpansionTemplate() != null
+  );
+  protected readonly expandedRowKeys = signal<Record<string, boolean>>({});
+
+  protected isExpandableRow(row: Record<string, unknown>): boolean {
+    const canExpand = this.isRowExpandable();
+    return canExpand ? canExpand(row) : true;
+  }
+
+  protected onRowExpand(event: TableRowExpandEvent): void {
+    const key = this.normalizeRowIdForSelection(
+      event.data,
+      this.tableConfig().tableUniqueId
+    );
+
+    if (!key) {
+      return;
+    }
+
+    this.expandedRowKeys.update(keys => ({ ...keys, [key]: true }));
+  }
+
+  protected onRowCollapse(event: TableRowCollapseEvent): void {
+    const key = this.normalizeRowIdForSelection(
+      event.data,
+      this.tableConfig().tableUniqueId
+    );
+
+    if (!key) {
+      return;
+    }
+
+    this.expandedRowKeys.update(keys => {
+      const next = { ...keys };
+      delete next[key];
+      return next;
+    });
+  }
+
   // View mode: 'list' or 'card' - using model signal for two-way binding with SelectButton
   protected viewMode = model<'list' | 'card'>('list');
+  protected readonly resolvedViewMode = computed(() =>
+    this.tableConfig().showViewModeToggle === false ? 'list' : this.viewMode()
+  );
 
   // Track pagination state for card view
   protected paginationFirst = signal<number>(0);
@@ -525,6 +575,13 @@ export class DataTableComponent {
     }
 
     this.paginationRestoredFromUrl = true;
+
+    if (!config.showPaginator) {
+      this.paginationFirst.set(0);
+      this.paginationRows.set(config.displayRows);
+      return;
+    }
+
     const { first, rows } = resolveTablePaginationFromQuery(
       this.router.parseUrl(this.router.url).queryParamMap,
       config.displayRows,
