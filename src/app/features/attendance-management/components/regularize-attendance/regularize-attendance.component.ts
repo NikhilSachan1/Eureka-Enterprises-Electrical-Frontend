@@ -80,6 +80,12 @@ export class RegularizeAttendanceComponent
       this.showAssignmentFields() &&
       this.employeeRoles().includes(EUserRole.DRIVER)
   );
+  protected readonly showAssignedDriverFields = computed(
+    () =>
+      this.showAssignmentFields() &&
+      this.employeeRoles().includes(EUserRole.EMPLOYEE) &&
+      !this.employeeRoles().includes(EUserRole.DRIVER)
+  );
   protected readonly assignmentSubmitPayload =
     signal<IAttendanceAssignmentSubmitPayload>(NULL_ASSIGNMENT_FORM_VALUES);
 
@@ -234,6 +240,7 @@ export class RegularizeAttendanceComponent
       employeeName: userId,
       ...assignment,
       assignedEngineer: isDriver ? assignment.assignedEngineer : null,
+      assignedDriver: isDriver ? null : assignment.assignedDriver,
     } satisfies IAttendanceRegularizedFormDto;
   }
 

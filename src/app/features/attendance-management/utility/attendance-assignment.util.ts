@@ -2,6 +2,8 @@ import { EAttendanceStatus } from '../types/attendance.enum';
 import {
   IAttendanceAssignmentFormValues,
   IAttendanceAssignmentPayload,
+  IAttendanceAssignmentPerson,
+  IAttendanceAssignmentPersonSubmit,
   IAttendanceAssignmentSubmitPayload,
 } from '../types/attendance.interface';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
@@ -24,6 +26,7 @@ export const NULL_ASSIGNMENT_FORM_VALUES = {
   contractor: null,
   vehicle: null,
   assignedEngineer: null,
+  assignedDriver: null,
 } as const;
 
 export function isBlankAssignmentId(
@@ -48,6 +51,7 @@ export function getAssignmentSource(
     vehicle: record.vehicle ?? snapshot?.vehicle ?? null,
     assignedEngineer:
       record.assignedEngineer ?? snapshot?.assignedEngineer ?? null,
+    assignedDriver: record.assignedDriver ?? snapshot?.assignedDriver ?? null,
     user: record.user ?? snapshot?.user ?? null,
   };
 }
@@ -66,6 +70,7 @@ export function getAssignmentFormValues(
       : null,
     vehicle: includeSiteFields ? (source?.vehicle?.id ?? null) : null,
     assignedEngineer: source?.assignedEngineer?.id ?? null,
+    assignedDriver: source?.assignedDriver?.id ?? null,
   };
 }
 
@@ -107,11 +112,45 @@ export function toPersonName(
   return `${person?.firstName ?? ''} ${person?.lastName ?? ''}`.trim();
 }
 
+export function getAssignmentPersonDisplay(
+  person: IAttendanceAssignmentPerson | null | undefined
+): string | null {
+  const name = toPersonName(person);
+  return name || null;
+}
+
+function toAssignmentPersonSubmit(
+  fromList: IEmployeeGetBaseResponseDto | null,
+  fromSource: IAttendanceAssignmentPerson | null | undefined,
+  selectedId: string | null
+): IAttendanceAssignmentPersonSubmit | null {
+  if (fromList) {
+    return {
+      id: fromList.id,
+      firstName: fromList.firstName,
+      lastName: fromList.lastName,
+      employeeId: fromList.employeeId,
+    };
+  }
+
+  if (fromSource?.id === selectedId && fromSource.id) {
+    return {
+      id: fromSource.id,
+      firstName: fromSource.firstName ?? '',
+      lastName: fromSource.lastName ?? '',
+      employeeId: fromSource.employeeId ?? '',
+    };
+  }
+
+  return null;
+}
+
 export function buildAssignmentSubmitPayload(params: {
   companyId: string | null;
   contractorId: string | null;
   vehicleId: string | null;
   assignedEngineerId: string | null;
+  assignedDriverId: string | null;
   companyList: { value?: string; data?: unknown }[];
   contractorList: { value?: string; data?: unknown }[];
   vehicleList: { value?: string; data?: unknown }[];
@@ -134,11 +173,16 @@ export function buildAssignmentSubmitPayload(params: {
     params.employeeList,
     params.assignedEngineerId
   );
+  const driverFromList = getDropdownRecord<IEmployeeGetBaseResponseDto>(
+    params.employeeList,
+    params.assignedDriverId
+  );
 
   const sourceCompany = params.source?.company;
   const sourceContractor = params.source?.contractors?.[0];
   const sourceVehicle = params.source?.vehicle;
   const sourceEngineer = params.source?.assignedEngineer ?? params.source?.user;
+  const sourceDriver = params.source?.assignedDriver;
 
   return {
     company:
@@ -156,20 +200,15 @@ export function buildAssignmentSubmitPayload(params: {
       (sourceVehicle?.id === params.vehicleId
         ? (sourceVehicle as AssignmentVehicle)
         : null),
-    assignedEngineer: engineerFromList
-      ? {
-          id: engineerFromList.id,
-          firstName: engineerFromList.firstName,
-          lastName: engineerFromList.lastName,
-          employeeId: engineerFromList.employeeId,
-        }
-      : sourceEngineer?.id === params.assignedEngineerId && sourceEngineer.id
-        ? {
-            id: sourceEngineer.id,
-            firstName: sourceEngineer.firstName ?? '',
-            lastName: sourceEngineer.lastName ?? '',
-            employeeId: sourceEngineer.employeeId ?? '',
-          }
-        : null,
+    assignedEngineer: toAssignmentPersonSubmit(
+      engineerFromList,
+      sourceEngineer,
+      params.assignedEngineerId
+    ),
+    assignedDriver: toAssignmentPersonSubmit(
+      driverFromList,
+      sourceDriver,
+      params.assignedDriverId
+    ),
   };
 }

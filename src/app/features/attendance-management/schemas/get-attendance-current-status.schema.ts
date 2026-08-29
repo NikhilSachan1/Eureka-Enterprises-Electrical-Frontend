@@ -17,6 +17,7 @@ const {
   contractors: contractorsSchema,
   vehicle: vehicleSchema,
   assignedEngineer: assignedEngineerSchema,
+  assignedDriver: assignedDriverSchema,
 } = assignmentSnapshot.unwrap().shape;
 
 export const AttendanceCurrentStatusGetFormSchema = z
@@ -41,4 +42,5 @@ export const AttendanceCurrentStatusGetResponseSchema = z.looseObject({
   contractors: contractorsSchema,
   vehicle: vehicleSchema,
   assignedEngineer: assignedEngineerSchema,
+  assignedDriver: assignedDriverSchema,
 });

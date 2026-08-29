@@ -68,38 +68,28 @@
             <p>Before applying attendance, please review your assignment details.</p>
             <p>If any information is incorrect, you may edit it here or contact your Admin / HR.</p>
             <ul class="assignment-note__list">
-              @if (isEmployeeUser) {
-                <li>
-                  <b>Company</b>
-                  - The company (and location) where you are required to report for this assignment.
-                </li>
-                <li>
-                  <b>Contractor</b>
-                  - The contractor you are working for on this assignment.
-                </li>
-                <li>
-                  <b>Vehicle</b>
-                  - The vehicle you select remains your responsibility for this assignment.
-                </li>
-              }
-              @if (isDriverUser) {
-                <li>
-                  <b>Assigned Engineer</b>
-                  - Select the engineer you are assigned to. Company, contractor, and vehicle details will load from
-                  their assignment.
-                </li>
-                <li>
-                  <b>Company / Contractor / Vehicle</b>
-                  - These details are shown from the selected assigned engineer's assignment and cannot be edited
-                  directly.
-                </li>
-              }
+              <li>
+                <b>Company</b>
+                - The company (and location) where you are required to report for this assignment.
+              </li>
+              <li>
+                <b>Contractor</b>
+                - The contractor you are working for on this assignment.
+              </li>
+              <li>
+                <b>Vehicle</b>
+                - The vehicle you select remains your responsibility for this assignment.
+              </li>
+              <li>
+                <b>Assigned Driver</b>
+                - Optional. If you select a driver, their attendance is created with the same company, contractor, and vehicle. You will appear as Assigned Engineer on the driver's attendance.
+              </li>
             </ul>
           </div>
           <app-attendance-assignment-fields
             [formGroup]="form.formGroup"
             [fieldConfigs]="form.fieldConfigs"
-            [isDriver]="isDriverUser"
+            [showAssignedDriver]="true"
             [viewOnly]="!isEditingAssignment()"
             [previewSiteFields]="false"
             [assignmentPayload]="currentStatusData()"
