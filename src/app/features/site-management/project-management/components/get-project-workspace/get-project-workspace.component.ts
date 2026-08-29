@@ -7,6 +7,7 @@ import {
   effect,
   inject,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -153,10 +154,9 @@ export class GetProjectWorkspaceComponent {
     });
 
     effect(() => {
-      this.syncAppliedFiltersToActiveTab(
-        this.activeFilterTab(),
-        this.workspaceDocContext()
-      );
+      const tab = this.activeFilterTab();
+      const docContext = this.workspaceDocContext();
+      untracked(() => this.syncAppliedFiltersToActiveTab(tab, docContext));
     });
   }
 
@@ -208,17 +208,21 @@ export class GetProjectWorkspaceComponent {
   }
 
   protected onFilterSubmit(data: Record<string, unknown>): void {
+    const formData = {
+      ...data,
+      ...(this.workspaceFilterForm?.getRawData() ?? {}),
+    } as Record<string, unknown>;
+
     const visibleFilters = this.pickVisibleFilterValues(
-      data,
+      formData,
       this.visibleFilterFieldNames()
     );
 
     this.filterPrefillValues.set({
-      ...(data as IProjectWorkspaceSearchFilterFormDto),
+      ...(formData as IProjectWorkspaceSearchFilterFormDto),
     });
     this.workspaceContext.applyFilters(visibleFilters);
     this.showOverviewPanel.set(!!visibleFilters.projectName);
-    this.syncProjectIdQueryParam(visibleFilters.projectName);
   }
 
   protected onFilterReset(): void {
@@ -226,12 +230,12 @@ export class GetProjectWorkspaceComponent {
     this.showOverviewPanel.set(false);
     this.clearProjectOverviewState();
     this.workspaceContext.resetFilters();
-    this.syncProjectIdQueryParam(undefined);
   }
 
   private resolveInitialProjectId(): string | undefined {
+    const queryParamMap = this.activatedRoute.snapshot.queryParamMap;
     const fromQuery =
-      this.activatedRoute.snapshot.queryParamMap.get('projectId');
+      queryParamMap.get('projectId') ?? queryParamMap.get('projectName');
     if (fromQuery) {
       return fromQuery;
     }
@@ -239,18 +243,6 @@ export class GetProjectWorkspaceComponent {
     return (
       this.routerNavigationService.getRouterStateData<string>('projectId') ??
       undefined
-    );
-  }
-
-  private syncProjectIdQueryParam(projectId: string | undefined): void {
-    void this.routerNavigationService.navigateWithQueryParams(
-      [],
-      { projectId: projectId ?? null },
-      {
-        relativeTo: this.activatedRoute,
-        queryParamsHandling: 'merge',
-        replaceUrl: true,
-      }
     );
   }
 
@@ -603,13 +595,23 @@ export class GetProjectWorkspaceComponent {
     tab: string,
     docContext: string | null
   ): void {
+    const formData = {
+      ...(this.filterPrefillValues() as Record<string, unknown>),
+      ...(this.workspaceFilterForm?.getRawData() ?? {}),
+    };
     const appliedFilters = this.workspaceContext.filters();
-    if (!Object.keys(appliedFilters).length) {
+    const source = Object.values(formData).some(value =>
+      this.hasFilterValue(value)
+    )
+      ? formData
+      : (appliedFilters as Record<string, unknown>);
+
+    if (!Object.values(source).some(value => this.hasFilterValue(value))) {
       return;
     }
 
     const visibleFilters = this.pickVisibleFilterValues(
-      appliedFilters as Record<string, unknown>,
+      source,
       this.getVisibleFilterFieldNames(tab, docContext)
     );
 
@@ -617,7 +619,7 @@ export class GetProjectWorkspaceComponent {
       return;
     }
 
-    this.workspaceContext.applyFilters(visibleFilters);
+    this.workspaceContext.applyFilters(visibleFilters, { notifyTabs: false });
   }
 
   private areWorkspaceFiltersEqual(

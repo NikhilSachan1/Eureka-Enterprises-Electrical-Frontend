@@ -15,6 +15,7 @@ const SEARCH_FILTER_WORKFORCE_ALLOCATION_FORM_FIELDS_CONFIG: ITableSearchFilterI
       fieldType: EDataType.SELECT,
       id: 'projectName',
       fieldName: 'projectName',
+      queryParamKey: 'projectId',
       label: 'Project',
       selectConfig: {
         dynamicDropdown: {

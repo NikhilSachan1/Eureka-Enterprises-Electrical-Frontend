@@ -34,6 +34,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
       fieldType: EDataType.SELECT,
       id: 'projectName',
       fieldName: 'projectName',
+      queryParamKey: 'projectId',
       label: 'Project Name',
       selectConfig: {
         dynamicDropdown: {

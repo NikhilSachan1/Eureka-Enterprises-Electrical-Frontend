@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   input,
@@ -10,7 +11,9 @@ import {
   TemplateRef,
   computed,
   effect,
+  untracked,
 } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { Menu, MenuModule } from 'primeng/menu';
 import {
@@ -51,7 +54,11 @@ import {
   CurrencyPipe,
   DecimalPipe,
 } from '@angular/common';
-import { AvatarService, GalleryService } from '@shared/services';
+import {
+  AvatarService,
+  GalleryService,
+  SearchFilterUrlRestoreService,
+} from '@shared/services';
 import { ICONS } from '@shared/constants';
 import { ButtonComponent } from '../button/button.component';
 import { StatusTagComponent } from '../status-tag/status-tag.component';
@@ -68,10 +75,13 @@ import {
 } from '@shared/config';
 import {
   StatusUtil,
+  areSearchFilterQueryParamsUnchanged,
   isDataTableColumnFrozen,
   isDataTableScrollable,
-  resolveFrozenAlign,
   resolveColumnWidth,
+  resolveFrozenAlign,
+  resolveTablePaginationFromQuery,
+  serializeTablePaginationQueryParams,
 } from '@shared/utility';
 
 @Component({
@@ -131,6 +141,15 @@ export class DataTableComponent {
   private galleryService = inject(GalleryService);
   private logger = inject(LoggerService);
   private permissionService = inject(AppPermissionService);
+  private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly searchFilterUrlRestore = inject(
+    SearchFilterUrlRestoreService
+  );
+
+  protected readonly showTableLoading = computed(
+    () => this.loading() || this.searchFilterUrlRestore.hasPendingRestore()
+  );
 
   protected resolveDateLocale(col?: Partial<IDataTableHeaderConfig>): string {
     return (
@@ -171,6 +190,9 @@ export class DataTableComponent {
 
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
   private lastEmittedSelectionKey = '';
+  private initialLazyLoadEmitted = false;
+  private viewReady = false;
+  private paginationRestoredFromUrl = false;
   protected visibleTableHeaders = computed(() => {
     return this.permissionService.filterByPermission(this.tableHeader());
   });
@@ -290,12 +312,10 @@ export class DataTableComponent {
       localStorage.setItem('table-view-mode', mode);
     });
 
-    // Initialize pagination rows from config when available
+    // Initialize pagination from URL, then fall back to table config
     effect(() => {
       const config = this.tableConfig();
-      if (config && this.paginationRows() === 0) {
-        this.paginationRows.set(config.displayRows);
-      }
+      untracked(() => this.applyPaginationFromUrl(config));
     });
 
     effect(() => {
@@ -356,6 +376,20 @@ export class DataTableComponent {
 
       this.lastEmittedSelectionKey = selectionKey;
       this.selectionChange.emit(selectedRows);
+    });
+
+    effect(() => {
+      const pendingRestore = this.searchFilterUrlRestore.hasPendingRestore();
+      untracked(() => {
+        if (!pendingRestore) {
+          this.emitInitialLazyLoadIfNeeded();
+        }
+      });
+    });
+
+    afterNextRender(() => {
+      this.viewReady = true;
+      this.emitInitialLazyLoadIfNeeded();
     });
   }
 
@@ -464,7 +498,12 @@ export class DataTableComponent {
   }
 
   protected onLazyLoad(event: TableLazyLoadEvent): void {
+    if (this.searchFilterUrlRestore.hasPendingRestore()) {
+      return;
+    }
+
     this.logger.logUserAction('Lazy load', event);
+    this.initialLazyLoadEmitted = true;
     // Sync pagination state - update paginationFirst and rows to keep both views in sync
     const newFirst = event.first ?? 0;
     const newRows = event.rows ?? this.tableConfig().displayRows;
@@ -477,6 +516,75 @@ export class DataTableComponent {
     }
 
     this.filterData.emit(event);
+    this.syncPaginationToUrl(newFirst, newRows);
+  }
+
+  private applyPaginationFromUrl(config: IDataTableConfig): void {
+    if (this.paginationRestoredFromUrl) {
+      return;
+    }
+
+    this.paginationRestoredFromUrl = true;
+    const { first, rows } = resolveTablePaginationFromQuery(
+      this.router.parseUrl(this.router.url).queryParamMap,
+      config.displayRows,
+      config.rowsPerPageOptions
+    );
+    this.paginationRows.set(rows);
+    this.paginationFirst.set(first);
+  }
+
+  private syncPaginationToUrl(first: number, rows: number): void {
+    if (!this.tableConfig().showPaginator) {
+      return;
+    }
+
+    const queryParams = serializeTablePaginationQueryParams(
+      first,
+      rows,
+      this.tableConfig().displayRows
+    );
+    const current = this.router.parseUrl(this.router.url).queryParamMap;
+
+    if (areSearchFilterQueryParamsUnchanged(current, queryParams)) {
+      return;
+    }
+
+    void this.router.navigate([], {
+      relativeTo: this.resolveQueryParamRoute(),
+      queryParams,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  private resolveQueryParamRoute(): ActivatedRoute {
+    let route = this.activatedRoute;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+    return route;
+  }
+
+  private emitInitialLazyLoadIfNeeded(): void {
+    if (
+      !this.viewReady ||
+      !this.tableConfig().enableServerSide ||
+      this.initialLazyLoadEmitted ||
+      this.searchFilterUrlRestore.hasPendingRestore()
+    ) {
+      return;
+    }
+
+    const table = this.dt();
+    this.applyPaginationFromUrl(this.tableConfig());
+    this.onLazyLoad({
+      first: this.paginationFirst(),
+      rows: this.paginationRows() || this.tableConfig().displayRows,
+      sortField: table?.sortField,
+      sortOrder: table?.sortOrder,
+      filters: table?.filters,
+    });
   }
 
   /**
