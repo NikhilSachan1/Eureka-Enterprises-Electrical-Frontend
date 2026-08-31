@@ -72,6 +72,7 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
   readonly isDriver = input(false);
   readonly viewOnly = input(false);
   readonly previewSiteFields = input(true);
+  readonly editSiteFields = input(false);
   readonly assignmentPayload = input<unknown>(null);
   readonly submitPayload = model<IAttendanceAssignmentSubmitPayload>(
     NULL_ASSIGNMENT_FORM_VALUES
@@ -92,6 +93,7 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
   constructor() {
     effect(() => {
       this.isDriver();
+      this.editSiteFields();
       this.formGroup();
       untracked(() => this.syncDriverAssignment());
     });
@@ -99,6 +101,7 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
     effect(() => {
       this.formTick();
       this.isDriver();
+      this.editSiteFields();
       this.formGroup();
       this.assignmentPayload();
       this.loadedAssignment();
@@ -139,11 +142,20 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
       return;
     }
 
+    if (this.inFlightEngineerId === engineerId) {
+      return;
+    }
+
+    if (engineerId === this.lastLoadedEngineerId) {
+      return;
+    }
+
     if (
-      this.inFlightEngineerId === engineerId ||
-      (engineerId === this.lastLoadedEngineerId &&
-        !isBlankAssignmentId(this.getControlId('company')))
+      this.editSiteFields() &&
+      this.lastLoadedEngineerId === null &&
+      !isBlankAssignmentId(this.getControlId('company'))
     ) {
+      this.lastLoadedEngineerId = engineerId;
       return;
     }
 
@@ -338,16 +350,17 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
     const isDriver = this.isDriver();
     const loadedSource = getAssignmentSource(this.loadedAssignment());
     const payloadSource = getAssignmentSource(this.assignmentPayload());
-    const source = isDriver
-      ? {
-          company: loadedSource?.company ?? null,
-          contractors: loadedSource?.contractors ?? null,
-          vehicle: loadedSource?.vehicle ?? null,
-          assignedEngineer:
-            payloadSource?.assignedEngineer ?? loadedSource?.user ?? null,
-          user: loadedSource?.user ?? null,
-        }
-      : (loadedSource ?? payloadSource);
+    const source =
+      isDriver && !this.editSiteFields()
+        ? {
+            company: loadedSource?.company ?? null,
+            contractors: loadedSource?.contractors ?? null,
+            vehicle: loadedSource?.vehicle ?? null,
+            assignedEngineer:
+              payloadSource?.assignedEngineer ?? loadedSource?.user ?? null,
+            user: loadedSource?.user ?? null,
+          }
+        : (loadedSource ?? payloadSource);
 
     return buildAssignmentSubmitPayload({
       companyId: this.getControlId('company'),
