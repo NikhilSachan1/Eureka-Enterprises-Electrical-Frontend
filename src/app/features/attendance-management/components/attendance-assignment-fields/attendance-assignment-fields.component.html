@@ -5,16 +5,7 @@
   </div>
 
   <div class="assignment-rows">
-    @if (showEngineerInput()) {
-      <div class="assignment-row assignment-row--input assignment-row--full">
-        <app-input-field
-          [formGroup]="formGroup()"
-          [inputFieldConfig]="fieldConfigs().assignedEngineer"
-        />
-      </div>
-    }
-
-    @if (showSiteInputs()) {
+    @if (!viewOnly() && !isDriver()) {
       <div class="assignment-row assignment-row--input">
         <app-input-field
           [formGroup]="formGroup()"
@@ -27,10 +18,7 @@
           [inputFieldConfig]="fieldConfigs().contractor"
         />
       </div>
-      <div
-        class="assignment-row assignment-row--input"
-        [class.assignment-row--full]="!showDriverInput()"
-      >
+      <div class="assignment-row assignment-row--input assignment-row--full">
         <app-input-field
           [formGroup]="formGroup()"
           [inputFieldConfig]="fieldConfigs().vehicle"
@@ -38,22 +26,18 @@
       </div>
     }
 
-    @if (showDriverInput()) {
-      <div
-        class="assignment-row assignment-row--input"
-        [class.assignment-row--full]="!showSiteInputs()"
-      >
+    @if (!viewOnly() && isDriver()) {
+      <div class="assignment-row assignment-row--input assignment-row--full">
         <app-input-field
           [formGroup]="formGroup()"
-          [inputFieldConfig]="fieldConfigs().assignedDriver"
+          [inputFieldConfig]="fieldConfigs().assignedEngineer"
         />
       </div>
     }
 
-    @if (showPreview()) {
+    @if (viewOnly() || (isDriver() && previewSiteFields())) {
       @let labels = displayLabels();
       @let showDriverLabels = viewOnly() && isDriver();
-      @let showAssignedDriverLabels = viewOnly() && showAssignedDriver() && !isDriver();
 
       @if (showDriverLabels) {
         <div class="assignment-row">
@@ -102,7 +86,7 @@
 
       <div
         class="assignment-row"
-        [class.assignment-row--full]="!showAssignedDriverLabels"
+        [class.assignment-row--full]="!showDriverLabels"
       >
         <div class="assignment-row__icon assignment-row__icon--vehicle">
           <i [class]="ALL_ICONS.COMMON.CAR"></i>
@@ -112,18 +96,6 @@
           <span class="assignment-row__value">{{ labels.vehicle | textCase: 'title' }}</span>
         </div>
       </div>
-
-      @if (showAssignedDriverLabels) {
-        <div class="assignment-row">
-          <div class="assignment-row__icon assignment-row__icon--associate">
-            <i [class]="ALL_ICONS.COMMON.USER"></i>
-          </div>
-          <div class="assignment-row__content">
-            <span class="assignment-row__label">Assigned Driver</span>
-            <span class="assignment-row__value">{{ labels.driver | textCase: 'title' }}</span>
-          </div>
-        </div>
-      }
     }
   </div>
 </div>

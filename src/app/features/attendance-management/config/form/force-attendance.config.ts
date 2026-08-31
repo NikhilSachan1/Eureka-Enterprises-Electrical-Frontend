@@ -20,17 +20,19 @@ const {
     company: baseCompany,
     contractor: baseContractor,
     assignedEngineer: baseAssignedEngineer,
-    assignedDriver: baseAssignedDriver,
     vehicle: baseVehicle,
     remark,
   },
 } = APPLY_ATTENDANCE_FORM_CONFIG;
 
-const requiredWhenPresentForEmployee = [
+const requiredWhenPresentForEmployeeOrDriver = [
   {
     shouldApply: (context: Record<string, unknown>): boolean => {
-      const { isAssignmentApplicable, isEmployee } = context;
-      return isAssignmentApplicable === true && isEmployee === true;
+      const { isAssignmentApplicable, isEmployee, isDriver } = context;
+      return (
+        isAssignmentApplicable === true &&
+        (isEmployee === true || isDriver === true)
+      );
     },
     validators: [Validators.required],
     resetOnFalse: true,
@@ -98,19 +100,16 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceFor
     },
     company: {
       ...baseCompany,
-      validators: [],
-      conditionalValidators: requiredWhenPresentForEmployee,
+      conditionalValidators: requiredWhenPresentForEmployeeOrDriver,
     },
     contractor: {
       ...baseContractor,
-      validators: [],
-      conditionalValidators: requiredWhenPresentForEmployee,
+      conditionalValidators: requiredWhenPresentForEmployeeOrDriver,
     },
     assignedEngineer: {
       ...baseAssignedEngineer,
       conditionalValidators: requiredWhenPresentForDriver,
     },
-    assignedDriver: baseAssignedDriver,
     vehicle: baseVehicle,
     remark: {
       ...remark,

@@ -64,35 +64,13 @@
         <i [class]="ALL_ICONS.COMMON.USER"></i>
       </span>
       <div class="attendance-assignment-details__text">
-        @if (row.assignmentSnapshot?.assignedDriverDisplay) {
-          <span class="attendance-assignment-details__label">Assigned Driver</span>
-          <span
-            class="attendance-assignment-details__value"
-            [title]="row.assignmentSnapshot?.assignedDriverDisplay"
-          >
-            {{ row.assignmentSnapshot?.assignedDriverDisplay }}
-          </span>
-        } @else {
-          <span class="attendance-assignment-details__label">Assigned Engineer</span>
-          <span
-            class="attendance-assignment-details__value"
-            [title]="row.assignmentSnapshot?.assignedEngineerDisplay || '—'"
-          >
-            {{ row.assignmentSnapshot?.assignedEngineerDisplay || '—' }}
-          </span>
-        }
-        @if (
-          row.assignmentSnapshot?.assignedDriverDisplay &&
-          row.assignmentSnapshot?.assignedEngineerDisplay
-        ) {
-          <span class="attendance-assignment-details__label">Assigned Engineer</span>
-          <span
-            class="attendance-assignment-details__value"
-            [title]="row.assignmentSnapshot?.assignedEngineerDisplay"
-          >
-            {{ row.assignmentSnapshot?.assignedEngineerDisplay }}
-          </span>
-        }
+        <span class="attendance-assignment-details__label">Assigned Engineer</span>
+        <span
+          class="attendance-assignment-details__value"
+          [title]="row.assignmentSnapshot?.assignedEngineerDisplay || '—'"
+        >
+          {{ row.assignmentSnapshot?.assignedEngineerDisplay || '—' }}
+        </span>
       </div>
     </div>
 

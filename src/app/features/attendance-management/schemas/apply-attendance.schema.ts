@@ -2,7 +2,6 @@ import { z } from 'zod';
 import {
   AttendanceBaseSchema,
   AttendanceUpsertShapeSchema,
-  toAssignmentSnapshotPerson,
 } from './base-attendance.schema';
 import { EApplyAttendanceAction } from '../types/attendance.enum';
 
@@ -26,8 +25,12 @@ export const AttendanceApplyRequestSchema =
         id: data.vehicle?.id,
         registrationNo: data.vehicle?.registrationNo,
       },
-      assignedEngineer: toAssignmentSnapshotPerson(data.assignedEngineer),
-      assignedDriver: toAssignmentSnapshotPerson(data.assignedDriver),
+      assignedEngineer: {
+        id: data.assignedEngineer?.id,
+        firstName: data.assignedEngineer?.firstName,
+        lastName: data.assignedEngineer?.lastName,
+        employeeId: data.assignedEngineer?.employeeId,
+      },
     },
   }));
 

@@ -33,7 +33,7 @@ import { getSelectedEmployeeRole } from '@shared/utility';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { IAttendanceAssignmentSubmitPayload } from '@features/attendance-management/types/attendance.interface';
 import {
-  getAssignmentFormValues,
+  getAssignmentSiteFormValues,
   isAttendanceAssignmentApplicable,
   NULL_ASSIGNMENT_FORM_VALUES,
 } from '@features/attendance-management/utility/attendance-assignment.util';
@@ -89,12 +89,6 @@ export class ForceAttendanceComponent
     () =>
       this.showAssignmentFields() &&
       this.employeeRoles().includes(EUserRole.DRIVER)
-  );
-  protected readonly showAssignedDriverFields = computed(
-    () =>
-      this.showAssignmentFields() &&
-      this.employeeRoles().includes(EUserRole.EMPLOYEE) &&
-      !this.employeeRoles().includes(EUserRole.DRIVER)
   );
   protected readonly assignmentSubmitPayload =
     signal<IAttendanceAssignmentSubmitPayload>(NULL_ASSIGNMENT_FORM_VALUES);
@@ -261,7 +255,7 @@ export class ForceAttendanceComponent
   private preparePrefilledFormData(
     response: IAttendanceCurrentStatusGetResponseDto
   ): Partial<IAttendanceForceUIFormDto> {
-    return getAssignmentFormValues(response);
+    return getAssignmentSiteFormValues(response);
   }
 
   private applyPrefilledAssignmentData(

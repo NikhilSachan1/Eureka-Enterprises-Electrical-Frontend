@@ -53,7 +53,6 @@ export interface IAttendanceAssignmentPayload {
   > | null;
   vehicle?: { id?: string | null; registrationNo?: string | null } | null;
   assignedEngineer?: IAttendanceAssignmentPerson | null;
-  assignedDriver?: IAttendanceAssignmentPerson | null;
   user?: IAttendanceAssignmentPerson | null;
   assignmentSnapshot?: IAttendanceAssignmentPayload | null;
 }
@@ -63,20 +62,16 @@ export interface IAttendanceAssignmentFormValues {
   contractor: string | null;
   vehicle: string | null;
   assignedEngineer: string | null;
-  assignedDriver: string | null;
 }
-
-export type IAttendanceAssignmentPersonSubmit = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  employeeId: string;
-};
 
 export interface IAttendanceAssignmentSubmitPayload {
   company: ICompanyGetBaseResponseDto | null;
   contractor: IContractorGetBaseResponseDto | null;
   vehicle: z.infer<typeof VehicleBaseSchema> | null;
-  assignedEngineer: IAttendanceAssignmentPersonSubmit | null;
-  assignedDriver: IAttendanceAssignmentPersonSubmit | null;
+  assignedEngineer: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    employeeId: string;
+  } | null;
 }

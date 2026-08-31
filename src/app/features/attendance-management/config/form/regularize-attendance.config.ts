@@ -8,7 +8,6 @@ const {
     company,
     contractor,
     assignedEngineer,
-    assignedDriver,
     vehicle,
   },
 } = FORCE_ATTENDANCE_FORM_CONFIG;
@@ -19,7 +18,6 @@ const REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendan
     company,
     contractor,
     assignedEngineer,
-    assignedDriver,
     vehicle,
   };
 

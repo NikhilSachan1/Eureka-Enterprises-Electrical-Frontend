@@ -47,7 +47,6 @@ import {
 } from '../../types/attendance.dto';
 import { IAttendance } from '../../types/attendance.interface';
 import { EAttendanceStatus } from '../../types/attendance.enum';
-import { getAssignmentPersonDisplay } from '../../utility/attendance-assignment.util';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
 import {
   applyGroupMetricValueLoading,
@@ -171,12 +170,16 @@ export class GetAttendanceComponent implements OnInit {
             record.assignmentSnapshot?.contractors?.[0]?.name?.trim() ?? null,
           vehicleDisplay:
             record.assignmentSnapshot?.vehicle?.registrationNo ?? null,
-          assignedEngineerDisplay: getAssignmentPersonDisplay(
-            record.assignmentSnapshot?.assignedEngineer
-          ),
-          assignedDriverDisplay: getAssignmentPersonDisplay(
-            record.assignmentSnapshot?.assignedDriver
-          ),
+          assignedEngineerDisplay: ((): string | null => {
+            const firstName =
+              record.assignmentSnapshot?.assignedEngineer?.firstName;
+            const lastName =
+              record.assignmentSnapshot?.assignedEngineer?.lastName;
+            if (!firstName && !lastName) {
+              return null;
+            }
+            return `${firstName ?? ''} ${lastName ?? ''}`.trim() || null;
+          })(),
         },
         originalRawData: record,
       } satisfies IAttendance;
@@ -319,17 +322,16 @@ export class GetAttendanceComponent implements OnInit {
       },
       {
         label: 'Assigned Engineer',
-        value:
-          getAssignmentPersonDisplay(
-            selectedRow.assignmentSnapshot?.assignedEngineer
-          ) ?? 'N/A',
-      },
-      {
-        label: 'Assigned Driver',
-        value:
-          getAssignmentPersonDisplay(
-            selectedRow.assignmentSnapshot?.assignedDriver
-          ) ?? 'N/A',
+        value: ((): string => {
+          const firstName =
+            selectedRow.assignmentSnapshot?.assignedEngineer?.firstName;
+          const lastName =
+            selectedRow.assignmentSnapshot?.assignedEngineer?.lastName;
+          if (!firstName && !lastName) {
+            return 'N/A';
+          }
+          return `${firstName ?? ''} ${lastName ?? ''}`.trim() || 'N/A';
+        })(),
       },
       {
         label: 'Associated Vehicle',

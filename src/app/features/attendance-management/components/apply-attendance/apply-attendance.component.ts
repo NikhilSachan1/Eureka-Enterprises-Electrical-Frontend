@@ -20,10 +20,11 @@ import { IAttendanceAssignmentSubmitPayload } from '@features/attendance-managem
 import { APPLY_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/apply-attendance.config';
 import {
   getAssignmentFormValues,
+  isBlankAssignmentId,
   NULL_ASSIGNMENT_FORM_VALUES,
 } from '@features/attendance-management/utility/attendance-assignment.util';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { EUserRole, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { ICONS } from '@shared/constants/icon.constants';
 import {
   EButtonActionType,
@@ -40,6 +41,7 @@ import {
 } from '@shared/services';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBase } from '@shared/base/form.base';
@@ -66,9 +68,15 @@ export class ApplyAttendanceComponent
   extends FormBase<IAttendanceApplyUIFormDto>
   implements OnInit {
   protected readonly attendanceService = inject(AttendanceService);
+  private readonly authService = inject(AuthService);
   protected readonly activatedRoute = inject(ActivatedRoute);
   protected readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
+
+  private readonly formContext = {
+    isEmployee: false,
+    isDriver: false,
+  };
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected assignmentHeaderButtonConfig = computed(() =>
@@ -85,8 +93,16 @@ export class ApplyAttendanceComponent
 
   protected readonly todayDate = new Date();
   protected readonly APP_CONFIG = APP_CONFIG;
+  protected isEmployeeUser = false;
+  protected isDriverUser = false;
 
   ngOnInit(): void {
+    const currentUser = this.authService.getCurrentUser();
+    this.isEmployeeUser = currentUser?.activeRole === EUserRole.EMPLOYEE;
+    this.isDriverUser = currentUser?.activeRole === EUserRole.DRIVER;
+    this.formContext.isEmployee = this.isEmployeeUser;
+    this.formContext.isDriver = this.isDriverUser;
+
     this.loadCurrentStatusDataFromRoute();
 
     this.form = this.formService.createForm<IAttendanceApplyUIFormDto>(
@@ -94,6 +110,7 @@ export class ApplyAttendanceComponent
       {
         destroyRef: this.destroyRef,
         defaultValues: this.initialAttendanceData(),
+        context: this.formContext,
       }
     );
   }
@@ -114,7 +131,9 @@ export class ApplyAttendanceComponent
     }
     this.currentStatusData.set(currentStatusFromResolver);
     this.initialAttendanceData.set({
-      ...getAssignmentFormValues(currentStatusFromResolver),
+      ...getAssignmentFormValues(currentStatusFromResolver, {
+        includeSiteFields: !this.isDriverUser,
+      }),
       remark: null,
     });
   }
@@ -183,6 +202,17 @@ export class ApplyAttendanceComponent
   }
 
   protected toggleAssignmentEditing(): void {
+    if (this.isDriverUser && this.isEditingAssignment()) {
+      const assignedEngineerId = this.form.formGroup.get('assignedEngineer')
+        ?.value as string | null;
+      if (isBlankAssignmentId(assignedEngineerId)) {
+        const engineerControl = this.form.formGroup.get('assignedEngineer');
+        engineerControl?.markAsTouched();
+        engineerControl?.updateValueAndValidity();
+        return;
+      }
+    }
+
     this.isEditingAssignment.update(isEditing => !isEditing);
   }
 

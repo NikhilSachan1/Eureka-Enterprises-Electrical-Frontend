@@ -72,15 +72,6 @@ export const AttendanceBaseSchema = z.looseObject({
         })
         .optional()
         .nullable(),
-      assignedDriver: z
-        .looseObject({
-          id: uuidField,
-          firstName: z.string(),
-          lastName: z.string(),
-          employeeId: z.string(),
-        })
-        .optional()
-        .nullable(),
     })
     .nullable(),
   ...auditSchema,
@@ -99,35 +90,6 @@ export const AttendanceUpsertShapeSchema = z
         employeeId: z.string(),
       })
       .nullable(),
-    assignedDriver: z
-      .looseObject({
-        id: z.string(),
-        firstName: z.string(),
-        lastName: z.string(),
-        employeeId: z.string(),
-      })
-      .nullable(),
     remark: z.string().nullable(),
   })
   .strict();
-
-export function toAssignmentSnapshotPerson(
-  person:
-    | {
-        id?: string;
-        firstName?: string;
-        lastName?: string;
-        employeeId?: string;
-      }
-    | null
-    | undefined
-) {
-  return person?.id
-    ? {
-        id: person.id,
-        firstName: person.firstName,
-        lastName: person.lastName,
-        employeeId: person.employeeId,
-      }
-    : null;
-}

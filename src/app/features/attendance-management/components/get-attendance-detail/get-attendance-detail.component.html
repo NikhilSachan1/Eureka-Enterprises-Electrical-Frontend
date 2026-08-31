@@ -65,29 +65,6 @@
         </div>
       }
 
-      @if (snap.assignedDriver) {
-        <div class="assignment-snapshot__tile assignment-snapshot__tile--engineer">
-          <div
-            class="assignment-snapshot__icon assignment-snapshot__icon--engineer"
-            aria-hidden="true"
-          >
-            <i [class]="ICONS.COMMON.USER"></i>
-          </div>
-          <div class="assignment-snapshot__body">
-            <span class="assignment-snapshot__kicker">Assigned driver</span>
-            <span class="assignment-snapshot__title">
-              {{
-                ((snap.assignedDriver.firstName ?? '') + ' ' + (snap.assignedDriver.lastName ?? '')).trim()
-                  | textCase: 'title'
-              }}
-            </span>
-            @if (snap.assignedDriver.employeeId?.trim()) {
-              <span class="assignment-snapshot__meta">ID: {{ snap.assignedDriver.employeeId }}</span>
-            }
-          </div>
-        </div>
-      }
-
       @if (snap.vehicle) {
         <div class="assignment-snapshot__tile assignment-snapshot__tile--vehicle">
           <div

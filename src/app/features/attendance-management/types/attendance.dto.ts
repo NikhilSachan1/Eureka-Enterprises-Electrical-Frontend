@@ -86,9 +86,6 @@ export type IAttendanceApplyUIFormDto = Pick<
   assignedEngineer:
     | NonNullable<IAttendanceApplyFormDto['assignedEngineer']>['id']
     | null;
-  assignedDriver:
-    | NonNullable<IAttendanceApplyFormDto['assignedDriver']>['id']
-    | null;
 };
 
 /*
@@ -113,9 +110,6 @@ export type IAttendanceRegularizedUIFormDto = Pick<
   vehicle: NonNullable<IAttendanceRegularizedFormDto['vehicle']>['id'] | null;
   assignedEngineer:
     | NonNullable<IAttendanceRegularizedFormDto['assignedEngineer']>['id']
-    | null;
-  assignedDriver:
-    | NonNullable<IAttendanceRegularizedFormDto['assignedDriver']>['id']
     | null;
 };
 export type IAttendanceRegularizedResponseDto = z.infer<
@@ -143,9 +137,6 @@ export type IAttendanceForceUIFormDto = Pick<
   vehicle: NonNullable<IAttendanceForceFormDto['vehicle']>['id'] | null;
   assignedEngineer:
     | NonNullable<IAttendanceForceFormDto['assignedEngineer']>['id']
-    | null;
-  assignedDriver:
-    | NonNullable<IAttendanceForceFormDto['assignedDriver']>['id']
     | null;
 };
 

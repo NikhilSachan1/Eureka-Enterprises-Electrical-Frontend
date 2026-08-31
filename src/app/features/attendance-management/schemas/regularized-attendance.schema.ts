@@ -2,7 +2,6 @@ import { z } from 'zod';
 import {
   AttendanceBaseSchema,
   AttendanceUpsertShapeSchema,
-  toAssignmentSnapshotPerson,
 } from './base-attendance.schema';
 import { SHIFT_DATA } from '@shared/config';
 import { EAttendanceStatus } from '../types/attendance.enum';
@@ -49,10 +48,14 @@ export const AttendanceRegularizedRequestSchema =
                     registrationNo: data.vehicle.registrationNo,
                   }
                 : null,
-              assignedEngineer: toAssignmentSnapshotPerson(
-                data.assignedEngineer
-              ),
-              assignedDriver: toAssignmentSnapshotPerson(data.assignedDriver),
+              assignedEngineer: data.assignedEngineer
+                ? {
+                    id: data.assignedEngineer.id,
+                    firstName: data.assignedEngineer.firstName,
+                    lastName: data.assignedEngineer.lastName,
+                    employeeId: data.assignedEngineer.employeeId,
+                  }
+                : null,
             },
           }
         : {}),
