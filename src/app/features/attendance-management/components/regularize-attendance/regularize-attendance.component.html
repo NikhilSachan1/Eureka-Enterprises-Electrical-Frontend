@@ -12,6 +12,7 @@
       [formGroup]="form.formGroup"
       [fieldConfigs]="form.fieldConfigs"
       [isDriver]="showDriverAssignmentFields()"
+      [editSiteFields]="true"
       [assignmentPayload]="selectedRecord()[0]?.assignmentSnapshot ?? null"
       [(submitPayload)]="assignmentSubmitPayload"
     />

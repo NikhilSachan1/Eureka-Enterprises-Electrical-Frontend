@@ -116,14 +116,9 @@ export class RegularizeAttendanceComponent
       );
 
       if (this.showAssignmentFields()) {
-        const snapshot = this.selectedRecord()[0]?.assignmentSnapshot;
-        if (this.showDriverAssignmentFields()) {
-          this.form.patch({
-            assignedEngineer: snapshot?.assignedEngineer?.id ?? null,
-          });
-        } else {
-          this.form.patch(getAssignmentFormValues(snapshot));
-        }
+        this.form.patch(
+          getAssignmentFormValues(this.selectedRecord()[0]?.assignmentSnapshot)
+        );
       } else {
         this.form.patch({ ...NULL_ASSIGNMENT_FORM_VALUES });
       }
@@ -210,13 +205,12 @@ export class RegularizeAttendanceComponent
       EAttendanceStatus.HOLIDAY,
     ];
     const snapshot = record.assignmentSnapshot;
-    const isDriver = this.employeeRoles().includes(EUserRole.DRIVER);
 
     return {
       ...(allowedStatuses.includes(record.status as EAttendanceStatus)
         ? { attendanceStatus: record.status }
         : {}),
-      ...getAssignmentFormValues(snapshot, { includeSiteFields: !isDriver }),
+      ...getAssignmentFormValues(snapshot),
     };
   }
 

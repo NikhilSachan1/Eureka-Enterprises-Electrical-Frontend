@@ -5,7 +5,16 @@
   </div>
 
   <div class="assignment-rows">
-    @if (!viewOnly() && !isDriver()) {
+    @if (!viewOnly() && isDriver()) {
+      <div class="assignment-row assignment-row--input assignment-row--full">
+        <app-input-field
+          [formGroup]="formGroup()"
+          [inputFieldConfig]="fieldConfigs().assignedEngineer"
+        />
+      </div>
+    }
+
+    @if (!viewOnly() && (!isDriver() || editSiteFields())) {
       <div class="assignment-row assignment-row--input">
         <app-input-field
           [formGroup]="formGroup()"
@@ -26,16 +35,7 @@
       </div>
     }
 
-    @if (!viewOnly() && isDriver()) {
-      <div class="assignment-row assignment-row--input assignment-row--full">
-        <app-input-field
-          [formGroup]="formGroup()"
-          [inputFieldConfig]="fieldConfigs().assignedEngineer"
-        />
-      </div>
-    }
-
-    @if (viewOnly() || (isDriver() && previewSiteFields())) {
+    @if (viewOnly() || (isDriver() && previewSiteFields() && !editSiteFields())) {
       @let labels = displayLabels();
       @let showDriverLabels = viewOnly() && isDriver();
 
