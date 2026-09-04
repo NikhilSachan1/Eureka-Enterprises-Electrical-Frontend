@@ -54,7 +54,7 @@ import {
   AppConfigurationService,
   NotificationService,
 } from '@shared/services';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { getMappedValueFromArrayOfObjects, toTitleCase } from '@shared/utility';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { IPageHeaderConfig } from '@shared/types/page-header/page-header-config.interface';
 
@@ -374,7 +374,9 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
             },
             {
               label: 'Role',
-              value: response.roles,
+              value: response.roles
+                .map(role => toTitleCase(role.name))
+                .join(', '),
             },
             {
               label: 'ESIC Number',

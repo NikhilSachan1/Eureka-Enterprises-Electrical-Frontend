@@ -548,15 +548,20 @@ export class DataTableComponent {
   }
 
   protected onLazyLoad(event: TableLazyLoadEvent): void {
-    if (this.searchFilterUrlRestore.hasPendingRestore()) {
+    const lazyLoadEvent = this.withCurrentTableFilters(event);
+
+    if (
+      this.searchFilterUrlRestore.hasPendingRestore() &&
+      !this.lazyLoadEventHasFilters(lazyLoadEvent)
+    ) {
       return;
     }
 
-    this.logger.logUserAction('Lazy load', event);
+    this.logger.logUserAction('Lazy load', lazyLoadEvent);
     this.initialLazyLoadEmitted = true;
     // Sync pagination state - update paginationFirst and rows to keep both views in sync
-    const newFirst = event.first ?? 0;
-    const newRows = event.rows ?? this.tableConfig().displayRows;
+    const newFirst = lazyLoadEvent.first ?? 0;
+    const newRows = lazyLoadEvent.rows ?? this.tableConfig().displayRows;
 
     if (this.paginationFirst() !== newFirst) {
       this.paginationFirst.set(newFirst);
@@ -565,8 +570,62 @@ export class DataTableComponent {
       this.paginationRows.set(newRows);
     }
 
-    this.filterData.emit(event);
+    this.filterData.emit(lazyLoadEvent);
     this.syncPaginationToUrl(newFirst, newRows);
+  }
+
+  private withCurrentTableFilters(event: TableLazyLoadEvent): TableLazyLoadEvent {
+    const table = this.dt();
+    const filters = {
+      ...(event.filters ?? {}),
+      ...(table?.filters ?? {}),
+    };
+    const globalFilter =
+      (typeof event.globalFilter === 'string' && event.globalFilter.trim()
+        ? event.globalFilter
+        : undefined) ?? this.getGlobalFilterValue(filters);
+
+    return {
+      ...event,
+      filters,
+      globalFilter,
+    };
+  }
+
+  private getGlobalFilterValue(
+    filters: TableLazyLoadEvent['filters'] | undefined
+  ): string | undefined {
+    if (!filters) {
+      return undefined;
+    }
+
+    const global = filters['global'];
+    const value = Array.isArray(global) ? global[0]?.value : global?.value;
+    return typeof value === 'string' && value.trim() ? value : undefined;
+  }
+
+  private lazyLoadEventHasFilters(event: TableLazyLoadEvent): boolean {
+    if (typeof event.globalFilter === 'string' && event.globalFilter.trim()) {
+      return true;
+    }
+
+    const filters = event.filters;
+    if (!filters) {
+      return false;
+    }
+
+    return Object.values(filters).some(meta => {
+      if (!meta) {
+        return false;
+      }
+
+      const value = Array.isArray(meta) ? meta[0]?.value : meta.value;
+      if (value == null || value === '') {
+        return false;
+      }
+
+      return Array.isArray(value) ? value.length > 0 : true;
+    });
   }
 
   private applyPaginationFromUrl(config: IDataTableConfig): void {
@@ -641,6 +700,7 @@ export class DataTableComponent {
       sortField: table?.sortField,
       sortOrder: table?.sortOrder,
       filters: table?.filters,
+      globalFilter: this.getGlobalFilterValue(table?.filters),
     });
   }
 

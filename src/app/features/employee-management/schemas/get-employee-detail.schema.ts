@@ -90,11 +90,4 @@ export const EmployeeDetailGetResponseSchema = EmployeeBaseSchema.extend({
   noticePeriodWaived: z.boolean(),
   lastWorkingDate: isoDateTimeField.nullable(),
   timezone: z.string().nullable(),
-})
-  .loose()
-  .transform(({ roles: employeeRoles, ...rest }) => {
-    return {
-      ...rest,
-      roles: employeeRoles.map(role => role.name).join(', '),
-    };
-  });
+}).loose();

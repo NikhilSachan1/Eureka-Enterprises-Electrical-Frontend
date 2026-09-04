@@ -29,6 +29,6 @@ export const getSelectedEmployeeRole = (
     employeeId,
     'value',
     'data'
-  ) as IEmployeeGetBaseResponseDto;
-  return selectedEmployee.roles?.split(',') ?? [];
+  ) as IEmployeeGetBaseResponseDto | undefined;
+  return selectedEmployee?.roles?.map(role => role.name) ?? [];
 };

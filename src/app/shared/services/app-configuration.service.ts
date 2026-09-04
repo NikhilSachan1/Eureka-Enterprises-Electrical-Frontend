@@ -834,8 +834,7 @@ export class AppConfigurationService {
 
                 // Parse roles and add to role-based lists
                 const roles = employee.roles
-                  .split(',')
-                  .map(role => role.trim())
+                  .map(role => role.name.trim())
                   .filter(role => role.length > 0);
 
                 roles.forEach(role => {

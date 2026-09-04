@@ -93,9 +93,18 @@ export class SearchFilterComponent implements OnInit {
   private restoreFromUrlPending = false;
   private restoreSessionId: number | null = null;
   private urlSyncFields: ITableSearchFilterFormConfig['fields'] = {};
+  private allowRestoreWithoutTable = false;
 
   constructor() {
-    afterNextRender(() => this.applyRestoredFilters());
+    afterNextRender(() => {
+      this.applyRestoredFilters();
+      if (this.restoreFromUrlPending && !this.tableRefValue()) {
+        setTimeout(() => {
+          this.allowRestoreWithoutTable = true;
+          this.applyRestoredFilters();
+        });
+      }
+    });
 
     effect(() => {
       const table = this.tableRefValue();
@@ -129,7 +138,7 @@ export class SearchFilterComponent implements OnInit {
     }
 
     this.restoreFromUrlPending = hasSearchFilterQueryParams(urlValues);
-    if (this.restoreFromUrlPending && this.tableRefBound) {
+    if (this.restoreFromUrlPending) {
       this.restoreSessionId = this.searchFilterUrlRestore.beginRestore();
     }
 
@@ -247,8 +256,8 @@ export class SearchFilterComponent implements OnInit {
       return;
     }
 
-    const table = this.resolveTable();
-    if (this.tableRefBound && !table) {
+    const table = this.tableRefValue();
+    if (!table && (this.tableRefBound || !this.allowRestoreWithoutTable)) {
       return;
     }
 
