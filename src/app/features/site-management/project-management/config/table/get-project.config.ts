@@ -97,6 +97,14 @@ const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
     permission: [APP_PERMISSION.PROJECT.EDIT],
   },
   {
+    id: EButtonActionType.ASSIGN_VENDOR,
+    tooltip: 'Assign Vendor',
+    permission: [
+      APP_PERMISSION.PROJECT.ASSIGN_VENDOR,
+      APP_PERMISSION.PROJECT.EDIT,
+    ],
+  },
+  {
     id: EButtonActionType.CHANGE_STATUS,
     tooltip: 'Change Project Status',
     permission: [APP_PERMISSION.PROJECT.CHANGE_STATUS],

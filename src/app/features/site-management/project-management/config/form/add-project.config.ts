@@ -16,7 +16,6 @@ import {
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IProjectAddFormDto } from '../../types/project.dto';
 import { AddContractorComponent } from '@features/site-management/contractor-management/components/add-contractor/add-contractor.component';
-import { AddVendorComponent } from '@features/site-management/vendor-management/components/add-vendor/add-vendor.component';
 
 const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto> =
   {
@@ -75,25 +74,6 @@ const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto>
         },
       },
       validators: [Validators.required],
-    },
-    vendorNames: {
-      id: 'vendorNames',
-      fieldName: 'vendorNames',
-      label: 'Vendor Names',
-      fieldType: EDataType.MULTI_SELECT,
-      allowCreate: {
-        component: AddVendorComponent,
-        actionLabel: 'Add vendor',
-        header: 'Add Vendor',
-        subtitle: 'Add a new vendor',
-        permission: APP_PERMISSION.VENDOR.ADD,
-      },
-      multiSelectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.VENDOR,
-          dropdownName: CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
-        },
-      },
     },
     siteManagerName: {
       id: 'siteManagerName',

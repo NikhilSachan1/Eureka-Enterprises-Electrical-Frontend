@@ -197,6 +197,7 @@ export const APP_PERMISSION = {
     EDIT: 'project.edit',
     DELETE: 'project.delete',
     CHANGE_STATUS: 'project.change-status',
+    ASSIGN_VENDOR: 'project.assign-vendor',
     WORKSPACE: 'project.workspace',
     ALLOCATE_DEALLOCATE_EMPLOYEE: 'project.allocate-deallocate-employee',
     WORKFORCE_ALLOCATION_TABLE_VIEW: 'project.workforce-allocation.view-list',
