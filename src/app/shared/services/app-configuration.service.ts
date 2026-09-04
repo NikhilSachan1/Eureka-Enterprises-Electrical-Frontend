@@ -1476,6 +1476,7 @@ export class AppConfigurationService {
             .map(vendor => {
               const rawName = vendor.name?.trim() ?? '';
               const subtitle = this.buildContractorVendorDropdownSubtitle({
+                code: vendor.vendorCode,
                 gstNumber: vendor.gstNumber,
                 city: vendor.city,
                 state: vendor.state,
@@ -1561,6 +1562,7 @@ export class AppConfigurationService {
 
   /** Rich dropdown subtitle: GST (if any) + city/state for contractor & vendor lists. */
   private buildContractorVendorDropdownSubtitle(entity: {
+    code?: string | null;
     gstNumber?: string | null;
     city?: string | null;
     state?: string | null;
@@ -1571,7 +1573,11 @@ export class AppConfigurationService {
       .filter(Boolean)
       .join(', ');
     const gst = entity.gstNumber?.trim();
+    const code = entity.code?.trim();
     const parts: string[] = [];
+    if (code) {
+      parts.push(code);
+    }
     if (gst) {
       parts.push(`GST ${gst}`);
     }

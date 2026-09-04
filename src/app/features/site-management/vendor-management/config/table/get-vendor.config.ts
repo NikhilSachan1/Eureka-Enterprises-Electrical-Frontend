@@ -19,6 +19,7 @@ const VENDOR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     field: 'name',
     header: 'Vendor Name',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'vendorCode' },
     showImage: true,
     dummyImageField: 'name',
     primaryFieldHighlight: true,

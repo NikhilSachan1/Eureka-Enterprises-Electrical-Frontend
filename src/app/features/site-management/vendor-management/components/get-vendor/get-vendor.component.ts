@@ -141,6 +141,7 @@ export class GetVendorComponent implements OnInit {
       return {
         id: record.id,
         name: record.name,
+        vendorCode: record.vendorCode?.trim() || '—',
         vendorType:
           record.vendorType !== null && record.vendorType !== ''
             ? getMappedValueFromArrayOfObjects(
