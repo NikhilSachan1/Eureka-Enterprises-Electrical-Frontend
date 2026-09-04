@@ -29,7 +29,6 @@ import { applyIconsToDropdownOptions } from '@shared/config/dropdown-option-icon
 import {
   CONFIGURATION_TYPE_DATA,
   SITE_ALLOCATION_STATUS_DATA,
-  PO_GST_TYPE_DATA,
 } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IOptionDropdown } from '@shared/types';
@@ -179,7 +178,8 @@ export class AppConfigurationService {
     SITE_ALLOCATION_STATUS_DATA
   );
   private readonly _siteRoles = signal<IOptionDropdown[]>([]);
-  private readonly _poGstTypes = signal<IOptionDropdown[]>(PO_GST_TYPE_DATA);
+  private readonly _poGstTypes = signal<IOptionDropdown[]>([]);
+  private readonly _units = signal<IOptionDropdown[]>([]);
   private readonly _projectWorkTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectDocumentTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectList = signal<IOptionDropdown[]>([]);
@@ -258,6 +258,7 @@ export class AppConfigurationService {
     this._projectAllocationStatuses.asReadonly();
   readonly siteRoles = this._siteRoles.asReadonly();
   readonly poGstTypes = this._poGstTypes.asReadonly();
+  readonly units = this._units.asReadonly();
   readonly projectWorkTypes = this._projectWorkTypes.asReadonly();
   readonly projectDocumentTypes = this._projectDocumentTypes.asReadonly();
   readonly projectList = this._projectList.asReadonly();
@@ -292,9 +293,6 @@ export class AppConfigurationService {
     [MODULE_NAMES.PROJECT]: {
       [CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS]:
         SITE_ALLOCATION_STATUS_DATA,
-    },
-    [MODULE_NAMES.FINANCIAL]: {
-      [CONFIGURATION_KEYS.FINANCIAL.GST_TYPES]: PO_GST_TYPE_DATA,
     },
   };
 
@@ -541,9 +539,15 @@ export class AppConfigurationService {
         key: CONFIGURATION_KEYS.PROJECT.PARTY_TYPES,
         signal: this._partyTypes,
       },
+    ],
+    [MODULE_NAMES.PURCHASE_ORDER]: [
       {
-        key: CONFIGURATION_KEYS.FINANCIAL.GST_TYPES,
+        key: CONFIGURATION_KEYS.PURCHASE_ORDER.GST_TYPES,
         signal: this._poGstTypes,
+      },
+      {
+        key: CONFIGURATION_KEYS.PURCHASE_ORDER.UNITS,
+        signal: this._units,
       },
     ],
     [MODULE_NAMES.PERMISSION]: [
@@ -916,7 +920,6 @@ export class AppConfigurationService {
       CONFIGURATION_KEYS.COMMON.ROLE_LIST,
       CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
       CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS,
-      CONFIGURATION_KEYS.FINANCIAL.GST_TYPES,
       CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
       CONFIGURATION_KEYS.ASSET.ASSET_LIST,
       CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
@@ -1075,8 +1078,7 @@ export class AppConfigurationService {
             dropdown.key === CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST ||
             dropdown.key === CONFIGURATION_KEYS.VENDOR.VENDOR_LIST ||
             dropdown.key === CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS ||
-            dropdown.key === CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS ||
-            dropdown.key === CONFIGURATION_KEYS.FINANCIAL.GST_TYPES
+            dropdown.key === CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS
           ) {
             return;
           }
@@ -1088,7 +1090,9 @@ export class AppConfigurationService {
           let nextValue: IOptionDropdown[] = [];
 
           if (Array.isArray(apiValue)) {
-            nextValue = this.normalizeDropdownData(apiValue);
+            nextValue = this.isPurchaseOrderConfiguredDropdown(dropdown.key)
+              ? this.mapLabeledDropdownOptions(apiValue)
+              : this.normalizeDropdownData(apiValue);
           } else if (staticFallback) {
             nextValue = staticFallback;
           }
@@ -1671,6 +1675,24 @@ export class AppConfigurationService {
       ...prev,
       [dropdownKey]: loading,
     }));
+  }
+
+  private isPurchaseOrderConfiguredDropdown(key: string): boolean {
+    return (
+      key === CONFIGURATION_KEYS.PURCHASE_ORDER.GST_TYPES ||
+      key === CONFIGURATION_KEYS.PURCHASE_ORDER.UNITS
+    );
+  }
+
+  private mapLabeledDropdownOptions(data: unknown[]): IOptionDropdown[] {
+    return data
+      .map(item => {
+        const obj = item as { label?: string; value?: string; name?: string };
+        const value = String(obj.value ?? obj.name ?? '').trim();
+        const label = String(obj.label ?? value).trim();
+        return { label, value };
+      })
+      .filter(option => option.value.length > 0);
   }
 
   private normalizeDropdownData(data: unknown[]): IOptionDropdown[] {

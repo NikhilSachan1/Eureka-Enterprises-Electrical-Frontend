@@ -43,6 +43,7 @@ import {
   computePoLineItemAmount,
   mapPoLineItemsForForm,
   mapPoLineItemsForRequest,
+  mapPoItemSuggestionsToDropdown,
 } from '../../utils/po-line-item.util';
 import { isPoSystemGenerated } from '../../utils/po-table-row.util';
 
@@ -197,14 +198,11 @@ export class EditPoComponent
       return;
     }
 
-    const seededOptions = [
-      ...new Map(
-        (lineItems ?? [])
-          .map(item => String(item.itemName ?? '').trim())
-          .filter(name => name.length > 0)
-          .map(name => [name, { label: name, value: name }] as const)
-      ).values(),
-    ];
+    const seededOptions = mapPoItemSuggestionsToDropdown(
+      (lineItems ?? []).map(item => ({
+        name: String(item.itemName ?? ''),
+      }))
+    );
 
     this.form.fieldConfigs.items = {
       ...itemsConfig,
@@ -223,10 +221,7 @@ export class EditPoComponent
                   .getPoItemSuggestions(search ? { search } : {})
                   .pipe(
                     map(response =>
-                      response.records.map(name => ({
-                        label: name,
-                        value: name,
-                      }))
+                      mapPoItemSuggestionsToDropdown(response.records)
                     )
                   );
               },

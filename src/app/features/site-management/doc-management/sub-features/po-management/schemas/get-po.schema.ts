@@ -59,6 +59,7 @@ export const PoItemGetResponseSchema = z.looseObject({
   hsnCode: z.string().nullable().optional(),
   make: z.string().nullable().optional(),
   quantity: z.union([z.string(), z.number()]),
+  unit: z.string().nullable().optional(),
   rate: z.union([z.string(), z.number()]),
   amount: z.union([z.string(), z.number()]).nullable().optional(),
 });

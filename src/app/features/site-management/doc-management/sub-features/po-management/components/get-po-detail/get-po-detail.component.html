@@ -31,9 +31,10 @@
       <div class="po-line-items__row po-line-items__row--header">
         <span>#</span>
         <span>Item name</span>
-        <span>Make</span>
+        <span>Make / Source</span>
         <span>HSN</span>
         <span>Qty</span>
+        <span>Unit</span>
         <span>Rate</span>
         <span>Amount</span>
       </div>
@@ -45,6 +46,7 @@
           <span class="po-line-items__value">{{ item.make || '—' }}</span>
           <span class="po-line-items__value">{{ item.hsnCode || '—' }}</span>
           <span class="po-line-items__value">{{ item.quantity }}</span>
+          <span class="po-line-items__value">{{ item.unit || '—' }}</span>
           <span class="po-line-items__value">{{ item.rate }}</span>
           <span class="po-line-items__value">{{ item.amount }}</span>
         </div>

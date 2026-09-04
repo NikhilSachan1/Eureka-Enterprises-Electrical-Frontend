@@ -40,6 +40,7 @@ import {
 } from '@features/site-management/project-management/utility/project-overview-date.util';
 import {
   computePoLineItemAmount,
+  mapPoItemSuggestionsToDropdown,
   mapPoLineItemsForRequest,
 } from '../../utils/po-line-item.util';
 
@@ -147,10 +148,7 @@ export class AddPoComponent
                   .getPoItemSuggestions(search ? { search } : {})
                   .pipe(
                     map(response =>
-                      response.records.map(name => ({
-                        label: name,
-                        value: name,
-                      }))
+                      mapPoItemSuggestionsToDropdown(response.records)
                     )
                   );
               },

@@ -1,5 +1,10 @@
 import { roundCurrencyAmount } from '@shared/utility';
-import { IPoGetBaseResponseDto, IPoItemFormDto } from '../types/po.dto';
+import { IOptionDropdown } from '@shared/types';
+import {
+  IPoGetBaseResponseDto,
+  IPoItemFormDto,
+  IPoItemSuggestionsGetResponseDto,
+} from '../types/po.dto';
 
 export function computePoLineItemAmount(
   quantity: number,
@@ -27,6 +32,7 @@ export function mapPoLineItemsForForm(
       hsnCode: item.hsnCode ?? null,
       make: item.make ?? null,
       quantity,
+      unit: item.unit?.trim() ? item.unit.trim() : '',
       rate,
       amount: Number.isFinite(savedAmount)
         ? savedAmount
@@ -50,6 +56,7 @@ export function mapPoLineItemsForRequest(
       hsnCode: item.hsnCode?.trim() ? item.hsnCode.trim() : null,
       make: item.make?.trim() ? item.make.trim() : null,
       quantity,
+      unit: String(item.unit ?? '').trim(),
       rate,
       amount: computePoLineItemAmount(quantity, rate),
     };
@@ -73,4 +80,16 @@ export function computePoTotalsFromItems(
   const totalAmount = roundCurrencyAmount(taxableAmount + gstAmount);
 
   return { taxableAmount, gstAmount, totalAmount };
+}
+
+export function mapPoItemSuggestionsToDropdown(
+  records: IPoItemSuggestionsGetResponseDto['records']
+): IOptionDropdown[] {
+  return records.flatMap(record => {
+    const name = record.name.trim();
+    if (!name) {
+      return [];
+    }
+    return [{ label: name, value: name }];
+  });
 }

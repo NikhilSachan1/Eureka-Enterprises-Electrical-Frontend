@@ -17,6 +17,7 @@ export const MODULE_NAMES = {
   CONFIGURATION: 'configuration',
   GEOGRAPHY: 'geography',
   FINANCIAL: 'FINANCIALS',
+  PURCHASE_ORDER: 'purchase_order',
   PAYMENTS: 'payments',
   COMPANY_BANK_ACCOUNT: 'company_bank_account',
 } as const;
@@ -108,8 +109,9 @@ export const CONFIGURATION_KEYS = {
     ALLOCATION_STATUS: 'site_allocation_statuses',
     SITE_ROLES: 'site_roles',
   },
-  FINANCIAL: {
-    GST_TYPES: 'gst_types',
+  PURCHASE_ORDER: {
+    GST_TYPES: 'po_gst_types',
+    UNITS: 'po_units',
   },
   PERMISSION: {
     MODULE_CONFIG_DROPDOWN: 'modules',

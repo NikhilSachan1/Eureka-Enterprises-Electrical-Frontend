@@ -6,7 +6,7 @@ import {
   TEXT_INPUT_ACCEPT_STRIP,
   ICONS,
 } from '@shared/constants';
-import { DEFAULT_BUTTON_CONFIG, PO_GST_TYPE_DATA } from '@shared/config';
+import { DEFAULT_BUTTON_CONFIG } from '@shared/config';
 import {
   EButtonActionType,
   EButtonSeverity,
@@ -21,9 +21,7 @@ import { IAddPoUIFormDto } from '../../types/po.dto';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 
 export const ADD_PO_DEFAULT_GST_PERCENT = 18;
-export const ADD_PO_DEFAULT_GST_TYPE = String(
-  PO_GST_TYPE_DATA[0]?.value ?? ''
-);
+export const ADD_PO_DEFAULT_GST_TYPE = 'CGST_SGST';
 
 const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
   projectName: {
@@ -155,9 +153,9 @@ const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
         },
         make: {
           fieldType: EDataType.TEXT,
-          label: 'Make',
+          label: 'Make / Source',
           showStandardLabel: true,
-          placeholder: 'Make',
+          placeholder: 'Make / Source',
           columnWidth: 'minmax(12rem, 2fr)',
           validators: [Validators.maxLength(255)],
         },
@@ -181,6 +179,21 @@ const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
             maximumFractionDigits: 3,
           },
           validators: [Validators.required, Validators.min(0)],
+        },
+        unit: {
+          fieldType: EDataType.SELECT,
+          label: 'Unit',
+          showStandardLabel: true,
+          placeholder: 'Unit',
+          columnWidth: '6.5rem',
+          selectConfig: {
+            showClearButton: false,
+            dynamicDropdown: {
+              moduleName: MODULE_NAMES.PURCHASE_ORDER,
+              dropdownName: CONFIGURATION_KEYS.PURCHASE_ORDER.UNITS,
+            },
+          },
+          validators: [Validators.required],
         },
         rate: {
           fieldType: EDataType.NUMBER,
@@ -238,8 +251,8 @@ const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
     defaultValue: ADD_PO_DEFAULT_GST_TYPE,
     selectConfig: {
       dynamicDropdown: {
-        moduleName: MODULE_NAMES.FINANCIAL,
-        dropdownName: CONFIGURATION_KEYS.FINANCIAL.GST_TYPES,
+        moduleName: MODULE_NAMES.PURCHASE_ORDER,
+        dropdownName: CONFIGURATION_KEYS.PURCHASE_ORDER.GST_TYPES,
       },
     },
     conditionalValidators: [

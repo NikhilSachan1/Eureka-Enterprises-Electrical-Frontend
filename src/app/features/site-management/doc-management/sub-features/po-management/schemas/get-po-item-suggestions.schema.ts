@@ -7,6 +7,10 @@ export const PoItemSuggestionsGetRequestSchema = z
   })
   .strict();
 
+export const PoItemSuggestionRecordSchema = z.looseObject({
+  name: z.string(),
+});
+
 export const PoItemSuggestionsGetResponseSchema = z.object({
-  records: z.array(z.string()),
+  records: z.array(PoItemSuggestionRecordSchema),
 });

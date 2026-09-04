@@ -15,7 +15,7 @@
 
 .po-line-items__row {
   display: grid;
-  grid-template-columns: 2rem repeat(6, minmax(0, 1fr));
+  grid-template-columns: 2rem repeat(7, minmax(0, 1fr));
   gap: 0.5rem;
   align-items: start;
 }
