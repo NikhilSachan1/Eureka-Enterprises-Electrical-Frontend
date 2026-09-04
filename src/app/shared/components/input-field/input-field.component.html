@@ -115,6 +115,7 @@
       @let selectOpts = selectConfig?.optionsDropdown ?? [];
       @let optionsDropdownLength = selectOpts.length;
       <p-select
+        #selectRef
         [id]="config.id"
         [fluid]="config.haveFullWidth"
         [size]="config.fieldSize"
@@ -218,6 +219,21 @@
             </span>
           }
         </ng-template>
+        @if (dropdownCreateActionButtonConfig(); as createAction) {
+          <ng-template pTemplate="footer">
+            <div
+              class="ee-dropdown-create"
+              (mousedown)="$event.stopPropagation()"
+              (click)="$event.stopPropagation()"
+            >
+              <app-button
+                [buttonConfig]="createAction"
+                [stopClickPropagation]="true"
+                (onButtonClick)="onDropdownCreateAction()"
+              />
+            </div>
+          </ng-template>
+        }
       </p-select>
       @if (!showStandardLabel) {
         <label [for]="config.id">{{ config.label }}</label>
@@ -266,6 +282,7 @@
       @let optionsDropdownLengthMs = multiOpts.length;
       @let maxVisibleLabels = getMultiSelectMaxVisibleLabels(multiSelectConfig);
       <p-multiselect
+        #multiSelectRef
         [id]="config.id"
         [fluid]="config.haveFullWidth"
         [size]="config.fieldSize"
@@ -375,6 +392,21 @@
             </div>
           }
         </ng-template>
+        @if (dropdownCreateActionButtonConfig(); as createAction) {
+          <ng-template pTemplate="footer">
+            <div
+              class="ee-dropdown-create"
+              (mousedown)="$event.stopPropagation()"
+              (click)="$event.stopPropagation()"
+            >
+              <app-button
+                [buttonConfig]="createAction"
+                [stopClickPropagation]="true"
+                (onButtonClick)="onDropdownCreateAction()"
+              />
+            </div>
+          </ng-template>
+        }
       </p-multiselect>
       @if (!showStandardLabel) {
         <label [for]="config.id">{{ config.label }}</label>

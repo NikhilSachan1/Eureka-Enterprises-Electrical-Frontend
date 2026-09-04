@@ -490,3 +490,27 @@ p-card:has(app-nav-tabs) .p-card {
   width: min(96vw, 80rem);
   max-width: min(96vw, 80rem);
 }
+
+.ee-dropdown-create {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--border-light-color);
+
+  app-button,
+  app-button > span {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box;
+  }
+
+  .p-button {
+    display: flex !important;
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box;
+    justify-content: center;
+  }
+}

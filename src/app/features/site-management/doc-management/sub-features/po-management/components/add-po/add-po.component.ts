@@ -324,16 +324,16 @@ export class AddPoComponent
         ...defaultSelectConfig,
         ...(hasOptions
           ? {
-            filterOptions: {
-              include: availableIds,
-            },
-          }
+              filterOptions: {
+                include: availableIds,
+              },
+            }
           : {
-            optionsDropdown: [],
-            dynamicDropdown: undefined,
-            filterOptions: undefined,
-            emptyMessage,
-          }),
+              optionsDropdown: [],
+              dynamicDropdown: undefined,
+              filterOptions: undefined,
+              emptyMessage,
+            }),
         loading,
       },
     } as IInputFieldsConfig;
