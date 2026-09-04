@@ -1,4 +1,5 @@
 import { COMMON_FORM_ACTIONS } from '@shared/config';
+import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EDataType,
@@ -9,8 +10,9 @@ import {
 } from '@shared/types';
 import { ICompanyGetFormDto } from '../../types/company.dto';
 
-const SEARCH_FILTER_COMPANY_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<ICompanyGetFormDto> =
-  {
+const SEARCH_FILTER_COMPANY_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
+  ICompanyGetFormDto & { globalSearch?: string }
+> = {
     parentCompanyName: {
       fieldType: EDataType.MULTI_SELECT,
       id: 'parentCompanyName',
@@ -62,6 +64,10 @@ const SEARCH_FILTER_COMPANY_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
         },
       },
       matchmode: ETableFilterMatchMode.IN,
+    },
+    globalSearch: {
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
+      hint: 'Search by company name',
     },
   };
 
