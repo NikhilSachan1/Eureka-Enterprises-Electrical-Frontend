@@ -36,6 +36,7 @@ import { DocAmountComponent } from '@features/site-management/doc-management/sha
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { isPoSystemGenerated } from '../../utils/po-table-row.util';
+import { parsePoTerms } from '../../utils/po-terms.util';
 
 @Component({
   selector: 'app-get-po-detail',
@@ -135,6 +136,18 @@ export class GetPoDetailComponent extends DrawerDetailBase {
         label: 'Line items',
         value: record.items,
         customTemplateKey: 'poLineItems',
+        detailTemplateFullRow: true,
+        detailTemplatePlain: true,
+      });
+    }
+
+    if (isPoSystemGenerated(record) && record.termsAndConditions) {
+      entryData.push({
+        label: 'Terms & conditions',
+        value: parsePoTerms(record.termsAndConditions).map(term =>
+          term.replace(/^\d+\.\s*/, '').trim()
+        ),
+        customTemplateKey: 'poTerms',
         detailTemplateFullRow: true,
         detailTemplatePlain: true,
       });

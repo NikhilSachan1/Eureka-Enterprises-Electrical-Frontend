@@ -1,0 +1,39 @@
+<section
+  class="po-terms-editor"
+  [formGroup]="formGroup()"
+>
+  <div class="po-terms-editor__bar">
+    <span class="po-terms-editor__title">Terms & conditions</span>
+    <app-button
+      [buttonConfig]="addButton"
+      (onButtonClick)="addTerm()"
+    />
+  </div>
+
+  <div
+    formArrayName="terms"
+    class="po-terms-editor__list"
+  >
+    @for (row of termsArray().controls; track row; let i = $index) {
+      <div
+        class="po-terms-editor__item"
+        [formGroupName]="i"
+      >
+        <span class="po-terms-editor__num">{{ i + 1 }}.</span>
+        <textarea
+          #termInput
+          formControlName="content"
+          class="po-terms-editor__text"
+          rows="1"
+          placeholder="Enter term"
+          (input)="fitTerm(termInput)"
+        ></textarea>
+        <app-button
+          [buttonConfig]="removeButton"
+          [stopClickPropagation]="true"
+          (onButtonClick)="removeTerm(row)"
+        />
+      </div>
+    }
+  </div>
+</section>

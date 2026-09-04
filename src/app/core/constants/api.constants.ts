@@ -258,6 +258,7 @@ export const API_ROUTES = {
           `purchase-orders/${poId}/unlock-reject`,
         DELETE: (poId: string) => `purchase-orders/${poId}`,
         ITEM_SUGGESTIONS: 'purchase-orders/items/suggestions',
+        DEFAULT_TERMS: 'purchase-orders/default-terms',
         PDF: (poId: string) => `purchase-orders/${poId}/pdf`,
       },
       JMC: {

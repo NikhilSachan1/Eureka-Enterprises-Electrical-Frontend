@@ -55,6 +55,17 @@
   </section>
 </ng-template>
 
+<ng-template
+  #poTerms
+  let-entry
+>
+  <ol class="po-terms">
+    @for (term of $any(entry.value); track $index) {
+      <li>{{ term }}</li>
+    }
+  </ol>
+</ng-template>
+
 <app-view-detail
   [drawerDetails]="_poDetails()"
   [customTemplates]="{
@@ -62,6 +73,7 @@
     poDetailPoAmounts: poDetailPoAmounts,
     poDetailInvoiceTotals: poDetailInvoiceTotals,
     poLineItems: poLineItems,
+    poTerms: poTerms,
   }"
   (attachmentClick)="handleDetailAttachmentClick($event)"
 />

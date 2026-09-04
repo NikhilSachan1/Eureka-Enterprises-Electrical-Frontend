@@ -79,4 +79,8 @@
     [formGroup]="form.formGroup"
     [inputFieldConfig]="form.fieldConfigs.remarks"
   />
+
+  @if (isSystemGenerated()) {
+    <app-po-terms-editor [formGroup]="form.formGroup" />
+  }
 </form>

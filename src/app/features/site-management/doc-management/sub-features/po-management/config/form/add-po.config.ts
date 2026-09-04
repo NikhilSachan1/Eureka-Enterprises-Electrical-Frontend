@@ -226,6 +226,47 @@ const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
       },
     },
   },
+  terms: {
+    fieldType: EDataType.LINE_ITEMS,
+    id: 'terms',
+    fieldName: 'terms',
+    label: 'Terms & conditions',
+    lineItemsConfig: {
+      title: 'Terms & conditions',
+      minRows: 0,
+      addButton: {
+        ...DEFAULT_BUTTON_CONFIG,
+        id: EButtonActionType.ADD,
+        label: 'Add term',
+        tooltip: 'Add a term',
+        icon: ICONS.COMMON.PLUS,
+        variant: EButtonVariant.OUTLINED,
+      },
+      removeButton: {
+        ...DEFAULT_BUTTON_CONFIG,
+        id: EButtonActionType.DELETE,
+        label: '',
+        tooltip: 'Remove term',
+        icon: ICONS.ACTIONS.TRASH,
+        severity: EButtonSeverity.DANGER,
+        variant: EButtonVariant.TEXT,
+      },
+      fields: {
+        content: {
+          fieldType: EDataType.TEXT_AREA,
+          label: '',
+          showStandardLabel: false,
+          placeholder: 'Enter term',
+          columnWidth: 'minmax(20rem, 1fr)',
+          textAreaConfig: {
+            rows: 4,
+            autoResize: true,
+          },
+          validators: [Validators.required],
+        },
+      },
+    },
+  },
   taxableAmount: {
     fieldType: EDataType.NUMBER,
     id: 'taxableAmount',

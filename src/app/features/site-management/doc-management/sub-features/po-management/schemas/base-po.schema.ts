@@ -51,5 +51,6 @@ export const PoUpsertShapeSchema = z
     gstType: z.string().nullable(),
     remarks: z.string().nullable(),
     items: z.array(PoItemUpsertSchema).nullable(),
+    termsAndConditions: z.string().nullable().optional(),
   })
   .strict();
