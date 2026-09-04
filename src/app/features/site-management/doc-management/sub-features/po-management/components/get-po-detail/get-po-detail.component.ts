@@ -35,7 +35,7 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
-import { isPoSystemGenerated } from '../../utils/po-table-row.util';
+import { isPoSystemGenerated, poAttachmentKeys } from '../../utils/po-table-row.util';
 import { parsePoTerms } from '../../utils/po-terms.util';
 
 @Component({
@@ -141,18 +141,6 @@ export class GetPoDetailComponent extends DrawerDetailBase {
       });
     }
 
-    if (isPoSystemGenerated(record) && record.termsAndConditions) {
-      entryData.push({
-        label: 'Terms & conditions',
-        value: parsePoTerms(record.termsAndConditions).map(term =>
-          term.replace(/^\d+\.\s*/, '').trim()
-        ),
-        customTemplateKey: 'poTerms',
-        detailTemplateFullRow: true,
-        detailTemplatePlain: true,
-      });
-    }
-
     if (isPoSystemGenerated(record) && record.gstType) {
       entryData.push({
         label: 'GST type',
@@ -190,14 +178,22 @@ export class GetPoDetailComponent extends DrawerDetailBase {
 
     entryData.push({
       label: 'Attachments',
-      value: isPoSystemGenerated(record)
-        ? [record.id]
-        : record.fileKey
-          ? [record.fileKey]
-          : [],
+      value: poAttachmentKeys(record),
       type: EDataType.ATTACHMENTS,
       enableAttachmentGallery: !isPoSystemGenerated(record),
     });
+
+    if (isPoSystemGenerated(record) && record.termsAndConditions) {
+      entryData.push({
+        label: 'Terms & conditions',
+        value: parsePoTerms(record.termsAndConditions).map(term =>
+          term.replace(/^\d+\.\s*/, '').trim()
+        ),
+        customTemplateKey: 'poTerms',
+        detailTemplateFullRow: true,
+        detailTemplatePlain: true,
+      });
+    }
 
     const detail: IDataViewDetails = {
       status: {

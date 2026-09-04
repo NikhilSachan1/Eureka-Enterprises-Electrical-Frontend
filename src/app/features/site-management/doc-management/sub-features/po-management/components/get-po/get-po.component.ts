@@ -63,7 +63,7 @@ import { ProjectWorkspaceContextService } from '@features/site-management/projec
 import { ProjectWorkspaceDocumentStatusService } from '@features/site-management/project-management/services/project-workspace-document-status.service';
 import { ensureWorkspaceTableBreakdown } from '@features/site-management/project-management/utility/workspace-table-document-status.util';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
-import { isPoSystemGenerated } from '../../utils/po-table-row.util';
+import { isPoSystemGenerated, poAttachmentKeys } from '../../utils/po-table-row.util';
 
 @Component({
   selector: 'app-get-po',
@@ -308,11 +308,7 @@ export class GetPoComponent implements OnInit {
         gstAmount: record.gstAmount,
         totalAmount: record.totalAmount,
         fileKey: record.fileKey,
-        fileKeys: isPoSystemGenerated(record)
-          ? [record.id]
-          : record.fileKey
-            ? [record.fileKey]
-            : [],
+        fileKeys: poAttachmentKeys(record),
         approvalStatus: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.projectDocumentApprovalStatuses(),
           record.approvalStatus
