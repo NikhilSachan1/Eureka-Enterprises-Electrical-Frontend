@@ -491,6 +491,10 @@ p-card:has(app-nav-tabs) .p-card {
   max-width: min(96vw, 80rem);
 }
 
+.p-drawer app-page-header {
+  display: none;
+}
+
 .ee-dropdown-create {
   display: block;
   width: 100%;
