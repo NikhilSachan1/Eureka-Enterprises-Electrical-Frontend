@@ -14,9 +14,9 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 const normalizeProjectStatusKey = (status: unknown): string =>
   typeof status === 'string'
     ? status
-        .trim()
-        .toLowerCase()
-        .replace(/[\s_-]+/g, '')
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, '')
     : '';
 
 const isOngoingProjectStatus = (status: unknown): boolean =>
@@ -81,56 +81,55 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
 const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IProject>
 >[] = [
-  {
-    ...COMMON_ROW_ACTIONS.VIEW,
-    tooltip: 'View Project Details',
-    permission: [APP_PERMISSION.PROJECT.VIEW_DETAIL],
-  },
-  {
-    id: EButtonActionType.WORKSPACE,
-    tooltip: 'View Project Workspace',
-    permission: [APP_PERMISSION.PROJECT.WORKSPACE],
-  },
-  {
-    ...COMMON_ROW_ACTIONS.EDIT,
-    tooltip: 'Edit Project',
-    permission: [APP_PERMISSION.PROJECT.EDIT],
-  },
-  {
-    id: EButtonActionType.ASSIGN_VENDOR,
-    tooltip: 'Assign Vendor',
-    permission: [
-      APP_PERMISSION.PROJECT.ASSIGN_VENDOR,
-      APP_PERMISSION.PROJECT.EDIT,
-    ],
-  },
-  {
-    id: EButtonActionType.CHANGE_STATUS,
-    tooltip: 'Change Project Status',
-    permission: [APP_PERMISSION.PROJECT.CHANGE_STATUS],
-  },
-  {
-    ...COMMON_ROW_ACTIONS.DELETE,
-    tooltip: 'Delete Project',
-    permission: [APP_PERMISSION.PROJECT.DELETE],
-    disableWhen: record =>
-      isOngoingProjectStatus(record?.originalRawData?.status),
-    disableReason: () => PROJECT_DISABLED_TOOLTIP.deleteWhileOngoing,
-  },
-];
+    {
+      ...COMMON_ROW_ACTIONS.VIEW,
+      tooltip: 'View Project Details',
+      permission: [APP_PERMISSION.PROJECT.VIEW_DETAIL],
+    },
+    {
+      id: EButtonActionType.WORKSPACE,
+      tooltip: 'View Project Workspace',
+      permission: [APP_PERMISSION.PROJECT.WORKSPACE],
+    },
+    {
+      ...COMMON_ROW_ACTIONS.EDIT,
+      tooltip: 'Edit Project',
+      permission: [APP_PERMISSION.PROJECT.EDIT],
+    },
+    {
+      id: EButtonActionType.ASSIGN_VENDOR,
+      tooltip: 'Assign Vendor',
+      permission: [
+        APP_PERMISSION.PROJECT.ASSIGN_VENDOR,
+      ],
+    },
+    {
+      id: EButtonActionType.CHANGE_STATUS,
+      tooltip: 'Change Project Status',
+      permission: [APP_PERMISSION.PROJECT.CHANGE_STATUS],
+    },
+    {
+      ...COMMON_ROW_ACTIONS.DELETE,
+      tooltip: 'Delete Project',
+      permission: [APP_PERMISSION.PROJECT.DELETE],
+      disableWhen: record =>
+        isOngoingProjectStatus(record?.originalRawData?.status),
+      disableReason: () => PROJECT_DISABLED_TOOLTIP.deleteWhileOngoing,
+    },
+  ];
 
 const PROJECT_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IProject>
 >[] = [
-  {
-    ...COMMON_BULK_ACTIONS.DELETE,
-    tooltip: 'Delete Selected Project',
-    permission: [APP_PERMISSION.PROJECT.DELETE],
-    disableWhen: record =>
-      isOngoingProjectStatus(record?.originalRawData?.status),
-    disableReason: () => PROJECT_DISABLED_TOOLTIP.deleteWhileOngoing,
-  },
-];
+    {
+      ...COMMON_BULK_ACTIONS.DELETE,
+      tooltip: 'Delete Selected Project',
+      permission: [APP_PERMISSION.PROJECT.DELETE],
+      disableWhen: record =>
+        isOngoingProjectStatus(record?.originalRawData?.status),
+      disableReason: () => PROJECT_DISABLED_TOOLTIP.deleteWhileOngoing,
+    },
+  ];
 
 export const PROJECT_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IProject> = {
   tableConfig: PROJECT_TABLE_CONFIG,
