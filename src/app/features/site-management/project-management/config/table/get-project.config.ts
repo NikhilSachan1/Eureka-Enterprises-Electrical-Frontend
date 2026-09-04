@@ -22,9 +22,21 @@ const normalizeProjectStatusKey = (status: unknown): string =>
 const isOngoingProjectStatus = (status: unknown): boolean =>
   normalizeProjectStatusKey(status) === 'ongoing';
 
+const isCompletedProjectStatus = (status: unknown): boolean => {
+  const key = normalizeProjectStatusKey(status);
+  return key === 'completed' || key === 'workcompleted';
+};
+
+const getProjectStatus = (row: IProject): unknown => {
+  const record = row as IProject & { status?: string };
+  return record.originalRawData?.status ?? record.status;
+};
+
 const PROJECT_DISABLED_TOOLTIP = {
   deleteWhileOngoing:
     'Cannot delete a project while its status is Ongoing. Change status first.',
+  assignVendorWhileComplete:
+    'Cannot assign vendor while the project is complete.',
 } as const;
 
 const PROJECT_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -78,9 +90,34 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IProject>
->[] = [
+function isNotAllocatedProjectManager(
+  row: IProject,
+  loggedInUserId: string | null | undefined
+): boolean {
+  if (!loggedInUserId) {
+    return false;
+  }
+
+  const record = row as IProject & {
+    allocatedEmployees?: IProject['stakeholders']['allocatedEmployees'];
+  };
+  const employees =
+    record.originalRawData?.allocatedEmployees ??
+    record.stakeholders?.allocatedEmployees ??
+    record.allocatedEmployees ??
+    [];
+
+  return !employees.some(
+    employee =>
+      employee.id === loggedInUserId &&
+      employee.role.replace(/[\s_-]/g, '').toLowerCase() === 'projectmanager'
+  );
+}
+
+function buildProjectTableRowActionsConfig(
+  loggedInUserId: string | null | undefined
+): Partial<ITableActionConfig<IProject>>[] {
+  return [
     {
       ...COMMON_ROW_ACTIONS.VIEW,
       tooltip: 'View Project Details',
@@ -99,9 +136,9 @@ const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
     {
       id: EButtonActionType.ASSIGN_VENDOR,
       tooltip: 'Assign Vendor',
-      permission: [
-        APP_PERMISSION.PROJECT.ASSIGN_VENDOR,
-      ],
+      hideWhen: row => isNotAllocatedProjectManager(row, loggedInUserId),
+      disableWhen: row => isCompletedProjectStatus(getProjectStatus(row)),
+      disableReason: () => PROJECT_DISABLED_TOOLTIP.assignVendorWhileComplete,
     },
     {
       id: EButtonActionType.CHANGE_STATUS,
@@ -117,6 +154,7 @@ const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
       disableReason: () => PROJECT_DISABLED_TOOLTIP.deleteWhileOngoing,
     },
   ];
+}
 
 const PROJECT_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IProject>
@@ -131,9 +169,13 @@ const PROJECT_TABLE_BULK_ACTIONS_CONFIG: Partial<
     },
   ];
 
-export const PROJECT_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IProject> = {
-  tableConfig: PROJECT_TABLE_CONFIG,
-  headers: PROJECT_TABLE_HEADER_CONFIG,
-  rowActions: PROJECT_TABLE_ROW_ACTIONS_CONFIG,
-  bulkActions: PROJECT_TABLE_BULK_ACTIONS_CONFIG,
-};
+export function createProjectTableEnhancedConfig(
+  loggedInUserId: string | null | undefined
+): IEnhancedTableConfig<IProject> {
+  return {
+    tableConfig: PROJECT_TABLE_CONFIG,
+    headers: PROJECT_TABLE_HEADER_CONFIG,
+    rowActions: buildProjectTableRowActionsConfig(loggedInUserId),
+    bulkActions: PROJECT_TABLE_BULK_ACTIONS_CONFIG,
+  };
+}

@@ -10,6 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { LoggerService } from '@core/services';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import {
   AppConfigurationService,
   AvatarService,
@@ -41,12 +42,13 @@ import {
 } from '../../types/project.dto';
 import {
   PROJECT_ACTION_CONFIG_MAP,
-  PROJECT_TABLE_ENHANCED_CONFIG,
+  createProjectTableEnhancedConfig,
 } from '../../config';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GetProjectDetailComponent } from '../get-project-detail/get-project-detail.component';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { EUserRole } from '@shared/constants/role.constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { IProject } from '../../types/project.interface';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -102,6 +104,7 @@ export class GetProjectComponent implements OnInit {
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly avatarService = inject(AvatarService);
+  private readonly authService = inject(AuthService);
 
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ICONS = ICONS;
@@ -153,8 +156,14 @@ export class GetProjectComponent implements OnInit {
   protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
+    const currentUser = this.authService.getCurrentUser();
+    const loggedInUserId =
+      currentUser?.activeRole === EUserRole.EMPLOYEE
+        ? currentUser.userId
+        : null;
+
     this.table = this.dataTableService.createTable(
-      PROJECT_TABLE_ENHANCED_CONFIG
+      createProjectTableEnhancedConfig(loggedInUserId)
     );
     this.searchFilterConfig = SEARCH_FILTER_PROJECT_FORM_CONFIG;
   }
