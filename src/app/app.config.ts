@@ -2,7 +2,6 @@ import { registerLocaleData } from '@angular/common';
 import localeEnIn from '@angular/common/locales/en-IN';
 import {
   ApplicationConfig,
-  importProvidersFrom,
   inject,
   LOCALE_ID,
   provideAppInitializer,
@@ -21,10 +20,7 @@ import {
   withFetch,
   withInterceptors,
 } from '@angular/common/http';
-import {
-  provideAnimations,
-  BrowserAnimationsModule,
-} from '@angular/platform-browser/animations';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { providePrimeNG } from 'primeng/config';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { AppPreset, APP_CONFIG } from '@core/config';
@@ -52,7 +48,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     { provide: LOCALE_ID, useValue: APP_CONFIG.NUMBER_FORMATS.LOCALE },
     provideAnimations(),
-    importProvidersFrom(BrowserAnimationsModule),
     providePrimeNG({
       theme: {
         preset: AppPreset,
@@ -94,6 +89,7 @@ export const appConfig: ApplicationConfig = {
       inject(ThemeService);
     }),
     provideAppInitializer(() => {
+      // Angular SW is not used. Unregister leftover workers from older deploys.
       if ('serviceWorker' in navigator) {
         void navigator.serviceWorker.getRegistrations().then(registrations => {
           registrations.forEach(reg => reg.unregister());

@@ -14,14 +14,11 @@
   <!-- Global Toast Notifications -->
   <p-toast />
 
-  <!-- Global Confirmation Dialog -->
-  <app-confirmation-dialog />
-
-  <!-- Global Drawer -->
-  <app-drawer />
-
-  <!-- Global Gallery -->
-  <app-gallery [media]="galleryService.media()" />
+  @defer (on idle) {
+    <app-confirmation-dialog />
+    <app-drawer />
+    <app-gallery [media]="galleryService.media()" />
+  }
 
   @if (networkMonitor.showOfflineOverlay()) {
     <app-offline />
