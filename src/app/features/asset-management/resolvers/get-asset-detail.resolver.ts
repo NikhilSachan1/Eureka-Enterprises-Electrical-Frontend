@@ -11,7 +11,7 @@ import {
   LoadingService,
   RouterNavigationService,
 } from '@shared/services';
-import { catchError, finalize, Observable, of, switchMap } from 'rxjs';
+import { catchError, finalize, forkJoin, Observable, of, switchMap } from 'rxjs';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { IAssetDetailResolverResponse } from '../types/asset.interface';
 
@@ -62,12 +62,19 @@ export class GetAssetDetailResolver
         const latestHistoryItem =
           response.versionHistory[response.versionHistory.length - 1];
         const fileKeys = latestHistoryItem?.documentKeys || [];
+        const calibrationFileKeys =
+          latestHistoryItem?.calibrationDocumentKeys || [];
 
-        return this.attachmentsService.loadFilesFromKeys(fileKeys).pipe(
-          switchMap(files => {
+        return forkJoin({
+          assetFiles: this.attachmentsService.loadFilesFromKeys(fileKeys),
+          calibrationFiles:
+            this.attachmentsService.loadFilesFromKeys(calibrationFileKeys),
+        }).pipe(
+          switchMap(({ assetFiles, calibrationFiles }) => {
             return of({
               ...response,
-              preloadedFiles: files,
+              preloadedFiles: assetFiles,
+              preloadedCalibrationFiles: calibrationFiles,
             });
           })
         );

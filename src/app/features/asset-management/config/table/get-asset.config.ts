@@ -75,6 +75,12 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'calibrationDocuments',
+    header: 'Calibration File',
+    bodyTemplate: EDataType.ATTACHMENTS,
+    showSort: false,
+  },
+  {
     field: 'calibrationStatus',
     header: 'Calibration Status',
     bodyTemplate: EDataType.STATUS,
