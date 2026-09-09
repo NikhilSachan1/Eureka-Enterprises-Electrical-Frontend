@@ -75,6 +75,7 @@ export const APP_PERMISSION = {
     DELETE: 'employee.delete',
     CHANGE_STATUS: 'employee.change-status',
     SEND_PASSWORD_LINK: 'employee.send-password-link',
+    RESET_PASSWORD: 'employee.reset-password',
   },
   EXPENSE: {
     VIEW_DETAIL: 'expense.view-detail',

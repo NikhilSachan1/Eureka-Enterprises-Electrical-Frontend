@@ -16,6 +16,8 @@ import {
   IEmployeeGetFormDto,
   IEmployeeGetNextEmployeeIdResponseDto,
   IEmployeeGetResponseDto,
+  IEmployeeResetPasswordFormDto,
+  IEmployeeResetPasswordResponseDto,
   IEmployeeSendPasswordLinkFormDto,
   IEmployeeSendPasswordLinkResponseDto,
 } from '../types/employee.dto';
@@ -33,6 +35,8 @@ import {
   EmployeeGetNextEmployeeIdResponseSchema,
   EmployeeGetRequestSchema,
   EmployeeGetResponseSchema,
+  EmployeeResetPasswordRequestSchema,
+  EmployeeResetPasswordResponseSchema,
   EmployeeSendPasswordLinkRequestSchema,
   EmployeeSendPasswordLinkResponseSchema,
 } from '../schemas';
@@ -309,6 +313,42 @@ export class EmployeeService {
             );
           } else {
             this.logger.logUserAction('Send Password Link Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  resetEmployeePassword(
+    formData: IEmployeeResetPasswordFormDto,
+    employeeId: string
+  ): Observable<IEmployeeResetPasswordResponseDto> {
+    this.logger.logUserAction('Reset Employee Password Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.AUTH.RESET_USER_PASSWORD(employeeId),
+        {
+          response: EmployeeResetPasswordResponseSchema,
+          request: EmployeeResetPasswordRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IEmployeeResetPasswordResponseDto) => {
+          this.logger.logUserAction(
+            'Reset Employee Password Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Reset Employee Password Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Reset Employee Password Error', error);
           }
           return throwError(() => error);
         })

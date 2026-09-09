@@ -1723,6 +1723,9 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     if (errors['pattern']) {
       return 'Please enter a valid email address';
     }
+    if (errors['mismatch']) {
+      return 'Passwords do not match';
+    }
 
     return 'Invalid value';
   }
