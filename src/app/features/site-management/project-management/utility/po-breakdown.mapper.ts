@@ -46,9 +46,9 @@ function splitRecordsByPartyType(records: IPoBreakdownGetRecordDto[]): {
   for (const record of records) {
     if (record.partyType === EDocContext.PURCHASE) {
       purchase.push(record);
-      continue;
+    } else {
+      sales.push(record);
     }
-    sales.push(record);
   }
 
   return { sales, purchase };

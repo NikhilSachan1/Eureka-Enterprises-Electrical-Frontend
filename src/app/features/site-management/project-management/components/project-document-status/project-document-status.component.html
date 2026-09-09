@@ -38,7 +38,7 @@
   let-items="items"
   let-toneClass="toneClass"
 >
-  <div class="doc-status__section" [class]="toneClass">
+  <div [class]="'doc-status__section ' + toneClass">
     <span class="doc-status__section-title">{{ title }}</span>
     <ng-container
       *ngTemplateOutlet="metricGrid; context: { $implicit: items }"
@@ -100,24 +100,26 @@
       <ng-container
         *ngTemplateOutlet="compactStageMetrics; context: { $implicit: metrics() }"
       />
-    } @else if (contextLabel(); as label) {
-      <ng-container
-        *ngTemplateOutlet="
-          contextSection;
-          context: {
-            $implicit: label,
-            items: metrics(),
-            toneClass:
-              label === 'Contractor'
-                ? 'doc-status__section--contractor'
-                : 'doc-status__section--vendor',
-          }
-        "
-      />
     } @else {
-      <ng-container
-        *ngTemplateOutlet="metricGrid; context: { $implicit: metrics() }"
-      />
+      @if (contextLabel(); as label) {
+        <ng-container
+          *ngTemplateOutlet="
+            contextSection;
+            context: {
+              $implicit: label,
+              items: metrics(),
+              toneClass:
+                label === 'Contractor'
+                  ? 'doc-status__section--contractor'
+                  : 'doc-status__section--vendor',
+            }
+          "
+        />
+      } @else {
+        <ng-container
+          *ngTemplateOutlet="metricGrid; context: { $implicit: metrics() }"
+        />
+      }
     }
   } @else {
     <div class="doc-status__empty">No contractor or vendor linked</div>

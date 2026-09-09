@@ -26,7 +26,7 @@ import {
 
 @Component({
   selector: 'app-po-terms-editor',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, ButtonComponent],
   templateUrl: './po-terms-editor.component.html',
   styleUrl: './po-terms-editor.component.scss',

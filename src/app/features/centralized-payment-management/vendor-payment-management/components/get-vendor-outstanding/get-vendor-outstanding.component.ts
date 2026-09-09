@@ -112,7 +112,7 @@ export class GetVendorOutstandingComponent implements OnInit {
   protected readonly hasInvoiceRows = (
     row: Record<string, unknown>
   ): boolean => {
-    const invoiceRows = row['invoiceRows'];
+    const { invoiceRows } = row;
     return Array.isArray(invoiceRows) && invoiceRows.length > 0;
   };
 

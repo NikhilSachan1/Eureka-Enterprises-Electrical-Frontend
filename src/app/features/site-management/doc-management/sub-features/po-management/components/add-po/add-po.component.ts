@@ -141,7 +141,7 @@ export class AddPoComponent
       });
   }
 
-  private patchTerms(terms: Array<{ content: string }>): void {
+  private patchTerms(terms: { content: string }[]): void {
     const termsArray = this.form.formGroup.get('terms') as FormArray<FormGroup> | null;
     if (!termsArray) {
       return;
@@ -223,7 +223,7 @@ export class AddPoComponent
 
     const taxableAmount = roundCurrencyAmount(
       items.controls.reduce((sum, group) => {
-        return sum + Number(group.get('amount')?.value || 0);
+        return sum + Number(group.get('amount')?.value ?? 0);
       }, 0)
     );
 
@@ -432,7 +432,7 @@ export class AddPoComponent
     const formData = this.form.getData();
     const record = { ...formData };
     delete (record as Record<string, unknown>)['poAttachment'];
-    const terms = record.terms;
+    const {terms} = record;
     delete (record as Record<string, unknown>)['terms'];
 
     if (this.isSystemGenerated()) {

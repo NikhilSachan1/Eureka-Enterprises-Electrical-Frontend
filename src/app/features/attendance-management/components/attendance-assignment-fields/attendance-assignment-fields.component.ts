@@ -255,6 +255,8 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
       vehicleId
     );
 
+    const listDriverName = toPersonName(driverFromList);
+
     return {
       companyName,
       companyCity,
@@ -268,13 +270,14 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
       contractorCity,
       contractorState,
       driver:
-        payloadDriverNames ||
-        toDisplayName(
-          null,
-          null,
-          driverId,
-          toPersonName(driverFromList) || null
-        ),
+        payloadDriverNames !== null && payloadDriverNames !== ''
+          ? payloadDriverNames
+          : toDisplayName(
+              null,
+              null,
+              driverId,
+              listDriverName !== '' ? listDriverName : null
+            ),
       driverLabel:
         payloadDrivers.length > 1 || driverIds.length > 1
           ? 'Assigned Drivers'

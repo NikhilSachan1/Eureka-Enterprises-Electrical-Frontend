@@ -48,8 +48,7 @@ export interface IAttendanceAssignmentPayload {
     state?: string | null;
     fullAddress?: string | null;
   } | null;
-  contractors?: Array<
-    | {
+  contractors?: (| {
         id?: string | null;
         name?: string | null;
         city?: string | null;
@@ -57,8 +56,7 @@ export interface IAttendanceAssignmentPayload {
         gstNumber?: string | null;
       }
     | null
-    | undefined
-  > | null;
+    | undefined)[] | null;
   vehicle?: { id?: string | null; registrationNo?: string | null } | null;
   assignedDrivers?: IAttendanceAssignmentPerson[] | null;
   assignedEngineer?: IAttendanceAssignmentPerson | null;

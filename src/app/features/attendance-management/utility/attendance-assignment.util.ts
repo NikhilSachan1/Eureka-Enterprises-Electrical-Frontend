@@ -30,7 +30,7 @@ export const NULL_ASSIGNMENT_FORM_VALUES = {
 export function isBlankAssignmentId(
   value: string | null | undefined
 ): value is null | undefined | '' {
-  return value == null || value === '';
+  return value === null || value === undefined || value === '';
 }
 
 export function getAssignedDrivers(
@@ -200,7 +200,12 @@ export function toDisplayName(
   listName: string | null | undefined
 ): string {
   const usePayload = !selectedId || !payloadId || payloadId === selectedId;
-  return (usePayload ? payloadName?.trim() : '') || listName?.trim() || '-';
+  const payloadTrimmed = usePayload ? (payloadName?.trim() ?? '') : '';
+  if (payloadTrimmed !== '') {
+    return payloadTrimmed;
+  }
+  const listTrimmed = listName?.trim() ?? '';
+  return listTrimmed !== '' ? listTrimmed : '-';
 }
 
 export function toPersonName(
@@ -233,7 +238,13 @@ export function formatAssignmentAddress(
     return `${city}, ${state}`;
   }
 
-  return city || state || null;
+  if (city) {
+    return city;
+  }
+  if (state) {
+    return state;
+  }
+  return null;
 }
 
 export function buildAssignmentSubmitPayload(params: {

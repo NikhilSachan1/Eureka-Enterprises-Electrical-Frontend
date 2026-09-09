@@ -22,7 +22,11 @@ export class SearchFilterUrlRestoreService {
   }
 
   finishRestore(sessionId?: number): void {
-    if (sessionId != null && sessionId !== this.activeSession) {
+    if (
+      sessionId !== null &&
+      sessionId !== undefined &&
+      sessionId !== this.activeSession
+    ) {
       return;
     }
     this.pending.set(false);

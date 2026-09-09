@@ -2,6 +2,7 @@ import {
   EDataType,
   IFormConfig,
   IFormInputFieldsConfig,
+  IInputFieldsConfig,
 } from '@shared/types';
 import { FORCE_ATTENDANCE_FORM_CONFIG } from './force-attendance.config';
 import { IAttendanceRegularizedUIFormDto } from '@features/attendance-management/types/attendance.dto';
@@ -16,16 +17,18 @@ const {
   },
 } = FORCE_ATTENDANCE_FORM_CONFIG;
 
-function getAssignedDriverFieldConfig(multiple: boolean) {
+function getAssignedDriverFieldConfig(
+  multiple: boolean
+): Partial<IInputFieldsConfig> {
   if (!multiple) {
     return assignedDriver;
   }
 
   return {
+    ...assignedDriver,
     fieldType: EDataType.MULTI_SELECT,
-    id: 'assignedDriver',
-    fieldName: 'assignedDriver',
     label: 'Assigned Drivers',
+    selectConfig: undefined,
     multiSelectConfig: {
       dynamicDropdown: assignedDriver.selectConfig?.dynamicDropdown,
     },
