@@ -23,8 +23,3 @@ export const SITE_ALLOCATION_STATUS_DATA: IOptionDropdown[] = [
   { label: 'Free', value: 'FREE' },
   { label: 'Allocated', value: 'ALLOCATED' },
 ];
-
-export const PO_GST_TYPE_DATA: IOptionDropdown[] = [
-  { label: 'CGST + SGST', value: 'CGST_SGST' },
-  { label: 'IGST', value: 'IGST' },
-];

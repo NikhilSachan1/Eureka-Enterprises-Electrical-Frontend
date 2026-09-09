@@ -7,7 +7,7 @@ import {
   input,
   OnInit,
 } from '@angular/core';
-import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormBase } from '@shared/base/form.base';
 import {
   IAddPoFormDto,
@@ -27,9 +27,10 @@ import {
   ConfirmationDialogService,
 } from '@shared/services';
 import { ADD_PO_FORM_CONFIG } from '../../config';
-import { finalize, map, switchMap } from 'rxjs';
+import { catchError, finalize, map, of, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { PoTermsEditorComponent } from '../po-terms-editor/po-terms-editor.component';
 import { roundCurrencyAmount } from '@shared/utility';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
 import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
@@ -40,15 +41,17 @@ import {
 } from '@features/site-management/project-management/utility/project-overview-date.util';
 import {
   computePoLineItemAmount,
+  mapPoItemSuggestionsToDropdown,
   mapPoLineItemsForRequest,
 } from '../../utils/po-line-item.util';
+import { joinPoTerms, mapPoTermsForForm } from '../../utils/po-terms.util';
 
 type AddPoStakeholderField = 'contractorName' | 'vendorName';
 
 @Component({
   selector: 'app-add-po',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [InputFieldComponent, ReactiveFormsModule],
+  imports: [InputFieldComponent, PoTermsEditorComponent, ReactiveFormsModule],
   templateUrl: './add-po.component.html',
   styleUrl: './add-po.component.scss',
 })
@@ -62,6 +65,7 @@ export class AddPoComponent
     ConfirmationDialogService
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly formBuilder = inject(FormBuilder);
 
   private trackedPoInputs!: ITrackedFields<IAddPoUIFormDto>;
 
@@ -104,6 +108,7 @@ export class AddPoComponent
         },
         defaultValues: {
           projectName: this.projectName(),
+          terms: [],
         },
       }
     );
@@ -118,7 +123,42 @@ export class AddPoComponent
     if (this.isSystemGenerated()) {
       this.setupPoItemNameTypeahead();
       this.setupLineItemAmountSync();
+      this.loadDefaultTerms();
       queueMicrotask(() => this.changeDetectorRef.detectChanges());
+    }
+  }
+
+  private loadDefaultTerms(): void {
+    this.poService
+      .getPoDefaultTerms()
+      .pipe(
+        catchError(() => of({ content: '' })),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(response => {
+        this.patchTerms(mapPoTermsForForm(response.content));
+        this.changeDetectorRef.detectChanges();
+      });
+  }
+
+  private patchTerms(terms: Array<{ content: string }>): void {
+    const termsArray = this.form.formGroup.get('terms') as FormArray<FormGroup> | null;
+    if (!termsArray) {
+      return;
+    }
+
+    termsArray.clear();
+    terms.forEach(term => {
+      termsArray.push(
+        this.formBuilder.group({
+          content: [term.content, [Validators.required]],
+        })
+      );
+    });
+
+    const termsConfig = this.form.fieldConfigs.terms;
+    if (termsConfig) {
+      this.form.fieldConfigs.terms = { ...termsConfig };
     }
   }
 
@@ -147,10 +187,7 @@ export class AddPoComponent
                   .getPoItemSuggestions(search ? { search } : {})
                   .pipe(
                     map(response =>
-                      response.records.map(name => ({
-                        label: name,
-                        value: name,
-                      }))
+                      mapPoItemSuggestionsToDropdown(response.records)
                     )
                   );
               },
@@ -287,16 +324,16 @@ export class AddPoComponent
         ...defaultSelectConfig,
         ...(hasOptions
           ? {
-            filterOptions: {
-              include: availableIds,
-            },
-          }
+              filterOptions: {
+                include: availableIds,
+              },
+            }
           : {
-            optionsDropdown: [],
-            dynamicDropdown: undefined,
-            filterOptions: undefined,
-            emptyMessage,
-          }),
+              optionsDropdown: [],
+              dynamicDropdown: undefined,
+              filterOptions: undefined,
+              emptyMessage,
+            }),
         loading,
       },
     } as IInputFieldsConfig;
@@ -395,6 +432,8 @@ export class AddPoComponent
     const formData = this.form.getData();
     const record = { ...formData };
     delete (record as Record<string, unknown>)['poAttachment'];
+    const terms = record.terms;
+    delete (record as Record<string, unknown>)['terms'];
 
     if (this.isSystemGenerated()) {
       return {
@@ -403,6 +442,7 @@ export class AddPoComponent
         poFileKey: null,
         docType: this.docContext(),
         items: mapPoLineItemsForRequest(record.items),
+        termsAndConditions: joinPoTerms(terms),
       };
     }
 

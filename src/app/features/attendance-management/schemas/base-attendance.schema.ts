@@ -10,6 +10,13 @@ import { CompanyGetBaseResponseSchema } from '@features/site-management/company-
 import { ContractorGetBaseResponseSchema } from '@features/site-management/contractor-management/schemas';
 import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
 
+export const AttendanceAssignedDriverSchema = z.looseObject({
+  id: uuidField,
+  firstName: z.string(),
+  lastName: z.string(),
+  employeeId: z.string(),
+});
+
 export const notesField = z.string().trim();
 export const entrySourceTypeSchema = z.enum(EEntrySourceType);
 export const attendanceTypeSchema = z.enum(EEntryType);
@@ -50,6 +57,9 @@ export const AttendanceBaseSchema = z.looseObject({
             .looseObject({
               id: uuidField,
               name: z.string(),
+              city: z.string().optional().nullable(),
+              state: z.string().optional().nullable(),
+              gstNumber: z.string().optional().nullable(),
             })
             .optional()
             .nullable()
@@ -63,17 +73,10 @@ export const AttendanceBaseSchema = z.looseObject({
         })
         .optional()
         .nullable(),
-      assignedEngineer: z
-        .looseObject({
-          id: uuidField,
-          firstName: z.string(),
-          lastName: z.string(),
-          employeeId: z.string(),
-        })
-        .optional()
-        .nullable(),
+      assignedEngineer: AttendanceAssignedDriverSchema.optional().nullable(),
     })
     .nullable(),
+  assignedDrivers: z.array(AttendanceAssignedDriverSchema).optional(),
   ...auditSchema,
 });
 
@@ -82,14 +85,7 @@ export const AttendanceUpsertShapeSchema = z
     company: CompanyGetBaseResponseSchema.nullable(),
     contractor: ContractorGetBaseResponseSchema.nullable(),
     vehicle: VehicleBaseSchema.nullable(),
-    assignedEngineer: z
-      .looseObject({
-        id: z.string(),
-        firstName: z.string(),
-        lastName: z.string(),
-        employeeId: z.string(),
-      })
-      .nullable(),
+    assignedDriver: z.string().nullable(),
     remark: z.string().nullable(),
   })
   .strict();

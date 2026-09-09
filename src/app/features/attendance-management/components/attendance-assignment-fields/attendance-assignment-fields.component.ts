@@ -11,24 +11,21 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { merge, of, finalize } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
-import { LoggerService } from '@core/services';
-import { AttendanceService } from '@features/attendance-management/services/attendance.service';
-import { IAttendanceCurrentStatusGetResponseDto } from '@features/attendance-management/types/attendance.dto';
-import { IAttendanceAssignmentSubmitPayload } from '@features/attendance-management/types/attendance.interface';
 import {
   buildAssignmentSubmitPayload,
-  getAssignmentSiteFormValues,
+  getAssignedDriverId,
+  getAssignedDrivers,
   getAssignmentSource,
   getDropdownRecord,
-  isBlankAssignmentId,
   NULL_ASSIGNMENT_FORM_VALUES,
   toDisplayName,
   toPersonName,
 } from '@features/attendance-management/utility/attendance-assignment.util';
+import {
+  IAttendanceAssignmentFormValues,
+  IAttendanceAssignmentSubmitPayload,
+} from '@features/attendance-management/types/attendance.interface';
 import { ICompanyGetBaseResponseDto } from '@features/site-management/company-management/types/company.dto';
 import { IContractorGetBaseResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
 import { IEmployeeGetBaseResponseDto } from '@features/employee-management/types/employee.dto';
@@ -38,10 +35,9 @@ import { ICONS } from '@shared/constants/icon.constants';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 import {
   AppConfigurationService,
-  LoadingService,
-  NotificationService,
+  FormService,
 } from '@shared/services';
-import { IInputFieldsConfig } from '@shared/types';
+import { IInputFieldsConfig, ITrackedFields } from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import type { z } from 'zod';
 
@@ -55,11 +51,8 @@ type VehicleValue = z.infer<typeof VehicleBaseSchema>;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AttendanceAssignmentFieldsComponent implements OnInit {
-  private readonly attendanceService = inject(AttendanceService);
   private readonly appConfigurationService = inject(AppConfigurationService);
-  private readonly loadingService = inject(LoadingService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly logger = inject(LoggerService);
+  private readonly formService = inject(FormService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly formGroup = input.required<FormGroup>();
@@ -67,44 +60,36 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
     company: IInputFieldsConfig;
     contractor: IInputFieldsConfig;
     vehicle: IInputFieldsConfig;
-    assignedEngineer: IInputFieldsConfig;
+    assignedDriver: IInputFieldsConfig;
   }>();
-  readonly isDriver = input(false);
   readonly viewOnly = input(false);
-  readonly previewSiteFields = input(true);
-  readonly editSiteFields = input(false);
   readonly assignmentPayload = input<unknown>(null);
   readonly submitPayload = model<IAttendanceAssignmentSubmitPayload>(
     NULL_ASSIGNMENT_FORM_VALUES
   );
 
-  private lastLoadedEngineerId: string | null = null;
-  private inFlightEngineerId: string | null = null;
-  private readonly loadedAssignment =
-    signal<IAttendanceCurrentStatusGetResponseDto | null>(null);
-  private readonly formTick = signal(0);
+  private readonly trackedAssignmentFields = signal<ITrackedFields<
+    IAttendanceAssignmentFormValues
+  > | null>(null);
 
   protected readonly ALL_ICONS = ICONS;
   protected readonly displayLabels = computed(() => {
-    this.formTick();
+    this.readTrackedAssignmentFields();
+    this.assignmentPayload();
+    this.appConfigurationService.companyList();
+    this.appConfigurationService.contractorList();
+    this.appConfigurationService.vehicleList();
+    this.appConfigurationService.employeeList();
+    this.appConfigurationService.cities();
+    this.appConfigurationService.states();
     return this.buildLabels();
   });
 
   constructor() {
     effect(() => {
-      this.isDriver();
-      this.editSiteFields();
-      this.formGroup();
-      untracked(() => this.syncDriverAssignment());
-    });
-
-    effect(() => {
-      this.formTick();
-      this.isDriver();
-      this.editSiteFields();
+      this.readTrackedAssignmentFields();
       this.formGroup();
       this.assignmentPayload();
-      this.loadedAssignment();
       this.appConfigurationService.companyList();
       this.appConfigurationService.contractorList();
       this.appConfigurationService.vehicleList();
@@ -115,95 +100,21 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
 
   ngOnInit(): void {
     this.preloadDropdowns();
-
-    merge(
-      this.formGroup().get('assignedEngineer')?.valueChanges ?? of(null),
-      this.formGroup().get('company')?.valueChanges ?? of(null),
-      this.formGroup().get('contractor')?.valueChanges ?? of(null),
-      this.formGroup().get('vehicle')?.valueChanges ?? of(null)
-    )
-      .pipe(debounceTime(0), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.formTick.update(tick => tick + 1);
-        this.syncDriverAssignment();
-      });
-  }
-
-  private syncDriverAssignment(): void {
-    if (!this.isDriver()) {
-      return;
-    }
-
-    const engineerId = this.getControlId('assignedEngineer');
-    if (isBlankAssignmentId(engineerId)) {
-      this.lastLoadedEngineerId = null;
-      this.inFlightEngineerId = null;
-      this.loadedAssignment.set(null);
-      return;
-    }
-
-    if (this.inFlightEngineerId === engineerId) {
-      return;
-    }
-
-    if (engineerId === this.lastLoadedEngineerId) {
-      return;
-    }
-
-    if (
-      this.editSiteFields() &&
-      this.lastLoadedEngineerId === null &&
-      !isBlankAssignmentId(this.getControlId('company'))
-    ) {
-      this.lastLoadedEngineerId = engineerId;
-      return;
-    }
-
-    this.loadEngineerAssignment(engineerId);
-  }
-
-  private loadEngineerAssignment(assignedEngineerId: string): void {
-    this.inFlightEngineerId = assignedEngineerId;
-    this.loadingService.show({
-      title: 'Loading assigned engineer assignment',
-      message:
-        "We're loading the assigned engineer's assignment. This will just take a moment.",
-    });
-
-    this.attendanceService
-      .getAttendanceCurrentStatus({ employeeName: assignedEngineerId })
-      .pipe(
-        finalize(() => this.loadingService.hide()),
-        takeUntilDestroyed(this.destroyRef)
+    this.trackedAssignmentFields.set(
+      this.formService.trackMultipleFieldChanges<IAttendanceAssignmentFormValues>(
+        this.formGroup(),
+        ['company', 'contractor', 'vehicle', 'assignedDriver'],
+        this.destroyRef
       )
-      .subscribe({
-        next: response => {
-          if (this.getControlId('assignedEngineer') !== assignedEngineerId) {
-            return;
-          }
+    );
+  }
 
-          this.lastLoadedEngineerId = assignedEngineerId;
-          this.inFlightEngineerId = null;
-          this.formGroup().patchValue(getAssignmentSiteFormValues(response), {
-            emitEvent: false,
-          });
-          this.loadedAssignment.set(response);
-          this.formTick.update(tick => tick + 1);
-        },
-        error: error => {
-          if (this.inFlightEngineerId === assignedEngineerId) {
-            this.inFlightEngineerId = null;
-          }
-          this.lastLoadedEngineerId = null;
-          this.logger.error(
-            'Error loading assigned engineer current status',
-            error
-          );
-          this.notificationService.error(
-            'Failed to load assigned engineer assignment'
-          );
-        },
-      });
+  private readTrackedAssignmentFields(): void {
+    const tracked = this.trackedAssignmentFields();
+    tracked?.company?.();
+    tracked?.contractor?.();
+    tracked?.vehicle?.();
+    tracked?.assignedDriver?.();
   }
 
   private preloadDropdowns(): void {
@@ -223,27 +134,20 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
     companyCity: string;
     companyState: string;
     contractorName: string;
-    engineer: string;
+    contractorCity: string;
+    contractorState: string;
+    driver: string;
     vehicle: string;
   } {
-    const isDriver = this.isDriver();
-    const loaded = this.loadedAssignment();
     const payload = this.assignmentPayload();
-    const site = getAssignmentSource(isDriver ? loaded : (loaded ?? payload));
-    const initialEngineer = getAssignmentSource(payload)?.assignedEngineer;
-    const loadedEngineer = loaded?.user;
+    const site = getAssignmentSource(payload);
 
-    const companyId =
-      this.getControlId('company') ?? site?.company?.id ?? null;
+    const companyId = this.getControlId('company') ?? site?.company?.id ?? null;
     const contractorId =
       this.getControlId('contractor') ?? site?.contractors?.[0]?.id ?? null;
-    const vehicleId =
-      this.getControlId('vehicle') ?? site?.vehicle?.id ?? null;
-    const engineerId =
-      this.getControlId('assignedEngineer') ??
-      initialEngineer?.id ??
-      loadedEngineer?.id ??
-      null;
+    const vehicleId = this.getControlId('vehicle') ?? site?.vehicle?.id ?? null;
+    const driverId =
+      this.getControlId('assignedDriver') ?? getAssignedDriverId(payload);
 
     const companyFromList = getDropdownRecord<ICompanyGetBaseResponseDto>(
       this.appConfigurationService.companyList(),
@@ -255,13 +159,12 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
       companyId,
       companyFromList?.name
     );
-    let companyCity =
-      toDisplayName(
-        site?.company?.city,
-        site?.company?.id,
-        companyId,
-        null
-      );
+    let companyCity = toDisplayName(
+      site?.company?.city,
+      site?.company?.id,
+      companyId,
+      null
+    );
     let companyState = toDisplayName(
       site?.company?.state,
       site?.company?.id,
@@ -294,21 +197,50 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
       }
     }
 
-    const contractorFromList =
-      getDropdownRecord<IContractorGetBaseResponseDto>(
-        this.appConfigurationService.contractorList(),
-        contractorId
-      );
-    const engineerFromList = getDropdownRecord<IEmployeeGetBaseResponseDto>(
-      this.appConfigurationService.employeeList(),
-      engineerId
+    const contractorFromList = getDropdownRecord<IContractorGetBaseResponseDto>(
+      this.appConfigurationService.contractorList(),
+      contractorId
     );
-    const engineerPerson =
-      loadedEngineer?.id === engineerId
-        ? loadedEngineer
-        : initialEngineer?.id === engineerId
-          ? initialEngineer
-          : engineerFromList;
+    let contractorCity = toDisplayName(
+      site?.contractors?.[0]?.city,
+      site?.contractors?.[0]?.id,
+      contractorId,
+      null
+    );
+    let contractorState = toDisplayName(
+      site?.contractors?.[0]?.state,
+      site?.contractors?.[0]?.id,
+      contractorId,
+      null
+    );
+    if (contractorFromList) {
+      if (contractorCity === '-') {
+        contractorCity =
+          getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.cities(),
+            contractorFromList.city,
+            'value',
+            'label'
+          ) ??
+          contractorFromList.city?.trim() ??
+          '-';
+      }
+      if (contractorState === '-') {
+        contractorState =
+          this.appConfigurationService
+            .states()
+            .find(state => state.value === contractorFromList.state?.trim())
+            ?.label ??
+          contractorFromList.state?.trim() ??
+          '-';
+      }
+    }
+
+    const payloadDriver = getAssignedDrivers(payload)[0];
+    const driverFromList = getDropdownRecord<IEmployeeGetBaseResponseDto>(
+      this.appConfigurationService.employeeList(),
+      driverId
+    );
     const vehicleFromList = getDropdownRecord<VehicleValue>(
       this.appConfigurationService.vehicleList(),
       vehicleId
@@ -324,11 +256,13 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
         contractorId,
         contractorFromList?.name
       ),
-      engineer: toDisplayName(
-        toPersonName(engineerPerson) || null,
-        engineerPerson?.id,
-        engineerId,
-        toPersonName(engineerFromList) || null
+      contractorCity,
+      contractorState,
+      driver: toDisplayName(
+        toPersonName(payloadDriver) || null,
+        payloadDriver?.id,
+        driverId,
+        toPersonName(driverFromList) || null
       ),
       vehicle: toDisplayName(
         site?.vehicle?.registrationNo,
@@ -340,38 +274,22 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
   }
 
   private getControlId(
-    fieldName: 'company' | 'contractor' | 'vehicle' | 'assignedEngineer'
+    fieldName: 'company' | 'contractor' | 'vehicle' | 'assignedDriver'
   ): string | null {
     const value = this.formGroup().get(fieldName)?.value;
     return typeof value === 'string' && value.trim() ? value : null;
   }
 
   private buildSubmitPayload(): IAttendanceAssignmentSubmitPayload {
-    const isDriver = this.isDriver();
-    const loadedSource = getAssignmentSource(this.loadedAssignment());
-    const payloadSource = getAssignmentSource(this.assignmentPayload());
-    const source =
-      isDriver && !this.editSiteFields()
-        ? {
-            company: loadedSource?.company ?? null,
-            contractors: loadedSource?.contractors ?? null,
-            vehicle: loadedSource?.vehicle ?? null,
-            assignedEngineer:
-              payloadSource?.assignedEngineer ?? loadedSource?.user ?? null,
-            user: loadedSource?.user ?? null,
-          }
-        : (loadedSource ?? payloadSource);
-
     return buildAssignmentSubmitPayload({
       companyId: this.getControlId('company'),
       contractorId: this.getControlId('contractor'),
       vehicleId: this.getControlId('vehicle'),
-      assignedEngineerId: this.getControlId('assignedEngineer'),
+      assignedDriverId: this.getControlId('assignedDriver'),
       companyList: this.appConfigurationService.companyList(),
       contractorList: this.appConfigurationService.contractorList(),
       vehicleList: this.appConfigurationService.vehicleList(),
-      employeeList: this.appConfigurationService.employeeList(),
-      source,
+      source: getAssignmentSource(this.assignmentPayload()),
     });
   }
 }

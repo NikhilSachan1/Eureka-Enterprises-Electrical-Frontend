@@ -74,6 +74,7 @@ export const AssetUpsertShapeSchema = z
     assetVendorName: vendorName.nullable(),
     assetWarrantyDate: z.array(dateField).nullable(),
     assetFiles: z.array(fileField),
+    assetCalibrationFiles: z.array(fileField).nullable(),
     remarks,
   })
   .strict();

@@ -38,11 +38,37 @@
             <span class="assignment-snapshot__title">
               {{ snap.contractors[0].name | textCase: 'title' }}
             </span>
+            @if (formatAddress(snap.contractors[0]); as contractorAddress) {
+              <span class="assignment-snapshot__meta">{{ contractorAddress }}</span>
+            }
           </div>
         </div>
       }
 
-      @if (snap.assignedEngineer) {
+      @let driver = snap.assignedDrivers?.[0];
+      @let employee = snap.assignedEngineer;
+      @if (driver) {
+        <div class="assignment-snapshot__tile assignment-snapshot__tile--engineer">
+          <div
+            class="assignment-snapshot__icon assignment-snapshot__icon--engineer"
+            aria-hidden="true"
+          >
+            <i [class]="ICONS.COMMON.USER"></i>
+          </div>
+          <div class="assignment-snapshot__body">
+            <span class="assignment-snapshot__kicker">Assigned driver</span>
+            <span class="assignment-snapshot__title">
+              {{
+                ((driver.firstName ?? '') + ' ' + (driver.lastName ?? '')).trim()
+                  | textCase: 'title'
+              }}
+            </span>
+            @if (driver.employeeId?.trim()) {
+              <span class="assignment-snapshot__meta">ID: {{ driver.employeeId }}</span>
+            }
+          </div>
+        </div>
+      } @else if (employee) {
         <div class="assignment-snapshot__tile assignment-snapshot__tile--engineer">
           <div
             class="assignment-snapshot__icon assignment-snapshot__icon--engineer"
@@ -54,12 +80,12 @@
             <span class="assignment-snapshot__kicker">Assigned engineer</span>
             <span class="assignment-snapshot__title">
               {{
-                ((snap.assignedEngineer.firstName ?? '') + ' ' + (snap.assignedEngineer.lastName ?? '')).trim()
+                ((employee.firstName ?? '') + ' ' + (employee.lastName ?? '')).trim()
                   | textCase: 'title'
               }}
             </span>
-            @if (snap.assignedEngineer.employeeId?.trim()) {
-              <span class="assignment-snapshot__meta">ID: {{ snap.assignedEngineer.employeeId }}</span>
+            @if (employee.employeeId?.trim()) {
+              <span class="assignment-snapshot__meta">ID: {{ employee.employeeId }}</span>
             }
           </div>
         </div>

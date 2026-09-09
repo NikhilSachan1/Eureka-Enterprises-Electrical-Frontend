@@ -70,6 +70,7 @@ export enum EButtonActionType {
   ALLOCATE = 'allocate',
   TRANSFER = 'transfer',
   CHANGE_STATUS = 'changeStatus',
+  ASSIGN_VENDOR = 'assignVendor',
   CHANGE_USER_ROLE = 'changeUserRole',
   HANDOVER_INITIATE = 'handoverInitiate',
   HANDOVER_ACCEPTED = 'handoverAccepted',

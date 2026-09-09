@@ -87,6 +87,7 @@ export type {
 } from './form/form.interface';
 export type {
   IInputFieldsConfig,
+  IDropdownCreateSpec,
   IInputNumberFieldConfig,
   ISelectFieldConfig,
   IAutocompleteFieldConfig,

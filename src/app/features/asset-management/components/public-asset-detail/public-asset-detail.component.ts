@@ -20,6 +20,7 @@ import {
   getMappedValueFromArrayOfObjects,
   transformDateFormat,
 } from '@shared/utility';
+import { splitLabeledFileKeys } from '@features/asset-management/utility/asset-files.util';
 
 @Component({
   selector: 'app-public-asset-detail',
@@ -76,11 +77,22 @@ export class PublicAssetDetailComponent {
   );
 
   protected readonly attachmentKeys = computed(() =>
-    this.getAttachmentKeys(this.asset())
+    this.getSplitAttachmentKeys(this.asset()).documentKeys
+  );
+
+  protected readonly calibrationAttachmentKeys = computed(() =>
+    this.getSplitAttachmentKeys(this.asset()).calibrationDocumentKeys
   );
 
   protected openAttachments(): void {
-    const keys = this.attachmentKeys();
+    this.openGallery(this.attachmentKeys());
+  }
+
+  protected openCalibrationAttachments(): void {
+    this.openGallery(this.calibrationAttachmentKeys());
+  }
+
+  private openGallery(keys: string[]): void {
     if (keys.length === 0) {
       return;
     }
@@ -91,15 +103,14 @@ export class PublicAssetDetailComponent {
     this.galleryService.show(media);
   }
 
-  private getAttachmentKeys(
-    asset: IAssetDetailGetResponseDto | null
-  ): string[] {
+  private getSplitAttachmentKeys(asset: IAssetDetailGetResponseDto | null): {
+    documentKeys: string[];
+    calibrationDocumentKeys: string[];
+  } {
     if (!asset?.files?.length) {
-      return [];
+      return { documentKeys: [], calibrationDocumentKeys: [] };
     }
-    return asset.files
-      .map(file => file.fileKey?.trim())
-      .filter((key): key is string => !!key);
+    return splitLabeledFileKeys(asset.files);
   }
 
   private buildSections(

@@ -28,6 +28,7 @@ export {
   ProjectChangeStatusRequestSchema,
   ProjectChangeStatusResponseSchema,
 } from './change-status-project.schema';
+export { ProjectAssignStakeholdersRequestSchema } from './assign-project-stakeholders.schema';
 export {
   WorkforceAllocationActionRequestSchema,
   WorkforceAllocationManageResponseSchema,

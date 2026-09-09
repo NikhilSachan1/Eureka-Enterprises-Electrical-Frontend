@@ -42,13 +42,7 @@ export const EmployeeGetBaseResponseSchema = EmployeeBaseSchema.pick({
     createdAt,
     updatedAt,
   })
-  .loose()
-  .transform(({ roles: employeeRoles, ...rest }) => {
-    return {
-      ...rest,
-      roles: employeeRoles.map(role => role.name).join(', '),
-    };
-  });
+  .loose();
 
 export const EmployeeGetStatsResponseSchema = z.looseObject({
   total: z.number().int().nonnegative(),

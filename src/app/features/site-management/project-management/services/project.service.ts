@@ -5,6 +5,7 @@ import { API_ROUTES } from '@core/constants';
 import {
   ProjectAddRequestSchema,
   ProjectAddResponseSchema,
+  ProjectAssignStakeholdersRequestSchema,
   ProjectChangeStatusRequestSchema,
   ProjectChangeStatusResponseSchema,
   ProjectDeleteRequestSchema,
@@ -25,6 +26,7 @@ import {
 import {
   IProjectAddFormDto,
   IProjectAddResponseDto,
+  IProjectAssignStakeholdersFormDto,
   IProjectChangeStatusFormDto,
   IProjectChangeStatusResponseDto,
   IProjectDeleteFormDto,
@@ -102,6 +104,45 @@ export class ProjectService {
             this.logger.logDtoValidationErrors('Edit Project Error', error);
           } else {
             this.logger.logUserAction('Edit Project Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  assignProjectStakeholders(
+    formData: IProjectAssignStakeholdersFormDto,
+    projectId: string
+  ): Observable<IProjectEditResponseDto> {
+    this.logger.logUserAction('Assign Project Vendor Request');
+
+    return this.apiService
+      .patchValidated(
+        API_ROUTES.SITE.PROJECT.EDIT(projectId),
+        {
+          response: ProjectEditResponseSchema,
+          request: ProjectAssignStakeholdersRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IProjectEditResponseDto) => {
+          this.logger.logUserAction(
+            'Assign Project Vendor Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Assign Project Vendor Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Assign Project Vendor Error',
+              error
+            );
           }
           return throwError(() => error);
         })

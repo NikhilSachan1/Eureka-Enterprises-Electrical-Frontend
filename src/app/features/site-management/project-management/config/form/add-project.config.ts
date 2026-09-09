@@ -13,7 +13,9 @@ import {
   MODULE_NAMES,
   TEXT_INPUT_ACCEPT_STRIP,
 } from '@shared/constants';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IProjectAddFormDto } from '../../types/project.dto';
+import { AddContractorComponent } from '@features/site-management/contractor-management/components/add-contractor/add-contractor.component';
 
 const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto> =
   {
@@ -58,6 +60,13 @@ const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto>
       fieldName: 'contractorNames',
       label: 'Contractor Names',
       fieldType: EDataType.MULTI_SELECT,
+      allowCreate: {
+        component: AddContractorComponent,
+        actionLabel: 'Add contractor',
+        header: 'Add Contractor',
+        subtitle: 'Add a new contractor',
+        permission: APP_PERMISSION.CONTRACTOR.ADD,
+      },
       multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.CONTRACTOR,
@@ -65,18 +74,6 @@ const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto>
         },
       },
       validators: [Validators.required],
-    },
-    vendorNames: {
-      id: 'vendorNames',
-      fieldName: 'vendorNames',
-      label: 'Vendor Names',
-      fieldType: EDataType.MULTI_SELECT,
-      multiSelectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.VENDOR,
-          dropdownName: CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
-        },
-      },
     },
     siteManagerName: {
       id: 'siteManagerName',

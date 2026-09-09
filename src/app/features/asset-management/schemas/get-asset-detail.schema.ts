@@ -7,6 +7,7 @@ import {
 import { z } from 'zod';
 import { AssetBaseDocumentsSchema, AssetBaseSchema } from './base-asset.schema';
 import { makeFieldsNullable } from '@shared/utility';
+import { splitLabeledFileKeys } from '../utility/asset-files.util';
 
 const { createdAt, updatedAt, createdBy, updatedBy, deletedBy, deletedAt } =
   AuditSchema.shape;
@@ -50,7 +51,7 @@ export const AssetDetailGetVersionHistorySchema =
     .loose()
     .transform(({ files, ...rest }) => ({
       ...rest,
-      documentKeys: files.map(file => file.fileKey),
+      ...splitLabeledFileKeys(files),
     }));
 
 export const AssetDetailGetResponseSchema = z.looseObject({

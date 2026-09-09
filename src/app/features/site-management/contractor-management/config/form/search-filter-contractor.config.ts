@@ -1,4 +1,5 @@
 import { COMMON_FORM_ACTIONS } from '@shared/config';
+import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EDataType,
@@ -9,8 +10,9 @@ import {
 } from '@shared/types';
 import { IContractorGetFormDto } from '../../types/contractor.dto';
 
-const SEARCH_FILTER_CONTRACTOR_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<IContractorGetFormDto> =
-  {
+const SEARCH_FILTER_CONTRACTOR_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
+  IContractorGetFormDto & { globalSearch?: string }
+> = {
     contractorState: {
       fieldType: EDataType.MULTI_SELECT,
       id: 'contractorState',
@@ -49,6 +51,10 @@ const SEARCH_FILTER_CONTRACTOR_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
         },
       },
       matchmode: ETableFilterMatchMode.IN,
+    },
+    globalSearch: {
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
+      hint: 'Search by contractor name',
     },
   };
 

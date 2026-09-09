@@ -80,6 +80,38 @@
           </article>
         }
 
+        @if (calibrationAttachmentKeys().length > 0) {
+          <article class="card card--attachments">
+            <button
+              type="button"
+              class="attachments"
+              (click)="openCalibrationAttachments()"
+            >
+              <span
+                class="attachments__icon-wrap"
+                aria-hidden="true"
+              >
+                <i [class]="paperclipIcon"></i>
+              </span>
+              <span class="attachments__body">
+                <span class="attachments__title">Calibration File</span>
+                <span class="attachments__meta">
+                  {{ calibrationAttachmentKeys().length }}
+                  {{
+                    calibrationAttachmentKeys().length === 1
+                      ? 'file available'
+                      : 'files available'
+                  }}
+                </span>
+              </span>
+              <span class="attachments__action">
+                View
+                <i [class]="chevronIcon"></i>
+              </span>
+            </button>
+          </article>
+        }
+
         @if (attachmentKeys().length > 0) {
           <article class="card card--attachments">
             <button

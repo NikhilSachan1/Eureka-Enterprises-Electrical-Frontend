@@ -19,6 +19,15 @@
   #attendanceAssignmentDetails
   let-row
 >
+  @let snap = row.assignmentSnapshot;
+  @let hasAssignment =
+    !!snap?.company?.name ||
+    !!snap?.contractorDisplay ||
+    !!snap?.assignedDriverDisplay ||
+    !!snap?.assignedEmployeeDisplay ||
+    !!snap?.vehicleDisplay;
+
+  @if (hasAssignment) {
   <div class="attendance-assignment-details">
     <div class="attendance-assignment-details__cell">
       <span
@@ -35,6 +44,14 @@
         >
           {{ row.assignmentSnapshot?.company?.name || '—' }}
         </span>
+        @if (row.assignmentSnapshot?.companyAddressDisplay) {
+          <span
+            class="attendance-assignment-details__meta"
+            [title]="row.assignmentSnapshot.companyAddressDisplay"
+          >
+            {{ row.assignmentSnapshot.companyAddressDisplay }}
+          </span>
+        }
       </div>
     </div>
 
@@ -53,28 +70,58 @@
         >
           {{ row.assignmentSnapshot?.contractorDisplay || '—' }}
         </span>
+        @if (row.assignmentSnapshot?.contractorAddressDisplay) {
+          <span
+            class="attendance-assignment-details__meta"
+            [title]="row.assignmentSnapshot.contractorAddressDisplay"
+          >
+            {{ row.assignmentSnapshot.contractorAddressDisplay }}
+          </span>
+        }
       </div>
     </div>
 
-    <div class="attendance-assignment-details__cell">
-      <span
-        class="attendance-assignment-details__icon-wrap"
-        aria-hidden="true"
+    @if (row.assignmentSnapshot?.assignedDriverDisplay || row.assignmentSnapshot?.assignedEmployeeDisplay) {
+      <div
+        class="attendance-assignment-details__cell"
+        [class.attendance-assignment-details__cell--full]="!row.assignmentSnapshot?.vehicleDisplay"
       >
-        <i [class]="ALL_ICONS.COMMON.USER"></i>
-      </span>
-      <div class="attendance-assignment-details__text">
-        <span class="attendance-assignment-details__label">Assigned Engineer</span>
         <span
-          class="attendance-assignment-details__value"
-          [title]="row.assignmentSnapshot?.assignedEngineerDisplay || '—'"
+          class="attendance-assignment-details__icon-wrap"
+          aria-hidden="true"
         >
-          {{ row.assignmentSnapshot?.assignedEngineerDisplay || '—' }}
+          <i [class]="ALL_ICONS.COMMON.USER"></i>
         </span>
+        <div class="attendance-assignment-details__text">
+          @if (row.assignmentSnapshot?.assignedDriverDisplay) {
+            <span class="attendance-assignment-details__label">Assigned Driver</span>
+            <span
+              class="attendance-assignment-details__value"
+              [title]="row.assignmentSnapshot?.assignedDriverDisplay"
+            >
+              {{ row.assignmentSnapshot?.assignedDriverDisplay }}
+            </span>
+          } @else {
+            <span class="attendance-assignment-details__label">Assigned Engineer</span>
+            <span
+              class="attendance-assignment-details__value"
+              [title]="row.assignmentSnapshot?.assignedEmployeeDisplay"
+            >
+              {{ row.assignmentSnapshot?.assignedEmployeeDisplay }}
+            </span>
+          }
+        </div>
       </div>
-    </div>
+    }
 
-    <div class="attendance-assignment-details__cell">
+    @if (row.assignmentSnapshot?.vehicleDisplay) {
+    <div
+      class="attendance-assignment-details__cell"
+      [class.attendance-assignment-details__cell--full]="
+        !row.assignmentSnapshot?.assignedDriverDisplay &&
+        !row.assignmentSnapshot?.assignedEmployeeDisplay
+      "
+    >
       <span
         class="attendance-assignment-details__icon-wrap"
         aria-hidden="true"
@@ -91,7 +138,11 @@
         </span>
       </div>
     </div>
+    }
   </div>
+  } @else {
+    <span class="attendance-assignment-details__empty">No assignment</span>
+  }
 </ng-template>
 
 <app-data-table

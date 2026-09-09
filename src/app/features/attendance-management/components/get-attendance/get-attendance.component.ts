@@ -58,6 +58,11 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { TableLazyLoadEvent } from 'primeng/table';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import {
+  formatAssignmentAddress,
+  getAssignedDriverDisplayName,
+  getAssignedEmployeeDisplayName,
+} from '@features/attendance-management/utility/attendance-assignment.util';
 
 @Component({
   selector: 'app-get-attendance',
@@ -164,22 +169,23 @@ export class GetAttendanceComponent implements OnInit {
         employeeName: `${record.user.firstName} ${record.user.lastName}`,
         employeeCode: record.user.employeeId,
         attendanceType: record.attendanceType,
+        assignedDrivers: record.assignedDrivers ?? [],
         assignmentSnapshot: {
           ...record.assignmentSnapshot,
+          companyAddressDisplay: formatAssignmentAddress(
+            record.assignmentSnapshot?.company
+          ),
           contractorDisplay:
             record.assignmentSnapshot?.contractors?.[0]?.name?.trim() ?? null,
+          contractorAddressDisplay: formatAssignmentAddress(
+            record.assignmentSnapshot?.contractors?.[0]
+          ),
           vehicleDisplay:
             record.assignmentSnapshot?.vehicle?.registrationNo ?? null,
-          assignedEngineerDisplay: ((): string | null => {
-            const firstName =
-              record.assignmentSnapshot?.assignedEngineer?.firstName;
-            const lastName =
-              record.assignmentSnapshot?.assignedEngineer?.lastName;
-            if (!firstName && !lastName) {
-              return null;
-            }
-            return `${firstName ?? ''} ${lastName ?? ''}`.trim() || null;
-          })(),
+          assignedDriverDisplay:
+            getAssignedDriverDisplayName(record) ?? null,
+          assignedEmployeeDisplay:
+            getAssignedEmployeeDisplayName(record) ?? null,
         },
         originalRawData: record,
       } satisfies IAttendance;
@@ -294,6 +300,8 @@ export class GetAttendanceComponent implements OnInit {
   private prepareAttendanceRecordDetail(
     selectedRow: IAttendanceGetBaseResponseDto
   ): IDataViewDetailsWithEntity {
+    const assignedDriverName = getAssignedDriverDisplayName(selectedRow);
+    const assignedEmployeeName = getAssignedEmployeeDisplayName(selectedRow);
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Date',
@@ -321,17 +329,12 @@ export class GetAttendanceComponent implements OnInit {
         value: selectedRow.assignmentSnapshot?.contractors?.[0]?.name ?? 'N/A',
       },
       {
-        label: 'Assigned Engineer',
-        value: ((): string => {
-          const firstName =
-            selectedRow.assignmentSnapshot?.assignedEngineer?.firstName;
-          const lastName =
-            selectedRow.assignmentSnapshot?.assignedEngineer?.lastName;
-          if (!firstName && !lastName) {
-            return 'N/A';
-          }
-          return `${firstName ?? ''} ${lastName ?? ''}`.trim() || 'N/A';
-        })(),
+        label: assignedDriverName
+          ? 'Assigned Driver'
+          : assignedEmployeeName
+            ? 'Assigned Engineer'
+            : 'Assigned Driver',
+        value: assignedDriverName ?? assignedEmployeeName ?? 'N/A',
       },
       {
         label: 'Associated Vehicle',

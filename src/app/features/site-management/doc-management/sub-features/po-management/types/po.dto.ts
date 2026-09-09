@@ -25,6 +25,7 @@ import {
   PoItemSuggestionsGetRequestSchema,
   PoItemSuggestionsGetResponseSchema,
   PoItemUpsertSchema,
+  PoDefaultTermsGetResponseSchema,
 } from '../schemas';
 import { PoDetailGetRequestSchema } from '../schemas/get-po-detail.schema';
 
@@ -102,10 +103,11 @@ export type IAddPoRequestDto = z.infer<typeof AddPoRequestSchema>;
 export type IAddPoFormDto = z.input<typeof AddPoRequestSchema>;
 export type IAddPoUIFormDto = Omit<
   IAddPoFormDto,
-  'docType' | 'poFileKey' | 'poFileName'
+  'docType' | 'poFileKey' | 'poFileName' | 'termsAndConditions'
 > & {
   gstPercent: number;
   poAttachment: File[];
+  terms: Array<{ content: string }>;
 };
 export type IAddPoResponseDto = z.infer<typeof AddPoResponseSchema>;
 
@@ -116,13 +118,14 @@ export type IEditPoRequestDto = z.infer<typeof EditPoRequestSchema>;
 export type IEditPoFormDto = z.input<typeof EditPoRequestSchema>;
 export type IEditPoUIFormDto = Omit<
   IEditPoFormDto,
-  'docType' | 'poFileKey' | 'poFileName'
+  'docType' | 'poFileKey' | 'poFileName' | 'termsAndConditions'
 > & {
   gstPercent: number;
   poAttachment: File[];
   projectName: string;
   contractorName: string;
   vendorName: string;
+  terms: Array<{ content: string }>;
 };
 export type IEditPoResponseDto = z.infer<typeof EditPoResponseSchema>;
 
@@ -143,6 +146,10 @@ export type IPoItemSuggestionsGetRequestDto = z.input<
 >;
 export type IPoItemSuggestionsGetResponseDto = z.infer<
   typeof PoItemSuggestionsGetResponseSchema
+>;
+
+export type IPoDefaultTermsGetResponseDto = z.infer<
+  typeof PoDefaultTermsGetResponseSchema
 >;
 
 /** PO line item (system-generated) */

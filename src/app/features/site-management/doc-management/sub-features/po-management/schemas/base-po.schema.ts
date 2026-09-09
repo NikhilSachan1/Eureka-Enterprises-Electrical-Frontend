@@ -28,6 +28,7 @@ export const PoItemUpsertSchema = z
     hsnCode: z.string().max(20).nullable().optional(),
     make: z.string().max(255).nullable().optional(),
     quantity: z.number().min(0),
+    unit: z.string().min(1),
     rate: z.number().min(0),
     amount: z.number().min(0),
   })
@@ -50,5 +51,6 @@ export const PoUpsertShapeSchema = z
     gstType: z.string().nullable(),
     remarks: z.string().nullable(),
     items: z.array(PoItemUpsertSchema).nullable(),
+    termsAndConditions: z.string().nullable().optional(),
   })
   .strict();

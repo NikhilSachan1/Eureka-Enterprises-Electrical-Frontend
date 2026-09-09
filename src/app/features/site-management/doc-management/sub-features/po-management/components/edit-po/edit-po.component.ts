@@ -32,6 +32,7 @@ import { EDIT_PO_FORM_CONFIG, ADD_PO_DEFAULT_GST_TYPE } from '../../config';
 import { finalize, map, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { PoTermsEditorComponent } from '../po-terms-editor/po-terms-editor.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { roundCurrencyAmount } from '@shared/utility';
 import {
@@ -43,13 +44,15 @@ import {
   computePoLineItemAmount,
   mapPoLineItemsForForm,
   mapPoLineItemsForRequest,
+  mapPoItemSuggestionsToDropdown,
 } from '../../utils/po-line-item.util';
 import { isPoSystemGenerated } from '../../utils/po-table-row.util';
+import { joinPoTerms, mapPoTermsForForm } from '../../utils/po-terms.util';
 
 @Component({
   selector: 'app-edit-po',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [InputFieldComponent, ReactiveFormsModule],
+  imports: [InputFieldComponent, PoTermsEditorComponent, ReactiveFormsModule],
   templateUrl: './edit-po.component.html',
   styleUrl: './edit-po.component.scss',
 })
@@ -144,6 +147,9 @@ export class EditPoComponent
           gstType: record.gstType ?? ADD_PO_DEFAULT_GST_TYPE,
           poAttachment: [],
           remarks: record.remarks ?? null,
+          terms: systemGenerated
+            ? mapPoTermsForForm(record.termsAndConditions)
+            : [],
           ...(systemGenerated && lineItems.length ? { items: lineItems } : {}),
         },
       }
@@ -197,14 +203,11 @@ export class EditPoComponent
       return;
     }
 
-    const seededOptions = [
-      ...new Map(
-        (lineItems ?? [])
-          .map(item => String(item.itemName ?? '').trim())
-          .filter(name => name.length > 0)
-          .map(name => [name, { label: name, value: name }] as const)
-      ).values(),
-    ];
+    const seededOptions = mapPoItemSuggestionsToDropdown(
+      (lineItems ?? []).map(item => ({
+        name: String(item.itemName ?? ''),
+      }))
+    );
 
     this.form.fieldConfigs.items = {
       ...itemsConfig,
@@ -223,10 +226,7 @@ export class EditPoComponent
                   .getPoItemSuggestions(search ? { search } : {})
                   .pipe(
                     map(response =>
-                      response.records.map(name => ({
-                        label: name,
-                        value: name,
-                      }))
+                      mapPoItemSuggestionsToDropdown(response.records)
                     )
                   );
               },
@@ -401,6 +401,8 @@ export class EditPoComponent
     delete (record as Record<string, unknown>)['projectName'];
     delete (record as Record<string, unknown>)['contractorName'];
     delete (record as Record<string, unknown>)['vendorName'];
+    const terms = record.terms;
+    delete (record as Record<string, unknown>)['terms'];
 
     if (this.isSystemGenerated()) {
       return {
@@ -408,6 +410,7 @@ export class EditPoComponent
         poFileName: null,
         poFileKey: null,
         items: mapPoLineItemsForRequest(record.items),
+        termsAndConditions: joinPoTerms(terms),
       };
     }
 

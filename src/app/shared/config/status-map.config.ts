@@ -285,6 +285,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   sendpasswordlink: { icon: ICONS.ACTIONS.SEND, severity: 'warning' },
   sendemail: { icon: ICONS.COMMON.EMAIL, severity: 'info' },
   changestatus: { icon: ICONS.COMMON.SYNC, severity: 'warning' },
+  assignvendor: { icon: ICONS.COMMON.USERS, severity: 'info' },
   changeuserrole: { icon: ICONS.COMMON.SYNC, severity: 'warning' },
   eventhistory: { icon: ICONS.COMMON.LIST, severity: 'info' },
   vehicleserviceinfo: { icon: ICONS.COMMON.LIST, severity: 'info' },

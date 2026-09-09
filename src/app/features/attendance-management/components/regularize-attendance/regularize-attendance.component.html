@@ -11,9 +11,7 @@
     <app-attendance-assignment-fields
       [formGroup]="form.formGroup"
       [fieldConfigs]="form.fieldConfigs"
-      [isDriver]="showDriverAssignmentFields()"
-      [editSiteFields]="true"
-      [assignmentPayload]="selectedRecord()[0]?.assignmentSnapshot ?? null"
+      [assignmentPayload]="selectedRecord()[0]"
       [(submitPayload)]="assignmentSubmitPayload"
     />
   }

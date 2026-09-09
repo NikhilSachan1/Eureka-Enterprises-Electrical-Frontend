@@ -141,7 +141,6 @@ export class EditProjectComponent
       siteTypes,
       companyId,
       siteContractors,
-      vendors,
       managerName,
       managerContact,
       startDate,
@@ -160,7 +159,6 @@ export class EditProjectComponent
       companyName: companyId,
       contractorNames:
         siteContractors?.map(contractor => contractor.contractorId) ?? [],
-      vendorNames: vendors?.map(vendor => vendor.id) ?? [],
       siteManagerName: managerName,
       siteManagerContact: managerContact,
       timeline: [new Date(startDate), new Date(endDate)],
@@ -221,8 +219,7 @@ export class EditProjectComponent
   }
 
   private prepareFormData(): IProjectEditFormDto {
-    const formData = this.form.getData();
-    return formData;
+    return this.form.getData();
   }
 
   private executeEditProject(

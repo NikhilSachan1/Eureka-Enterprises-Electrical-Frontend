@@ -36,7 +36,12 @@ import {
   Asset Add
 */
 export type IAssetAddRequestDto = z.infer<typeof AssetAddRequestSchema>;
-export type IAssetAddFormDto = z.input<typeof AssetAddRequestSchema>;
+export type IAssetAddFormDto = Omit<
+  z.input<typeof AssetAddRequestSchema>,
+  'assetCalibrationFiles'
+> & {
+  assetCalibrationFiles: File[] | null;
+};
 export type IAssetAddResponseDto = z.infer<typeof AssetAddResponseSchema>;
 
 /*
@@ -50,7 +55,12 @@ export type IAssetDeleteResponseDto = z.infer<typeof AssetDeleteResponseSchema>;
   Asset Edit
 */
 export type IAssetEditRequestDto = z.infer<typeof AssetEditRequestSchema>;
-export type IAssetEditFormDto = z.input<typeof AssetEditRequestSchema>;
+export type IAssetEditFormDto = Omit<
+  z.input<typeof AssetEditRequestSchema>,
+  'assetCalibrationFiles'
+> & {
+  assetCalibrationFiles: File[] | null;
+};
 export type IAssetEditResponseDto = z.infer<typeof AssetEditResponseSchema>;
 
 /*

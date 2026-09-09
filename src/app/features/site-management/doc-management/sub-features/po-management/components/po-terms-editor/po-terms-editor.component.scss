@@ -1,0 +1,61 @@
+.po-terms-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.po-terms-editor__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.po-terms-editor__title {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+}
+
+.po-terms-editor__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.po-terms-editor__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+}
+
+.po-terms-editor__num {
+  flex: 0 0 1.25rem;
+  padding-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+}
+
+.po-terms-editor__text {
+  flex: 1 1 auto;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0.25rem 0;
+  overflow: hidden;
+  border: none;
+  border-bottom: 1px solid var(--border-light-color);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--text-color);
+  resize: none;
+  field-sizing: content;
+}
+
+.po-terms-editor__text:focus {
+  outline: none;
+  border-bottom-color: var(--primary-color);
+}
