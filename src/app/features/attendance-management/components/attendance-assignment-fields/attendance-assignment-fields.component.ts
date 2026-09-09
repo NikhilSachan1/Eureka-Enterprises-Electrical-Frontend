@@ -273,6 +273,22 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
     };
   }
 
+  protected formatLocationLine(city: string, state: string): string | null {
+    const cityValue = city !== '-' ? city.trim() : '';
+    const stateValue = state !== '-' ? state.trim() : '';
+    if (!cityValue && !stateValue) {
+      return null;
+    }
+    if (
+      cityValue &&
+      stateValue &&
+      cityValue.toLowerCase().includes(stateValue.toLowerCase())
+    ) {
+      return cityValue;
+    }
+    return [cityValue, stateValue].filter(Boolean).join(', ');
+  }
+
   private getControlId(
     fieldName: 'company' | 'contractor' | 'vehicle' | 'assignedDriver'
   ): string | null {
