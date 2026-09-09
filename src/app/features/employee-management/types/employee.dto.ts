@@ -15,6 +15,8 @@ import {
   EmployeeGetRequestSchema,
   EmployeeGetResponseSchema,
   EmployeeGetStatsResponseSchema,
+  EmployeeResetPasswordRequestSchema,
+  EmployeeResetPasswordResponseSchema,
   EmployeeSendPasswordLinkRequestSchema,
   EmployeeSendPasswordLinkResponseSchema,
 } from '../schemas';
@@ -87,6 +89,19 @@ export type IEmployeeSendPasswordLinkFormDto = z.input<
 >;
 export type IEmployeeSendPasswordLinkResponseDto = z.infer<
   typeof EmployeeSendPasswordLinkResponseSchema
+>;
+
+/*
+  Employee Reset Password
+*/
+export type IEmployeeResetPasswordRequestDto = z.infer<
+  typeof EmployeeResetPasswordRequestSchema
+>;
+export type IEmployeeResetPasswordFormDto = z.input<
+  typeof EmployeeResetPasswordRequestSchema
+>;
+export type IEmployeeResetPasswordResponseDto = z.infer<
+  typeof EmployeeResetPasswordResponseSchema
 >;
 
 /*

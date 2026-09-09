@@ -283,6 +283,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   transfer: { icon: ICONS.COMMON.ARROW_RIGHT_LEFT, severity: 'info' },
   deallocate: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   sendpasswordlink: { icon: ICONS.ACTIONS.SEND, severity: 'warning' },
+  resetpassword: { icon: ICONS.SECURITY.LOCK, severity: 'warning' },
   sendemail: { icon: ICONS.COMMON.EMAIL, severity: 'info' },
   changestatus: { icon: ICONS.COMMON.SYNC, severity: 'warning' },
   assignvendor: { icon: ICONS.COMMON.USERS, severity: 'info' },
