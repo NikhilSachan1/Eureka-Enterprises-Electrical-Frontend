@@ -4,13 +4,19 @@
 >
   @let snap = $any(entry.value);
   @if (snap) {
+    @let driver = snap.assignedDrivers?.[0];
+    @let employee = snap.assignedEngineer;
+    @let driverName = driver
+      ? ((driver.firstName ?? '') + ' ' + (driver.lastName ?? '')).trim()
+      : '';
+    @let employeeName = employee
+      ? ((employee.firstName ?? '') + ' ' + (employee.lastName ?? '')).trim()
+      : '';
+
     <div class="assignment-snapshot">
-      @if (snap.company) {
-        <div class="assignment-snapshot__tile assignment-snapshot__tile--company">
-          <div
-            class="assignment-snapshot__icon assignment-snapshot__icon--company"
-            aria-hidden="true"
-          >
+      @if (snap.company?.name) {
+        <div class="assignment-snapshot__tile">
+          <div class="assignment-snapshot__icon assignment-snapshot__icon--company">
             <i [class]="ICONS.COMMON.MAP_MARKER"></i>
           </div>
           <div class="assignment-snapshot__body">
@@ -26,12 +32,9 @@
       }
 
       @if (snap.contractors?.[0]?.name) {
-        <div class="assignment-snapshot__tile assignment-snapshot__tile--contractor">
-          <div
-            class="assignment-snapshot__icon assignment-snapshot__icon--contractor"
-            aria-hidden="true"
-          >
-            <i [class]="ICONS.COMMON.USER"></i>
+        <div class="assignment-snapshot__tile">
+          <div class="assignment-snapshot__icon assignment-snapshot__icon--contractor">
+            <i [class]="ICONS.SITE.BUILDING"></i>
           </div>
           <div class="assignment-snapshot__body">
             <span class="assignment-snapshot__kicker">Contractor</span>
@@ -45,23 +48,15 @@
         </div>
       }
 
-      @let driver = snap.assignedDrivers?.[0];
-      @let employee = snap.assignedEngineer;
       @if (driver) {
-        <div class="assignment-snapshot__tile assignment-snapshot__tile--engineer">
-          <div
-            class="assignment-snapshot__icon assignment-snapshot__icon--engineer"
-            aria-hidden="true"
-          >
+        <div class="assignment-snapshot__tile">
+          <div class="assignment-snapshot__icon assignment-snapshot__icon--engineer">
             <i [class]="ICONS.COMMON.USER"></i>
           </div>
           <div class="assignment-snapshot__body">
             <span class="assignment-snapshot__kicker">Assigned driver</span>
             <span class="assignment-snapshot__title">
-              {{
-                ((driver.firstName ?? '') + ' ' + (driver.lastName ?? '')).trim()
-                  | textCase: 'title'
-              }}
+              {{ driverName | textCase: 'title' }}
             </span>
             @if (driver.employeeId?.trim()) {
               <span class="assignment-snapshot__meta">ID: {{ driver.employeeId }}</span>
@@ -69,20 +64,14 @@
           </div>
         </div>
       } @else if (employee) {
-        <div class="assignment-snapshot__tile assignment-snapshot__tile--engineer">
-          <div
-            class="assignment-snapshot__icon assignment-snapshot__icon--engineer"
-            aria-hidden="true"
-          >
+        <div class="assignment-snapshot__tile">
+          <div class="assignment-snapshot__icon assignment-snapshot__icon--engineer">
             <i [class]="ICONS.COMMON.USER"></i>
           </div>
           <div class="assignment-snapshot__body">
             <span class="assignment-snapshot__kicker">Assigned engineer</span>
             <span class="assignment-snapshot__title">
-              {{
-                ((employee.firstName ?? '') + ' ' + (employee.lastName ?? '')).trim()
-                  | textCase: 'title'
-              }}
+              {{ employeeName | textCase: 'title' }}
             </span>
             @if (employee.employeeId?.trim()) {
               <span class="assignment-snapshot__meta">ID: {{ employee.employeeId }}</span>
@@ -92,11 +81,8 @@
       }
 
       @if (snap.vehicle) {
-        <div class="assignment-snapshot__tile assignment-snapshot__tile--vehicle">
-          <div
-            class="assignment-snapshot__icon assignment-snapshot__icon--vehicle"
-            aria-hidden="true"
-          >
+        <div class="assignment-snapshot__tile">
+          <div class="assignment-snapshot__icon assignment-snapshot__icon--vehicle">
             <i [class]="ICONS.COMMON.CAR"></i>
           </div>
           <div class="assignment-snapshot__body">

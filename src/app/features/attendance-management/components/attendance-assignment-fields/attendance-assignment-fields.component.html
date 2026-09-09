@@ -32,71 +32,71 @@
       </div>
     } @else {
       @let labels = displayLabels();
+      @let companyLocation = formatLocationLine(labels.companyCity, labels.companyState);
+      @let contractorLocation = formatLocationLine(labels.contractorCity, labels.contractorState);
 
-      <div class="assignment-row">
-        <div class="assignment-row__icon assignment-row__icon--location">
-          <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
-        </div>
-        <div class="assignment-row__content">
-          <span class="assignment-row__label">Company</span>
-          <span class="assignment-row__value">{{ labels.companyName | textCase: 'title' }}</span>
-          @if (labels.companyCity !== '-' || labels.companyState !== '-') {
-            <span class="assignment-row__meta">
-              @if (labels.companyCity !== '-') {
-                {{ labels.companyCity | textCase: 'title' }}
-              }
-              @if (labels.companyCity !== '-' && labels.companyState !== '-') {
-                <span class="assignment-row__meta-sep">·</span>
-              }
-              @if (labels.companyState !== '-') {
-                {{ labels.companyState | textCase: 'title' }}
-              }
+      <div class="assignment-preview">
+        @if (labels.companyName !== '-') {
+          <div class="assignment-preview__row">
+            <span class="assignment-preview__icon assignment-preview__icon--company" aria-hidden="true">
+              <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
             </span>
-          }
-        </div>
-      </div>
+            <div class="assignment-preview__text">
+              <span class="assignment-preview__label">Company</span>
+              <span class="assignment-preview__value">
+                {{ labels.companyName | textCase: 'title' }}
+              </span>
+              @if (companyLocation) {
+                <span class="assignment-preview__meta">{{ companyLocation }}</span>
+              }
+            </div>
+          </div>
+        }
 
-      <div class="assignment-row">
-        <div class="assignment-row__icon assignment-row__icon--client">
-          <i [class]="ALL_ICONS.COMMON.USER"></i>
-        </div>
-        <div class="assignment-row__content">
-          <span class="assignment-row__label">Contractor</span>
-          <span class="assignment-row__value">{{ labels.contractorName | textCase: 'title' }}</span>
-          @if (labels.contractorCity !== '-' || labels.contractorState !== '-') {
-            <span class="assignment-row__meta">
-              @if (labels.contractorCity !== '-') {
-                {{ labels.contractorCity | textCase: 'title' }}
-              }
-              @if (labels.contractorCity !== '-' && labels.contractorState !== '-') {
-                <span class="assignment-row__meta-sep">·</span>
-              }
-              @if (labels.contractorState !== '-') {
-                {{ labels.contractorState | textCase: 'title' }}
-              }
+        @if (labels.contractorName !== '-') {
+          <div class="assignment-preview__row">
+            <span class="assignment-preview__icon assignment-preview__icon--contractor" aria-hidden="true">
+              <i [class]="ALL_ICONS.SITE.BUILDING"></i>
             </span>
-          }
-        </div>
-      </div>
+            <div class="assignment-preview__text">
+              <span class="assignment-preview__label">Contractor</span>
+              <span class="assignment-preview__value">
+                {{ labels.contractorName | textCase: 'title' }}
+              </span>
+              @if (contractorLocation) {
+                <span class="assignment-preview__meta">{{ contractorLocation }}</span>
+              }
+            </div>
+          </div>
+        }
 
-      <div class="assignment-row">
-        <div class="assignment-row__icon assignment-row__icon--vehicle">
-          <i [class]="ALL_ICONS.COMMON.CAR"></i>
-        </div>
-        <div class="assignment-row__content">
-          <span class="assignment-row__label">Vehicle</span>
-          <span class="assignment-row__value">{{ labels.vehicle | textCase: 'title' }}</span>
-        </div>
-      </div>
+        @if (labels.driver !== '-') {
+          <div class="assignment-preview__row">
+            <span class="assignment-preview__icon assignment-preview__icon--person" aria-hidden="true">
+              <i [class]="ALL_ICONS.COMMON.USER"></i>
+            </span>
+            <div class="assignment-preview__text">
+              <span class="assignment-preview__label">Assigned Driver</span>
+              <span class="assignment-preview__value">
+                {{ labels.driver | textCase: 'title' }}
+              </span>
+            </div>
+          </div>
+        }
 
-      <div class="assignment-row">
-        <div class="assignment-row__icon assignment-row__icon--associate">
-          <i [class]="ALL_ICONS.COMMON.USER"></i>
-        </div>
-        <div class="assignment-row__content">
-          <span class="assignment-row__label">Assigned Driver</span>
-          <span class="assignment-row__value">{{ labels.driver | textCase: 'title' }}</span>
-        </div>
+        @if (labels.vehicle !== '-') {
+          <div class="assignment-preview__row">
+            <span class="assignment-preview__icon assignment-preview__icon--vehicle" aria-hidden="true">
+              <i [class]="ALL_ICONS.COMMON.CAR"></i>
+            </span>
+            <div class="assignment-preview__text">
+              <span class="assignment-preview__label">Vehicle</span>
+              <span class="assignment-preview__value">
+                {{ labels.vehicle | textCase: 'title' }}
+              </span>
+            </div>
+          </div>
+        }
       </div>
     }
   </div>

@@ -29,115 +29,78 @@
 
   @if (hasAssignment) {
   <div class="attendance-assignment-details">
-    <div class="attendance-assignment-details__cell">
-      <span
-        class="attendance-assignment-details__icon-wrap"
-        aria-hidden="true"
-      >
-        <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
-      </span>
-      <div class="attendance-assignment-details__text">
-        <span class="attendance-assignment-details__label">Company</span>
+    @if (snap?.company?.name) {
+      <div class="attendance-assignment-details__row">
         <span
-          class="attendance-assignment-details__value"
-          [title]="row.assignmentSnapshot?.company?.name || '—'"
-        >
-          {{ row.assignmentSnapshot?.company?.name || '—' }}
-        </span>
-        @if (row.assignmentSnapshot?.companyAddressDisplay) {
-          <span
-            class="attendance-assignment-details__meta"
-            [title]="row.assignmentSnapshot.companyAddressDisplay"
-          >
-            {{ row.assignmentSnapshot.companyAddressDisplay }}
-          </span>
-        }
-      </div>
-    </div>
-
-    <div class="attendance-assignment-details__cell">
-      <span
-        class="attendance-assignment-details__icon-wrap"
-        aria-hidden="true"
-      >
-        <i [class]="ALL_ICONS.SITE.BUILDING"></i>
-      </span>
-      <div class="attendance-assignment-details__text">
-        <span class="attendance-assignment-details__label">Contractor</span>
-        <span
-          class="attendance-assignment-details__value"
-          [title]="row.assignmentSnapshot?.contractorDisplay || '—'"
-        >
-          {{ row.assignmentSnapshot?.contractorDisplay || '—' }}
-        </span>
-        @if (row.assignmentSnapshot?.contractorAddressDisplay) {
-          <span
-            class="attendance-assignment-details__meta"
-            [title]="row.assignmentSnapshot.contractorAddressDisplay"
-          >
-            {{ row.assignmentSnapshot.contractorAddressDisplay }}
-          </span>
-        }
-      </div>
-    </div>
-
-    @if (row.assignmentSnapshot?.assignedDriverDisplay || row.assignmentSnapshot?.assignedEmployeeDisplay) {
-      <div
-        class="attendance-assignment-details__cell"
-        [class.attendance-assignment-details__cell--full]="!row.assignmentSnapshot?.vehicleDisplay"
-      >
-        <span
-          class="attendance-assignment-details__icon-wrap"
+          class="attendance-assignment-details__icon attendance-assignment-details__icon--company"
           aria-hidden="true"
         >
-          <i [class]="ALL_ICONS.COMMON.USER"></i>
+          <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
         </span>
         <div class="attendance-assignment-details__text">
-          @if (row.assignmentSnapshot?.assignedDriverDisplay) {
-            <span class="attendance-assignment-details__label">Assigned Driver</span>
-            <span
-              class="attendance-assignment-details__value"
-              [title]="row.assignmentSnapshot?.assignedDriverDisplay"
-            >
-              {{ row.assignmentSnapshot?.assignedDriverDisplay }}
-            </span>
-          } @else {
-            <span class="attendance-assignment-details__label">Assigned Engineer</span>
-            <span
-              class="attendance-assignment-details__value"
-              [title]="row.assignmentSnapshot?.assignedEmployeeDisplay"
-            >
-              {{ row.assignmentSnapshot?.assignedEmployeeDisplay }}
+          <span class="attendance-assignment-details__label">Company</span>
+          <span class="attendance-assignment-details__value">{{ snap.company.name }}</span>
+          @if (snap.companyAddressDisplay) {
+            <span class="attendance-assignment-details__meta">
+              {{ snap.companyAddressDisplay }}
             </span>
           }
         </div>
       </div>
     }
 
-    @if (row.assignmentSnapshot?.vehicleDisplay) {
-    <div
-      class="attendance-assignment-details__cell"
-      [class.attendance-assignment-details__cell--full]="
-        !row.assignmentSnapshot?.assignedDriverDisplay &&
-        !row.assignmentSnapshot?.assignedEmployeeDisplay
-      "
-    >
-      <span
-        class="attendance-assignment-details__icon-wrap"
-        aria-hidden="true"
-      >
-        <i [class]="ALL_ICONS.COMMON.CAR"></i>
-      </span>
-      <div class="attendance-assignment-details__text">
-        <span class="attendance-assignment-details__label">Associated Vehicle</span>
+    @if (snap?.contractorDisplay) {
+      <div class="attendance-assignment-details__row">
         <span
-          class="attendance-assignment-details__value"
-          [title]="row.assignmentSnapshot?.vehicleDisplay || '—'"
+          class="attendance-assignment-details__icon attendance-assignment-details__icon--contractor"
+          aria-hidden="true"
         >
-          {{ row.assignmentSnapshot?.vehicleDisplay || '—' }}
+          <i [class]="ALL_ICONS.SITE.BUILDING"></i>
         </span>
+        <div class="attendance-assignment-details__text">
+          <span class="attendance-assignment-details__label">Contractor</span>
+          <span class="attendance-assignment-details__value">{{ snap.contractorDisplay }}</span>
+          @if (snap.contractorAddressDisplay) {
+            <span class="attendance-assignment-details__meta">
+              {{ snap.contractorAddressDisplay }}
+            </span>
+          }
+        </div>
       </div>
-    </div>
+    }
+
+    @if (snap.assignedDriverDisplay || snap.assignedEmployeeDisplay) {
+      <div class="attendance-assignment-details__row">
+        <span
+          class="attendance-assignment-details__icon attendance-assignment-details__icon--person"
+          aria-hidden="true"
+        >
+          <i [class]="ALL_ICONS.COMMON.USER"></i>
+        </span>
+        <div class="attendance-assignment-details__text">
+          <span class="attendance-assignment-details__label">
+            {{ snap.assignedDriverDisplay ? 'Assigned Driver' : 'Assigned Engineer' }}
+          </span>
+          <span class="attendance-assignment-details__value">
+            {{ snap.assignedDriverDisplay || snap.assignedEmployeeDisplay }}
+          </span>
+        </div>
+      </div>
+    }
+
+    @if (snap.vehicleDisplay) {
+      <div class="attendance-assignment-details__row">
+        <span
+          class="attendance-assignment-details__icon attendance-assignment-details__icon--vehicle"
+          aria-hidden="true"
+        >
+          <i [class]="ALL_ICONS.COMMON.CAR"></i>
+        </span>
+        <div class="attendance-assignment-details__text">
+          <span class="attendance-assignment-details__label">Vehicle</span>
+          <span class="attendance-assignment-details__value">{{ snap.vehicleDisplay }}</span>
+        </div>
+      </div>
     }
   </div>
   } @else {
