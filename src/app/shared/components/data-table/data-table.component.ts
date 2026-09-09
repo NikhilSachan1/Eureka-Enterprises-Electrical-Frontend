@@ -291,7 +291,9 @@ export class DataTableComponent {
   });
 
   protected readonly hasRowExpansion = computed(
-    () => this.rowExpansionTemplate() != null
+    () =>
+      this.rowExpansionTemplate() !== null &&
+      this.rowExpansionTemplate() !== undefined
   );
   protected readonly expandedRowKeys = signal<Record<string, boolean>>({});
 
@@ -599,7 +601,7 @@ export class DataTableComponent {
       return undefined;
     }
 
-    const global = filters['global'];
+    const { global } = filters;
     const value = Array.isArray(global) ? global[0]?.value : global?.value;
     return typeof value === 'string' && value.trim() ? value : undefined;
   }
@@ -609,7 +611,7 @@ export class DataTableComponent {
       return true;
     }
 
-    const filters = event.filters;
+    const {filters} = event;
     if (!filters) {
       return false;
     }
@@ -620,7 +622,7 @@ export class DataTableComponent {
       }
 
       const value = Array.isArray(meta) ? meta[0]?.value : meta.value;
-      if (value == null || value === '') {
+      if (value === null || value === undefined || value === '') {
         return false;
       }
 

@@ -275,7 +275,7 @@ export class SearchFilterComponent implements OnInit {
   }
 
   private endUrlRestore(): void {
-    if (this.restoreSessionId == null) {
+    if (this.restoreSessionId === null || this.restoreSessionId === undefined) {
       return;
     }
     this.searchFilterUrlRestore.finishRestore(this.restoreSessionId);

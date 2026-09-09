@@ -138,10 +138,12 @@ export class GetVendorComponent implements OnInit {
 
   private mapTableData(response: IVendorGetBaseResponseDto[]): IVendor[] {
     return response.map((record: IVendorGetBaseResponseDto) => {
+      let vendorCode = record.vendorCode?.trim();
+      vendorCode ??= '—';
       return {
         id: record.id,
         name: record.name,
-        vendorCode: record.vendorCode?.trim() || '—',
+        vendorCode,
         vendorType:
           record.vendorType !== null && record.vendorType !== ''
             ? getMappedValueFromArrayOfObjects(

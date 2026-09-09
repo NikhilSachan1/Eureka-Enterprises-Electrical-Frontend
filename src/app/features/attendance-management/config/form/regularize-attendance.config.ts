@@ -1,4 +1,9 @@
-import { IFormConfig, IFormInputFieldsConfig } from '@shared/types';
+import {
+  EDataType,
+  IFormConfig,
+  IFormInputFieldsConfig,
+  IInputFieldsConfig,
+} from '@shared/types';
 import { FORCE_ATTENDANCE_FORM_CONFIG } from './force-attendance.config';
 import { IAttendanceRegularizedUIFormDto } from '@features/attendance-management/types/attendance.dto';
 
@@ -12,16 +17,37 @@ const {
   },
 } = FORCE_ATTENDANCE_FORM_CONFIG;
 
-const REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceRegularizedUIFormDto> =
-  {
+function getAssignedDriverFieldConfig(
+  multiple: boolean
+): Partial<IInputFieldsConfig> {
+  if (!multiple) {
+    return assignedDriver;
+  }
+
+  return {
+    ...assignedDriver,
+    fieldType: EDataType.MULTI_SELECT,
+    label: 'Assigned Drivers',
+    selectConfig: undefined,
+    multiSelectConfig: {
+      dynamicDropdown: assignedDriver.selectConfig?.dynamicDropdown,
+    },
+  };
+}
+
+export function getRegularizeAttendanceFormConfig(
+  assignedDriverMultiple = false
+): IFormConfig<IAttendanceRegularizedUIFormDto> {
+  const fields: IFormInputFieldsConfig<IAttendanceRegularizedUIFormDto> = {
     attendanceStatus,
     company,
     contractor,
-    assignedDriver,
+    assignedDriver: getAssignedDriverFieldConfig(assignedDriverMultiple),
     vehicle,
   };
 
-export const REGULARIZE_ATTENDANCE_FORM_CONFIG: IFormConfig<IAttendanceRegularizedUIFormDto> =
-  {
-    fields: REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG,
-  };
+  return { fields };
+}
+
+export const REGULARIZE_ATTENDANCE_FORM_CONFIG =
+  getRegularizeAttendanceFormConfig();

@@ -23,7 +23,7 @@ function getQueryParamKey(
 }
 
 function toQueryParamScalar(value: unknown): string {
-  if (value == null || value === '') {
+  if (value === null || value === undefined || value === '') {
     return '';
   }
 
@@ -34,7 +34,7 @@ function toQueryParamScalar(value: unknown): string {
   if (typeof value === 'object' && !Array.isArray(value)) {
     const record = value as Record<string, unknown>;
     const id = record['id'] ?? record['value'] ?? record['key'];
-    return id == null ? '' : String(id).trim();
+    return id === null || id === undefined ? '' : String(id).trim();
   }
 
   return String(value).trim();
@@ -124,7 +124,7 @@ function serializeFieldValue(
   value: unknown,
   config: SearchFilterFieldConfig
 ): QueryParamValue {
-  if (value == null || value === '') {
+  if (value === null || value === undefined || value === '') {
     return null;
   }
 
@@ -219,13 +219,11 @@ export function parseSearchFilterQueryParams(
         ? mappedValues.length > 0
         : readNonEmptyParams(queryParamMap, sourceKey).length > 0;
 
-    if (!hasValue) {
-      continue;
-    }
-
-    const parsed = deserializeFieldValue(queryParamMap, sourceKey, config);
-    if (parsed !== undefined) {
-      values[fieldName] = parsed;
+    if (hasValue) {
+      const parsed = deserializeFieldValue(queryParamMap, sourceKey, config);
+      if (parsed !== undefined) {
+        values[fieldName] = parsed;
+      }
     }
   }
 
@@ -243,7 +241,7 @@ export function areSearchFilterQueryParamsUnchanged(
   next: Record<string, QueryParamValue>
 ): boolean {
   return Object.entries(next).every(([key, value]) => {
-    if (value == null || value === '') {
+    if (value === null || value === undefined || value === '') {
       return !current.has(key);
     }
 

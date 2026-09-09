@@ -6,7 +6,10 @@ import {
 import { SHIFT_DATA } from '@shared/config';
 import { EAttendanceStatus } from '../types/attendance.enum';
 import { ELeaveCategory } from '@features/leave-management/types/leave.type';
-import { isAttendanceAssignmentApplicable } from '../utility/attendance-assignment.util';
+import {
+  isAttendanceAssignmentApplicable,
+  toAssignedDriverIds,
+} from '../utility/attendance-assignment.util';
 
 const { id, status, userId } = AttendanceBaseSchema.shape;
 
@@ -50,9 +53,7 @@ export const AttendanceRegularizedRequestSchema =
                     registrationNo: data.vehicle.registrationNo,
                   }
                 : null,
-              assignedDrivers: data.assignedDriver
-                ? [data.assignedDriver]
-                : [],
+              assignedDrivers: toAssignedDriverIds(data.assignedDriver),
             },
           }
         : {}),

@@ -233,7 +233,7 @@ export class GetProjectWorkspaceComponent {
   }
 
   private resolveInitialProjectId(): string | undefined {
-    const queryParamMap = this.activatedRoute.snapshot.queryParamMap;
+    const {queryParamMap} = this.activatedRoute.snapshot;
     const fromQuery =
       queryParamMap.get('projectId') ?? queryParamMap.get('projectName');
     if (fromQuery) {

@@ -42,7 +42,7 @@ export function mapPoLineItemsForForm(
 }
 
 export function mapPoLineItemsForRequest(
-  items: Array<Partial<IPoItemFormDto>> | null | undefined
+  items: Partial<IPoItemFormDto>[] | null | undefined
 ): IPoItemFormDto[] {
   if (!items?.length) {
     return [];
@@ -64,7 +64,7 @@ export function mapPoLineItemsForRequest(
 }
 
 export function computePoTotalsFromItems(
-  items: Array<Partial<IPoItemFormDto>> | null | undefined,
+  items: Partial<IPoItemFormDto>[] | null | undefined,
   gstPercent: number
 ): { taxableAmount: number; gstAmount: number; totalAmount: number } {
   const taxableAmount = roundCurrencyAmount(

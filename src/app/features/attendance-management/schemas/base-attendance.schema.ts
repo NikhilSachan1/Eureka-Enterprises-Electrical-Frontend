@@ -85,7 +85,7 @@ export const AttendanceUpsertShapeSchema = z
     company: CompanyGetBaseResponseSchema.nullable(),
     contractor: ContractorGetBaseResponseSchema.nullable(),
     vehicle: VehicleBaseSchema.nullable(),
-    assignedDriver: z.string().nullable(),
+    assignedDriver: z.union([z.string(), z.array(z.string())]).nullable(),
     remark: z.string().nullable(),
   })
   .strict();

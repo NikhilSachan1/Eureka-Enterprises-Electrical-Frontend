@@ -12,12 +12,12 @@ export function parsePoTerms(content: string | null | undefined): string[] {
 
 export function mapPoTermsForForm(
   content: string | null | undefined
-): Array<{ content: string }> {
+): { content: string }[] {
   return parsePoTerms(content).map(term => ({ content: term }));
 }
 
 export function joinPoTerms(
-  terms: Array<{ content?: string | null }> | null | undefined
+  terms: { content?: string | null }[] | null | undefined
 ): string | null {
   const parts = (terms ?? [])
     .map(term => String(term.content ?? '').trim())

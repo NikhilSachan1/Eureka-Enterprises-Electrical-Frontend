@@ -107,7 +107,7 @@ export type IAddPoUIFormDto = Omit<
 > & {
   gstPercent: number;
   poAttachment: File[];
-  terms: Array<{ content: string }>;
+  terms: { content: string }[];
 };
 export type IAddPoResponseDto = z.infer<typeof AddPoResponseSchema>;
 
@@ -125,7 +125,7 @@ export type IEditPoUIFormDto = Omit<
   projectName: string;
   contractorName: string;
   vendorName: string;
-  terms: Array<{ content: string }>;
+  terms: { content: string }[];
 };
 export type IEditPoResponseDto = z.infer<typeof EditPoResponseSchema>;
 

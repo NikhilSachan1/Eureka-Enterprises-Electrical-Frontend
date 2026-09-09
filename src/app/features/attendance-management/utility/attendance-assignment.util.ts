@@ -30,7 +30,7 @@ export const NULL_ASSIGNMENT_FORM_VALUES = {
 export function isBlankAssignmentId(
   value: string | null | undefined
 ): value is null | undefined | '' {
-  return value == null || value === '';
+  return value === null || value === undefined || value === '';
 }
 
 export function getAssignedDrivers(
@@ -66,20 +66,43 @@ export function getAssignedDrivers(
 }
 
 export function getAssignedDriverId(payload: unknown): string | null {
-  const first = getAssignedDrivers(payload)[0];
-  return typeof first?.id === 'string' && first.id.trim() ? first.id : null;
+  const first = getAssignedDriverIds(payload)[0];
+  return first ?? null;
+}
+
+export function getAssignedDriverIds(payload: unknown): string[] {
+  return getAssignedDrivers(payload).flatMap(driver =>
+    typeof driver.id === 'string' && driver.id.trim() ? [driver.id] : []
+  );
+}
+
+export function toAssignedDriverIds(
+  value: string | string[] | null | undefined
+): string[] {
+  if (Array.isArray(value)) {
+    return value.filter(
+      (id): id is string => typeof id === 'string' && !!id.trim()
+    );
+  }
+
+  return typeof value === 'string' && value.trim() ? [value] : [];
 }
 
 export function getAssignedDriverDisplayName(
   payload: unknown,
   employeeList: { value?: string; data?: unknown }[] = []
 ): string | null {
-  const driver = getAssignedDrivers(payload)[0];
-  const listDriver = getDropdownRecord<IEmployeeGetBaseResponseDto>(
-    employeeList,
-    driver?.id ?? null
-  );
-  return toPersonName(driver) || toPersonName(listDriver) || null;
+  const names = getAssignedDrivers(payload)
+    .map(driver => {
+      const listDriver = getDropdownRecord<IEmployeeGetBaseResponseDto>(
+        employeeList,
+        driver?.id ?? null
+      );
+      return toPersonName(driver) || toPersonName(listDriver);
+    })
+    .filter(Boolean);
+
+  return names.length ? names.join(', ') : null;
 }
 
 export function getAssignedEmployee(
@@ -126,11 +149,16 @@ export function getAssignmentSource(
 
 export function getAssignmentFormValues(
   payload: unknown,
-  options?: { includeSiteFields?: boolean; includeAssignedDriver?: boolean }
+  options?: {
+    includeSiteFields?: boolean;
+    includeAssignedDriver?: boolean;
+    assignedDriverMultiple?: boolean;
+  }
 ): IAttendanceAssignmentFormValues {
   const source = getAssignmentSource(payload);
   const includeSiteFields = options?.includeSiteFields !== false;
   const includeAssignedDriver = options?.includeAssignedDriver === true;
+  const assignedDriverMultiple = options?.assignedDriverMultiple === true;
 
   return {
     company: includeSiteFields ? (source?.company?.id ?? null) : null,
@@ -138,7 +166,11 @@ export function getAssignmentFormValues(
       ? (source?.contractors?.[0]?.id ?? null)
       : null,
     vehicle: includeSiteFields ? (source?.vehicle?.id ?? null) : null,
-    assignedDriver: includeAssignedDriver ? getAssignedDriverId(payload) : null,
+    assignedDriver: includeAssignedDriver
+      ? assignedDriverMultiple
+        ? getAssignedDriverIds(payload)
+        : getAssignedDriverId(payload)
+      : null,
   };
 }
 
@@ -168,7 +200,12 @@ export function toDisplayName(
   listName: string | null | undefined
 ): string {
   const usePayload = !selectedId || !payloadId || payloadId === selectedId;
-  return (usePayload ? payloadName?.trim() : '') || listName?.trim() || '-';
+  const payloadTrimmed = usePayload ? (payloadName?.trim() ?? '') : '';
+  if (payloadTrimmed !== '') {
+    return payloadTrimmed;
+  }
+  const listTrimmed = listName?.trim() ?? '';
+  return listTrimmed !== '' ? listTrimmed : '-';
 }
 
 export function toPersonName(
@@ -201,14 +238,20 @@ export function formatAssignmentAddress(
     return `${city}, ${state}`;
   }
 
-  return city || state || null;
+  if (city) {
+    return city;
+  }
+  if (state) {
+    return state;
+  }
+  return null;
 }
 
 export function buildAssignmentSubmitPayload(params: {
   companyId: string | null;
   contractorId: string | null;
   vehicleId: string | null;
-  assignedDriverId: string | null;
+  assignedDriverId: string | string[] | null;
   companyList: { value?: string; data?: unknown }[];
   contractorList: { value?: string; data?: unknown }[];
   vehicleList: { value?: string; data?: unknown }[];

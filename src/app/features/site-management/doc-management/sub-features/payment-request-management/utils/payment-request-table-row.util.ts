@@ -19,12 +19,18 @@ type PaymentRequestLinkedPo = NonNullable<
 
 function displayDocNumber(value: string | null | undefined): string {
   const trimmed = value?.trim();
-  return trimmed ? trimmed : '—';
+  if (!trimmed) {
+    return '—';
+  }
+  return trimmed;
 }
 
 function displayDocDate(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
-  return trimmed ? trimmed : null;
+  if (!trimmed) {
+    return null;
+  }
+  return trimmed;
 }
 
 function linkedDocAmountSegments(input: {

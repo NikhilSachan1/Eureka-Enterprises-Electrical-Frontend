@@ -267,7 +267,7 @@ export class EditPoComponent
 
     const taxableAmount = roundCurrencyAmount(
       items.controls.reduce((sum, group) => {
-        return sum + Number(group.get('amount')?.value || 0);
+        return sum + Number(group.get('amount')?.value ?? 0);
       }, 0)
     );
 
@@ -401,7 +401,7 @@ export class EditPoComponent
     delete (record as Record<string, unknown>)['projectName'];
     delete (record as Record<string, unknown>)['contractorName'];
     delete (record as Record<string, unknown>)['vendorName'];
-    const terms = record.terms;
+    const {terms} = record;
     delete (record as Record<string, unknown>)['terms'];
 
     if (this.isSystemGenerated()) {

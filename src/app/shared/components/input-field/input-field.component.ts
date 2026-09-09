@@ -32,10 +32,8 @@ import {
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { Select } from 'primeng/select';
-import { SelectModule } from 'primeng/select';
-import { MultiSelect } from 'primeng/multiselect';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { Select, SelectModule } from 'primeng/select';
+import { MultiSelect, MultiSelectModule } from 'primeng/multiselect';
 import { DatePickerModule } from 'primeng/datepicker';
 import { PasswordModule } from 'primeng/password';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -76,6 +74,7 @@ import {
   ETextCase,
   IEditorFieldConfig,
   IInputFieldsConfig,
+  IDropdownCreateSpec,
   IMultiSelectFieldConfig,
   ITextFieldConfig,
   IGalleryInputData,
@@ -904,7 +903,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     } satisfies Partial<IButtonConfig>;
   });
 
-  private getDropdownCreateSpec() {
+  private getDropdownCreateSpec(): IDropdownCreateSpec | undefined {
     const config = this.inputFieldConfig();
     const spec = config.allowCreate;
     if (!spec?.component || config.disabledInput) {
