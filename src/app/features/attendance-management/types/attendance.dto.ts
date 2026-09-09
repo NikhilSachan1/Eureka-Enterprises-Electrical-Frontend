@@ -83,9 +83,7 @@ export type IAttendanceApplyUIFormDto = Pick<
   company: NonNullable<IAttendanceApplyFormDto['company']>['id'] | null;
   contractor: NonNullable<IAttendanceApplyFormDto['contractor']>['id'] | null;
   vehicle: NonNullable<IAttendanceApplyFormDto['vehicle']>['id'] | null;
-  assignedEngineer:
-    | NonNullable<IAttendanceApplyFormDto['assignedEngineer']>['id']
-    | null;
+  assignedDriver: IAttendanceApplyFormDto['assignedDriver'];
 };
 
 /*
@@ -108,9 +106,7 @@ export type IAttendanceRegularizedUIFormDto = Pick<
     | NonNullable<IAttendanceRegularizedFormDto['contractor']>['id']
     | null;
   vehicle: NonNullable<IAttendanceRegularizedFormDto['vehicle']>['id'] | null;
-  assignedEngineer:
-    | NonNullable<IAttendanceRegularizedFormDto['assignedEngineer']>['id']
-    | null;
+  assignedDriver: IAttendanceRegularizedFormDto['assignedDriver'];
 };
 export type IAttendanceRegularizedResponseDto = z.infer<
   typeof AttendanceRegularizedResponseSchema
@@ -135,9 +131,7 @@ export type IAttendanceForceUIFormDto = Pick<
   company: NonNullable<IAttendanceForceFormDto['company']>['id'] | null;
   contractor: NonNullable<IAttendanceForceFormDto['contractor']>['id'] | null;
   vehicle: NonNullable<IAttendanceForceFormDto['vehicle']>['id'] | null;
-  assignedEngineer:
-    | NonNullable<IAttendanceForceFormDto['assignedEngineer']>['id']
-    | null;
+  assignedDriver: IAttendanceForceFormDto['assignedDriver'];
 };
 
 /**

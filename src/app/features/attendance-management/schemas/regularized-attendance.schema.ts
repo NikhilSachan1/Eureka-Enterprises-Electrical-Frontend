@@ -40,6 +40,8 @@ export const AttendanceRegularizedRequestSchema =
                 c => ({
                   id: c?.id,
                   name: c?.name,
+                  city: c?.city,
+                  state: c?.state,
                 })
               ),
               vehicle: data.vehicle
@@ -48,14 +50,9 @@ export const AttendanceRegularizedRequestSchema =
                     registrationNo: data.vehicle.registrationNo,
                   }
                 : null,
-              assignedEngineer: data.assignedEngineer
-                ? {
-                    id: data.assignedEngineer.id,
-                    firstName: data.assignedEngineer.firstName,
-                    lastName: data.assignedEngineer.lastName,
-                    employeeId: data.assignedEngineer.employeeId,
-                  }
-                : null,
+              assignedDrivers: data.assignedDriver
+                ? [data.assignedDriver]
+                : [],
             },
           }
         : {}),

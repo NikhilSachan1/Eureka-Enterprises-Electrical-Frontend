@@ -26,6 +26,7 @@ import { EAttendanceStatus } from '../../types/attendance.enum';
 import { APP_CONFIG } from '@core/config';
 import { ICONS } from '@shared/constants/icon.constants';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
+import { formatAssignmentAddress } from '../../utility/attendance-assignment.util';
 
 @Component({
   selector: 'app-get-attendance-detail',
@@ -47,6 +48,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
 
   protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly ICONS = ICONS;
+  protected readonly formatAddress = formatAssignmentAddress;
 
   override onDrawerShow(): void {
     this.loadAttendanceDetails();
@@ -124,7 +126,10 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         },
         {
           label: 'Assignment Detail',
-          value: record.assignmentSnapshot ?? null,
+          value: {
+            ...record.assignmentSnapshot,
+            assignedDrivers: record.assignedDrivers ?? [],
+          },
           customTemplateKey: 'assignmentSnapshot',
         },
       ];

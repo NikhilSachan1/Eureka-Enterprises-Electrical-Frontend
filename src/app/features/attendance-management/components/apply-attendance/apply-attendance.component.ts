@@ -20,7 +20,6 @@ import { IAttendanceAssignmentSubmitPayload } from '@features/attendance-managem
 import { APPLY_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/apply-attendance.config';
 import {
   getAssignmentFormValues,
-  isBlankAssignmentId,
   NULL_ASSIGNMENT_FORM_VALUES,
 } from '@features/attendance-management/utility/attendance-assignment.util';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -132,7 +131,8 @@ export class ApplyAttendanceComponent
     this.currentStatusData.set(currentStatusFromResolver);
     this.initialAttendanceData.set({
       ...getAssignmentFormValues(currentStatusFromResolver, {
-        includeSiteFields: !this.isDriverUser,
+        includeSiteFields: this.isEmployeeUser,
+        includeAssignedDriver: false,
       }),
       remark: null,
     });
@@ -202,17 +202,6 @@ export class ApplyAttendanceComponent
   }
 
   protected toggleAssignmentEditing(): void {
-    if (this.isDriverUser && this.isEditingAssignment()) {
-      const assignedEngineerId = this.form.formGroup.get('assignedEngineer')
-        ?.value as string | null;
-      if (isBlankAssignmentId(assignedEngineerId)) {
-        const engineerControl = this.form.formGroup.get('assignedEngineer');
-        engineerControl?.markAsTouched();
-        engineerControl?.updateValueAndValidity();
-        return;
-      }
-    }
-
     this.isEditingAssignment.update(isEditing => !isEditing);
   }
 

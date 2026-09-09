@@ -14,7 +14,7 @@
 
 .attendance-assignment-details__cell {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.5rem;
   min-width: 0;
   padding: 0.5rem 0.5rem 0.5rem 0.45rem;
@@ -26,6 +26,10 @@
   );
   border: 1px solid color-mix(in srgb, var(--border-light-color) 85%, var(--primary-color) 15%);
   box-shadow: 0 1px 2px color-mix(in srgb, var(--text-primary-color) 4%, transparent);
+
+  &--full {
+    grid-column: 1 / -1;
+  }
 }
 
 .attendance-assignment-details__icon-wrap {
@@ -68,6 +72,25 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+.attendance-assignment-details__meta {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-secondary-color);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.attendance-assignment-details__empty {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary-color);
+  line-height: 1.35;
 }
 
 @media (max-width: 900px) {
