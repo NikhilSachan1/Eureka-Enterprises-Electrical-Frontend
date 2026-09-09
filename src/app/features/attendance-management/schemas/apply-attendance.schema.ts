@@ -4,6 +4,7 @@ import {
   AttendanceUpsertShapeSchema,
 } from './base-attendance.schema';
 import { EApplyAttendanceAction } from '../types/attendance.enum';
+import { toAssignedDriverIds } from '../utility/attendance-assignment.util';
 
 const { checkInTime } = AttendanceBaseSchema.shape;
 
@@ -12,7 +13,10 @@ export const AttendanceApplyRequestSchema =
     notes: data.remark,
     action: EApplyAttendanceAction.CHECK_IN,
     assignmentSnapshot:
-      data.company || data.contractor || data.vehicle || data.assignedDriver
+      data.company ||
+      data.contractor ||
+      data.vehicle ||
+      toAssignedDriverIds(data.assignedDriver).length
         ? {
             company: data.company
               ? {
@@ -33,7 +37,7 @@ export const AttendanceApplyRequestSchema =
                   registrationNo: data.vehicle.registrationNo,
                 }
               : null,
-            assignedDrivers: data.assignedDriver ? [data.assignedDriver] : [],
+            assignedDrivers: toAssignedDriverIds(data.assignedDriver),
           }
         : null,
   }));

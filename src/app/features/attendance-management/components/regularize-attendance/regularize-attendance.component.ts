@@ -21,7 +21,7 @@ import {
 } from '@shared/services';
 import { IDialogActionHandler, ITrackedFields } from '@shared/types';
 import { getSelectedEmployeeRole } from '@shared/utility';
-import { REGULARIZE_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/regularize-attendance.config';
+import { getRegularizeAttendanceFormConfig } from '@features/attendance-management/config/form/regularize-attendance.config';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
 import {
   IAttendanceGetBaseResponseDto,
@@ -32,6 +32,7 @@ import {
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { IAttendanceAssignmentSubmitPayload } from '@features/attendance-management/types/attendance.interface';
 import {
+  getAssignedDrivers,
   getAssignmentFormValues,
   isAttendanceAssignmentApplicable,
   NULL_ASSIGNMENT_FORM_VALUES,
@@ -79,6 +80,7 @@ export class RegularizeAttendanceComponent
   );
   protected readonly assignmentSubmitPayload =
     signal<IAttendanceAssignmentSubmitPayload>(NULL_ASSIGNMENT_FORM_VALUES);
+  private assignedDriverMultiple = false;
 
   constructor() {
     super();
@@ -113,14 +115,12 @@ export class RegularizeAttendanceComponent
       );
 
       if (this.showAssignmentFields()) {
-        this.form.patch(
-          getAssignmentFormValues(
-            this.selectedRecord()[0],
-            { includeAssignedDriver: true }
-          )
-        );
+        this.form.patch(this.getAssignmentPatch(this.selectedRecord()[0]));
       } else {
-        this.form.patch({ ...NULL_ASSIGNMENT_FORM_VALUES });
+        this.form.patch({
+          ...NULL_ASSIGNMENT_FORM_VALUES,
+          assignedDriver: this.assignedDriverMultiple ? [] : null,
+        });
       }
     });
   }
@@ -152,8 +152,10 @@ export class RegularizeAttendanceComponent
       record.status
     );
 
+    this.assignedDriverMultiple = getAssignedDrivers(record).length > 1;
+
     this.form = this.formService.createForm<IAttendanceRegularizedUIFormDto>(
-      REGULARIZE_ATTENDANCE_FORM_CONFIG,
+      getRegularizeAttendanceFormConfig(this.assignedDriverMultiple),
       {
         destroyRef: this.destroyRef,
         defaultValues: this.preparePrefilledFormData(record),
@@ -209,10 +211,17 @@ export class RegularizeAttendanceComponent
       ...(allowedStatuses.includes(record.status as EAttendanceStatus)
         ? { attendanceStatus: record.status }
         : {}),
-      ...getAssignmentFormValues(record, {
-        includeAssignedDriver: true,
-      }),
+      ...this.getAssignmentPatch(record),
     };
+  }
+
+  private getAssignmentPatch(
+    record: IAttendanceGetBaseResponseDto
+  ): ReturnType<typeof getAssignmentFormValues> {
+    return getAssignmentFormValues(record, {
+      includeAssignedDriver: true,
+      assignedDriverMultiple: this.assignedDriverMultiple,
+    });
   }
 
   private prepareFormData(userId: string): IAttendanceRegularizedFormDto {

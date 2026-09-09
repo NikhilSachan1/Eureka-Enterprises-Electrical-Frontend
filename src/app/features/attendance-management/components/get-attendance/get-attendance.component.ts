@@ -330,7 +330,9 @@ export class GetAttendanceComponent implements OnInit {
       },
       {
         label: assignedDriverName
-          ? 'Assigned Driver'
+          ? assignedDriverName.includes(',')
+            ? 'Assigned Drivers'
+            : 'Assigned Driver'
           : assignedEmployeeName
             ? 'Assigned Engineer'
             : 'Assigned Driver',

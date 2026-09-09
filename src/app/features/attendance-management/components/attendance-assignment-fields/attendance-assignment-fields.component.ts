@@ -14,8 +14,10 @@ import {
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   buildAssignmentSubmitPayload,
+  getAssignedDriverDisplayName,
   getAssignedDriverId,
   getAssignedDrivers,
+  toAssignedDriverIds,
   getAssignmentSource,
   getDropdownRecord,
   NULL_ASSIGNMENT_FORM_VALUES,
@@ -119,7 +121,9 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
 
   private preloadDropdowns(): void {
     Object.values(this.fieldConfigs()).forEach(config => {
-      const dropdown = config.selectConfig?.dynamicDropdown;
+      const dropdown =
+        config.selectConfig?.dynamicDropdown ??
+        config.multiSelectConfig?.dynamicDropdown;
       if (dropdown?.moduleName && dropdown.dropdownName) {
         this.appConfigurationService.getDropdown(
           dropdown.moduleName,
@@ -137,6 +141,7 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
     contractorCity: string;
     contractorState: string;
     driver: string;
+    driverLabel: string;
     vehicle: string;
   } {
     const payload = this.assignmentPayload();
@@ -146,8 +151,8 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
     const contractorId =
       this.getControlId('contractor') ?? site?.contractors?.[0]?.id ?? null;
     const vehicleId = this.getControlId('vehicle') ?? site?.vehicle?.id ?? null;
-    const driverId =
-      this.getControlId('assignedDriver') ?? getAssignedDriverId(payload);
+    const driverIds = this.getAssignedDriverControlIds();
+    const driverId = driverIds[0] ?? getAssignedDriverId(payload);
 
     const companyFromList = getDropdownRecord<ICompanyGetBaseResponseDto>(
       this.appConfigurationService.companyList(),
@@ -236,7 +241,11 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
       }
     }
 
-    const payloadDriver = getAssignedDrivers(payload)[0];
+    const payloadDrivers = getAssignedDrivers(payload);
+    const payloadDriverNames = getAssignedDriverDisplayName(
+      payload,
+      this.appConfigurationService.employeeList()
+    );
     const driverFromList = getDropdownRecord<IEmployeeGetBaseResponseDto>(
       this.appConfigurationService.employeeList(),
       driverId
@@ -258,12 +267,18 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
       ),
       contractorCity,
       contractorState,
-      driver: toDisplayName(
-        toPersonName(payloadDriver) || null,
-        payloadDriver?.id,
-        driverId,
-        toPersonName(driverFromList) || null
-      ),
+      driver:
+        payloadDriverNames ||
+        toDisplayName(
+          null,
+          null,
+          driverId,
+          toPersonName(driverFromList) || null
+        ),
+      driverLabel:
+        payloadDrivers.length > 1 || driverIds.length > 1
+          ? 'Assigned Drivers'
+          : 'Assigned Driver',
       vehicle: toDisplayName(
         site?.vehicle?.registrationNo,
         site?.vehicle?.id,
@@ -290,18 +305,28 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
   }
 
   private getControlId(
-    fieldName: 'company' | 'contractor' | 'vehicle' | 'assignedDriver'
+    fieldName: 'company' | 'contractor' | 'vehicle'
   ): string | null {
     const value = this.formGroup().get(fieldName)?.value;
     return typeof value === 'string' && value.trim() ? value : null;
   }
 
+  private getAssignedDriverControlIds(): string[] {
+    return toAssignedDriverIds(
+      this.formGroup().get('assignedDriver')?.value ?? null
+    );
+  }
+
   private buildSubmitPayload(): IAttendanceAssignmentSubmitPayload {
+    const assignedDriverIds = this.getAssignedDriverControlIds();
     return buildAssignmentSubmitPayload({
       companyId: this.getControlId('company'),
       contractorId: this.getControlId('contractor'),
       vehicleId: this.getControlId('vehicle'),
-      assignedDriverId: this.getControlId('assignedDriver'),
+      assignedDriverId:
+        assignedDriverIds.length > 1
+          ? assignedDriverIds
+          : (assignedDriverIds[0] ?? null),
       companyList: this.appConfigurationService.companyList(),
       contractorList: this.appConfigurationService.contractorList(),
       vehicleList: this.appConfigurationService.vehicleList(),

@@ -79,7 +79,15 @@
         </span>
         <div class="attendance-assignment-details__text">
           <span class="attendance-assignment-details__label">
-            {{ snap.assignedDriverDisplay ? 'Assigned Driver' : 'Assigned Engineer' }}
+            @if (snap.assignedDriverDisplay) {
+              {{
+                snap.assignedDriverDisplay.includes(',')
+                  ? 'Assigned Drivers'
+                  : 'Assigned Driver'
+              }}
+            } @else {
+              Assigned Engineer
+            }
           </span>
           <span class="attendance-assignment-details__value">
             {{ snap.assignedDriverDisplay || snap.assignedEmployeeDisplay }}

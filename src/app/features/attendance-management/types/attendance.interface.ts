@@ -70,12 +70,12 @@ export interface IAttendanceAssignmentFormValues {
   company: string | null;
   contractor: string | null;
   vehicle: string | null;
-  assignedDriver: string | null;
+  assignedDriver: string | string[] | null;
 }
 
 export interface IAttendanceAssignmentSubmitPayload {
   company: ICompanyGetBaseResponseDto | null;
   contractor: IContractorGetBaseResponseDto | null;
   vehicle: z.infer<typeof VehicleBaseSchema> | null;
-  assignedDriver: string | null;
+  assignedDriver: string | string[] | null;
 }
