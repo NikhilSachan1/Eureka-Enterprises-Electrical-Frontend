@@ -332,7 +332,7 @@ export class GetAttendanceComponent implements OnInit {
         label: assignedDriverName
           ? 'Assigned Driver'
           : assignedEmployeeName
-            ? 'Assigned Employee'
+            ? 'Assigned Engineer'
             : 'Assigned Driver',
         value: assignedDriverName ?? assignedEmployeeName ?? 'N/A',
       },
