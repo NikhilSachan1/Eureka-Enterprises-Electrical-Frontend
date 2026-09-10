@@ -235,7 +235,11 @@ export class ApiService {
     endpoint: string,
     schema: ApiSchema<TRequest, TResponse>,
     input: TInput,
-    options: { multipart?: boolean; silent?: boolean } = {}
+    options: {
+      multipart?: boolean;
+      silent?: boolean;
+      skipClean?: boolean;
+    } = {}
   ): Observable<TResponse> {
     const silent = options.silent ?? false;
     try {
@@ -337,14 +341,14 @@ export class ApiService {
 
   private resolveRequestBody(
     body: unknown,
-    options?: { multipart?: boolean }
+    options?: { multipart?: boolean; skipClean?: boolean }
   ): unknown {
-    const cleaned = this.cleanParams(body);
+    const payload = options?.skipClean ? body : this.cleanParams(body);
     if (options?.multipart) {
-      const flattened = this.flattenObject(cleaned);
+      const flattened = this.flattenObject(payload);
       return this.buildFormData(flattened);
     }
-    return cleaned;
+    return payload;
   }
 
   private buildHttpParams(params?: unknown): HttpParams | undefined {

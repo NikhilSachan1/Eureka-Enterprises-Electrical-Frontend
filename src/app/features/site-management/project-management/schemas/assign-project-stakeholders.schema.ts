@@ -8,6 +8,6 @@ export const ProjectAssignStakeholdersRequestSchema = z
   .strict()
   .transform(data => {
     return {
-      vendorIds: data.vendorNames,
+      vendorIds: data.vendorNames ?? [],
     };
   });
