@@ -12,6 +12,7 @@ import { LoggerService } from '@core/services';
 import {
   ASSET_ACTION_CONFIG_MAP,
   createAssetTableEnhancedConfig,
+  getAssetQrDialogActionConfig,
   SEARCH_FILTER_ASSET_FORM_CONFIG,
 } from '@features/asset-management/config';
 import { AuthService } from '@features/auth-management/services/auth.service';
@@ -314,11 +315,11 @@ export class GetAssetComponent implements OnInit {
     if (actionType === EButtonActionType.QR_CODE) {
       this.confirmationDialogService.showConfirmationDialog(
         actionType,
-        ASSET_ACTION_CONFIG_MAP[actionType],
+        getAssetQrDialogActionConfig(isBulk, selectedRows.length),
         null,
         isBulk,
         false,
-        { selectedRecord: selectedRows }
+        { selectedRecord: selectedRows, printOnAccept: isBulk }
       );
       return;
     }

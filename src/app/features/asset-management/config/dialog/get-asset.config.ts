@@ -1,6 +1,7 @@
 import {
   EButtonActionType,
   EButtonSeverity,
+  EDialogSize,
   IDialogActionConfig,
 } from '@shared/types';
 import {
@@ -95,3 +96,29 @@ export const ASSET_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
     },
   },
 };
+
+export function getAssetQrDialogActionConfig(
+  isBulk: boolean,
+  selectedCount: number
+): IDialogActionConfig {
+  const base = ASSET_ACTION_CONFIG_MAP[EButtonActionType.QR_CODE];
+  if (!isBulk) {
+    return base;
+  }
+
+  const assetLabel = selectedCount === 1 ? 'asset' : 'assets';
+  return {
+    ...base,
+    dialogConfig: {
+      ...base.dialogConfig,
+      header: 'Print QR Codes',
+      message: `Print QR labels for ${selectedCount} selected ${assetLabel} in one sheet.`,
+      size: EDialogSize.LARGE,
+      acceptButtonProps: {
+        label: 'Print',
+        icon: ICONS.COMMON.PRINT,
+        severity: EButtonSeverity.PRIMARY,
+      },
+    },
+  };
+}
