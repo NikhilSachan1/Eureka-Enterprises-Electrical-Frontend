@@ -78,6 +78,8 @@
     paginatorDropdownAppendTo="body"
     [columns]="visibleTableHeaders()"
     [(selection)]="selectedTableRows"
+    selectionMode="multiple"
+    [selectionPageOnly]="true"
     (onFilter)="onFilterChange($event)"
     [globalFilterFields]="tableConfig().globalFilterFields"
     [lazy]="tableConfig().enableServerSide"
