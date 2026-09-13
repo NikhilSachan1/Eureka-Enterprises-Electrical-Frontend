@@ -6,6 +6,13 @@ import { IAppPermission } from '@features/settings-management/permission-managem
 })
 export class AppPermissionService {
   private readonly _permissions = signal<IAppPermission>([]);
+  /** Site-vendor menu gating from GET /sites/vendors/assignable. Fail closed until loaded. */
+  private readonly _vendorMenuAllowed = signal(false);
+  /** Employee-only: Assign Vendor is limited to `sites[]` from the assignable API. */
+  private readonly _vendorAssignGated = signal(false);
+  private readonly _assignableVendorSiteIds = signal<ReadonlySet<string>>(
+    new Set()
+  );
 
   getPermissions(): IAppPermission {
     return this._permissions();
@@ -13,6 +20,38 @@ export class AppPermissionService {
 
   setPermissions(permissions: IAppPermission): void {
     this._permissions.set(permissions);
+  }
+
+  isVendorMenuAllowed(): boolean {
+    return this._vendorMenuAllowed();
+  }
+
+  setAssignableVendorAccess(options: {
+    gated: boolean;
+    allowed: boolean;
+    siteIds?: readonly string[];
+  }): void {
+    this._vendorAssignGated.set(options.gated);
+    this._vendorMenuAllowed.set(options.allowed);
+    this._assignableVendorSiteIds.set(new Set(options.siteIds ?? []));
+  }
+
+  setVendorMenuAllowed(allowed: boolean): void {
+    this._vendorMenuAllowed.set(allowed);
+  }
+
+  isVendorAssignmentDisabledForSite(
+    siteId: string | null | undefined
+  ): boolean {
+    if (!this._vendorAssignGated()) {
+      return false;
+    }
+
+    if (!this._vendorMenuAllowed() || !siteId) {
+      return true;
+    }
+
+    return !this._assignableVendorSiteIds().has(siteId);
   }
 
   hasPermission(permissionName: string): boolean {

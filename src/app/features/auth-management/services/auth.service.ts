@@ -528,6 +528,11 @@ export class AuthService {
    */
   private clearAuthState(): void {
     this.announcementService.stopPeriodicUnacknowledgedCheck();
+    this.appPermissionService.setAssignableVendorAccess({
+      gated: false,
+      allowed: false,
+      siteIds: [],
+    });
 
     // Clear signals
     this._isAuthenticated.set(false);

@@ -10,6 +10,7 @@ import {
 import { IProject } from '../../types/project.interface';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { AppPermissionService } from '@core/services/app-permission.service';
 
 const normalizeProjectStatusKey = (status: unknown): string =>
   typeof status === 'string'
@@ -37,6 +38,8 @@ const PROJECT_DISABLED_TOOLTIP = {
     'Cannot delete a project while its status is Ongoing. Change status first.',
   assignVendorWhileComplete:
     'Cannot assign vendor while the project is complete.',
+  assignVendorSiteNotAllowed:
+    'Cannot assign vendor on this site. You can assign vendors only on allowed sites.',
 } as const;
 
 const PROJECT_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -90,32 +93,8 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-function isNotAllocatedProjectManager(
-  row: IProject,
-  loggedInUserId: string | null | undefined
-): boolean {
-  if (!loggedInUserId) {
-    return false;
-  }
-
-  const record = row as IProject & {
-    allocatedEmployees?: IProject['stakeholders']['allocatedEmployees'];
-  };
-  const employees =
-    record.originalRawData?.allocatedEmployees ??
-    record.stakeholders?.allocatedEmployees ??
-    record.allocatedEmployees ??
-    [];
-
-  return !employees.some(
-    employee =>
-      employee.id === loggedInUserId &&
-      employee.role.replace(/[\s_-]/g, '').toLowerCase() === 'projectmanager'
-  );
-}
-
 function buildProjectTableRowActionsConfig(
-  loggedInUserId: string | null | undefined
+  appPermissionService: AppPermissionService
 ): Partial<ITableActionConfig<IProject>>[] {
   return [
     {
@@ -136,9 +115,15 @@ function buildProjectTableRowActionsConfig(
     {
       id: EButtonActionType.ASSIGN_VENDOR,
       tooltip: 'Assign Vendor',
-      hideWhen: row => isNotAllocatedProjectManager(row, loggedInUserId),
-      disableWhen: row => isCompletedProjectStatus(getProjectStatus(row)),
-      disableReason: () => PROJECT_DISABLED_TOOLTIP.assignVendorWhileComplete,
+      disableWhen: row =>
+        isCompletedProjectStatus(getProjectStatus(row)) ||
+        appPermissionService.isVendorAssignmentDisabledForSite(row.id),
+      disableReason: row =>
+        isCompletedProjectStatus(getProjectStatus(row))
+          ? PROJECT_DISABLED_TOOLTIP.assignVendorWhileComplete
+          : appPermissionService.isVendorAssignmentDisabledForSite(row.id)
+            ? PROJECT_DISABLED_TOOLTIP.assignVendorSiteNotAllowed
+            : undefined,
     },
     {
       id: EButtonActionType.CHANGE_STATUS,
@@ -170,12 +155,12 @@ const PROJECT_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ];
 
 export function createProjectTableEnhancedConfig(
-  loggedInUserId: string | null | undefined
+  appPermissionService: AppPermissionService
 ): IEnhancedTableConfig<IProject> {
   return {
     tableConfig: PROJECT_TABLE_CONFIG,
     headers: PROJECT_TABLE_HEADER_CONFIG,
-    rowActions: buildProjectTableRowActionsConfig(loggedInUserId),
+    rowActions: buildProjectTableRowActionsConfig(appPermissionService),
     bulkActions: PROJECT_TABLE_BULK_ACTIONS_CONFIG,
   };
 }

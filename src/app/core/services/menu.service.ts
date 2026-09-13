@@ -4,6 +4,7 @@ import { filter } from 'rxjs/operators';
 import { ApplicationMenu, MenuItem, MenuSection } from '@shared/types';
 import { appMenu } from '@core/config';
 import { AppPermissionService } from './app-permission.service';
+import { ROUTE_BASE_PATHS } from '@shared/constants';
 
 @Injectable({
   providedIn: 'root',
@@ -26,14 +27,15 @@ export class MenuService {
 
   // Filtered menu sections based on user permissions
   private readonly filteredMenuSections = computed(() => {
-    // Get current permissions from the service
     const currentPermissions = this.appPermissionService.getPermissions();
+    const vendorMenuAllowed = this.appPermissionService.isVendorMenuAllowed();
 
     return this.menuState().sections.map(section => ({
       ...section,
       items: this.filterMenuItemsByPermission(
         section.items,
-        currentPermissions
+        currentPermissions,
+        vendorMenuAllowed
       ),
     }));
   });
@@ -68,15 +70,21 @@ export class MenuService {
    */
   private filterMenuItemsByPermission(
     items: MenuItem[],
-    permissions: string[]
+    permissions: string[],
+    vendorMenuAllowed: boolean
   ): MenuItem[] {
     return items
       .map(item => {
+        if (this.isVendorMenuItem(item) && !vendorMenuAllowed) {
+          return null;
+        }
+
         // If item has children, recursively filter them first
         if (item.children?.length) {
           const filteredChildren = this.filterMenuItemsByPermission(
             item.children,
-            permissions
+            permissions,
+            vendorMenuAllowed
           );
 
           // If no children remain after filtering, check parent permission
@@ -116,6 +124,10 @@ export class MenuService {
         return item;
       })
       .filter((item): item is MenuItem => item !== null);
+  }
+
+  private isVendorMenuItem(item: MenuItem): boolean {
+    return item.basePath === ROUTE_BASE_PATHS.SITE.VENDOR;
   }
 
   /**

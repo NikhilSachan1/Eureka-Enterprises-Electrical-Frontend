@@ -12,6 +12,7 @@ import { FormBase } from '@shared/base/form.base';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { ConfirmationDialogService } from '@shared/services';
+import { AppPermissionService } from '@core/services/app-permission.service';
 import { IDialogActionHandler } from '@shared/types';
 import { ASSIGN_PROJECT_STAKEHOLDERS_FORM_CONFIG } from '../../config';
 import { ProjectService } from '../../services/project.service';
@@ -32,6 +33,7 @@ export class AssignProjectStakeholdersComponent
   implements OnInit, IDialogActionHandler
 {
   private readonly projectService = inject(ProjectService);
+  private readonly appPermissionService = inject(AppPermissionService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -52,6 +54,14 @@ export class AssignProjectStakeholdersComponent
       return;
     }
 
+    if (this.appPermissionService.isVendorAssignmentDisabledForSite(record[0].id)) {
+      this.notificationService.error(
+        'You can assign vendors only on allowed sites.'
+      );
+      this.confirmationDialogService.closeDialog();
+      return;
+    }
+
     this.form =
       this.formService.createForm<IProjectAssignStakeholdersFormDto>(
         ASSIGN_PROJECT_STAKEHOLDERS_FORM_CONFIG,
@@ -68,6 +78,13 @@ export class AssignProjectStakeholdersComponent
 
   protected override handleSubmit(): void {
     const { id: projectId } = this.selectedRecord()[0];
+    if (this.appPermissionService.isVendorAssignmentDisabledForSite(projectId)) {
+      this.notificationService.error(
+        'You can assign vendors only on allowed sites.'
+      );
+      return;
+    }
+
     this.executeAssignStakeholders(this.form.getData(), projectId);
   }
 

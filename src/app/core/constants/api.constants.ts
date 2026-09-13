@@ -219,6 +219,7 @@ export const API_ROUTES = {
       DELETE: 'vendors',
       EDIT: (vendorId: string) => `vendors/${vendorId}`,
       GET_VENDOR_BY_ID: (vendorId: string) => `vendors/${vendorId}`,
+      ASSIGNABLE_SITES: 'sites/vendors/assignable',
     },
     PROJECT: {
       LIST: 'sites',
@@ -433,6 +434,7 @@ export const GET_ENDPOINT_PATHS_WITHOUT_ERROR_TOAST = new Set<string>([
   API_ROUTES.SITE.COMPANY.LIST,
   API_ROUTES.SITE.CONTRACTOR.LIST,
   API_ROUTES.SITE.VENDOR.LIST,
+  API_ROUTES.SITE.VENDOR.ASSIGNABLE_SITES,
 ]);
 
 export const SKIP_AUTH_ENDPOINTS = [

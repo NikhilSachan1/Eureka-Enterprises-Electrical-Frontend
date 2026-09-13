@@ -26,6 +26,7 @@ import {
 } from 'rxjs';
 
 import { LoggerService } from '@core/services';
+import { AppPermissionService } from '@core/services/app-permission.service';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { applyIconsToDropdownOptions } from '@shared/config/dropdown-option-icons.config';
@@ -33,7 +34,7 @@ import {
   CONFIGURATION_TYPE_DATA,
   SITE_ALLOCATION_STATUS_DATA,
 } from '@shared/config/static-data.config';
-import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import { CONFIGURATION_KEYS, EUserRole, MODULE_NAMES } from '@shared/constants';
 import { IOptionDropdown } from '@shared/types';
 import type { IEmployeeGetResponseDto } from '@features/employee-management/types/employee.dto';
 import type {
@@ -68,6 +69,7 @@ export class AppConfigurationService {
   private readonly injector = inject(Injector);
   private readonly logger = inject(LoggerService);
   private readonly authService = inject(AuthService);
+  private readonly appPermissionService = inject(AppPermissionService);
   private readonly roleService = inject(RoleService);
   private readonly userPermissionService = inject(UserPermissionService);
   private readonly configurationService = inject(ConfigurationService);
@@ -1484,6 +1486,49 @@ export class AppConfigurationService {
     );
   }
 
+  private isActiveRoleEmployee(): boolean {
+    return this.authService.getCurrentUser()?.activeRole === EUserRole.EMPLOYEE;
+  }
+
+  private loadVendorMenuAccessForActiveRole(): Observable<boolean> {
+    if (!this.isActiveRoleEmployee()) {
+      this.appPermissionService.setAssignableVendorAccess({
+        gated: false,
+        allowed: true,
+        siteIds: [],
+      });
+      return of(true);
+    }
+
+    return this.loadAssignableVendorMenuAccess();
+  }
+
+  private loadAssignableVendorMenuAccess(): Observable<boolean> {
+    return this.injectAfterLoad(() =>
+      import(
+        '@features/site-management/vendor-management/services/vendor.service'
+      ).then(m => m.VendorService)
+    ).pipe(
+      switchMap(vendorService => vendorService.getAssignableSiteVendors()),
+      tap(response => {
+        this.appPermissionService.setAssignableVendorAccess({
+          gated: true,
+          allowed: response.allowed === true,
+          siteIds: (response.sites ?? []).map(site => site.id),
+        });
+      }),
+      map(response => response.allowed === true),
+      catchError(() => {
+        this.appPermissionService.setAssignableVendorAccess({
+          gated: true,
+          allowed: false,
+          siteIds: [],
+        });
+        return of(false);
+      })
+    );
+  }
+
   loadVendorList(): Observable<IVendorGetResponseDto> {
     return (this.vendorListCache$ ??= this.fetchVendorList().pipe(
       this.shareAppDataCache()
@@ -1864,6 +1909,7 @@ export class AppConfigurationService {
             this.userPermissionService.fetchAndStoreLoggedInUserPermissions({
               roleId: currentRoleId,
             }),
+          vendorMenuAccess: this.loadVendorMenuAccessForActiveRole(),
           appConfiguration: this.loadAppConfiguration(),
           employeeList: this.loadEmployeeList(),
           assetList: this.loadAssetList(),
@@ -1914,6 +1960,7 @@ export class AppConfigurationService {
             this.userPermissionService.fetchAndStoreLoggedInUserPermissions({
               roleId: currentRoleId,
             }),
+          vendorMenuAccess: this.loadVendorMenuAccessForActiveRole(),
           appConfiguration: this.loadAppConfiguration(),
         }).pipe(
           map(parallelResults => ({

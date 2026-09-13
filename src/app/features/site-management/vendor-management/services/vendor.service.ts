@@ -1,7 +1,10 @@
 import { inject, Injectable } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ApiService, LoggerService } from '@core/services';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, Observable, of, tap, throwError } from 'rxjs';
 import { API_ROUTES } from '@core/constants';
+import { AuthService } from '@features/auth-management/services/auth.service';
+import { EUserRole } from '@shared/constants';
 import {
   VendorAddRequestSchema,
   VendorAddResponseSchema,
@@ -14,6 +17,7 @@ import {
   VendorEditResponseSchema,
   VendorGetRequestSchema,
   VendorGetResponseSchema,
+  AssignableSiteVendorsGetResponseSchema,
 } from '../schemas';
 import {
   IVendorAddFormDto,
@@ -28,6 +32,7 @@ import {
   IVendorEditResponseDto,
   IVendorGetFormDto,
   IVendorGetResponseDto,
+  IAssignableSiteVendorsGetResponseDto,
 } from '../types/vendor.dto';
 
 @Injectable({
@@ -36,6 +41,7 @@ import {
 export class VendorService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
+  private readonly authService = inject(AuthService);
 
   addVendor(formData: IVendorAddFormDto): Observable<IVendorAddResponseDto> {
     this.logger.logUserAction('Add Vendor Request');
@@ -213,6 +219,49 @@ export class VendorService {
             this.logger.logUserAction('Get Vendor Detail By Id Error', error);
           }
           return throwError(() => error);
+        })
+      );
+  }
+
+  getAssignableSiteVendors(): Observable<IAssignableSiteVendorsGetResponseDto> {
+    if (this.authService.getCurrentUser()?.activeRole !== EUserRole.EMPLOYEE) {
+      return of({ allowed: true, sites: [] });
+    }
+
+    this.logger.logUserAction('Get Assignable Site Vendors Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.VENDOR.ASSIGNABLE_SITES,
+        {
+          response: AssignableSiteVendorsGetResponseSchema,
+        },
+        undefined,
+        { silent: true }
+      )
+      .pipe(
+        tap((response: IAssignableSiteVendorsGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get Assignable Site Vendors Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Assignable Site Vendors Error',
+              error
+            );
+            return throwError(() => error);
+          }
+          this.logger.logUserAction(
+            'Get Assignable Site Vendors Error',
+            error
+          );
+          if (error instanceof HttpErrorResponse && error.status === 403) {
+            return of({ allowed: false, sites: [] });
+          }
+          return of({ allowed: false, sites: [] });
         })
       );
   }

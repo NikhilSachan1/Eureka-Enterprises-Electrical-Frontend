@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { APP_PERMISSION } from '@core/constants';
-import { permissionGuard } from '@core/guards';
+import { permissionGuard, vendorSectionGuard } from '@core/guards';
 import { ROUTES } from '@shared/constants';
 import { GetVendorDetailResolver } from './resolvers/get-vendor-detail.resolver';
 
@@ -16,7 +16,7 @@ export const VENDOR_MANAGEMENT_ROUTES: Routes = [
       import('./components/get-vendor/get-vendor.component').then(
         m => m.GetVendorComponent
       ),
-    canActivate: [permissionGuard],
+    canActivate: [permissionGuard, vendorSectionGuard],
     data: {
       permissions: [APP_PERMISSION.VENDOR.TABLE_VIEW],
     },
@@ -27,7 +27,7 @@ export const VENDOR_MANAGEMENT_ROUTES: Routes = [
       import('./components/add-vendor/add-vendor.component').then(
         m => m.AddVendorComponent
       ),
-    canActivate: [permissionGuard],
+    canActivate: [permissionGuard, vendorSectionGuard],
     data: {
       permissions: [APP_PERMISSION.VENDOR.ADD],
     },
@@ -41,7 +41,7 @@ export const VENDOR_MANAGEMENT_ROUTES: Routes = [
     resolve: {
       vendorDetail: GetVendorDetailResolver,
     },
-    canActivate: [permissionGuard],
+    canActivate: [permissionGuard, vendorSectionGuard],
     data: {
       permissions: [APP_PERMISSION.VENDOR.EDIT],
     },
