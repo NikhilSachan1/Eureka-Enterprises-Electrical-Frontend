@@ -264,6 +264,15 @@ export const API_ROUTES = {
         DEFAULT_TERMS: 'purchase-orders/default-terms',
         PDF: (poId: string) => `purchase-orders/${poId}/pdf`,
       },
+      ADVANCE_PAYMENT: {
+        ADD: 'advance-payments',
+        LIST: 'advance-payments',
+        GET_BY_ID: (id: string) => `advance-payments/${id}`,
+        EDIT: (id: string) => `advance-payments/${id}`,
+        DELETE: (id: string) => `advance-payments/${id}`,
+        APPROVE: (id: string) => `advance-payments/${id}/approve`,
+        REJECT: (id: string) => `advance-payments/${id}/reject`,
+      },
       JMC: {
         ADD: 'jmcs',
         EDIT: (jmcId: string) => `jmcs/${jmcId}`,

@@ -12,20 +12,26 @@ import {
   type IBookPaymentInvoiceDropdownMeta,
 } from '../../utils/book-payment-invoice-meta.util';
 
-type SummaryTone =
+export type DocMetricSummaryTone =
   | 'taxable'
   | 'deduction'
   | 'gst'
   | 'total'
   | 'booked'
   | 'paid'
-  | 'remaining';
+  | 'remaining'
+  | 'invoiced';
 
-interface ISummaryMetric {
+export interface IDocMetricSummaryItem {
   label: string;
-  value: number | null | undefined;
-  tone: SummaryTone;
+  value: number | string | null | undefined;
+  tone: DocMetricSummaryTone;
   suffix?: string;
+}
+
+export interface IDocMetricSummaryRow {
+  title: string;
+  items: IDocMetricSummaryItem[];
 }
 
 @Component({
@@ -36,31 +42,43 @@ interface ISummaryMetric {
   styleUrl: './book-payment-invoice-summary.component.scss',
 })
 export class BookPaymentInvoiceSummaryComponent {
-  readonly meta = input.required<IBookPaymentInvoiceDropdownMeta>();
+  readonly meta = input<IBookPaymentInvoiceDropdownMeta>();
+  readonly rows = input<IDocMetricSummaryRow[]>();
 
   protected readonly APP_CONFIG = APP_CONFIG;
 
-  protected readonly breakdownMetrics = computed((): ISummaryMetric[] => {
-    const meta = this.meta();
-    return [
-      { label: 'Taxable', value: meta.taxableAmount, tone: 'taxable' },
-      { label: 'TDS', value: meta.tdsAmount, tone: 'deduction' },
-      {
-        label: 'GST',
-        suffix: getBookPaymentInvoiceGstHoldLabel(meta.isGstHold),
-        value: meta.gstAmount,
-        tone: 'gst',
-      },
-      { label: 'Total', value: meta.totalAmount, tone: 'total' },
-    ];
-  });
+  protected readonly summaryRows = computed((): IDocMetricSummaryRow[] => {
+    const customRows = this.rows();
+    if (customRows?.length) {
+      return customRows;
+    }
 
-  protected readonly paymentMetrics = computed((): ISummaryMetric[] => {
     const meta = this.meta();
-    const metrics: ISummaryMetric[] = [];
+    if (!meta) {
+      return [];
+    }
+
+    const rows: IDocMetricSummaryRow[] = [
+      {
+        title: 'Breakdown',
+        items: [
+          { label: 'Taxable', value: meta.taxableAmount, tone: 'taxable' },
+          { label: 'TDS', value: meta.tdsAmount, tone: 'deduction' },
+          {
+            label: 'GST',
+            suffix: getBookPaymentInvoiceGstHoldLabel(meta.isGstHold),
+            value: meta.gstAmount,
+            tone: 'gst',
+          },
+          { label: 'Total', value: meta.totalAmount, tone: 'total' },
+        ],
+      },
+    ];
+
+    const paymentItems: IDocMetricSummaryItem[] = [];
 
     if (meta.bookedTotal !== undefined && meta.bookedTotal !== null) {
-      metrics.push({
+      paymentItems.push({
         label: 'Booked',
         value: meta.bookedTotal,
         tone: 'booked',
@@ -68,7 +86,7 @@ export class BookPaymentInvoiceSummaryComponent {
     }
 
     if (meta.paidTotal !== undefined && meta.paidTotal !== null) {
-      metrics.push({
+      paymentItems.push({
         label: 'Paid',
         value: meta.paidTotal,
         tone: 'paid',
@@ -76,17 +94,17 @@ export class BookPaymentInvoiceSummaryComponent {
     }
 
     if (meta.remaining !== undefined && meta.remaining !== null) {
-      metrics.push({
+      paymentItems.push({
         label: 'Remaining',
         value: meta.remaining,
         tone: 'remaining',
       });
     }
 
-    return metrics;
-  });
+    if (paymentItems.length > 0) {
+      rows.push({ title: 'Payment', items: paymentItems });
+    }
 
-  protected readonly showPaymentMetrics = computed(
-    () => this.paymentMetrics().length > 0
-  );
+    return rows;
+  });
 }

@@ -92,6 +92,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
       label: 'Approval Status',
       visibleOnTabs: [
         WORKSPACE_DOC.PO,
+        WORKSPACE_DOC.ADVANCE_PAYMENT,
         WORKSPACE_DOC.JMC,
         WORKSPACE_DOC.INVOICE,
         WORKSPACE_DOC.PAYMENT_REQUEST,

@@ -14,11 +14,18 @@ export const PoDropdownGetRequestSchema = z
     };
   });
 
+const PoDropdownAdvancePaymentMetaSchema = z.looseObject({
+  amount: z.union([z.string(), z.number()]).optional(),
+  settled: z.union([z.string(), z.number()]).optional(),
+  remaining: z.union([z.string(), z.number()]).optional(),
+});
+
 const PoDropdownMetaSchema = z.looseObject({
   poNumber: z.string(),
   totalAmount: z.number(),
   invoicedTotal: z.number(),
   remaining: z.number(),
+  advancePayment: PoDropdownAdvancePaymentMetaSchema.optional(),
 });
 
 export const PoDropdownRecordSchema = z.looseObject({

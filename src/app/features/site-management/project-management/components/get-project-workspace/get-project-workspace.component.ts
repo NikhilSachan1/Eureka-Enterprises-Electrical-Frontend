@@ -654,6 +654,7 @@ export class GetProjectWorkspaceComponent {
     const {
       PROJECT,
       PO_DOC,
+      ADVANCE_PAYMENT_DOC,
       JMC_DOC,
       REPORT_DOC,
       INVOICE_DOC,
@@ -690,6 +691,7 @@ export class GetProjectWorkspaceComponent {
         icon: this.icons.COMMON.FILE,
         visible: this.appPermissionService.hasAnyPermission([
           PO_DOC.TABLE_VIEW,
+          ADVANCE_PAYMENT_DOC.TABLE_VIEW,
           JMC_DOC.TABLE_VIEW,
           REPORT_DOC.TABLE_VIEW,
           INVOICE_DOC.TABLE_VIEW,

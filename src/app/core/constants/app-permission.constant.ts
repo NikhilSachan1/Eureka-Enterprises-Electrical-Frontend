@@ -225,6 +225,15 @@ export const APP_PERMISSION = {
     UNLOCK_REQUEST_REJECT: 'financials.purchase-orders.unlock-request-reject',
     GENERATE_PO_DOC: 'financials.purchase-orders.generate',
   },
+  ADVANCE_PAYMENT_DOC: {
+    VIEW_DETAIL: 'financials.advance-payments.view-list',
+    TABLE_VIEW: 'financials.advance-payments.view-list',
+    ADD: 'financials.advance-payments.create',
+    EDIT: 'financials.advance-payments.update',
+    DELETE: 'financials.advance-payments.delete',
+    APPROVE: 'financials.advance-payments.approve',
+    REJECT: 'financials.advance-payments.approve',
+  },
   JMC_DOC: {
     VIEW_DETAIL: 'financials.jmcs.view-detail',
     TABLE_VIEW: 'financials.jmcs.view-list',

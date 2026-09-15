@@ -1,0 +1,38 @@
+<form
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.projectName"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.poNumber"
+  />
+
+  @if (selectedPoMeta(); as meta) {
+    <app-book-payment-invoice-summary [rows]="poSummaryRows(meta)" />
+  }
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.vendorAdvanceNumber"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.advanceDate"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.amount"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.advanceAttachment"
+  />
+</form>
