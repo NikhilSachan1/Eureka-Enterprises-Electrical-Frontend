@@ -38,10 +38,13 @@ const ACTION_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IActionAssetUIForm
       fieldType: EDataType.ATTACHMENTS,
       id: 'assetImages',
       fieldName: 'assetImages',
-      label: 'Asset Images',
+      label: 'Asset documents & images',
       fileConfig: {
         fileLimit: 10,
-        acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.IMAGE,
+        acceptFileTypes: [
+          ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
+          ...APP_CONFIG.MEDIA_CONFIG.PDF,
+        ],
       },
       conditionalValidators: [
         {

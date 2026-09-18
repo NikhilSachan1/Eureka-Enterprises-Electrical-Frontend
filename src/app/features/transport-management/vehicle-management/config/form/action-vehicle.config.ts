@@ -38,10 +38,13 @@ const ACTION_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleActionUI
       fieldType: EDataType.ATTACHMENTS,
       id: 'vehicleImages',
       fieldName: 'vehicleImages',
-      label: 'Vehicle Images',
+      label: 'Vehicle documents & images',
       fileConfig: {
         fileLimit: 10,
-        acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.IMAGE,
+        acceptFileTypes: [
+          ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
+          ...APP_CONFIG.MEDIA_CONFIG.PDF,
+        ],
       },
       conditionalValidators: [
         {
