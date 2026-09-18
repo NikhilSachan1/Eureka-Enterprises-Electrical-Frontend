@@ -43,3 +43,4 @@ export {
   PoItemSuggestionsGetRequestSchema,
   PoItemSuggestionsGetResponseSchema,
 } from './get-po-item-suggestions.schema';
+export { PoDefaultTermsGetResponseSchema } from './get-po-default-terms.schema';

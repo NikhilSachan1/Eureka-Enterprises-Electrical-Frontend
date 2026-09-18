@@ -10,7 +10,6 @@ export const ProjectAddRequestSchema =
       siteTypes: data.projectType,
       companyId: data.companyName,
       contractorIds: data.contractorNames,
-      vendorIds: data.vendorNames,
       managerName: data.siteManagerName,
       managerContact: data.siteManagerContact,
       startDate: transformDateFormat(startDate),

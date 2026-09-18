@@ -39,6 +39,8 @@ export const API_ROUTES = {
     REFRESH_TOKEN: 'auth/refresh-token',
     FORGOT_PASSWORD: 'auth/forget-password',
     RESET_PASSWORD: (token: string) => `auth/reset-password/${token}`,
+    RESET_USER_PASSWORD: (userId: string) =>
+      `auth/users/${userId}/reset-password`,
     SWITCH_ACTIVE_ROLE: 'auth/switch-role',
   },
   ATTENDANCE: {
@@ -258,6 +260,7 @@ export const API_ROUTES = {
           `purchase-orders/${poId}/unlock-reject`,
         DELETE: (poId: string) => `purchase-orders/${poId}`,
         ITEM_SUGGESTIONS: 'purchase-orders/items/suggestions',
+        DEFAULT_TERMS: 'purchase-orders/default-terms',
         PDF: (poId: string) => `purchase-orders/${poId}/pdf`,
       },
       JMC: {

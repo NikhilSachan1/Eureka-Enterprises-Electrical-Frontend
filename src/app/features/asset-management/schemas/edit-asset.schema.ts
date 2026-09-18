@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { AssetUpsertShapeSchema } from './base-asset.schema';
 import { transformDateFormat } from '@shared/utility';
 import { getCalibrationEndDateFromStartAndFrequency } from '../utility/calibration-date.util';
+import { mergeAssetFilesWithLabels } from '../utility/asset-files.util';
 
 export const AssetEditRequestSchema = AssetUpsertShapeSchema.extend({
   assetId: z.string().optional(),
@@ -35,7 +36,10 @@ export const AssetEditRequestSchema = AssetUpsertShapeSchema.extend({
       warrantyStartDate: transformDateFormat(warrantyStartDate),
       warrantyEndDate: transformDateFormat(warrantyEndDate),
       remarks: data.remarks,
-      assetFiles: data.assetFiles,
+      ...mergeAssetFilesWithLabels(
+        data.assetFiles,
+        data.assetCalibrationFiles
+      ),
     };
   });
 export const AssetEditResponseSchema = z.looseObject({

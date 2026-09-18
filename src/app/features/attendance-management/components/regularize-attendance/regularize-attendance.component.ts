@@ -21,7 +21,7 @@ import {
 } from '@shared/services';
 import { IDialogActionHandler, ITrackedFields } from '@shared/types';
 import { getSelectedEmployeeRole } from '@shared/utility';
-import { REGULARIZE_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/regularize-attendance.config';
+import { getRegularizeAttendanceFormConfig } from '@features/attendance-management/config/form/regularize-attendance.config';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
 import {
   IAttendanceGetBaseResponseDto,
@@ -32,6 +32,7 @@ import {
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { IAttendanceAssignmentSubmitPayload } from '@features/attendance-management/types/attendance.interface';
 import {
+  getAssignedDrivers,
   getAssignmentFormValues,
   isAttendanceAssignmentApplicable,
   NULL_ASSIGNMENT_FORM_VALUES,
@@ -73,15 +74,13 @@ export class RegularizeAttendanceComponent
     isAttendanceAssignmentApplicable(this.getSelectedAttendanceStatus())
   );
   protected readonly showRoleAssignmentFields = computed(
-    () => this.showAssignmentFields()
-  );
-  protected readonly showDriverAssignmentFields = computed(
     () =>
       this.showAssignmentFields() &&
-      this.employeeRoles().includes(EUserRole.DRIVER)
+      this.employeeRoles().includes(EUserRole.EMPLOYEE)
   );
   protected readonly assignmentSubmitPayload =
     signal<IAttendanceAssignmentSubmitPayload>(NULL_ASSIGNMENT_FORM_VALUES);
+  private assignedDriverMultiple = false;
 
   constructor() {
     super();
@@ -116,16 +115,12 @@ export class RegularizeAttendanceComponent
       );
 
       if (this.showAssignmentFields()) {
-        const snapshot = this.selectedRecord()[0]?.assignmentSnapshot;
-        if (this.showDriverAssignmentFields()) {
-          this.form.patch({
-            assignedEngineer: snapshot?.assignedEngineer?.id ?? null,
-          });
-        } else {
-          this.form.patch(getAssignmentFormValues(snapshot));
-        }
+        this.form.patch(this.getAssignmentPatch(this.selectedRecord()[0]));
       } else {
-        this.form.patch({ ...NULL_ASSIGNMENT_FORM_VALUES });
+        this.form.patch({
+          ...NULL_ASSIGNMENT_FORM_VALUES,
+          assignedDriver: this.assignedDriverMultiple ? [] : null,
+        });
       }
     });
   }
@@ -157,8 +152,10 @@ export class RegularizeAttendanceComponent
       record.status
     );
 
+    this.assignedDriverMultiple = getAssignedDrivers(record).length > 1;
+
     this.form = this.formService.createForm<IAttendanceRegularizedUIFormDto>(
-      REGULARIZE_ATTENDANCE_FORM_CONFIG,
+      getRegularizeAttendanceFormConfig(this.assignedDriverMultiple),
       {
         destroyRef: this.destroyRef,
         defaultValues: this.preparePrefilledFormData(record),
@@ -209,31 +206,36 @@ export class RegularizeAttendanceComponent
       EAttendanceStatus.LEAVE,
       EAttendanceStatus.HOLIDAY,
     ];
-    const snapshot = record.assignmentSnapshot;
-    const isDriver = this.employeeRoles().includes(EUserRole.DRIVER);
 
     return {
       ...(allowedStatuses.includes(record.status as EAttendanceStatus)
         ? { attendanceStatus: record.status }
         : {}),
-      ...getAssignmentFormValues(snapshot, { includeSiteFields: !isDriver }),
+      ...this.getAssignmentPatch(record),
     };
+  }
+
+  private getAssignmentPatch(
+    record: IAttendanceGetBaseResponseDto
+  ): ReturnType<typeof getAssignmentFormValues> {
+    return getAssignmentFormValues(record, {
+      includeAssignedDriver: true,
+      assignedDriverMultiple: this.assignedDriverMultiple,
+    });
   }
 
   private prepareFormData(userId: string): IAttendanceRegularizedFormDto {
     const formData = this.form.getData();
-    const isDriver = this.employeeRoles().includes(EUserRole.DRIVER);
-    const assignment = isAttendanceAssignmentApplicable(
-      formData.attendanceStatus
-    )
-      ? this.assignmentSubmitPayload()
-      : NULL_ASSIGNMENT_FORM_VALUES;
+    const isEmployee = this.employeeRoles().includes(EUserRole.EMPLOYEE);
+    const assignment =
+      isAttendanceAssignmentApplicable(formData.attendanceStatus) && isEmployee
+        ? this.assignmentSubmitPayload()
+        : NULL_ASSIGNMENT_FORM_VALUES;
 
     return {
       attendanceStatus: formData.attendanceStatus,
       employeeName: userId,
       ...assignment,
-      assignedEngineer: isDriver ? assignment.assignedEngineer : null,
     } satisfies IAttendanceRegularizedFormDto;
   }
 

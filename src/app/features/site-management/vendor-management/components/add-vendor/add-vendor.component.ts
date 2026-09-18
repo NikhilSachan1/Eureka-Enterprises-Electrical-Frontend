@@ -11,12 +11,14 @@ import { IVendorAddFormDto } from '../../types/vendor.dto';
 import { VendorService } from '../../services/vendor.service';
 import {
   AppConfigurationService,
+  DrawerService,
   RouterNavigationService,
 } from '@shared/services';
 import { ADD_VENDOR_FORM_CONFIG } from '../../config';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { IPageHeaderConfig } from '@shared/types';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -45,6 +47,8 @@ export class AddVendorComponent
   private readonly vendorService = inject(VendorService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly drawerService = inject(DrawerService);
+  private readonly drawerData = inject(DRAWER_DATA, { optional: true });
 
   private vendorTypeTracked!: Signal<string | null | undefined>;
 
@@ -100,6 +104,10 @@ export class AddVendorComponent
         next: () => {
           this.notificationService.success('Vendor added successfully');
           this.appConfigurationService.refreshVendorDropdowns();
+          if (this.drawerData) {
+            this.drawerService.hideDrawer();
+            return;
+          }
           const routeSegments = [
             ROUTE_BASE_PATHS.SITE.BASE,
             ROUTE_BASE_PATHS.SITE.VENDOR,

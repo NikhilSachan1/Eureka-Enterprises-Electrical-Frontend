@@ -1,7 +1,7 @@
 import { Validators } from '@angular/forms';
 import { IAttendanceApplyUIFormDto } from '@features/attendance-management/types/attendance.dto';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import { CONFIGURATION_KEYS, EUserRole, MODULE_NAMES } from '@shared/constants';
 import { ICONS } from '@shared/constants/icon.constants';
 import {
   EButtonActionType,
@@ -51,28 +51,19 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
         },
       ],
     },
-    assignedEngineer: {
+    assignedDriver: {
       fieldType: EDataType.SELECT,
-      id: 'assignedEngineer',
-      fieldName: 'assignedEngineer',
-      label: 'Assigned Engineer',
+      id: 'assignedDriver',
+      fieldName: 'assignedDriver',
+      label: 'Assigned Driver',
       selectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.EMPLOYEE,
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+          filterByRole: [EUserRole.DRIVER],
           employeeStatusFilter: ['ACTIVE'],
         },
       },
-      conditionalValidators: [
-        {
-          shouldApply: (context): boolean => {
-            const { isDriver, isAssignmentApplicable = true } = context;
-            return isDriver === true && isAssignmentApplicable === true;
-          },
-          validators: [Validators.required],
-          resetOnFalse: true,
-        },
-      ],
     },
     vehicle: {
       fieldType: EDataType.SELECT,

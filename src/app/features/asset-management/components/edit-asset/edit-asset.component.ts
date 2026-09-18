@@ -98,6 +98,8 @@ export class EditAssetComponent
     assetDetailFromResolver: IAssetDetailResolverResponse
   ): IAssetEditFormDto {
     const preloadedFiles = assetDetailFromResolver.preloadedFiles ?? [];
+    const preloadedCalibrationFiles =
+      assetDetailFromResolver.preloadedCalibrationFiles ?? [];
 
     const {
       assetId,
@@ -136,6 +138,7 @@ export class EditAssetComponent
           : null,
       remarks,
       assetFiles: preloadedFiles,
+      assetCalibrationFiles: preloadedCalibrationFiles,
     };
   }
 

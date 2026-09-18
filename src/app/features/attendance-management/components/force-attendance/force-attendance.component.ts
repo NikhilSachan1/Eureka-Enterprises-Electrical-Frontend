@@ -61,7 +61,6 @@ export class ForceAttendanceComponent
 
   private trackedAttendanceFields!: ITrackedFields<IAttendanceForceUIFormDto>;
   private lastLoadedStatusUserId: string | null = null;
-  private lastSelectedDriverEmployeeId: string | null = null;
   private cachedAssignmentResponse: IAttendanceCurrentStatusGetResponseDto | null =
     null;
 
@@ -80,16 +79,8 @@ export class ForceAttendanceComponent
       return false;
     }
 
-    const roles = this.employeeRoles();
-    return (
-      roles.includes(EUserRole.EMPLOYEE) || roles.includes(EUserRole.DRIVER)
-    );
+    return this.employeeRoles().includes(EUserRole.EMPLOYEE);
   });
-  protected readonly showDriverAssignmentFields = computed(
-    () =>
-      this.showAssignmentFields() &&
-      this.employeeRoles().includes(EUserRole.DRIVER)
-  );
   protected readonly assignmentSubmitPayload =
     signal<IAttendanceAssignmentSubmitPayload>(NULL_ASSIGNMENT_FORM_VALUES);
   protected readonly employeeRoles = computed(() => {
@@ -120,7 +111,6 @@ export class ForceAttendanceComponent
 
       if (typeof employeeName !== 'string') {
         this.lastLoadedStatusUserId = null;
-        this.lastSelectedDriverEmployeeId = null;
         this.cachedAssignmentResponse = null;
         return;
       }
@@ -135,10 +125,9 @@ export class ForceAttendanceComponent
       }
 
       if (
-        roles.includes(EUserRole.DRIVER) &&
-        employeeName !== this.lastSelectedDriverEmployeeId
+        !roles.includes(EUserRole.EMPLOYEE) &&
+        this.lastLoadedStatusUserId !== null
       ) {
-        this.lastSelectedDriverEmployeeId = employeeName;
         this.lastLoadedStatusUserId = null;
         this.cachedAssignmentResponse = null;
 
@@ -175,7 +164,7 @@ export class ForceAttendanceComponent
         this.cachedAssignmentResponse
       ) {
         this.applyPrefilledAssignmentData(this.cachedAssignmentResponse);
-      } else if (!this.showAssignmentFields()) {
+      } else if (!this.showRoleAssignmentFields()) {
         this.clearAssignmentFields();
       }
     });
@@ -193,7 +182,7 @@ export class ForceAttendanceComponent
     const trackedFields: (keyof IAttendanceForceUIFormDto)[] = [
       'employeeName',
       'attendanceStatus',
-      'assignedEngineer',
+      'assignedDriver',
       'company',
       'contractor',
       'vehicle',
@@ -207,15 +196,10 @@ export class ForceAttendanceComponent
   }
 
   private loadCurrentStatusDetail(userId: string): void {
-    const isDriver = this.employeeRoles().includes(EUserRole.DRIVER);
-
     this.loadingService.show({
-      title: isDriver
-        ? 'Loading assigned engineer assignment'
-        : 'Loading employee assignment',
-      message: isDriver
-        ? "We're loading the assigned engineer's assignment. This will just take a moment."
-        : "We're loading the employee assignment. This will just take a moment.",
+      title: 'Loading employee assignment',
+      message:
+        "We're loading the employee assignment. This will just take a moment.",
     });
 
     const paramData = this.prepareParamDataForCurrentStatusDetail(userId);
@@ -236,7 +220,10 @@ export class ForceAttendanceComponent
             return;
           }
 
-          this.applyPrefilledAssignmentData(response);
+          this.form.patch({
+            ...this.preparePrefilledFormData(response),
+            assignedDriver: null,
+          });
         },
         error: error => {
           this.logger.error('Error loading current status detail', error);
@@ -275,11 +262,11 @@ export class ForceAttendanceComponent
 
   private prepareFormData(): IAttendanceForceFormDto {
     const formData = this.form.getData();
-    const assignment = isAttendanceAssignmentApplicable(
-      formData.attendanceStatus
-    )
-      ? this.assignmentSubmitPayload()
-      : NULL_ASSIGNMENT_FORM_VALUES;
+    const assignment =
+      isAttendanceAssignmentApplicable(formData.attendanceStatus) &&
+      this.employeeRoles().includes(EUserRole.EMPLOYEE)
+        ? this.assignmentSubmitPayload()
+        : NULL_ASSIGNMENT_FORM_VALUES;
 
     return {
       ...formData,

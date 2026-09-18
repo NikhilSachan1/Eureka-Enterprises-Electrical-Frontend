@@ -17,6 +17,7 @@ export const AddPoRequestSchema = PoUpsertShapeSchema.strict().transform(
         gstType: data.gstType,
         remarks: data.remarks,
         items: data.items,
+        termsAndConditions: data.termsAndConditions,
       };
     }
 

@@ -28,7 +28,7 @@ import { AvatarService, RouterNavigationService } from '@shared/services';
 import { DialogModule } from 'primeng/dialog';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { finalize, Subject } from 'rxjs';
-import { IPoBreakdownRecord } from '../../types/po-breakdown.interface';
+import { IPoBreakdownRecord, IPoPanelMetrics } from '../../types/po-breakdown.interface';
 import {
   EMPTY_PROJECT_DOCUMENT_STATUS,
   IProjectDocumentStatusTarget,
@@ -198,8 +198,8 @@ export class ProjectDocumentStatusDetailComponent {
     const contextSnapshot = this.activeContextSnapshot();
     const snapshotRecords = contextSnapshot?.records ?? [];
 
-    if (snapshotRecords.length) {
-      return contextSnapshot!.totalRecords;
+    if (snapshotRecords.length && contextSnapshot) {
+      return contextSnapshot.totalRecords;
     }
 
     if (this.records().length || this.totalRecords()) {
@@ -302,10 +302,10 @@ export class ProjectDocumentStatusDetailComponent {
         this.applyAutoExpandPoPanel(this.displayRecords());
       });
 
-      this.project().id;
-      this.docContext();
-      this.page();
-      this.breakdownSnapshot();
+      void this.project().id;
+      void this.docContext();
+      void this.page();
+      void this.breakdownSnapshot();
 
       if (this.breakdownSnapshot()) {
         untracked(() => {
@@ -391,7 +391,7 @@ export class ProjectDocumentStatusDetailComponent {
     return countPoPendingApprovals(record);
   }
 
-  protected poMetrics(record: IPoBreakdownRecord) {
+  protected poMetrics(record: IPoBreakdownRecord): IPoPanelMetrics {
     return buildPoPanelMetrics(
       record,
       this.isSales(),

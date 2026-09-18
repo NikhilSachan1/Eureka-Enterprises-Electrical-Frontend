@@ -17,6 +17,8 @@ export function resolveWorkspaceDocTab(stage: EDocChainStage): string {
       return WORKSPACE_DOC.BOOK_PAYMENT;
     case EDocChainStage.BANK_TRANSFER:
       return WORKSPACE_DOC.BANK_TRANSFER;
+    default:
+      return WORKSPACE_DOC.PO;
   }
 }
 

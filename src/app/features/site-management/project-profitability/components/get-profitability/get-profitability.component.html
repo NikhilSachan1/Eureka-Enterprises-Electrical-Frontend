@@ -24,7 +24,8 @@
     </section>
   } @else if (isLoading()) {
     <app-section-loader message="Loading project profitability..." />
-  } @else if (report(); as vm) {
+  } @else {
+    @if (report(); as vm) {
     @let sales = vm.metaSummary.salesSummary;
     @let purchase = vm.metaSummary.purchaseSummary;
     @let profit = vm.profitabilitySummary;
@@ -543,5 +544,6 @@
         description="Something went wrong while fetching data. Re-select the project or refresh the page."
       />
     </section>
+  }
   }
 </div>

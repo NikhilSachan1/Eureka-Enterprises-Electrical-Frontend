@@ -1,3 +1,4 @@
+import type { Type } from '@angular/core';
 import { ValidatorFn } from '@angular/forms';
 import type { Observable } from 'rxjs';
 import {
@@ -59,6 +60,19 @@ export interface IInputFieldsConfig {
   columnWidth?: string;
   validators?: ValidatorFn[];
   conditionalValidators?: IConditionalValidator[];
+  /**
+   * Select / multi-select footer that opens `component` in a drawer.
+   * Pass the add form from the field config that enables this.
+   */
+  allowCreate?: IDropdownCreateSpec;
+}
+
+export interface IDropdownCreateSpec {
+  component: Type<unknown>;
+  permission?: string;
+  actionLabel?: string;
+  header?: string;
+  subtitle?: string;
 }
 
 export interface IInputNumberFieldConfig {

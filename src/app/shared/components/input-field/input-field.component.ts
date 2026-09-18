@@ -32,8 +32,8 @@ import {
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { SelectModule } from 'primeng/select';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { Select, SelectModule } from 'primeng/select';
+import { MultiSelect, MultiSelectModule } from 'primeng/multiselect';
 import { DatePickerModule } from 'primeng/datepicker';
 import { PasswordModule } from 'primeng/password';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -51,17 +51,21 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import {
   AppConfigurationService,
+  DrawerService,
   GalleryService,
   InputFieldConfigService,
 } from '@shared/services';
+import { AppPermissionService } from '@core/services';
 import {
   EButtonActionType,
+  EButtonSeverity,
   EButtonVariant,
   ECalendarView,
   ECheckBoxAndRadioAlign,
   EDateIconDisplay,
   EDateSelectionMode,
   EDataType,
+  EDrawerSize,
   EEditorToolbarOption,
   EFileMode,
   EHourFormat,
@@ -70,6 +74,7 @@ import {
   ETextCase,
   IEditorFieldConfig,
   IInputFieldsConfig,
+  IDropdownCreateSpec,
   IMultiSelectFieldConfig,
   ITextFieldConfig,
   IGalleryInputData,
@@ -91,6 +96,7 @@ import {
 } from '@shared/constants';
 import {
   COMMON_ROW_ACTIONS,
+  DEFAULT_BUTTON_CONFIG,
   DEFAULT_MULTI_SELECT_MAX_VISIBLE_LABELS,
 } from '@shared/config';
 import {
@@ -138,6 +144,8 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   private readonly galleryService = inject(GalleryService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly drawerService = inject(DrawerService);
+  private readonly appPermissionService = inject(AppPermissionService);
   private readonly authService = inject(AuthService);
   private readonly fb = inject(FormBuilder);
   protected readonly inputFieldConfigService = inject(InputFieldConfigService);
@@ -268,6 +276,8 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   totalUploadedSize = 0;
 
   @ViewChild('fileUploadRef') fileUploadRef?: FileUpload;
+  @ViewChild('selectRef') private selectRef?: Select;
+  @ViewChild('multiSelectRef') private multiSelectRef?: MultiSelect;
 
   /** When provided = form mode (reactive form). When not provided = standalone mode (use fieldValue + onFieldChange). */
   formGroup = input<FormGroup | undefined>(undefined);
@@ -817,7 +827,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       CONFIGURATION_KEYS.COMMON.ROLE_LIST,
       CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
       CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS,
-      CONFIGURATION_KEYS.FINANCIAL.GST_TYPES,
     ]);
 
     if (nonConfigurationDynamicKeys.has(dropdownName)) {
@@ -876,6 +885,57 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     }
 
     return multiSelectConfig?.emptyMessage ?? 'No data found';
+  }
+
+  protected readonly dropdownCreateActionButtonConfig = computed(() => {
+    const spec = this.getDropdownCreateSpec();
+    if (!spec) {
+      return null;
+    }
+
+    return {
+      ...DEFAULT_BUTTON_CONFIG,
+      id: EButtonActionType.ADD,
+      label: spec.actionLabel ?? 'Add',
+      icon: ICONS.COMMON.PLUS,
+      variant: EButtonVariant.OUTLINED,
+      severity: EButtonSeverity.PRIMARY,
+    } satisfies Partial<IButtonConfig>;
+  });
+
+  private getDropdownCreateSpec(): IDropdownCreateSpec | undefined {
+    const config = this.inputFieldConfig();
+    const spec = config.allowCreate;
+    if (!spec?.component || config.disabledInput) {
+      return undefined;
+    }
+
+    if (
+      spec.permission &&
+      !this.appPermissionService.hasPermission(spec.permission)
+    ) {
+      return undefined;
+    }
+
+    return spec;
+  }
+
+  protected onDropdownCreateAction(): void {
+    const spec = this.getDropdownCreateSpec();
+    if (!spec) {
+      return;
+    }
+
+    this.selectRef?.hide();
+    this.multiSelectRef?.hide();
+
+    this.drawerService.showDrawer(spec.component, {
+      header: spec.header ?? spec.actionLabel ?? 'Add',
+      subtitle: spec.subtitle ?? '',
+      size: EDrawerSize.LARGE,
+      baseZIndex: 4000,
+      componentData: { fromDropdown: true },
+    });
   }
 
   shouldShowMultiSelectToggleAll(
@@ -1662,6 +1722,9 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     }
     if (errors['pattern']) {
       return 'Please enter a valid email address';
+    }
+    if (errors['mismatch']) {
+      return 'Passwords do not match';
     }
 
     return 'Invalid value';

@@ -287,7 +287,7 @@ export class GetEmployeeComponent implements OnInit {
       },
       {
         label: 'Roles',
-        value: selectedRow.roles,
+        value: selectedRow.roles.map(role => toTitleCase(role.name)).join(', '),
       },
     ];
     return {

@@ -8,6 +8,7 @@ import {
 } from '@shared/schemas';
 import { makeFieldsNullable } from '@shared/utility';
 import { AssetEventHistoryGetBaseResponseObjectSchema } from './get-asset-event-history.schema';
+import { splitLabeledFileKeys } from '../utility/asset-files.util';
 
 const { createdAt, updatedAt } = AuditSchema.shape;
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
@@ -76,7 +77,7 @@ export const AssetGetBaseResponseSchema = z
   })
   .transform(({ files, ...rest }) => ({
     ...rest,
-    documentKeys: files.map(file => file.fileKey),
+    ...splitLabeledFileKeys(files),
   }));
 
 export const AssetGetStatsResponseSchema = z.looseObject({

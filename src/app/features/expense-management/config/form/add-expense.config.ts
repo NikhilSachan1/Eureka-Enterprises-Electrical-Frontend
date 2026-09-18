@@ -1,5 +1,4 @@
 import { Validators } from '@angular/forms';
-import { FinancialYearService } from '@core/services/financial-year.service';
 import { APP_CONFIG } from '@core/config';
 import { EExpenseCategory } from '@features/expense-management/types/expense.enum';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
@@ -16,10 +15,7 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import { getDateBeforeXDays } from '@shared/utility';
 import { IExpenseAddFormDto } from '@features/expense-management/types/expense.dto';
-
-const financialYearService = new FinancialYearService();
 
 const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseAddFormDto> =
   {

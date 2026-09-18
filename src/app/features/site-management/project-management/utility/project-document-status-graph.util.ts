@@ -125,7 +125,7 @@ export function buildGraphCardView(data: IDocChainNodeVm): IGraphCardView {
     dateLabel: graphDateFactLabel(data.stage),
     formattedDate,
     amount: data.amount,
-    hasFacts: !!(data.amount || formattedDate !== '—'),
+    hasFacts: Boolean(data.amount) || formattedDate !== '—',
   };
 }
 
@@ -194,6 +194,8 @@ function expectedMissingPrimaryText(
       return docName === 'Payment'
         ? 'Payment not received yet'
         : 'Payment not made yet';
+    default:
+      return `${docName} not created yet`;
   }
 }
 
@@ -239,6 +241,8 @@ function graphStageIcon(stage: EDocChainStage): string {
       return 'pi pi-wallet';
     case EDocChainStage.BANK_TRANSFER:
       return 'pi pi-credit-card';
+    default:
+      return 'pi pi-file';
   }
 }
 
@@ -539,7 +543,7 @@ function bankTransferNodeData(
 }
 
 function positiveAmount(value: number | null | undefined): number | null {
-  if (value == null || value <= 0) {
+  if (value === null || value === undefined || value <= 0) {
     return null;
   }
   return value;
@@ -627,6 +631,8 @@ function stageDocName(stage: EDocChainStage, isSales: boolean): string {
       return 'Book Payment';
     case EDocChainStage.BANK_TRANSFER:
       return isSales ? 'Payment' : 'Bank Transfer';
+    default:
+      return 'Document';
   }
 }
 

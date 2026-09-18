@@ -58,17 +58,18 @@
       </section>
 
       <!-- Assignment Details -->
+      @if (!isDriverUser || !currentStatusData()?.checkInTime) {
       <section class="content-card__main assignment-section">
         <form
           class="form"
           [formGroup]="form.formGroup"
           (ngSubmit)="onSubmit()"
         >
-          <div class="assignment-note">
-            <p>Before applying attendance, please review your assignment details.</p>
-            <p>If any information is incorrect, you may edit it here or contact your Admin / HR.</p>
-            <ul class="assignment-note__list">
-              @if (isEmployeeUser) {
+          @if (isEmployeeUser) {
+            <div class="assignment-note">
+              <p>Before applying attendance, please review your assignment details.</p>
+              <p>If any information is incorrect, you may edit it here or contact your Admin / HR.</p>
+              <ul class="assignment-note__list">
                 <li>
                   <b>Company</b>
                   - The company (and location) where you are required to report for this assignment.
@@ -81,40 +82,30 @@
                   <b>Vehicle</b>
                   - The vehicle you select remains your responsibility for this assignment.
                 </li>
-              }
-              @if (isDriverUser) {
                 <li>
-                  <b>Assigned Engineer</b>
-                  - Select the engineer you are assigned to. Company, contractor, and vehicle details will load from
-                  their assignment.
+                  <b>Assigned Driver</b>
+                  - Fooding for the selected driver will be credited to your account after attendance approval.
                 </li>
-                <li>
-                  <b>Company / Contractor / Vehicle</b>
-                  - These details are shown from the selected assigned engineer's assignment and cannot be edited
-                  directly.
-                </li>
-              }
-            </ul>
-          </div>
-          <app-attendance-assignment-fields
-            [formGroup]="form.formGroup"
-            [fieldConfigs]="form.fieldConfigs"
-            [isDriver]="isDriverUser"
-            [viewOnly]="!isEditingAssignment()"
-            [previewSiteFields]="false"
-            [assignmentPayload]="currentStatusData()"
-            [(submitPayload)]="assignmentSubmitPayload"
-          >
-            <app-button
-              [buttonConfig]="assignmentHeaderButtonConfig()"
-              (onButtonClick)="toggleAssignmentEditing()"
+              </ul>
+            </div>
+            <app-attendance-assignment-fields
+              [formGroup]="form.formGroup"
+              [fieldConfigs]="form.fieldConfigs"
+              [viewOnly]="!isEditingAssignment()"
+              [assignmentPayload]="currentStatusData()"
+              [(submitPayload)]="assignmentSubmitPayload"
+            >
+              <app-button
+                [buttonConfig]="assignmentHeaderButtonConfig()"
+                (onButtonClick)="toggleAssignmentEditing()"
+              />
+            </app-attendance-assignment-fields>
+            <app-input-field
+              [formGroup]="form.formGroup"
+              [inputFieldConfig]="form.fieldConfigs.remark"
             />
-          </app-attendance-assignment-fields>
-          <app-input-field
-            [formGroup]="form.formGroup"
-            [inputFieldConfig]="form.fieldConfigs.remark"
-          />
-          @if (!currentStatusData()?.checkInTime || isEditingAssignment()) {
+          }
+          @if (!currentStatusData()?.checkInTime || (isEmployeeUser && isEditingAssignment())) {
             <div class="action-button">
               @if (!currentStatusData()?.checkInTime) {
                 <app-button
@@ -122,7 +113,7 @@
                   [showButtonLoader]="isSubmitting()"
                 />
               }
-              @if (isEditingAssignment()) {
+              @if (isEmployeeUser && isEditingAssignment()) {
                 <app-button
                   [buttonConfig]="form.buttonConfigs['reset']"
                   (onButtonClick)="onResetAssignmentForm()"
@@ -132,6 +123,7 @@
           }
         </form>
       </section>
+      }
     </div>
   </div>
 </div>

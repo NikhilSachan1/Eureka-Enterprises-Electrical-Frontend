@@ -1,4 +1,5 @@
 import { COMMON_FORM_ACTIONS } from '@shared/config';
+import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EDataType,
@@ -10,8 +11,9 @@ import {
 import { IProjectGetFormDto } from '../../types/project.dto';
 import { APP_PERMISSION } from '@core/constants';
 
-const SEARCH_FILTER_PROJECT_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<IProjectGetFormDto> =
-  {
+const SEARCH_FILTER_PROJECT_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
+  IProjectGetFormDto & { globalSearch?: string }
+> = {
     companyNames: {
       fieldType: EDataType.MULTI_SELECT,
       id: 'companyNames',
@@ -91,6 +93,10 @@ const SEARCH_FILTER_PROJECT_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
         },
       },
       matchmode: ETableFilterMatchMode.IN,
+    },
+    globalSearch: {
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
+      hint: 'Search by project name',
     },
   };
 

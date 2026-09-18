@@ -215,6 +215,7 @@ export class GetAssetComponent implements OnInit {
           record.status
         ),
         assetDocuments: record.documentKeys,
+        calibrationDocuments: record.calibrationDocumentKeys,
         latestEvent,
         originalRawData: record,
       };

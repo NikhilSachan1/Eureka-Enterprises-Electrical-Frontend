@@ -52,7 +52,6 @@ const ACTION_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IActionAssetUIForm
             const { actionType } = context;
             return (
               actionType === EButtonActionType.HANDOVER_INITIATE ||
-              actionType === EButtonActionType.HANDOVER_ACCEPTED ||
               actionType === EButtonActionType.HANDOVER_REJECTED
             );
           },
@@ -69,7 +68,10 @@ const ACTION_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IActionAssetUIForm
         {
           shouldApply: (context): boolean => {
             const { actionType } = context;
-            return actionType !== EButtonActionType.HANDOVER_INITIATE;
+            return (
+              actionType !== EButtonActionType.HANDOVER_INITIATE &&
+              actionType !== EButtonActionType.HANDOVER_ACCEPTED
+            );
           },
           validators: [Validators.required],
         },

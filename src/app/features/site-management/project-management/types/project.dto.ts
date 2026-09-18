@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   ProjectAddRequestSchema,
   ProjectAddResponseSchema,
+  ProjectAssignStakeholdersRequestSchema,
   ProjectChangeStatusRequestSchema,
   ProjectChangeStatusResponseSchema,
   ProjectDeleteRequestSchema,
@@ -88,6 +89,17 @@ export type IProjectChangeStatusFormDto = z.input<
 export type IProjectChangeStatusResponseDto = z.infer<
   typeof ProjectChangeStatusResponseSchema
 >;
+
+/*
+  Project Assign Vendor
+*/
+export type IProjectAssignStakeholdersRequestDto = z.infer<
+  typeof ProjectAssignStakeholdersRequestSchema
+>;
+export type IProjectAssignStakeholdersFormDto = z.input<
+  typeof ProjectAssignStakeholdersRequestSchema
+> &
+  Record<string, unknown>;
 
 /*
   Project Overview Get

@@ -187,6 +187,27 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
     },
     validators: [Validators.required],
   },
+  assetCalibrationFiles: {
+    fieldType: EDataType.ATTACHMENTS,
+    id: 'assetCalibrationFiles',
+    fieldName: 'assetCalibrationFiles',
+    label: 'Calibration File',
+    fileConfig: {
+      fileLimit: 1,
+      acceptFileTypes: [
+        ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
+        ...APP_CONFIG.MEDIA_CONFIG.PDF,
+      ],
+    },
+    conditionalValidators: [
+      {
+        dependsOn: 'assetType',
+        shouldApply: value => value === EAssetType.CALIBRATED,
+        validators: [Validators.required],
+        resetOnFalse: true,
+      },
+    ],
+  },
   remarks: {
     fieldType: EDataType.TEXT_AREA,
     id: 'remarks',

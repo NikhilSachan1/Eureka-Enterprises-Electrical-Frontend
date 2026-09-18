@@ -5,6 +5,7 @@ export const EMPLOYEE_MESSAGES = {
     DELETE: 'Deleting employee',
     CHANGE_STATUS: 'Updating employee status',
     SEND_PASSWORD_LINK: 'Sending password setup link',
+    RESET_PASSWORD: 'Resetting password',
     GET_LIST: 'Loading employees',
     GET_DETAIL: 'Loading employee details',
     GET_PROFILE: 'Loading your profile',
@@ -18,6 +19,8 @@ export const EMPLOYEE_MESSAGES = {
       "We're updating this employee's status. This will just take a moment.",
     SEND_PASSWORD_LINK:
       "We're sending the password setup link. This will just take a moment.",
+    RESET_PASSWORD:
+      "We're resetting this employee's password. This will just take a moment.",
     GET_LIST: "We're loading employees. This will just take a moment.",
     GET_DETAIL: "We're loading employee details. This will just take a moment.",
     GET_PROFILE: "We're loading your profile. This will just take a moment.",
@@ -30,6 +33,7 @@ export const EMPLOYEE_MESSAGES = {
     DELETE: 'Employee deleted successfully',
     CHANGE_STATUS: 'Employee status changed successfully',
     SEND_PASSWORD_LINK: 'Password link sent successfully',
+    RESET_PASSWORD: 'Password reset successfully',
     EMAIL_UPDATED_LOGOUT:
       'Your email has been updated. Please log in again with your new email.',
   },
@@ -39,6 +43,7 @@ export const EMPLOYEE_MESSAGES = {
     DELETE: 'Failed to delete employee',
     CHANGE_STATUS: 'Failed to change employee status',
     SEND_PASSWORD_LINK: 'Failed to send password link',
+    RESET_PASSWORD: 'Failed to reset password',
     GET_LIST: 'Failed to load employee list',
     GET_DETAIL: 'Failed to load employee details',
     GET_PROFILE: 'Failed to load profile',

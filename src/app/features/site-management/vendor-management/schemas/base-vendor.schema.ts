@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const VendorBaseSchema = z.looseObject({
   id: uuidField,
   name: z.string(),
+  vendorCode: z.string().nullable(),
   contactNumber: z.string().nullable(),
   email: z.string().nullable(),
   gstNumber: z.string().nullable(),

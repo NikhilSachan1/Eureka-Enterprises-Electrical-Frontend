@@ -174,6 +174,8 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
       const city = site.city.trim();
       const state = site.state.trim();
       const locationParts = [city, state].filter(Boolean);
+      let roleLabel = record.role?.trim();
+      roleLabel ??= '—';
 
       return {
         id: record.id,
@@ -187,7 +189,7 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
           fullName,
           employeeId: user.employeeId,
         },
-        role: record.role?.trim() || '—',
+        role: roleLabel,
         allocationPeriod: deallocatedAt
           ? [allocatedAt, deallocatedAt]
           : [allocatedAt],

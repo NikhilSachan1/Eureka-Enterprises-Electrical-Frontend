@@ -35,6 +35,8 @@ export class DocAmountComponent {
       total: 'total',
       invoiced: 'invoiced',
       booked: 'booked',
+      'to be booked': 'gst',
+      'net payable': 'total',
       paid: 'paid',
       deduction: 'deduction',
       tds: 'deduction',

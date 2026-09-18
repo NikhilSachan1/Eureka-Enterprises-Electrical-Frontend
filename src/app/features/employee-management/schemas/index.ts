@@ -17,6 +17,10 @@ export {
   EmployeeSendPasswordLinkResponseSchema,
 } from './send-password-link.schema';
 export {
+  EmployeeResetPasswordRequestSchema,
+  EmployeeResetPasswordResponseSchema,
+} from './reset-password-employee.schema';
+export {
   EmployeeDetailGetRequestSchema,
   EmployeeDetailGetResponseSchema,
 } from './get-employee-detail.schema';

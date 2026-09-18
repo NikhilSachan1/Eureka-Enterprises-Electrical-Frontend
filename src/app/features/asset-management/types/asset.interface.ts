@@ -24,17 +24,20 @@ export interface IAsset
     | 'createdAt'
     | 'updatedAt'
     | 'documentKeys'
+    | 'calibrationDocumentKeys'
   > {
   // Assigned user details - shows who currently has this asset
   assetAssigneeName: string | null;
   assetAssigneeCode: string | null;
   originalRawData: IAssetGetBaseResponseDto;
   assetDocuments: string[];
+  calibrationDocuments: string[];
 }
 
 export interface IAssetDetailResolverResponse
   extends IAssetDetailGetResponseDto {
   preloadedFiles?: File[];
+  preloadedCalibrationFiles?: File[];
 }
 
 export interface IAssetEventHistory

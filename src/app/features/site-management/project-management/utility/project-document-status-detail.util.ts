@@ -43,14 +43,12 @@ function countGraphStage(
   let done = 0;
 
   for (const node of nodes) {
-    if (node.stage !== stage) {
-      continue;
-    }
+    if (node.stage === stage) {
+      total += 1;
 
-    total += 1;
-
-    if (mode === 'present' ? !node.isExpectedMissing : isGraphNodeComplete(node.state)) {
-      done += 1;
+      if (mode === 'present' ? !node.isExpectedMissing : isGraphNodeComplete(node.state)) {
+        done += 1;
+      }
     }
   }
 

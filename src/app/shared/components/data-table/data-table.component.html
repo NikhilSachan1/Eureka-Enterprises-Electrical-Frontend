@@ -1,5 +1,5 @@
 @let selectedCount = selectedTableRows().length;
-@let currentViewMode = viewMode();
+@let currentViewMode = resolvedViewMode();
 @let showToggle = tableConfig().showViewModeToggle ?? true;
 
 <!-- View Mode Toggle -->
@@ -69,9 +69,9 @@
     [rowHover]="tableConfig().rowHover"
     [value]="tableData()"
     [dataKey]="tableConfig().tableUniqueId"
-    [rows]="paginationRows()"
+    [rows]="tableConfig().showPaginator ? paginationRows() : undefined"
     [rowsPerPageOptions]="tableConfig().rowsPerPageOptions"
-    [loading]="loading()"
+    [loading]="showTableLoading()"
     [showCurrentPageReport]="true"
     [paginator]="tableConfig().showPaginator"
     [currentPageReportTemplate]="tableConfig().paginationTemplate"
@@ -81,19 +81,27 @@
     (onFilter)="onFilterChange($event)"
     [globalFilterFields]="tableConfig().globalFilterFields"
     [lazy]="tableConfig().enableServerSide"
-    [first]="paginationFirst()"
+    [lazyLoadOnInit]="false"
+    [first]="tableConfig().showPaginator ? paginationFirst() : 0"
     (onLazyLoad)="onLazyLoad($event)"
     [totalRecords]="tableConfig().enableServerSide ? (tableConfig().totalRecords ?? 0) : tableData().length"
     [scrollable]="isTableScrollable()"
     [scrollHeight]="tableConfig().scrollHeight"
     [styleClass]="tableConfig().tableStyleClass"
     [rowSelectable]="rowSelectable"
+    [expandedRowKeys]="expandedRowKeys()"
+    [rowExpandMode]="'multiple'"
+    (onRowExpand)="onRowExpand($event)"
+    (onRowCollapse)="onRowCollapse($event)"
   >
     <ng-template
       #header
       let-columns
     >
       <tr>
+        @if (hasRowExpansion()) {
+          <th class="data-table-expand-col"></th>
+        }
         @if (showBulkSelectionCheckbox()) {
           <th
             pFrozenColumn
@@ -204,8 +212,33 @@
       #body
       let-rowData
       let-columns="columns"
+      let-expanded="expanded"
     >
-      <tr [class.row-selection-disabled]="isRowSelectionDisabled(rowData)">
+      <tr
+        [class.row-selection-disabled]="isRowSelectionDisabled(rowData)"
+        [class.data-table-row-expanded]="expanded"
+      >
+        @if (hasRowExpansion()) {
+          <td class="data-table-expand-col">
+            @if (isExpandableRow(rowData)) {
+              <button
+                type="button"
+                class="data-table-expand-btn"
+                [class.data-table-expand-btn--open]="expanded"
+                [pRowToggler]="rowData"
+                [attr.aria-expanded]="expanded"
+              >
+                <i
+                  [class]="
+                    expanded
+                      ? icons.COMMON.CHEVRON_DOWN
+                      : icons.COMMON.CHEVRON_RIGHT
+                  "
+                ></i>
+              </button>
+            }
+          </td>
+        }
         @if (showBulkSelectionCheckbox()) {
           <td
             pFrozenColumn
@@ -232,6 +265,11 @@
               column.icon || column.iconField || (column.showImage && (column.dummyImageField || column.iconField));
             @let isReadMoreCol = column.bodyTemplate === ALL_DATA_TYPES.TEXT_WITH_READ_MORE;
             @let isWorkspaceContextCol = column.customTemplateKey === 'docWorkspaceContext';
+            @let isDocAmountCol =
+              column.customTemplateKey === 'invoiceAmountBreakdown' ||
+              column.customTemplateKey === 'invoiceBookedPaidSummary' ||
+              column.customTemplateKey === 'vendorAmountSummary' ||
+              column.customTemplateKey === 'vendorDocumentCounts';
             @let t = customBodyTemplates();
             <td
               pFrozenColumn
@@ -240,7 +278,7 @@
               [class]="column.columnStyleClass"
               [style.width]="getColumnWidth(column)"
               [style.minWidth]="getColumnWidth(column)"
-              [class.cell-allow-wrap]="hasLead || isReadMoreCol || isWorkspaceContextCol"
+              [class.cell-allow-wrap]="hasLead || isReadMoreCol || isWorkspaceContextCol || isDocAmountCol"
               [class.doc-workspace-context-col]="isWorkspaceContextCol"
             >
               <div
@@ -317,6 +355,24 @@
           </td>
         }
       </tr>
+    </ng-template>
+
+    <ng-template
+      #expandedrow
+      let-rowData
+    >
+      @if (rowExpansionTemplate(); as expansionTpl) {
+        <tr class="data-table-expanded-row">
+          <td [attr.colspan]="emptyMessageColSpan()">
+            <div class="data-table-expansion">
+              <ng-container
+                [ngTemplateOutlet]="expansionTpl"
+                [ngTemplateOutletContext]="{ $implicit: rowData }"
+              />
+            </div>
+          </td>
+        </tr>
+      }
     </ng-template>
 
     <ng-template #emptymessage>

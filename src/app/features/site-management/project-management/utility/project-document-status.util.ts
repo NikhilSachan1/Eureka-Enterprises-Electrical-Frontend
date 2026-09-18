@@ -67,7 +67,7 @@ export function buildDocumentStatusTargetFromOverview(
   overview: IProjectOverviewGetResponseDto,
   projectStatusOptions: readonly { value: string; label: string }[]
 ): IProjectDocumentStatusTarget {
-  const site = overview.site;
+  const {site} = overview;
 
   return {
     id: projectId,

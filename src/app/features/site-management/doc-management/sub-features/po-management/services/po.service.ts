@@ -25,6 +25,7 @@ import {
   EditPoResponseSchema,
   PoItemSuggestionsGetRequestSchema,
   PoItemSuggestionsGetResponseSchema,
+  PoDefaultTermsGetResponseSchema,
 } from '../schemas';
 import {
   IApprovePoFormDto,
@@ -48,6 +49,7 @@ import {
   IEditPoResponseDto,
   IPoItemSuggestionsGetRequestDto,
   IPoItemSuggestionsGetResponseDto,
+  IPoDefaultTermsGetResponseDto,
 } from '../types/po.dto';
 import { AttachmentsGetResponseSchema } from '@shared/schemas/attachments.schema';
 import { IAttachmentsGetResponseDto } from '@shared/types';
@@ -420,6 +422,33 @@ export class PoService {
             );
           } else {
             this.logger.logUserAction('Get PO item suggestions Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getPoDefaultTerms(): Observable<IPoDefaultTermsGetResponseDto> {
+    this.logger.logUserAction('Get PO default terms Request');
+
+    return this.apiService
+      .getValidated(API_ROUTES.SITE.DOCUMENT.PO.DEFAULT_TERMS, {
+        response: PoDefaultTermsGetResponseSchema,
+      })
+      .pipe(
+        tap((response: IPoDefaultTermsGetResponseDto) => {
+          this.logger.logUserAction('Get PO default terms Response', {
+            length: response.content.length,
+          });
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get PO default terms Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get PO default terms Error', error);
           }
           return throwError(() => error);
         })

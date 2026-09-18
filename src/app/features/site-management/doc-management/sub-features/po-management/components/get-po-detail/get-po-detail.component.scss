@@ -15,7 +15,7 @@
 
 .po-line-items__row {
   display: grid;
-  grid-template-columns: 2rem repeat(6, minmax(0, 1fr));
+  grid-template-columns: 2rem repeat(7, minmax(0, 1fr));
   gap: 0.5rem;
   align-items: start;
 }
@@ -54,4 +54,22 @@
   .po-line-items__index {
     display: none;
   }
+}
+
+.po-terms {
+  margin: 0;
+  padding-left: 1.5rem;
+  list-style-type: decimal;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-color-secondary);
+}
+
+.po-terms li {
+  word-break: break-word;
+}
+
+.po-terms li + li {
+  margin-top: 0.35rem;
 }

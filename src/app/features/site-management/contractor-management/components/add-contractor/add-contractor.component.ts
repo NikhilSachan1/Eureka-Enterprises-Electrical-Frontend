@@ -10,12 +10,14 @@ import { IContractorAddFormDto } from '../../types/contractor.dto';
 import { ContractorService } from '../../services/contractor.service';
 import {
   AppConfigurationService,
+  DrawerService,
   RouterNavigationService,
 } from '@shared/services';
 import { ADD_CONTRACTOR_FORM_CONFIG } from '../../config';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { IPageHeaderConfig } from '@shared/types';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -41,6 +43,8 @@ export class AddContractorComponent
   private readonly contractorService = inject(ContractorService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly drawerService = inject(DrawerService);
+  private readonly drawerData = inject(DRAWER_DATA, { optional: true });
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
@@ -84,6 +88,10 @@ export class AddContractorComponent
         next: () => {
           this.notificationService.success('Contractor added successfully');
           this.appConfigurationService.refreshContractorDropdowns();
+          if (this.drawerData) {
+            this.drawerService.hideDrawer();
+            return;
+          }
           const routeSegments = [
             ROUTE_BASE_PATHS.SITE.BASE,
             ROUTE_BASE_PATHS.SITE.CONTRACTOR,

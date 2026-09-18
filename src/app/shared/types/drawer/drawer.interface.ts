@@ -20,6 +20,8 @@ export interface IDrawerConfig {
   fullScreen: boolean;
   closable: boolean;
   size?: EDrawerSize;
+  /** Overlay stack base so the drawer can sit above an open dropdown panel. */
+  baseZIndex?: number;
 }
 
 export interface IDrawerState {

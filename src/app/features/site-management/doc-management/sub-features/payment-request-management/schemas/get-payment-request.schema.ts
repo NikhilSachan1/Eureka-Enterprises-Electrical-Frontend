@@ -27,19 +27,27 @@ export const PaymentRequestGetRequestSchema = z
       approvalStatus,
       invoiceId,
       invoiceNumber,
-      page,
-      pageSize,
+      page: requestPage,
+      pageSize: requestPageSize,
     }) => {
       const [status] = approvalStatus ?? [];
       return {
         siteId: projectName ? [projectName] : undefined,
         companyId: companyName?.length ? companyName : undefined,
         vendorId: vendorName?.length ? vendorName : undefined,
-        invoiceId: invoiceId || undefined,
-        invoiceNumber: invoiceNumber || undefined,
+        invoiceId:
+          invoiceId === null || invoiceId === undefined || invoiceId === ''
+            ? undefined
+            : invoiceId,
+        invoiceNumber:
+          invoiceNumber === null ||
+          invoiceNumber === undefined ||
+          invoiceNumber === ''
+            ? undefined
+            : invoiceNumber,
         status: status || undefined,
-        page,
-        pageSize,
+        page: requestPage,
+        pageSize: requestPageSize,
       };
     }
   );

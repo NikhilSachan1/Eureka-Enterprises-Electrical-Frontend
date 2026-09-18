@@ -1,6 +1,12 @@
 import { Injectable, inject } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import {
+  Router,
+  ActivatedRoute,
+  NavigationEnd,
+  Params,
+} from '@angular/router';
 import { LoggerService } from '@core/services';
+import { filter } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +15,14 @@ export class RouterNavigationService {
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly logger = inject(LoggerService);
+  private readonly lastQueryParamsByPath = new Map<string, Params>();
+
+  constructor() {
+    this.rememberQueryParams(this.router.url);
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe(event => this.rememberQueryParams(event.urlAfterRedirects));
+  }
 
   async navigateToRoute(
     segments: string[],
@@ -19,8 +33,12 @@ export class RouterNavigationService {
     }
   ): Promise<boolean> {
     try {
+      const restoredQueryParams = options?.relativeTo
+        ? null
+        : this.getRestoredListQueryParams(segments);
       const success = await this.router.navigate(segments, {
         relativeTo: options?.relativeTo ?? null,
+        queryParams: restoredQueryParams ?? undefined,
         queryParamsHandling: options?.queryParamsHandling ?? '',
         replaceUrl: options?.replaceUrl ?? false,
       });
@@ -108,8 +126,10 @@ export class RouterNavigationService {
         state
       );
 
+      const restoredQueryParams = this.getRestoredListQueryParams(route);
       const success = await this.router.navigate(route, {
         state,
+        queryParams: restoredQueryParams ?? undefined,
       });
 
       if (success) {
@@ -211,5 +231,60 @@ export class RouterNavigationService {
 
   buildRouteSegments(basePaths: string[], targetPath: string): string[] {
     return ['/', ...basePaths, targetPath];
+  }
+
+  private rememberQueryParams(url: string): void {
+    const tree = this.router.parseUrl(url);
+    this.lastQueryParamsByPath.set(
+      this.pathFromUrl(url),
+      { ...tree.queryParams }
+    );
+  }
+
+  private getRestoredListQueryParams(segments: string[]): Params | null {
+    const destinationPath = this.pathFromSegments(segments);
+    const currentPath = this.pathFromUrl(this.router.url);
+    const storedQueryParams = this.lastQueryParamsByPath.get(destinationPath);
+
+    if (
+      !storedQueryParams ||
+      Object.keys(storedQueryParams).length === 0 ||
+      destinationPath === currentPath ||
+      !this.isSameFeatureArea(currentPath, destinationPath)
+    ) {
+      return null;
+    }
+
+    return storedQueryParams;
+  }
+
+  private isSameFeatureArea(currentPath: string, destinationPath: string): boolean {
+    const destinationParent = this.parentPath(destinationPath);
+    if (destinationParent === '/') {
+      return false;
+    }
+
+    return (
+      currentPath === destinationParent ||
+      currentPath.startsWith(`${destinationParent}/`)
+    );
+  }
+
+  private parentPath(path: string): string {
+    const parts = path.split('/').filter(Boolean);
+    if (parts.length <= 1) {
+      return '/';
+    }
+
+    parts.pop();
+    return `/${parts.join('/')}`;
+  }
+
+  private pathFromSegments(segments: string[]): string {
+    return `/${segments.filter(segment => segment && segment !== '/').join('/')}`;
+  }
+
+  private pathFromUrl(url: string): string {
+    return url.split('?')[0].split('#')[0] || '/';
   }
 }

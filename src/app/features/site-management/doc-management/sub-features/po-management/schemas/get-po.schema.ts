@@ -59,6 +59,7 @@ export const PoItemGetResponseSchema = z.looseObject({
   hsnCode: z.string().nullable().optional(),
   make: z.string().nullable().optional(),
   quantity: z.union([z.string(), z.number()]),
+  unit: z.string().nullable().optional(),
   rate: z.union([z.string(), z.number()]),
   amount: z.union([z.string(), z.number()]).nullable().optional(),
 });
@@ -68,6 +69,7 @@ export const PoGetBaseResponseSchema = z.looseObject({
   isSystemGenerated: z.boolean(),
   gstType: z.string().nullable().optional(),
   items: z.array(PoItemGetResponseSchema).nullable().optional(),
+  termsAndConditions: z.string().nullable().optional(),
   isLocked: z.boolean(),
   unlockRequestedAt: isoDateTimeField.nullable(),
   unlockRequestedByUser: makeFieldsNullable(UserSchema).nullable(),

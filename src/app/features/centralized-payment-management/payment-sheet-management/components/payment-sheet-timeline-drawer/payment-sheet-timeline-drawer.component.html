@@ -21,8 +21,10 @@
             let-event
           >
             <div
-              class="ps-timeline-drawer__marker"
-              [class]="'ps-timeline-drawer__marker--' + event.tone"
+              [class]="
+                'ps-timeline-drawer__marker ps-timeline-drawer__marker--' +
+                event.tone
+              "
             >
               <i [class]="event.icon"></i>
             </div>
@@ -33,8 +35,10 @@
             let-event
           >
             <article
-              class="ps-timeline-drawer__card"
-              [class]="'ps-timeline-drawer__card--' + event.tone"
+              [class]="
+                'ps-timeline-drawer__card ps-timeline-drawer__card--' +
+                event.tone
+              "
             >
               <header class="ps-timeline-drawer__card-top">
                 <h4 class="ps-timeline-drawer__title">{{ event.title }}</h4>
@@ -56,8 +60,10 @@
                       <div class="ps-timeline-drawer__row">
                         @if (detail.icon) {
                           <span
-                            class="ps-timeline-drawer__row-icon"
-                            [class]="'ps-timeline-drawer__row-icon--' + event.tone"
+                            [class]="
+                              'ps-timeline-drawer__row-icon ps-timeline-drawer__row-icon--' +
+                              event.tone
+                            "
                           >
                             <i [class]="detail.icon"></i>
                           </span>
@@ -74,8 +80,10 @@
                       <div class="ps-timeline-drawer__row">
                         @if (detail.icon) {
                           <span
-                            class="ps-timeline-drawer__row-icon"
-                            [class]="'ps-timeline-drawer__row-icon--' + event.tone"
+                            [class]="
+                              'ps-timeline-drawer__row-icon ps-timeline-drawer__row-icon--' +
+                              event.tone
+                            "
                           >
                             <i [class]="detail.icon"></i>
                           </span>
@@ -97,8 +105,10 @@
                       </div>
                     } @else if (detail.variant === 'note') {
                       <div
-                        class="ps-timeline-drawer__note"
-                        [class]="'ps-timeline-drawer__note--' + event.tone"
+                        [class]="
+                          'ps-timeline-drawer__note ps-timeline-drawer__note--' +
+                          event.tone
+                        "
                       >
                         <div class="ps-timeline-drawer__note-head">
                           @if (detail.icon) {
@@ -115,8 +125,10 @@
                       >
                         @if (detail.icon) {
                           <span
-                            class="ps-timeline-drawer__row-icon"
-                            [class]="'ps-timeline-drawer__row-icon--' + event.tone"
+                            [class]="
+                              'ps-timeline-drawer__row-icon ps-timeline-drawer__row-icon--' +
+                              event.tone
+                            "
                           >
                             <i [class]="detail.icon"></i>
                           </span>

@@ -19,6 +19,7 @@ export const EditPoRequestSchema = PoUpsertShapeSchema.omit({
         gstType: data.gstType,
         remarks: data.remarks,
         items: data.items,
+        termsAndConditions: data.termsAndConditions,
       };
     }
 

@@ -130,16 +130,14 @@ export function findBookPaymentBranch(
   const normalizedBookPaymentId = normalizeWorkspaceRecordId(bookPaymentId);
   for (const po of getBreakdownRecords(snapshot, isSales)) {
     for (const jmc of po.jmcs) {
-      const invoice = jmc.invoice;
-      if (!invoice) {
-        continue;
-      }
-
-      const bookPayment = invoice.bookPayments.find(
-        item => normalizeWorkspaceRecordId(item.id) === normalizedBookPaymentId
-      );
-      if (bookPayment) {
-        return { po, jmc, invoice, bookPayment };
+      const {invoice} = jmc;
+      if (invoice) {
+        const bookPayment = invoice.bookPayments.find(
+          item => normalizeWorkspaceRecordId(item.id) === normalizedBookPaymentId
+        );
+        if (bookPayment) {
+          return { po, jmc, invoice, bookPayment };
+        }
       }
     }
   }

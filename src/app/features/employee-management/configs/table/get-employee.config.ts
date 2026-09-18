@@ -20,6 +20,8 @@ const EMPLOYEE_TABLE_CONFIG: Partial<IDataTableConfig> = {
 const EMPLOYEE_DISABLED_TOOLTIP = {
   sendPasswordLink:
     'Password link can only be sent to employees with Active status.',
+  resetPassword:
+    'Password can only be reset for employees with Active status.',
   deleteWhileActive:
     'Cannot delete an employee while their status is Active. Change status first.',
 } as const;
@@ -91,6 +93,14 @@ const EMPLOYEE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     disableWhen: (record: IEmployeeGetResponseDto['records'][number]) =>
       record.status !== EEmployeeStatus.ACTIVE,
     disableReason: () => EMPLOYEE_DISABLED_TOOLTIP.sendPasswordLink,
+  },
+  {
+    id: EButtonActionType.RESET_PASSWORD,
+    tooltip: 'Reset Password',
+    permission: [APP_PERMISSION.EMPLOYEE.RESET_PASSWORD],
+    disableWhen: (record: IEmployeeGetResponseDto['records'][number]) =>
+      record.status !== EEmployeeStatus.ACTIVE,
+    disableReason: () => EMPLOYEE_DISABLED_TOOLTIP.resetPassword,
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,

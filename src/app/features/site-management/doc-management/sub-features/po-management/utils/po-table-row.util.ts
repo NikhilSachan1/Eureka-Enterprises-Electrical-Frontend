@@ -10,10 +10,18 @@ function isPoApprovalPending(row: IPoGetBaseResponseDto): boolean {
   return s === EApprovalStatus.PENDING || s === 'pending approval';
 }
 
-function isPoApproved(row: IPoGetBaseResponseDto): boolean {
+export function isPoApproved(row: IPoGetBaseResponseDto): boolean {
   return (
     normalizePoApprovalStatus(row.approvalStatus) === EApprovalStatus.APPROVED
   );
+}
+
+/** Generated PO PDF is shown only after approval. Uploaded POs use fileKey. */
+export function poAttachmentKeys(row: IPoGetBaseResponseDto): string[] {
+  if (isPoSystemGenerated(row)) {
+    return isPoApproved(row) ? [row.id] : [];
+  }
+  return row.fileKey ? [row.fileKey] : [];
 }
 
 export function isPoSystemGenerated(row: IPoGetBaseResponseDto): boolean {

@@ -42,7 +42,6 @@ export {
   SHIFT_DATA,
   PAYSLIP_DATE_DATA,
   SITE_ALLOCATION_STATUS_DATA,
-  PO_GST_TYPE_DATA,
 } from './static-data.config';
 export { DEFAULT_BUTTON_CONFIG } from './button.config';
 export { DEFAULT_PAGE_HEADER_CONFIG } from './page-header.config';

@@ -154,6 +154,8 @@ export interface ITableSearchFilterFieldConfig
   extends Partial<IInputFieldsConfig> {
   matchmode: ETableFilterMatchMode;
   permission?: string[];
+  /** Query-string key. Defaults to the form field name. */
+  queryParamKey?: string;
 }
 
 export type ITableSearchFilterInputFieldsConfig<

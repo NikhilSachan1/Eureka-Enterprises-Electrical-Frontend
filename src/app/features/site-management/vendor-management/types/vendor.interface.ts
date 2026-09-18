@@ -10,6 +10,7 @@ export interface IVendor
     | 'vendorType'
     | 'name'
     | 'email'
+    | 'vendorCode'
   > {
   status: string;
   stateCity: string;

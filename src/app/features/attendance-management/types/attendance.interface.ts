@@ -48,10 +48,17 @@ export interface IAttendanceAssignmentPayload {
     state?: string | null;
     fullAddress?: string | null;
   } | null;
-  contractors?: Array<
-    { id?: string | null; name?: string | null } | null | undefined
-  > | null;
+  contractors?: (| {
+        id?: string | null;
+        name?: string | null;
+        city?: string | null;
+        state?: string | null;
+        gstNumber?: string | null;
+      }
+    | null
+    | undefined)[] | null;
   vehicle?: { id?: string | null; registrationNo?: string | null } | null;
+  assignedDrivers?: IAttendanceAssignmentPerson[] | null;
   assignedEngineer?: IAttendanceAssignmentPerson | null;
   user?: IAttendanceAssignmentPerson | null;
   assignmentSnapshot?: IAttendanceAssignmentPayload | null;
@@ -61,17 +68,12 @@ export interface IAttendanceAssignmentFormValues {
   company: string | null;
   contractor: string | null;
   vehicle: string | null;
-  assignedEngineer: string | null;
+  assignedDriver: string | string[] | null;
 }
 
 export interface IAttendanceAssignmentSubmitPayload {
   company: ICompanyGetBaseResponseDto | null;
   contractor: IContractorGetBaseResponseDto | null;
   vehicle: z.infer<typeof VehicleBaseSchema> | null;
-  assignedEngineer: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    employeeId: string;
-  } | null;
+  assignedDriver: string | string[] | null;
 }

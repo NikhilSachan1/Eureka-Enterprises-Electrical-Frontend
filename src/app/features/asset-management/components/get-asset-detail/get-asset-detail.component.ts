@@ -137,6 +137,11 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
           format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
+          label: 'Calibration File',
+          value: record.calibrationDocumentKeys,
+          type: EDataType.ATTACHMENTS,
+        },
+        {
           label: 'Purchase Date',
           value: record.purchaseDate,
           type: EDataType.DATE,
