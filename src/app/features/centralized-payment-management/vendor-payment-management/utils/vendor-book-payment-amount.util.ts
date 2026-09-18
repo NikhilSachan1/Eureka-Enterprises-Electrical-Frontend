@@ -18,6 +18,42 @@ function toAmountString(value: number | null | undefined): string {
   return String(value);
 }
 
+type IVendorOutstandingPaidSource = {
+  paidTotal?: number | null;
+  bookedTotal?: number | null;
+};
+
+type IVendorOutstandingPaidBookPayment = {
+  paymentTotalAmount: number;
+  hasTransfer: boolean;
+};
+
+export function resolveVendorInvoicePaidTotal(
+  invoice: IVendorOutstandingPaidSource | null | undefined,
+  bookPayments: readonly IVendorOutstandingPaidBookPayment[] = []
+): number {
+  const bookedTotal = Number(invoice?.bookedTotal ?? 0);
+  const paidViaTransfer = bookPayments
+    .filter(bookPayment => bookPayment.hasTransfer)
+    .reduce(
+      (total, bookPayment) => total + Number(bookPayment.paymentTotalAmount ?? 0),
+      0
+    );
+  const unpaidBooked = bookPayments
+    .filter(bookPayment => !bookPayment.hasTransfer)
+    .reduce(
+      (total, bookPayment) => total + Number(bookPayment.paymentTotalAmount ?? 0),
+      0
+    );
+  const derivedPaid = Math.max(
+    paidViaTransfer,
+    Math.max(0, bookedTotal - unpaidBooked)
+  );
+  const apiPaid = Number(invoice?.paidTotal ?? 0);
+
+  return Math.max(apiPaid, derivedPaid);
+}
+
 export function buildVendorOutstandingInvoiceAmountSegments(
   invoice: IVendorOutstandingBookPaymentInvoice
 ): IDocAmountSegment[] {
@@ -46,16 +82,13 @@ export function buildVendorOutstandingInvoiceAmountSegments(
       dataType: EDataType.CURRENCY,
       label: 'To be booked',
       value: invoice.pendingToBook,
-    }
-  );
-
-  if (invoice.paidTotal !== null) {
-    segments.push({
+    },
+    {
       dataType: EDataType.CURRENCY,
       label: 'Paid',
-      value: invoice.paidTotal,
-    });
-  }
+      value: resolveVendorInvoicePaidTotal(invoice),
+    }
+  );
 
   return segments;
 }
@@ -76,7 +109,7 @@ export function mapVendorOutstandingUnbookedInvoiceToSummary(
     isGstHold: unbookedInvoice.isGstHold,
     netPayableAmount: unbookedInvoice.netPayableAmount,
     bookedTotal: unbookedInvoice.bookedTotal ?? 0,
-    paidTotal: unbookedInvoice.paidTotal,
+    paidTotal: resolveVendorInvoicePaidTotal(unbookedInvoice),
     pendingToBook: unbookedInvoice.pendingToBook,
   };
 }

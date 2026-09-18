@@ -68,6 +68,7 @@ export interface IVendorOutstandingVendorTableRow extends Record<string, unknown
   location: string;
   toBeBooked: number;
   bookedAmount: number;
+  paidAmount: number;
   invoiceCount: number;
   bookingCount: number;
   invoiceRows: IVendorOutstandingInvoiceListRow[];

@@ -77,8 +77,8 @@ export const VendorOutstandingBookPaymentInvoiceSchema = z.looseObject({
   tdsPercentage: z.number().optional(),
   isGstHold: z.boolean(),
   netPayableAmount: z.number(),
-  bookedTotal: z.number(),
-  paidTotal: z.number().optional(),
+  bookedTotal: z.coerce.number(),
+  paidTotal: z.coerce.number().optional(),
   pendingToBook: z.number(),
 });
 
@@ -116,8 +116,8 @@ export const VendorOutstandingUnbookedInvoiceSchema = z.looseObject({
   tdsPercentage: z.number().optional(),
   isGstHold: z.boolean(),
   netPayableAmount: z.number(),
-  bookedTotal: z.number().optional(),
-  paidTotal: z.number().optional(),
+  bookedTotal: z.coerce.number().optional(),
+  paidTotal: z.coerce.number().optional(),
   pendingToBook: z.number(),
   approvalStatus: z.string().optional(),
   displayName: z.string().optional(),

@@ -59,7 +59,10 @@ import {
   IVendorOutstandingVendorGroup,
   IVendorOutstandingVendorTableRow,
 } from '../../types/vendor-outstanding.interface';
-import { mapVendorOutstandingUnbookedInvoiceToSummary } from '../../utils/vendor-book-payment-amount.util';
+import {
+  mapVendorOutstandingUnbookedInvoiceToSummary,
+  resolveVendorInvoicePaidTotal,
+} from '../../utils/vendor-book-payment-amount.util';
 
 type IVendorOutstandingBookPayment =
   IVendorOutstandingGetBaseResponseDto['bookPayments'][number];
@@ -234,6 +237,11 @@ export class GetVendorOutstandingComponent implements OnInit {
         label: 'Booked',
         value: row.bookedAmount,
       },
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Paid',
+        value: row.paidAmount,
+      },
     ];
   }
 
@@ -391,12 +399,19 @@ export class GetVendorOutstandingComponent implements OnInit {
         (total, invoice) => total + Number(invoice.invoice?.pendingToBook ?? 0),
         0
       ),
-      bookedAmount: group.invoiceGroups
-        .flatMap(invoice => invoice.bookPayments)
-        .reduce(
-          (total, bookPayment) => total + Number(bookPayment.pendingAmount ?? 0),
-          0
-        ),
+      bookedAmount: group.invoiceGroups.reduce(
+        (total, invoice) => total + Number(invoice.invoice?.bookedTotal ?? 0),
+        0
+      ),
+      paidAmount: group.invoiceGroups.reduce(
+        (total, invoice) =>
+          total +
+          resolveVendorInvoicePaidTotal(
+            invoice.invoice,
+            invoice.bookPayments.map(bookPayment => bookPayment.originalRawData)
+          ),
+        0
+      ),
       invoiceCount: group.invoiceGroups.length,
       bookingCount: group.invoiceGroups.reduce(
         (total, invoice) => total + invoice.bookPayments.length,
@@ -439,7 +454,10 @@ export class GetVendorOutstandingComponent implements OnInit {
       isGstHold: summary?.isGstHold ?? false,
       netPayableAmount: summary?.netPayableAmount ?? null,
       bookedTotal: summary?.bookedTotal ?? null,
-      paidTotal: summary?.paidTotal ?? null,
+      paidTotal: resolveVendorInvoicePaidTotal(
+        summary,
+        invoice.bookPayments.map(bookPayment => bookPayment.originalRawData)
+      ),
       pendingToBook: summary?.pendingToBook ?? null,
       bookPayments: invoice.bookPayments,
       canBookPayment: this.canBookPaymentForInvoice(invoice),
