@@ -64,6 +64,8 @@ import type {
 export class AppConfigurationService {
   private static readonly APP_CONFIGURATION_LOADING_KEY =
     '__app_configuration__';
+  private static readonly APP_CONFIGURATION_PAGE_SIZE = 50;
+  private static readonly APP_CONFIGURATION_PAGE_COUNT = 4;
   private readonly REFERENCE_PREFETCH_START_DELAY_MS = 3000;
   private readonly referenceDropdownListPayload = { page: 1, pageSize: 50 };
   private readonly injector = inject(Injector);
@@ -745,16 +747,24 @@ export class AppConfigurationService {
   private fetchAppConfiguration(): Observable<IConfigurationGetResponseDto> {
     this.logger.logUserAction('Load App Configuration Request');
 
-    const payload: IConfigurationGetFormDto = {
-      page: 1,
-      pageSize: 200,
-      sortField: 'createdAt',
-      sortOrder: 'DESC',
-    };
+    const pages = Array.from(
+      { length: AppConfigurationService.APP_CONFIGURATION_PAGE_COUNT },
+      (_, index) => {
+        const payload: IConfigurationGetFormDto = {
+          page: index + 1,
+          pageSize: AppConfigurationService.APP_CONFIGURATION_PAGE_SIZE,
+          sortField: 'createdAt',
+          sortOrder: 'DESC',
+        };
+
+        return this.configurationService.getConfigurationList(payload);
+      }
+    );
 
     return this.withDropdownLoading(
       AppConfigurationService.APP_CONFIGURATION_LOADING_KEY,
-      this.configurationService.getConfigurationList(payload).pipe(
+      forkJoin(pages).pipe(
+        map(responses => this.mergeConfigurationListPages(responses)),
         tap(response => {
           this.logger.logUserAction(
             'Load App Configuration Response',
@@ -772,6 +782,17 @@ export class AppConfigurationService {
         })
       )
     );
+  }
+
+  private mergeConfigurationListPages(
+    responses: IConfigurationGetResponseDto[]
+  ): IConfigurationGetResponseDto {
+    const records = responses.flatMap(response => response.records);
+
+    return {
+      records,
+      totalRecords: responses[0]?.totalRecords ?? records.length,
+    };
   }
 
   loadEmployeeList(): Observable<IEmployeeGetResponseDto> {
