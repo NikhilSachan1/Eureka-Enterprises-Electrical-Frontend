@@ -13,6 +13,7 @@ import {
   GST_NUMBER_LENGTH,
   MODULE_NAMES,
   TEXT_INPUT_ACCEPT_STRIP,
+  allowChars,
 } from '@shared/constants';
 import { IContractorAddFormDto } from '../../types/contractor.dto';
 
@@ -76,7 +77,10 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.UPPERCASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS,
+        regex: allowChars(
+          TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
+          `,./#()&'-`
+        ),
       },
     },
     streetName: {
@@ -86,7 +90,10 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.TITLECASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS,
+        regex: allowChars(
+          TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
+          `,./#()&'-`
+        ),
       },
     },
     landmark: {
@@ -96,7 +103,10 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.TITLECASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS,
+        regex: allowChars(
+          TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
+          `,./#()&'-`
+        ),
       },
     },
     state: {
