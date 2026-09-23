@@ -13,6 +13,7 @@ import {
   GST_NUMBER_LENGTH,
   MODULE_NAMES,
   TEXT_INPUT_ACCEPT_STRIP,
+  allowChars,
 } from '@shared/constants';
 import { IVendorAddFormDto } from '../../types/vendor.dto';
 import { EVendorType } from '../../types/vendor.enum';
@@ -103,7 +104,10 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.UPPERCASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS,
+        regex: allowChars(
+          TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
+          `,./#()&'-`
+        ),
       },
     },
     streetName: {
@@ -113,7 +117,10 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.TITLECASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS,
+        regex: allowChars(
+          TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
+          `,./#()&'-`
+        ),
       },
     },
     landmark: {
@@ -123,7 +130,10 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.TITLECASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS,
+        regex: allowChars(
+          TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
+          `,./#()&'-`
+        ),
       },
     },
     state: {

@@ -312,7 +312,8 @@ export interface ITextFieldConfig {
   maximumInputLength?: number;
   /**
    * Global regex: each match is removed while typing (`String#replace`).
-   * Example: `/\\D/g` keeps digits only. Presets: `TEXT_INPUT_ACCEPT_STRIP` in `@shared/constants`.
+   * Example: `/\\D/g` keeps digits only. Presets: `TEXT_INPUT_ACCEPT_STRIP`.
+   * Extra characters: `allowChars(preset, '-+')` in `@shared/constants`.
    */
   regex?: RegExp;
 }

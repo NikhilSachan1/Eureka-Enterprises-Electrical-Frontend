@@ -7,6 +7,7 @@ import {
   CONFIGURATION_KEYS,
   MODULE_NAMES,
   TEXT_INPUT_ACCEPT_STRIP,
+  allowChars,
 } from '@shared/constants';
 import {
   EDataType,
@@ -46,7 +47,10 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
     fieldName: 'assetModel',
     label: 'Asset Model',
     textConfig: {
-      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
+      regex: allowChars(
+        TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
+        '-+'
+      ),
     },
   },
   assetSerialNumber: {
@@ -56,7 +60,7 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
     label: 'Asset Serial Number',
     textConfig: {
       textCase: ETextCase.UPPERCASE,
-      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_DOT_AND_HYPHEN,
+      regex: allowChars(TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC, '.-'),
     },
   },
   assetCategory: {

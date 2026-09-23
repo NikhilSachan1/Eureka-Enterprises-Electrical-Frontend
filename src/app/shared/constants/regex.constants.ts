@@ -5,19 +5,8 @@
 export const TEXT_INPUT_ACCEPT_STRIP = {
   DIGITS: /\D/g,
   ALPHANUMERIC_WITH_SPACES: /[^a-zA-Z0-9\s]/g,
-  /**
-   * House, block, street, landmark, etc.
-   * Allows letters, digits, spaces, and common address punctuation (`,` `.` `/` `-` `'` `#` `()` `&`).
-   */
-  ADDRESS: /[^a-zA-Z0-9\s,./#()&'-]/g,
   ALPHABETS_WITH_SPACES: /[^a-zA-Z\s]/g,
   ALPHANUMERIC: /[^a-zA-Z0-9]/g,
-  /** Letters, digits, dot, and hyphen (e.g. SN-12.34). */
-  ALPHANUMERIC_WITH_DOT_AND_HYPHEN: /[^a-zA-Z0-9.\-]/g,
-  /** Block/plot numbers (e.g. A-101, 12/34, Wing A, Block 2). */
-  ALPHANUMERIC_WITH_SLASH_AND_HYPHEN: /[^a-zA-Z0-9/\-,]/g,
-  /** House/flat numbers with spaces (e.g. FLAT 12 A, 12/34, 42-A). */
-  ALPHANUMERIC_WITH_SLASH_HYPHEN_AND_SPACES: /[^a-zA-Z0-9\s/\-,]/g,
   ALPHANUMERIC_WITH_SPECIAL_CHARS:
     /[^a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};:'",.<>/?]/g,
 } as const;
@@ -36,4 +25,23 @@ export const FORM_VALIDATION_PATTERNS = {
  */
 export function invalidCharsPatternFromStrip(strip: RegExp): RegExp {
   return new RegExp(strip.source, strip.flags.replace(/g/g, ''));
+}
+
+/**
+ * Strip regex that keeps everything `base` keeps, plus the characters in `extra`.
+ * `base` must be a negated character class (`/[^...]/`).
+ *
+ * @example
+ * allowChars(TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC, '.-')
+ * allowChars(TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES, '-+')
+ */
+export function allowChars(base: RegExp, extra: string): RegExp {
+  const source = base.source;
+  if (!source.startsWith('[^') || !source.endsWith(']')) {
+    throw new Error(
+      'allowChars expects a negated character class such as /[^a-zA-Z0-9]/g'
+    );
+  }
+  const escaped = extra.replace(/[\\\]\-^]/g, '\\$&');
+  return new RegExp(`${source.slice(0, -1)}${escaped}]`, base.flags);
 }

@@ -9,6 +9,7 @@ export {
   TEXT_INPUT_ACCEPT_STRIP,
   FORM_VALIDATION_PATTERNS,
   GST_NUMBER_LENGTH,
+  allowChars,
   invalidCharsPatternFromStrip,
 } from './regex.constants';
 export {

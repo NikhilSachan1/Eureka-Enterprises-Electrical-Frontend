@@ -4,6 +4,7 @@ import {
   CONFIGURATION_KEYS,
   MODULE_NAMES,
   TEXT_INPUT_ACCEPT_STRIP,
+  allowChars,
 } from '@shared/constants';
 import {
   EDataType,
@@ -80,7 +81,10 @@ const COMPANY_BANK_ACCOUNT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ICompanyBa
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.TITLECASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS,
+        regex: allowChars(
+          TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
+          `,./#()&'-`
+        ),
       },
       validators: [Validators.required],
     },
