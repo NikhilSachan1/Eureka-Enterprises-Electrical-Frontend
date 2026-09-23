@@ -12,6 +12,8 @@ export const TEXT_INPUT_ACCEPT_STRIP = {
   ADDRESS: /[^a-zA-Z0-9\s,./#()&'-]/g,
   ALPHABETS_WITH_SPACES: /[^a-zA-Z\s]/g,
   ALPHANUMERIC: /[^a-zA-Z0-9]/g,
+  /** Letters, digits, dot, and hyphen (e.g. SN-12.34). */
+  ALPHANUMERIC_WITH_DOT_AND_HYPHEN: /[^a-zA-Z0-9.\-]/g,
   /** Block/plot numbers (e.g. A-101, 12/34, Wing A, Block 2). */
   ALPHANUMERIC_WITH_SLASH_AND_HYPHEN: /[^a-zA-Z0-9/\-,]/g,
   /** House/flat numbers with spaces (e.g. FLAT 12 A, 12/34, 42-A). */

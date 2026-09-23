@@ -46,7 +46,6 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
     fieldName: 'assetModel',
     label: 'Asset Model',
     textConfig: {
-      textCase: ETextCase.TITLECASE,
       regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
     },
   },
@@ -57,7 +56,7 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
     label: 'Asset Serial Number',
     textConfig: {
       textCase: ETextCase.UPPERCASE,
-      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
+      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_DOT_AND_HYPHEN,
     },
   },
   assetCategory: {
