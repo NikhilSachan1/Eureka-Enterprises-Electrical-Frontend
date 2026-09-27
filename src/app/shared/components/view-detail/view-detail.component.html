@@ -52,7 +52,9 @@
             @if (entryType && entryType !== '') {
               <p-tag
                 [value]="entryType | textCase: 'title'"
-                severity="info"
+                [severity]="
+                  entryType === ALL_ENTRY_TYPES.PENALTY ? 'danger' : 'info'
+                "
               />
             }
 
@@ -133,11 +135,14 @@
                         {{ entry.value.toString() | textCase: 'title' }}
                       </span>
                     } @else if (entry.type === ALL_DATA_TYPES.CURRENCY) {
+                      @let txn = entry.metadata?.transactionType;
                       @let colorClass =
-                        entryType === 'credit'
-                          ? 'text-green-600 font-semibold'
-                          : entryType === 'debit'
-                            ? 'text-red-600 font-semibold'
+                        entryType === ALL_ENTRY_TYPES.PENALTY ||
+                        txn === 'debit' ||
+                        entryType === 'debit'
+                          ? 'text-red-600 font-semibold'
+                          : txn === 'credit' || entryType === 'credit'
+                            ? 'text-green-600 font-semibold'
                             : 'view-detail-currency';
                       <span [ngClass]="colorClass">
                         {{ entry.value.toString() | currency: entry.format ?? APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
