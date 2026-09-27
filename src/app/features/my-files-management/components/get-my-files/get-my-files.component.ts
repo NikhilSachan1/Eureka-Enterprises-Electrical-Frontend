@@ -13,6 +13,7 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   ConfirmationDialogService,
   DrawerService,
+  GalleryService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -54,7 +55,7 @@ import { IMyFile } from '../../types/my-files.interface';
 import { EMyFileType } from '../../types/my-files.enum';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { DEFAULT_INPUT_FIELD_CONFIG } from '@shared/config/input-field.config';
-import { formatFileSize } from '@shared/utility';
+import { formatFileSize, getMediaTypeFromUrl } from '@shared/utility';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -89,6 +90,7 @@ export class GetMyFilesComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly drawerService = inject(DrawerService);
+  private readonly galleryService = inject(GalleryService);
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly searchInputChanges$ = new Subject<string>();
   private readonly listLoadTrigger$ = new Subject<void>();
@@ -189,35 +191,73 @@ export class GetMyFilesComponent implements OnInit {
     };
   }
 
-  protected readonly EButtonActionType = EButtonActionType;
-
   private getCurrentParentId(): string | null {
     return this.activatedRoute.snapshot.queryParamMap.get('parentId');
   }
 
   private mapTableData(records: IMyFileBaseResponseDto[]): IMyFile[] {
     return records.map((record: IMyFileBaseResponseDto) => {
+      const appearance = this.resolveItemAppearance(record);
+
       return {
         id: record.id,
         name: record.name,
         parentId: record.parentId,
         storageKey: record.storageKey,
         mimeType: record.mimeType,
-        itemIcon:
-          record.type === EMyFileType.FOLDER
-            ? ICONS.COMMON.FOLDER
-            : ICONS.COMMON.FILE,
+        itemIcon: appearance.icon,
+        itemKind: appearance.kind,
+        iconTone: appearance.tone,
         formattedSize:
           record.type === EMyFileType.FOLDER
-            ? '-'
+            ? '—'
             : formatFileSize(Number(record.size)),
-        documentKeys:
-          record.type === EMyFileType.FILE && record.storageKey
-            ? [record.storageKey]
-            : [],
         originalRawData: record,
       } satisfies IMyFile;
     });
+  }
+
+  private resolveItemAppearance(record: IMyFileBaseResponseDto): {
+    icon: string;
+    kind: string;
+    tone: IMyFile['iconTone'];
+  } {
+    if (record.type === EMyFileType.FOLDER) {
+      return {
+        icon: ICONS.COMMON.FOLDER,
+        kind: 'Folder',
+        tone: 'folder',
+      };
+    }
+
+    const mediaType = getMediaTypeFromUrl(record.name);
+
+    switch (mediaType) {
+      case 'pdf':
+        return { icon: ICONS.MEDIA.PDF, kind: 'PDF', tone: 'pdf' };
+      case 'image':
+        return { icon: ICONS.MEDIA.IMAGE, kind: 'Image', tone: 'image' };
+      case 'document':
+        return {
+          icon: ICONS.MEDIA.DOCUMENT,
+          kind: 'Document',
+          tone: 'document',
+        };
+      case 'spreadsheet':
+        return {
+          icon: ICONS.MEDIA.SPREADSHEET,
+          kind: 'Spreadsheet',
+          tone: 'spreadsheet',
+        };
+      case 'presentation':
+        return {
+          icon: ICONS.MEDIA.PRESENTATION,
+          kind: 'Presentation',
+          tone: 'file',
+        };
+      default:
+        return { icon: ICONS.COMMON.FILE, kind: 'File', tone: 'file' };
+    }
   }
 
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
@@ -229,7 +269,21 @@ export class GetMyFilesComponent implements OnInit {
     return row.originalRawData.type === EMyFileType.FOLDER;
   }
 
-  protected onFolderNameClick(row: IMyFile): void {
+  protected onItemClick(row: IMyFile): void {
+    if (this.isFolder(row)) {
+      this.onFolderNameClick(row);
+      return;
+    }
+
+    const storageKey = row.originalRawData.storageKey;
+    if (!storageKey) {
+      return;
+    }
+
+    this.galleryService.show([{ mediaKey: storageKey }]);
+  }
+
+  private onFolderNameClick(row: IMyFile): void {
     void this.routerNavigationService.navigateWithQueryParams(
       [ROUTE_BASE_PATHS.MY_FILES, ROUTES.MY_FILES.LIST],
       { parentId: row.id }
