@@ -297,9 +297,63 @@
   }
 }
 
+// Panel is appendTo body. PrimeNG only sets min-width to the field, so long
+// labels grow the panel past the trigger. width: 0 lets that min-width win,
+// and option text wraps inside it.
+::ng-deep .p-overlay:has(.p-select-overlay),
+::ng-deep .p-overlay:has(.p-multiselect-overlay) {
+  width: 0;
+  max-width: calc(100vw - 1rem);
+}
+
+::ng-deep .p-select-overlay,
+::ng-deep .p-multiselect-overlay {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+::ng-deep .p-select-overlay .p-select-list-container,
+::ng-deep .p-multiselect-overlay .p-multiselect-list-container {
+  overflow-x: hidden;
+}
+
+::ng-deep .p-select-overlay .p-select-option,
+::ng-deep .p-multiselect-overlay .p-multiselect-option {
+  white-space: normal;
+  height: auto;
+  align-items: flex-start;
+}
+
+::ng-deep .p-multiselect-overlay .p-multiselect-option > .p-checkbox {
+  margin-top: 0.7rem;
+}
+
+::ng-deep .p-select-overlay .ee-dropdown-option,
+::ng-deep .p-multiselect-overlay .ee-dropdown-option {
+  flex: 1 1 auto;
+  max-width: 100%;
+}
+
+::ng-deep .p-select-overlay .ee-dropdown-option__title,
+::ng-deep .p-select-overlay .ee-dropdown-option__subtitle,
+::ng-deep .p-select-overlay .ee-dropdown-option__label-line,
+::ng-deep .p-select-overlay .ee-dropdown-option__plain,
+::ng-deep .p-multiselect-overlay .ee-dropdown-option__title,
+::ng-deep .p-multiselect-overlay .ee-dropdown-option__subtitle,
+::ng-deep .p-multiselect-overlay .ee-dropdown-option__label-line,
+::ng-deep .p-multiselect-overlay .ee-dropdown-option__plain {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  overflow-wrap: anywhere;
+}
+
 // List: a bit more vertical room for two-line rows or icon rows
 ::ng-deep .p-select-overlay .p-select-option:has(.ee-dropdown-option--rich),
-::ng-deep .p-select-overlay .p-select-option:has(.ee-dropdown-option--icon) {
+::ng-deep .p-select-overlay .p-select-option:has(.ee-dropdown-option--icon),
+::ng-deep .p-multiselect-overlay .p-multiselect-option:has(.ee-dropdown-option--rich),
+::ng-deep .p-multiselect-overlay .p-multiselect-option:has(.ee-dropdown-option--icon) {
   padding-top: 0.28rem;
   padding-bottom: 0.28rem;
 }

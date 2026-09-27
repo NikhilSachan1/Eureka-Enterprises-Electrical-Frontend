@@ -381,39 +381,6 @@ export class DataTableComponent {
         return;
       }
 
-      const rows = this.tableData();
-      const idPath = this.tableConfig().tableUniqueId;
-      const rowById = new Map<string, Record<string, unknown>>();
-
-      for (const row of rows) {
-        const id = this.normalizeRowIdForSelection(row, idPath);
-        if (id !== null) {
-          rowById.set(id, row);
-        }
-      }
-
-      const selected = this.selectedTableRows();
-      const synced = selected.flatMap(row => {
-        const id = this.normalizeRowIdForSelection(row, idPath);
-        if (id === null) {
-          return [];
-        }
-        return [rowById.get(id) ?? row];
-      });
-
-      if (
-        synced.length !== selected.length ||
-        synced.some((row, index) => row !== selected[index])
-      ) {
-        this.selectedTableRows.set(synced);
-      }
-    });
-
-    effect(() => {
-      if (!this.showBulkSelectionCheckbox()) {
-        return;
-      }
-
       const idPath = this.tableConfig().tableUniqueId;
       const selectedRows = this.selectedTableRows()
         .filter(row => !this.isRowSelectionDisabled(row))
@@ -471,10 +438,6 @@ export class DataTableComponent {
     if (table) {
       table.selection = [];
     }
-  }
-
-  getSelectedRows(): Record<string, unknown>[] {
-    return this.selectedTableRows().map(row => this.extractOriginalData(row));
   }
 
   /**

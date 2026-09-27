@@ -8,6 +8,7 @@ export enum EDocReferenceHierarchyKind {
   Jmc = 'jmc',
   Report = 'report',
   Invoice = 'invoice',
+  Advance = 'advance',
   BookPayment = 'bookPayment',
   BankTransfer = 'bankTransfer',
 }

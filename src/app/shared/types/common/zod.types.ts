@@ -11,6 +11,7 @@ export enum EEntryType {
   SELF = 'self',
   FORCED = 'forced',
   SYSTEM = 'system',
+  PENALTY = 'penalty',
 }
 
 export enum EApprovalStatus {

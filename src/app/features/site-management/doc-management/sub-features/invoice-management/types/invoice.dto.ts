@@ -20,6 +20,11 @@ import {
   UnlockRequestInvoiceRequestSchema,
   UnlockRequestInvoiceResponseSchema,
   InvoiceDropdownRecordSchema,
+  InvoiceAdvanceSettlementSchema,
+  SettleAdvanceInvoiceRequestSchema,
+  SettleAdvanceInvoiceResponseSchema,
+  UnsettleAdvanceInvoiceFormSchema,
+  UnsettleAdvanceInvoiceResponseSchema,
 } from '../schemas';
 import { InvoiceDetailGetRequestSchema } from '../schemas/get-invoice-detail.schema';
 
@@ -27,6 +32,9 @@ import { InvoiceDetailGetRequestSchema } from '../schemas/get-invoice-detail.sch
   Invoice Get
 */
 
+export type IInvoiceAdvanceSettlementDto = z.infer<
+  typeof InvoiceAdvanceSettlementSchema
+>;
 export type IInvoiceGetBaseResponseDto = z.infer<
   typeof InvoiceGetBaseResponseSchema
 >;
@@ -140,3 +148,20 @@ export type IEditInvoiceUIFormDto = Omit<
   jmcNumber: string;
 };
 export type IEditInvoiceResponseDto = z.infer<typeof EditInvoiceResponseSchema>;
+
+export type ISettleAdvanceInvoiceRequestDto = z.infer<
+  typeof SettleAdvanceInvoiceRequestSchema
+>;
+export type ISettleAdvanceInvoiceFormDto = z.input<
+  typeof SettleAdvanceInvoiceRequestSchema
+>;
+export type ISettleAdvanceInvoiceResponseDto = z.infer<
+  typeof SettleAdvanceInvoiceResponseSchema
+>;
+
+export type IUnsettleAdvanceInvoiceFormDto = z.input<
+  typeof UnsettleAdvanceInvoiceFormSchema
+>;
+export type IUnsettleAdvanceInvoiceResponseDto = z.infer<
+  typeof UnsettleAdvanceInvoiceResponseSchema
+>;

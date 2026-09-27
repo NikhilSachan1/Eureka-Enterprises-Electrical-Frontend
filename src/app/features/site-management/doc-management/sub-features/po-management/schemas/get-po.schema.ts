@@ -77,6 +77,7 @@ export const PoGetBaseResponseSchema = z.looseObject({
   invoicedTotal: z.string(),
   bookedTotal: z.string(),
   paidTotal: z.string(),
+  advancePaidTotal: z.string(),
   lastInvoiceAt: isoDateTimeField.nullable(),
   lastPaymentAt: isoDateTimeField.nullable(),
   remarks: z.string().nullable(),

@@ -240,10 +240,6 @@ export class GetAttendanceComponent implements OnInit {
         title: 'Approval',
         icon: ICONS.ACTIONS.CHECK_CIRCLE,
         metrics: [
-          {
-            label: 'Approval Pending',
-            value: stats?.attendance?.approvalPending ?? 0,
-          },
           { label: 'Pending', value: stats?.approval?.pending ?? 0 },
           { label: 'Approved', value: stats?.approval?.approved ?? 0 },
           { label: 'Rejected', value: stats?.approval?.rejected ?? 0 },
@@ -315,9 +311,9 @@ export class GetAttendanceComponent implements OnInit {
           selectedRow.status === EAttendanceStatus.APPROVAL_PENDING
             ? 'Approval Pending'
             : getMappedValueFromArrayOfObjects(
-                this.appConfigurationService.attendanceStatus(),
-                selectedRow.status
-              ),
+              this.appConfigurationService.attendanceStatus(),
+              selectedRow.status
+            ),
         type: EDataType.STATUS,
       },
       {

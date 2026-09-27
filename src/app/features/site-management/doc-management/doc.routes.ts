@@ -7,6 +7,7 @@ import { EDocContext } from './types/doc.enum';
 const { WORKSPACE_DOC } = ROUTES.SITE.PROJECT;
 const {
   PO_DOC,
+  ADVANCE_PAYMENT_DOC,
   JMC_DOC,
   REPORT_DOC,
   INVOICE_DOC,
@@ -64,7 +65,7 @@ const DOC_WORKSPACE_SALES_CHILDREN: Routes = [
   },
 ];
 
-/** Purchase (vendor): same as sales + Book Payment. */
+/** Purchase (vendor): same as sales + Advance Payment, Payment Request, and Book Payment. */
 const DOC_WORKSPACE_PURCHASE_CHILDREN: Routes = [
   {
     path: WORKSPACE_DOC.PO,
@@ -74,6 +75,15 @@ const DOC_WORKSPACE_PURCHASE_CHILDREN: Routes = [
       ).then(m => m.GetPoComponent),
     canActivate: [permissionGuard],
     data: { permissions: [PO_DOC.TABLE_VIEW] },
+  },
+  {
+    path: WORKSPACE_DOC.ADVANCE_PAYMENT,
+    loadComponent: () =>
+      import(
+        './sub-features/advance-payment-management/components/get-advance-payment/get-advance-payment.component'
+      ).then(m => m.GetAdvancePaymentComponent),
+    canActivate: [permissionGuard],
+    data: { permissions: [ADVANCE_PAYMENT_DOC.TABLE_VIEW] },
   },
   {
     path: WORKSPACE_DOC.JMC,

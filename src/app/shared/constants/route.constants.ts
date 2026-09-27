@@ -137,6 +137,7 @@ export const ROUTES = {
       DAILY_PROGRESS: `daily-progress`,
       WORKSPACE_DOC: {
         PO: `po`,
+        ADVANCE_PAYMENT: `advance-payment`,
         JMC: `jmc`,
         INVOICE: `invoice`,
         REPORT: `report`,

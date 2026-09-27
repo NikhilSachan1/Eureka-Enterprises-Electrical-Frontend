@@ -158,7 +158,7 @@ export class GetAssetEventHistoryComponent implements OnInit {
           this.appConfigurationService.assetEventStatuses(),
           record.eventType
         ),
-        remarks: record?.metadata?.['remark'] ?? '-',
+        remarks: record.metadata?.reason?.trim() || '-',
         createdAt: record.createdAt,
         documentKeys: record.documentKeys,
         fromUserName: fromUser

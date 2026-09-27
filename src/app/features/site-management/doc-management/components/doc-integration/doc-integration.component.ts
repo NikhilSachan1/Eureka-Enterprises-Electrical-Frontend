@@ -37,6 +37,7 @@ export class DocIntegrationComponent {
     const ctx = this.docContext;
     const {
       PO_DOC,
+      ADVANCE_PAYMENT_DOC,
       JMC_DOC,
       REPORT_DOC,
       INVOICE_DOC,
@@ -51,6 +52,16 @@ export class DocIntegrationComponent {
         label: 'PO',
         icon: ICONS.COMMON.FILE,
         visible: this.appPermissionService.hasPermission(PO_DOC.TABLE_VIEW),
+      },
+      {
+        route: ROUTES.SITE.PROJECT.WORKSPACE_DOC.ADVANCE_PAYMENT,
+        label: 'Advance Payment',
+        icon: ICONS.PAYROLL.WALLET,
+        visible:
+          ctx === EDocContext.PURCHASE &&
+          this.appPermissionService.hasPermission(
+            ADVANCE_PAYMENT_DOC.TABLE_VIEW
+          ),
       },
       {
         route: ROUTES.SITE.PROJECT.WORKSPACE_DOC.JMC,

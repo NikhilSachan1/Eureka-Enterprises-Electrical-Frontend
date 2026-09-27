@@ -57,7 +57,7 @@ export const BookPaymentGetRequestSchema = z
 export const BookPaymentGetBaseResponseSchema = z.looseObject({
   id: uuidField,
   siteId: uuidField,
-  invoiceId: uuidField,
+  invoiceId: uuidField.nullable(),
   bookingDate: onlyDateStringField,
   taxableAmount: z.string(),
   paymentTotalAmount: z.string(),
@@ -69,15 +69,28 @@ export const BookPaymentGetBaseResponseSchema = z.looseObject({
   unlockRequestedByUser: makeFieldsNullable(UserSchema).nullable(),
   unlockReason: z.string().nullable(),
   createdBy,
-  invoice: z.looseObject({
-    invoiceNumber: z.string(),
-    jmc: z.looseObject({
-      jmcNumber: z.string(),
-      po: z.looseObject({
-        poNumber: z.string(),
+  invoice: z
+    .looseObject({
+      invoiceNumber: z.string(),
+      jmc: z.looseObject({
+        jmcNumber: z.string(),
+        po: z.looseObject({
+          poNumber: z.string(),
+        }),
       }),
-    }),
-  }),
+    })
+    .nullable(),
+  advancePayment: z
+    .looseObject({
+      advanceNumber: z.string().nullable(),
+      po: z
+        .looseObject({
+          poNumber: z.string(),
+        })
+        .nullable()
+        .optional(),
+    })
+    .nullable(),
   site: z.looseObject({
     name: z.string(),
     city: z.string(),

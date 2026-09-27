@@ -291,6 +291,12 @@ export const ASSET_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IAssetGetResponseDto['records'][number]>
 >[] = [
   {
+    id: EButtonActionType.QR_CODE,
+    label: 'Print QR',
+    tooltip: 'Print QR codes for selected assets',
+    permission: [APP_PERMISSION.ASSET.VIEW_DETAIL],
+  },
+  {
     id: EButtonActionType.DOWNLOAD,
     label: 'Export',
     tooltip: 'Export selected assets as PDF',

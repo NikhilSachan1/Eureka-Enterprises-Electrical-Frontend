@@ -123,7 +123,8 @@ export class ProjectService {
           response: ProjectEditResponseSchema,
           request: ProjectAssignStakeholdersRequestSchema,
         },
-        formData
+        formData,
+        { skipClean: true }
       )
       .pipe(
         tap((response: IProjectEditResponseDto) => {

@@ -21,6 +21,7 @@ export interface IPo
     | 'invoicedTotal'
     | 'bookedTotal'
     | 'paidTotal'
+    | 'advancePaidTotal'
     | 'lastInvoiceAt'
     | 'lastPaymentAt'
     | 'contractor'

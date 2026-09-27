@@ -21,6 +21,9 @@ import {
   AddInvoiceRequestSchema,
   EditInvoiceRequestSchema,
   EditInvoiceResponseSchema,
+  SettleAdvanceInvoiceRequestSchema,
+  SettleAdvanceInvoiceResponseSchema,
+  UnsettleAdvanceInvoiceResponseSchema,
 } from '../schemas';
 import {
   IApproveInvoiceFormDto,
@@ -41,6 +44,9 @@ import {
   IAddInvoiceResponseDto,
   IEditInvoiceFormDto,
   IEditInvoiceResponseDto,
+  ISettleAdvanceInvoiceFormDto,
+  ISettleAdvanceInvoiceResponseDto,
+  IUnsettleAdvanceInvoiceResponseDto,
 } from '../types/invoice.dto';
 
 @Injectable({
@@ -381,6 +387,120 @@ export class InvoiceService {
             );
           } else {
             this.logger.logUserAction('Get Invoice Detail By Id Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  settleAdvance(
+    invoiceId: string,
+    formData: ISettleAdvanceInvoiceFormDto
+  ): Observable<ISettleAdvanceInvoiceResponseDto> {
+    this.logger.logUserAction('Settle Invoice Advance Request', { invoiceId });
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.INVOICE.SETTLE_ADVANCE(invoiceId),
+        {
+          response: SettleAdvanceInvoiceResponseSchema,
+          request: SettleAdvanceInvoiceRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: ISettleAdvanceInvoiceResponseDto) => {
+          this.logger.logUserAction(
+            'Settle Invoice Advance Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Settle Invoice Advance Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Settle Invoice Advance Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  unsettleAdvance(
+    invoiceId: string,
+    settlementId: string
+  ): Observable<IUnsettleAdvanceInvoiceResponseDto> {
+    this.logger.logUserAction('Unsettle Invoice Advance Request', {
+      invoiceId,
+      settlementId,
+    });
+
+    return this.apiService
+      .deleteValidated(
+        API_ROUTES.SITE.DOCUMENT.INVOICE.UNSETTLE_ADVANCE(
+          invoiceId,
+          settlementId
+        ),
+        {
+          response: UnsettleAdvanceInvoiceResponseSchema,
+        }
+      )
+      .pipe(
+        tap((response: IUnsettleAdvanceInvoiceResponseDto) => {
+          this.logger.logUserAction(
+            'Unsettle Invoice Advance Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Unsettle Invoice Advance Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Unsettle Invoice Advance Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  unsettleAllAdvances(
+    invoiceId: string
+  ): Observable<IUnsettleAdvanceInvoiceResponseDto> {
+    this.logger.logUserAction('Unsettle All Invoice Advances Request', {
+      invoiceId,
+    });
+
+    return this.apiService
+      .deleteValidated(
+        API_ROUTES.SITE.DOCUMENT.INVOICE.UNSETTLE_ALL_ADVANCES(invoiceId),
+        {
+          response: UnsettleAdvanceInvoiceResponseSchema,
+        }
+      )
+      .pipe(
+        tap((response: IUnsettleAdvanceInvoiceResponseDto) => {
+          this.logger.logUserAction(
+            'Unsettle All Invoice Advances Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Unsettle All Invoice Advances Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Unsettle All Invoice Advances Error',
+              error
+            );
           }
           return throwError(() => error);
         })

@@ -12,6 +12,8 @@ import { UnlockRequestRejectInvoiceComponent } from '../../components/unlock-req
 import { AddInvoiceComponent } from '../../components/add-invoice/add-invoice.component';
 import { EditInvoiceComponent } from '../../components/edit-invoice/edit-invoice.component';
 import { DeleteInvoiceComponent } from '../../components/delete-invoice/delete-invoice.component';
+import { SettleAdvanceInvoiceComponent } from '../../components/settle-advance-invoice/settle-advance-invoice.component';
+import { UnsettleAdvanceInvoiceComponent } from '../../components/unsettle-advance-invoice/unsettle-advance-invoice.component';
 
 export const INVOICE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.ADD]: {
@@ -68,5 +70,23 @@ export const INVOICE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
         'Reject this unlock request? The invoice will stay locked for the requester.',
     },
     dynamicComponent: UnlockRequestRejectInvoiceComponent,
+  },
+
+  [EButtonActionType.SETTLE_ADVANCE]: {
+    dialogConfig: {
+      header: 'Settle advance',
+      message:
+        'Apply an approved advance from the same PO against this invoice.',
+    },
+    dynamicComponent: SettleAdvanceInvoiceComponent,
+  },
+
+  [EButtonActionType.UNSETTLE_ADVANCE]: {
+    dialogConfig: {
+      header: 'Reverse advance settlement',
+      message:
+        'Reverse a settlement on this invoice. Unlock stays blocked until all settlements are reversed.',
+    },
+    dynamicComponent: UnsettleAdvanceInvoiceComponent,
   },
 };

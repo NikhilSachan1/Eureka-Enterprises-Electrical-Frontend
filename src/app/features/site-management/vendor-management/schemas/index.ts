@@ -24,3 +24,7 @@ export {
   VendorGetResponseSchema,
   VendorGetStatsResponseSchema,
 } from './get-vendor.schema';
+export {
+  AssignableSiteVendorSiteSchema,
+  AssignableSiteVendorsGetResponseSchema,
+} from './get-assignable-site-vendors.schema';

@@ -1,4 +1,3 @@
-import { APP_CONFIG } from '@core/config';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import { ICONS } from '@shared/constants';
 import {
@@ -72,12 +71,8 @@ export const createPaymentSheetDetailItemsTableHeadersConfig = (
     {
       field: 'invoiceNumber',
       header: 'Invoice',
-      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-      subtitle: {
-        field: 'invoiceDate',
-        bodyTemplate: EDataType.DATE,
-        dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT,
-      },
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'invoiceDetailCell',
       showSort: false,
       showColumn: isVendor,
     },

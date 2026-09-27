@@ -20,11 +20,31 @@
   <app-doc-amount [segments]="docInvoiceDrawerTaxGstSegments(v)" />
 </ng-template>
 
+<ng-template
+  #invoiceDetailBookedPaid
+  let-entry
+>
+  <app-doc-amount
+    [segments]="docInvoiceDrawerBookedPaidSegments($any(entry.value))"
+  />
+</ng-template>
+
+<ng-template
+  #invoiceDetailAdvanceSettlement
+  let-entry
+>
+  <app-doc-amount
+    [segments]="docInvoiceDrawerAdvanceSettlementSegments($any(entry.value))"
+  />
+</ng-template>
+
 <app-view-detail
   [drawerDetails]="_invoiceDetails()"
   [customTemplates]="{
     docWorkspaceContextDetail: docWorkspaceContextDetail,
     documentReferenceHierarchy: documentReferenceHierarchy,
     invoiceDetailAmounts: invoiceDetailAmounts,
+    invoiceDetailBookedPaid: invoiceDetailBookedPaid,
+    invoiceDetailAdvanceSettlement: invoiceDetailAdvanceSettlement,
   }"
 />

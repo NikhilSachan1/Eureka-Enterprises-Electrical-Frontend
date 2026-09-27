@@ -59,7 +59,10 @@ import { ProjectWorkspaceContextService } from '@features/site-management/projec
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
-import { buildInvoiceTaxGstAmountSegments } from '../../utils/invoice-table-row.util';
+import {
+  buildInvoiceBookedPaidSegments,
+  buildInvoiceTaxGstAmountSegments,
+} from '../../utils/invoice-table-row.util';
 
 @Component({
   selector: 'app-get-invoice',
@@ -171,21 +174,10 @@ export class GetInvoiceComponent implements OnInit {
   }
 
   protected docInvoiceBookedPaidSegments(row: IInvoice): IDocAmountSegment[] {
-    const isSales = this.docRouteContext() === EDocContext.SALES;
-    const segments: IDocAmountSegment[] = [];
-    if (!isSales) {
-      segments.push({
-        dataType: EDataType.CURRENCY,
-        label: 'Booked',
-        value: row.bookedTotal,
-      });
-    }
-    segments.push({
-      dataType: EDataType.CURRENCY,
-      label: 'Paid',
-      value: row.paidTotal,
-    });
-    return segments;
+    return buildInvoiceBookedPaidSegments(
+      row.originalRawData,
+      this.docRouteContext() === EDocContext.SALES
+    );
   }
 
   private loadInvoiceList(): void {
@@ -237,9 +229,11 @@ export class GetInvoiceComponent implements OnInit {
         gstPercentage: `(${record.gstPercentage}%)`,
         gstAmount: record.gstAmount,
         isGstHold: record.isGstHold,
+        partyType: record.partyType,
         totalAmount: record.totalAmount,
         bookedTotal: record.bookedTotal,
         paidTotal: record.paidTotal,
+        advanceSettledAmount: record.advanceSettledAmount,
         jmc: record.jmc,
         fileKey: record.fileKey,
         fileKeys: record.fileKey ? [record.fileKey] : [],

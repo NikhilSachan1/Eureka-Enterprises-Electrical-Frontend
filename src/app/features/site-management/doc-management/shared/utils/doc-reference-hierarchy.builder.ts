@@ -11,7 +11,8 @@ import {
  *
  * Per screen we expose only the relevant prefix of the full chain, e.g. report
  * rows show **PO → JMC**; book payment doc-ref shows **PO → JMC → Invoice**
- * (status column covers bank transfer).
+ * (status column covers bank transfer). Advance-sourced book payments show
+ * **PO → Advance** instead of the invoice chain.
  */
 
 export const DOC_REFERENCE_KIND_LABELS: Record<
@@ -22,6 +23,7 @@ export const DOC_REFERENCE_KIND_LABELS: Record<
   [EDocReferenceHierarchyKind.Jmc]: 'JMC',
   [EDocReferenceHierarchyKind.Report]: 'Report',
   [EDocReferenceHierarchyKind.Invoice]: 'Invoice',
+  [EDocReferenceHierarchyKind.Advance]: 'Advance',
   [EDocReferenceHierarchyKind.BookPayment]: 'Book payment',
   [EDocReferenceHierarchyKind.BankTransfer]: 'Bank transfer',
 };
@@ -116,12 +118,27 @@ export class DocReferenceHierarchy {
     ]);
   }
 
-  /** Book payment doc-ref column: **PO → JMC → Invoice** only. */
+  /**
+   * Book payment doc-ref column.
+   * Invoice rows: **PO → JMC → Invoice**. Advance rows: **PO → Advance**.
+   */
   static forBookPaymentRow(context: {
     poNumber?: string | null;
     jmcNumber?: string | null;
     invoiceNumber?: string | null;
+    advanceNumber?: string | null;
   }): IDocReferenceHierarchyNode | null {
+    const advanceNumber = DocReferenceHierarchy.normalize(context.advanceNumber);
+    if (
+      advanceNumber &&
+      !DocReferenceHierarchy.normalize(context.invoiceNumber)
+    ) {
+      return DocReferenceHierarchy.link([
+        { kind: EDocReferenceHierarchyKind.Po, value: context.poNumber },
+        { kind: EDocReferenceHierarchyKind.Advance, value: advanceNumber },
+      ]);
+    }
+
     return DocReferenceHierarchy.link([
       { kind: EDocReferenceHierarchyKind.Po, value: context.poNumber },
       { kind: EDocReferenceHierarchyKind.Jmc, value: context.jmcNumber },

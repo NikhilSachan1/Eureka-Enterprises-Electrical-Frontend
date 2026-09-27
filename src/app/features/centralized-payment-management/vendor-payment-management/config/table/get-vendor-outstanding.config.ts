@@ -81,17 +81,25 @@ export const VENDOR_OUTSTANDING_INVOICE_TABLE_HEADER_CONFIG: Partial<IDataTableH
       showSort: false,
     },
     {
+      field: 'documentKind',
+      header: 'Type',
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'documentKindBadge',
+      showSort: false,
+    },
+    {
       field: 'invoiceNumber',
-      header: 'Invoice Number',
+      header: 'Invoice / Advance No.',
       bodyTemplate: EDataType.TEXT,
       primaryFieldHighlight: true,
       showSort: false,
     },
     {
       field: 'invoiceDate',
-      header: 'Invoice Date',
+      header: 'Invoice / Advance Date',
       bodyTemplate: EDataType.DATE,
       dataType: EDataType.DATE,
+      dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT,
       showSort: false,
     },
     {

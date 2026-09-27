@@ -14,6 +14,8 @@ import {
   VendorGetRequestSchema,
   VendorGetResponseSchema,
   VendorGetStatsResponseSchema,
+  AssignableSiteVendorsGetResponseSchema,
+  AssignableSiteVendorSiteSchema,
 } from '../schemas';
 
 /*
@@ -76,4 +78,14 @@ export type IVendorChangeStatusFormDto = z.input<
 >;
 export type IVendorChangeStatusResponseDto = z.infer<
   typeof VendorChangeStatusResponseSchema
+>;
+
+/*
+  Assignable site vendors
+*/
+export type IAssignableSiteVendorsGetResponseDto = z.infer<
+  typeof AssignableSiteVendorsGetResponseSchema
+>;
+export type IAssignableSiteVendorSiteDto = z.infer<
+  typeof AssignableSiteVendorSiteSchema
 >;

@@ -29,7 +29,9 @@ export interface IVendorInvoiceOutstandingGroup {
   company: IVendorOutstandingBookPayment['company'];
   po: IVendorOutstandingBookPayment['po'];
   jmc: IVendorOutstandingBookPayment['jmc'];
-  invoice: IVendorOutstandingBookPayment['invoice'] | null;
+  invoice: IVendorOutstandingBookPayment['invoice'];
+  advanceAmount: number | null;
+  settledAmount: number | null;
   bookPayments: IVendorBookPaymentTableRow[];
 }
 
@@ -45,6 +47,7 @@ export interface IVendorOutstandingInvoiceListRow extends Record<string, unknown
   id: string;
   invoiceNumber: string;
   invoiceDate: string;
+  documentKind: 'Invoice' | 'Advance';
   docWorkspaceContext: IDocWorkspaceContextView;
   documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
   taxableAmount: number | null;
@@ -58,6 +61,7 @@ export interface IVendorOutstandingInvoiceListRow extends Record<string, unknown
   bookedTotal: number | null;
   paidTotal: number | null;
   pendingToBook: number | null;
+  settledAmount: number | null;
   bookPayments: IVendorBookPaymentTableRow[];
   canBookPayment: boolean;
 }

@@ -101,6 +101,9 @@
   &[data-tone="remaining"] {
     @include chip-tone(#7c3aed);
   }
+  &[data-tone="invoiced"] {
+    @include chip-tone(#7c3aed);
+  }
 }
 
 .bp-invoice-summary__chip-label {
@@ -148,6 +151,9 @@
       @include chip-tone(#4ade80);
     }
     &[data-tone="remaining"] {
+      @include chip-tone(#a78bfa);
+    }
+    &[data-tone="invoiced"] {
       @include chip-tone(#a78bfa);
     }
   }

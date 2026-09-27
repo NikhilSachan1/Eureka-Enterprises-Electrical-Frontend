@@ -219,6 +219,7 @@ export const API_ROUTES = {
       DELETE: 'vendors',
       EDIT: (vendorId: string) => `vendors/${vendorId}`,
       GET_VENDOR_BY_ID: (vendorId: string) => `vendors/${vendorId}`,
+      ASSIGNABLE_SITES: 'sites/vendors/assignable',
     },
     PROJECT: {
       LIST: 'sites',
@@ -262,6 +263,16 @@ export const API_ROUTES = {
         ITEM_SUGGESTIONS: 'purchase-orders/items/suggestions',
         DEFAULT_TERMS: 'purchase-orders/default-terms',
         PDF: (poId: string) => `purchase-orders/${poId}/pdf`,
+      },
+      ADVANCE_PAYMENT: {
+        ADD: 'advance-payments',
+        LIST: 'advance-payments',
+        DROPDOWN: 'advance-payments/dropdown',
+        GET_BY_ID: (id: string) => `advance-payments/${id}`,
+        EDIT: (id: string) => `advance-payments/${id}`,
+        DELETE: (id: string) => `advance-payments/${id}`,
+        APPROVE: (id: string) => `advance-payments/${id}/approve`,
+        REJECT: (id: string) => `advance-payments/${id}/reject`,
       },
       JMC: {
         ADD: 'jmcs',
@@ -307,6 +318,12 @@ export const API_ROUTES = {
         UNLOCK_REQUEST_REJECT: (invoiceId: string) =>
           `site-invoices/${invoiceId}/unlock-reject`,
         DELETE: (invoiceId: string) => `site-invoices/${invoiceId}`,
+        SETTLE_ADVANCE: (invoiceId: string) =>
+          `site-invoices/${invoiceId}/advance-settlements`,
+        UNSETTLE_ADVANCE: (invoiceId: string, settlementId: string) =>
+          `site-invoices/${invoiceId}/advance-settlements/${settlementId}`,
+        UNSETTLE_ALL_ADVANCES: (invoiceId: string) =>
+          `site-invoices/${invoiceId}/advance-settlements`,
       },
       PAYMENT_REQUEST: {
         ADD: 'payment-requests',
@@ -433,6 +450,7 @@ export const GET_ENDPOINT_PATHS_WITHOUT_ERROR_TOAST = new Set<string>([
   API_ROUTES.SITE.COMPANY.LIST,
   API_ROUTES.SITE.CONTRACTOR.LIST,
   API_ROUTES.SITE.VENDOR.LIST,
+  API_ROUTES.SITE.VENDOR.ASSIGNABLE_SITES,
 ]);
 
 export const SKIP_AUTH_ENDPOINTS = [

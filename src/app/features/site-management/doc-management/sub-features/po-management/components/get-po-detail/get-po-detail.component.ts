@@ -170,6 +170,7 @@ export class GetPoDetailComponent extends DrawerDetailBase {
         invoicedTotal: record.invoicedTotal,
         bookedTotal: record.bookedTotal,
         paidTotal: record.paidTotal,
+        advancePaidTotal: record.advancePaidTotal,
         lastInvoiceAt: record.lastInvoiceAt,
         lastPaymentAt: record.lastPaymentAt,
       },
@@ -306,11 +307,17 @@ export class GetPoDetailComponent extends DrawerDetailBase {
     invoicedTotal: string;
     bookedTotal: string;
     paidTotal: string;
+    advancePaidTotal: string;
     lastInvoiceAt: string | null | undefined;
     lastPaymentAt: string | null | undefined;
   }): IDocAmountSegment[] {
     const isSales = v.partyType === EDocContext.SALES;
     const segments: IDocAmountSegment[] = [
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Advance paid',
+        value: v.advancePaidTotal,
+      },
       {
         dataType: EDataType.CURRENCY,
         label: 'Invoiced',

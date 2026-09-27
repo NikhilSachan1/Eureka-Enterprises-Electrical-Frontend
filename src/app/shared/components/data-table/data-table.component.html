@@ -78,6 +78,8 @@
     paginatorDropdownAppendTo="body"
     [columns]="visibleTableHeaders()"
     [(selection)]="selectedTableRows"
+    selectionMode="multiple"
+    [selectionPageOnly]="true"
     (onFilter)="onFilterChange($event)"
     [globalFilterFields]="tableConfig().globalFilterFields"
     [lazy]="tableConfig().enableServerSide"
@@ -639,11 +641,13 @@
     }
     @case (ALL_DATA_TYPES.CURRENCY) {
       @let entryType = row ? $any(row)['transactionType'] : null;
+      @let isPenalty =
+        $any(row)?.originalRawData?.expenseEntryType === 'penalty';
       @let colorClass =
-        entryType === 'credit'
-          ? 'text-green-600 font-semibold'
-          : entryType === 'debit'
-            ? 'text-red-600 font-semibold'
+        isPenalty || entryType === 'debit'
+          ? 'text-red-600 font-semibold'
+          : entryType === 'credit'
+            ? 'text-green-600 font-semibold'
             : 'font-semibold';
       <span [ngClass]="colorClass">{{ $any(val) | currency: col.currencyFormat }}</span>
     }
