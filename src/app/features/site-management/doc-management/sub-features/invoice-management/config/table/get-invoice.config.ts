@@ -20,15 +20,20 @@ import {
   INVOICE_ROW_ACTION_DISABLE_REASON,
   invoiceApproveDisableReason,
   invoiceRejectDisableReason,
+  invoiceSettleAdvanceDisableReason,
   invoiceUnlockGrantDisableReason,
   invoiceUnlockRequestDisableReason,
   invoiceUnlockRequestRejectDisableReason,
+  invoiceUnsettleAdvanceDisableReason,
+  isInvoicePurchaseParty,
   shouldDisableInvoiceApprove,
   shouldDisableInvoiceEditOrDelete,
   shouldDisableInvoiceReject,
+  shouldDisableInvoiceSettleAdvance,
   shouldDisableInvoiceUnlockGrant,
   shouldDisableInvoiceUnlockRequest,
   shouldDisableInvoiceUnlockRequestReject,
+  shouldDisableInvoiceUnsettleAdvance,
 } from '../../utils/invoice-table-row.util';
 
 export const INVOICE_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -166,6 +171,22 @@ const buildInvoiceTableRowActionsConfig = (
     disableWhen: shouldDisableInvoiceUnlockRequestReject,
     disableReason: invoiceUnlockRequestRejectDisableReason,
     permission: [APP_PERMISSION.INVOICE_DOC.UNLOCK_REQUEST_REJECT],
+  },
+  {
+    id: EButtonActionType.SETTLE_ADVANCE,
+    tooltip: 'Settle advance',
+    hideWhen: (row: IInvoiceGetBaseResponseDto) => !isInvoicePurchaseParty(row),
+    disableWhen: shouldDisableInvoiceSettleAdvance,
+    disableReason: invoiceSettleAdvanceDisableReason,
+    permission: [APP_PERMISSION.ADVANCE_PAYMENT_DOC.SETTLE],
+  },
+  {
+    id: EButtonActionType.UNSETTLE_ADVANCE,
+    tooltip: 'Reverse advance settlement',
+    hideWhen: (row: IInvoiceGetBaseResponseDto) => !isInvoicePurchaseParty(row),
+    disableWhen: shouldDisableInvoiceUnsettleAdvance,
+    disableReason: invoiceUnsettleAdvanceDisableReason,
+    permission: [APP_PERMISSION.ADVANCE_PAYMENT_DOC.SETTLE],
   },
 ];
 

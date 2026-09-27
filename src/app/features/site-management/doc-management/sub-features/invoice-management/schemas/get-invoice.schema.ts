@@ -55,6 +55,15 @@ export const InvoiceGetRequestSchema = z
     }
   );
 
+export const InvoiceAdvanceSettlementSchema = z.looseObject({
+  settlementId: uuidField,
+  advancePaymentId: uuidField,
+  advanceNumber: z.string(),
+  advanceDate: z.string().nullable().optional(),
+  amount: z.union([z.string(), z.number()]),
+  settledAt: z.string().nullable().optional(),
+});
+
 export const InvoiceGetBaseResponseSchema = z.looseObject({
   ...InvoiceBaseSchema.shape,
   isLocked: z.boolean(),
@@ -66,6 +75,8 @@ export const InvoiceGetBaseResponseSchema = z.looseObject({
   createdBy,
   bookedTotal: z.string(),
   paidTotal: z.string(),
+  advanceSettledAmount: z.string(),
+  advanceSettlements: z.array(InvoiceAdvanceSettlementSchema),
   jmc: z.looseObject({
     jmcNumber: z.string(),
     po: z.looseObject({

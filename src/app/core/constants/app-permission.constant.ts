@@ -233,6 +233,7 @@ export const APP_PERMISSION = {
     DELETE: 'financials.advance-payments.delete',
     APPROVE: 'financials.advance-payments.approve',
     REJECT: 'financials.advance-payments.approve',
+    SETTLE: 'financials.advance-payments.settle',
   },
   JMC_DOC: {
     VIEW_DETAIL: 'financials.jmcs.view-detail',

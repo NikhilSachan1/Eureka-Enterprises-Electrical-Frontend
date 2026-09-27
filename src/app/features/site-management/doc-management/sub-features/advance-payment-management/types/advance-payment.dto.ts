@@ -2,6 +2,9 @@ import { z } from 'zod';
 import {
   AddAdvancePaymentRequestSchema,
   AddAdvancePaymentResponseSchema,
+  AdvancePaymentDropdownGetRequestSchema,
+  AdvancePaymentDropdownGetResponseSchema,
+  AdvancePaymentDropdownRecordSchema,
   ApproveAdvancePaymentRequestSchema,
   ApproveAdvancePaymentResponseSchema,
   DeleteAdvancePaymentResponseSchema,
@@ -27,6 +30,16 @@ export type IAdvancePaymentGetRequestDto = z.infer<
 >;
 export type IAdvancePaymentGetFormDto = z.input<
   typeof AdvancePaymentGetRequestSchema
+>;
+
+export type IAdvancePaymentDropdownRecordDto = z.infer<
+  typeof AdvancePaymentDropdownRecordSchema
+>;
+export type IAdvancePaymentDropdownGetRequestDto = z.input<
+  typeof AdvancePaymentDropdownGetRequestSchema
+>;
+export type IAdvancePaymentDropdownGetResponseDto = z.infer<
+  typeof AdvancePaymentDropdownGetResponseSchema
 >;
 
 export type IAdvancePaymentDetailGetResponseDto = z.infer<

@@ -24,12 +24,17 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
-import { buildInvoiceTaxGstAmountSegments } from '../../utils/invoice-table-row.util';
+import {
+  buildInvoiceAdvanceSettlementFlowSegments,
+  buildInvoiceBookedPaidSegments,
+  buildInvoiceTaxGstAmountSegments,
+} from '../../utils/invoice-table-row.util';
 
 @Component({
   selector: 'app-get-invoice-detail',
@@ -54,7 +59,6 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
     IDataViewDetailsWithEntity | undefined
   >(undefined);
 
-  protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly APP_CONFIG = APP_CONFIG;
   override onDrawerShow(): void {
     this.loadInvoiceDetails();
@@ -141,6 +145,18 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
         detailTemplateFullRow: false,
       },
       {
+        label: 'Booked & paid',
+        value: record,
+        customTemplateKey: 'invoiceDetailBookedPaid',
+        detailTemplateFullRow: false,
+      },
+      {
+        label: 'Advance settled',
+        value: record,
+        customTemplateKey: 'invoiceDetailAdvanceSettlement',
+        detailTemplateFullRow: false,
+      },
+      {
         label: 'Lock status',
         value: record.isLocked ? 'Locked' : 'Unlocked',
         type: EDataType.STATUS,
@@ -213,5 +229,20 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
       totalAmount: v.totalAmount,
       isGstHold: v.isGstHold,
     });
+  }
+
+  protected docInvoiceDrawerBookedPaidSegments(
+    record: IInvoiceGetBaseResponseDto
+  ): IDocAmountSegment[] {
+    return buildInvoiceBookedPaidSegments(
+      record,
+      record.partyType === EDocContext.SALES
+    );
+  }
+
+  protected docInvoiceDrawerAdvanceSettlementSegments(
+    record: IInvoiceGetBaseResponseDto
+  ): IDocAmountSegment[] {
+    return buildInvoiceAdvanceSettlementFlowSegments(record);
   }
 }

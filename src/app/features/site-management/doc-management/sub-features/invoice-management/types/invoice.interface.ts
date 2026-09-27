@@ -16,6 +16,7 @@ export interface IInvoice
     | 'totalAmount'
     | 'bookedTotal'
     | 'paidTotal'
+    | 'advanceSettledAmount'
     | 'fileKey'
     | 'approvalStatus'
     | 'isLocked'
@@ -26,6 +27,7 @@ export interface IInvoice
     | 'jmc'
     | 'gstPercentage'
     | 'isGstHold'
+    | 'partyType'
   > {
   docWorkspaceContext: IDocWorkspaceContextView;
   fileKeys: string[];

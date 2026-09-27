@@ -225,6 +225,11 @@ export class GetPoComponent implements OnInit {
     const segments: IDocAmountSegment[] = [
       {
         dataType: EDataType.CURRENCY,
+        label: 'Advance paid',
+        value: row.advancePaidTotal,
+      },
+      {
+        dataType: EDataType.CURRENCY,
         label: 'Invoiced',
         value: row.invoicedTotal,
       },
@@ -320,6 +325,7 @@ export class GetPoComponent implements OnInit {
         invoicedTotal: record.invoicedTotal,
         bookedTotal: record.bookedTotal,
         paidTotal: record.paidTotal,
+        advancePaidTotal: record.advancePaidTotal,
         lastInvoiceAt: record.lastInvoiceAt,
         lastPaymentAt: record.lastPaymentAt,
         contractor: record.contractor,

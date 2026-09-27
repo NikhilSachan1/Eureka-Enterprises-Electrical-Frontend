@@ -19,6 +19,7 @@ export {
   InvoiceGetRequestSchema,
   InvoiceGetBaseResponseSchema,
   InvoiceGetResponseSchema,
+  InvoiceAdvanceSettlementSchema,
 } from './get-invoice.schema';
 
 export {
@@ -46,6 +47,17 @@ export { UnlockGrantInvoiceResponseSchema } from './unlock-grant-invoice.schema'
 export { UnlockRejectInvoiceResponseSchema } from './unlock-reject-invoice.schema';
 
 export { DeleteInvoiceResponseSchema } from './delete-invoice.schema';
+
+export {
+  SettleAdvanceInvoiceRequestSchema,
+  SettleAdvanceInvoiceResponseSchema,
+} from './settle-advance-invoice.schema';
+
+export {
+  ALL_INVOICE_ADVANCE_SETTLEMENTS,
+  UnsettleAdvanceInvoiceFormSchema,
+  UnsettleAdvanceInvoiceResponseSchema,
+} from './unsettle-advance-invoice.schema';
 
 export {
   InvoiceDropdownGetRequestSchema,

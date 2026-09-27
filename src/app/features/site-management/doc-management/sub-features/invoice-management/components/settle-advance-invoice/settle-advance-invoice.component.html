@@ -1,0 +1,18 @@
+<form
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.advanceNumber"
+  />
+
+  @if (selectedAdvanceMeta(); as meta) {
+    <app-book-payment-invoice-summary [rows]="advanceSummaryRows(meta)" />
+  }
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.amount"
+  />
+</form>

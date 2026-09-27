@@ -11,6 +11,8 @@ import {
   EditAdvancePaymentRequestSchema,
   EditAdvancePaymentResponseSchema,
   AdvancePaymentDetailGetResponseSchema,
+  AdvancePaymentDropdownGetRequestSchema,
+  AdvancePaymentDropdownGetResponseSchema,
   AdvancePaymentGetRequestSchema,
   AdvancePaymentGetResponseSchema,
   RejectAdvancePaymentRequestSchema,
@@ -25,6 +27,8 @@ import {
   IEditAdvancePaymentFormDto,
   IEditAdvancePaymentResponseDto,
   IAdvancePaymentDetailGetResponseDto,
+  IAdvancePaymentDropdownGetRequestDto,
+  IAdvancePaymentDropdownGetResponseDto,
   IAdvancePaymentGetFormDto,
   IAdvancePaymentGetResponseDto,
   IRejectAdvancePaymentFormDto,
@@ -202,6 +206,44 @@ export class AdvancePaymentService {
             );
           } else {
             this.logger.logUserAction('Reject Advance Payment Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getAdvancePaymentDropdown(
+    params: IAdvancePaymentDropdownGetRequestDto
+  ): Observable<IAdvancePaymentDropdownGetResponseDto> {
+    this.logger.logUserAction('Get Advance Payment Dropdown Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.DOCUMENT.ADVANCE_PAYMENT.DROPDOWN,
+        {
+          response: AdvancePaymentDropdownGetResponseSchema,
+          request: AdvancePaymentDropdownGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: IAdvancePaymentDropdownGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get Advance Payment Dropdown Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Advance Payment Dropdown Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Get Advance Payment Dropdown Error',
+              error
+            );
           }
           return throwError(() => error);
         })

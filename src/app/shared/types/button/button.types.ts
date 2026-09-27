@@ -90,6 +90,8 @@ export enum EButtonActionType {
   UNLOCK_REQUEST = 'unlockRequest',
   UNLOCK_GRANT = 'unlockGrant',
   UNLOCK_REQUEST_REJECT = 'unlockRequestReject',
+  SETTLE_ADVANCE = 'settleAdvance',
+  UNSETTLE_ADVANCE = 'unsettleAdvance',
   SEND_EMAIL = 'sendEmail',
   UPLOAD = 'upload',
   CREATE_FOLDER = 'createFolder',

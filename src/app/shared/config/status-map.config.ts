@@ -78,6 +78,16 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
     icon: ICONS.ACTIONS.TIMES,
     severity: 'danger',
   },
+  /** Settle invoice against an advance. Matches action id `settleAdvance` → key `settleadvance`. */
+  settleadvance: {
+    icon: ICONS.PAYROLL.WALLET,
+    severity: 'success',
+  },
+  /** Reverse invoice advance settlement. Matches action id `unsettleAdvance` → key `unsettleadvance`. */
+  unsettleadvance: {
+    icon: ICONS.COMMON.REFRESH,
+    severity: 'warning',
+  },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // EMPLOYEE STATUS

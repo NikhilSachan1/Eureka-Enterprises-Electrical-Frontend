@@ -42,6 +42,8 @@ export class DocAmountComponent {
       remaining: 'gst',
       'advance remaining': 'gst',
       'advance amount': 'booked',
+      'advance settled': 'paid',
+      'advance paid': 'paid',
       deduction: 'deduction',
       tds: 'deduction',
       withholding: 'deduction',

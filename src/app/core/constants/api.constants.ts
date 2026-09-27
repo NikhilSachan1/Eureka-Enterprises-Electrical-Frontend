@@ -267,6 +267,7 @@ export const API_ROUTES = {
       ADVANCE_PAYMENT: {
         ADD: 'advance-payments',
         LIST: 'advance-payments',
+        DROPDOWN: 'advance-payments/dropdown',
         GET_BY_ID: (id: string) => `advance-payments/${id}`,
         EDIT: (id: string) => `advance-payments/${id}`,
         DELETE: (id: string) => `advance-payments/${id}`,
@@ -317,6 +318,12 @@ export const API_ROUTES = {
         UNLOCK_REQUEST_REJECT: (invoiceId: string) =>
           `site-invoices/${invoiceId}/unlock-reject`,
         DELETE: (invoiceId: string) => `site-invoices/${invoiceId}`,
+        SETTLE_ADVANCE: (invoiceId: string) =>
+          `site-invoices/${invoiceId}/advance-settlements`,
+        UNSETTLE_ADVANCE: (invoiceId: string, settlementId: string) =>
+          `site-invoices/${invoiceId}/advance-settlements/${settlementId}`,
+        UNSETTLE_ALL_ADVANCES: (invoiceId: string) =>
+          `site-invoices/${invoiceId}/advance-settlements`,
       },
       PAYMENT_REQUEST: {
         ADD: 'payment-requests',

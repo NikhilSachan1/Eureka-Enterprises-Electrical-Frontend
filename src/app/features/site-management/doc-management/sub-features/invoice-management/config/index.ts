@@ -5,3 +5,5 @@ export { REJECT_ACTION_INVOICE_FORM_CONFIG } from './form/reject-invoice.config'
 export { UNLOCK_REQUEST_ACTION_INVOICE_FORM_CONFIG } from './form/unlock-request-invoice.config';
 export { ADD_INVOICE_FORM_CONFIG } from './form/add-invoice.config';
 export { EDIT_INVOICE_FORM_CONFIG } from './form/edit-invoice.config';
+export { SETTLE_ADVANCE_INVOICE_FORM_CONFIG } from './form/settle-advance-invoice.config';
+export { UNSETTLE_ADVANCE_INVOICE_FORM_CONFIG } from './form/unsettle-advance-invoice.config';

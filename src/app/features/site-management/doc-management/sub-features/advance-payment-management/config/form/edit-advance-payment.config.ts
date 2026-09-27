@@ -13,6 +13,10 @@ const EDIT_ADVANCE_PAYMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IEditAdvan
       ...ADD_ADVANCE_PAYMENT_FORM_CONFIG.fields.poNumber,
       disabledInput: true,
     },
+    advanceNumber: {
+      ...ADD_ADVANCE_PAYMENT_FORM_CONFIG.fields.advanceNumber,
+      disabledInput: true,
+    },
     advanceAttachment: {
       ...ADD_ADVANCE_PAYMENT_FORM_CONFIG.fields.advanceAttachment,
       validators: [],

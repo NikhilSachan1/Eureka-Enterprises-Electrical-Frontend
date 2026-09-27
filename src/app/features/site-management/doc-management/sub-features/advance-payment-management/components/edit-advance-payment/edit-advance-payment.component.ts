@@ -318,6 +318,7 @@ export class EditAdvancePaymentComponent
     delete (record as Record<string, unknown>)['poNumber'];
     delete (record as Record<string, unknown>)['advanceNumber'];
     delete (record as Record<string, unknown>)['advanceAttachment'];
+    delete (record as Record<string, unknown>)['advanceNumber'];
     return record;
   }
 
