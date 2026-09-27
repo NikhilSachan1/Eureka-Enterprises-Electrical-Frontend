@@ -148,6 +148,10 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
     icon: ICONS.ACTIONS.CHECK_CIRCLE,
     severity: 'success',
   },
+  'handover auto accepted': {
+    icon: ICONS.ACTIONS.CHECK_CIRCLE,
+    severity: 'success',
+  },
   'handover rejected': { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   'handover cancelled': { icon: ICONS.ACTIONS.BAN, severity: 'warning' },
   deallocated: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
