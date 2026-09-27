@@ -200,6 +200,16 @@ export class GetVendorOutstandingComponent implements OnInit {
   protected invoiceTaxGstSegments(
     row: IVendorOutstandingInvoiceListRow
   ): IDocAmountSegment[] {
+    if (row.documentKind === 'Advance') {
+      return [
+        {
+          dataType: EDataType.CURRENCY,
+          label: 'Amount',
+          value: row.totalAmount,
+        },
+      ];
+    }
+
     return [
       ...buildInvoiceTaxGstAmountSegments({
         taxableAmount: this.toAmountString(row.taxableAmount),
@@ -248,6 +258,26 @@ export class GetVendorOutstandingComponent implements OnInit {
   protected invoiceBookedPaidSegments(
     row: IVendorOutstandingInvoiceListRow
   ): IDocAmountSegment[] {
+    if (row.documentKind === 'Advance') {
+      return [
+        {
+          dataType: EDataType.CURRENCY,
+          label: 'Booked',
+          value: row.bookedTotal,
+        },
+        {
+          dataType: EDataType.CURRENCY,
+          label: 'Paid',
+          value: row.paidTotal,
+        },
+        {
+          dataType: EDataType.CURRENCY,
+          label: 'Settled',
+          value: row.settledAmount,
+        },
+      ];
+    }
+
     return [
       {
         dataType: EDataType.CURRENCY,
@@ -399,10 +429,19 @@ export class GetVendorOutstandingComponent implements OnInit {
         (total, invoice) => total + Number(invoice.invoice?.pendingToBook ?? 0),
         0
       ),
-      bookedAmount: group.invoiceGroups.reduce(
-        (total, invoice) => total + Number(invoice.invoice?.bookedTotal ?? 0),
-        0
-      ),
+      bookedAmount: group.invoiceGroups.reduce((total, invoice) => {
+        if (invoice.invoice) {
+          return total + Number(invoice.invoice.bookedTotal ?? 0);
+        }
+
+        return (
+          total +
+          invoice.bookPayments.reduce(
+            (booked, row) => booked + Number(row.pendingAmount ?? 0),
+            0
+          )
+        );
+      }, 0),
       paidAmount: group.invoiceGroups.reduce(
         (total, invoice) =>
           total +
@@ -427,11 +466,17 @@ export class GetVendorOutstandingComponent implements OnInit {
     invoice: IVendorInvoiceOutstandingGroup
   ): IVendorOutstandingInvoiceListRow {
     const summary = invoice.invoice;
+    const isAdvance = !summary;
+    const bookedFromPayments = invoice.bookPayments.reduce(
+      (total, row) => total + Number(row.pendingAmount ?? 0),
+      0
+    );
 
     return {
       id: invoice.id,
       invoiceNumber: invoice.invoiceNumber,
       invoiceDate: invoice.invoiceDate,
+      documentKind: isAdvance ? 'Advance' : 'Invoice',
       docWorkspaceContext: {
         companyName: invoice.company.name,
         projectName: invoice.site.name,
@@ -439,26 +484,29 @@ export class GetVendorOutstandingComponent implements OnInit {
           .filter(Boolean)
           .join(', '),
       },
-      documentReferenceHierarchy: DocReferenceHierarchy.forInvoiceOrJmcParentRow(
-        {
-          poNumber: invoice.po.poNumber,
-          jmcNumber: invoice.jmc.jmcNumber,
-        }
-      ),
-      taxableAmount: summary?.taxableAmount ?? null,
-      tdsAmount: summary?.tdsAmount ?? null,
-      tdsPercentage: summary?.tdsPercentage ?? null,
-      gstAmount: summary?.gstAmount ?? null,
-      gstPercentage: summary?.gstPercentage ?? null,
-      totalAmount: summary?.totalAmount ?? null,
-      isGstHold: summary?.isGstHold ?? false,
-      netPayableAmount: summary?.netPayableAmount ?? null,
-      bookedTotal: summary?.bookedTotal ?? null,
+      documentReferenceHierarchy: invoice.invoice
+        ? DocReferenceHierarchy.forInvoiceOrJmcParentRow({
+            poNumber: invoice.po.poNumber,
+            jmcNumber: invoice.jmc?.jmcNumber,
+          })
+        : DocReferenceHierarchy.forJmc(invoice.po.poNumber),
+      taxableAmount: isAdvance ? null : (summary?.taxableAmount ?? null),
+      tdsAmount: isAdvance ? null : (summary?.tdsAmount ?? null),
+      tdsPercentage: isAdvance ? null : (summary?.tdsPercentage ?? null),
+      gstAmount: isAdvance ? null : (summary?.gstAmount ?? null),
+      gstPercentage: isAdvance ? null : (summary?.gstPercentage ?? null),
+      totalAmount: isAdvance
+        ? invoice.advanceAmount
+        : (summary?.totalAmount ?? null),
+      isGstHold: isAdvance ? false : (summary?.isGstHold ?? false),
+      netPayableAmount: isAdvance ? null : (summary?.netPayableAmount ?? null),
+      bookedTotal: isAdvance ? bookedFromPayments : (summary?.bookedTotal ?? null),
       paidTotal: resolveVendorInvoicePaidTotal(
         summary,
         invoice.bookPayments.map(bookPayment => bookPayment.originalRawData)
       ),
-      pendingToBook: summary?.pendingToBook ?? null,
+      pendingToBook: isAdvance ? null : (summary?.pendingToBook ?? null),
+      settledAmount: isAdvance ? invoice.settledAmount : null,
       bookPayments: invoice.bookPayments,
       canBookPayment: this.canBookPaymentForInvoice(invoice),
     };
@@ -531,6 +579,8 @@ export class GetVendorOutstandingComponent implements OnInit {
       po: unbookedInvoice.po,
       jmc: unbookedInvoice.jmc,
       invoice: mapVendorOutstandingUnbookedInvoiceToSummary(unbookedInvoice),
+      advanceAmount: null,
+      settledAmount: null,
       bookPayments: [],
     };
   }
@@ -542,24 +592,32 @@ export class GetVendorOutstandingComponent implements OnInit {
     const grouped = new Map<string, IVendorInvoiceOutstandingGroup>();
 
     for (const bookPayment of bookPayments) {
-      const invoiceId = bookPayment.invoice.id;
-      let group = grouped.get(invoiceId);
+      const invoice = bookPayment.invoice;
+      const advance = bookPayment.advance;
+      const groupKey = invoice?.id ?? advance?.id ?? bookPayment.id;
+      let group = grouped.get(groupKey);
 
       if (!group) {
         group = {
-          id: invoiceId,
-          invoiceId,
+          id: groupKey,
+          invoiceId: invoice?.id ?? groupKey,
           viewType: 'booked',
-          invoiceNumber: bookPayment.invoice.invoiceNumber,
-          invoiceDate: bookPayment.invoice.invoiceDate,
+          invoiceNumber:
+            invoice?.invoiceNumber ?? advance?.advanceNumber ?? '—',
+          invoiceDate:
+            invoice?.invoiceDate ??
+            advance?.advanceDate ??
+            bookPayment.bookingDate,
           site: bookPayment.site,
           company: bookPayment.company,
           po: bookPayment.po,
           jmc: bookPayment.jmc,
-          invoice: bookPayment.invoice,
+          invoice,
+          advanceAmount: advance?.amount ?? null,
+          settledAmount: advance?.settledAmount ?? null,
           bookPayments: [],
         };
-        grouped.set(invoiceId, group);
+        grouped.set(groupKey, group);
       }
 
       group.bookPayments.push(this.mapBookPaymentRow(bookPayment, vendorId));

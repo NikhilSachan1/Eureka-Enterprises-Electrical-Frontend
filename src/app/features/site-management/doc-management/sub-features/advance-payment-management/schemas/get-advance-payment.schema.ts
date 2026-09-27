@@ -69,7 +69,6 @@ const AdvancePaymentPoSchema = z.looseObject({
 export const AdvancePaymentGetBaseResponseSchema = z.looseObject({
   id: uuidField,
   advanceNumber: z.string().nullable().optional(),
-  vendorAdvanceNumber: z.string().nullable().optional(),
   poId: uuidField.nullable().optional(),
   poNumber: z.string().nullable().optional(),
   siteId: uuidField.nullable().optional(),

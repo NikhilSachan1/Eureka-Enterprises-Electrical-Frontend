@@ -115,7 +115,7 @@ export class EditAdvancePaymentComponent
         defaultValues: {
           projectName: resolveAdvancePaymentSiteId(record),
           poNumber: resolveAdvancePaymentPoId(record),
-          vendorAdvanceNumber: record.vendorAdvanceNumber ?? '',
+          advanceNumber: record.advanceNumber ?? '',
           amount: amount ?? undefined,
           advanceDate: parseProjectDateOnly(record.advanceDate) ?? new Date(),
         },
@@ -316,6 +316,7 @@ export class EditAdvancePaymentComponent
     const record = { ...formData };
     delete (record as Record<string, unknown>)['projectName'];
     delete (record as Record<string, unknown>)['poNumber'];
+    delete (record as Record<string, unknown>)['advanceNumber'];
     delete (record as Record<string, unknown>)['advanceAttachment'];
     return record;
   }

@@ -48,8 +48,10 @@ export interface IPaymentSheetDetailItemRow {
   projectName?: string;
   projectCity?: string;
   projectState?: string;
+  documentKind?: 'Invoice' | 'Advance';
   invoiceNumber?: string;
   invoiceDate?: string | null;
+  settledAmount?: number | null;
   verifications: IPaymentSheetItemVerificationView[];
   verifiedStages: string[];
   isVerifiedForCurrentStage: boolean;

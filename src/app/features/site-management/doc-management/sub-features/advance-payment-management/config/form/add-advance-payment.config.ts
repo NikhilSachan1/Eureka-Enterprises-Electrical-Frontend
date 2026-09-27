@@ -43,10 +43,10 @@ const ADD_ADVANCE_PAYMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddAdvance
       },
       validators: [Validators.required],
     },
-    vendorAdvanceNumber: {
+    advanceNumber: {
       fieldType: EDataType.TEXT,
-      id: 'vendorAdvanceNumber',
-      fieldName: 'vendorAdvanceNumber',
+      id: 'advanceNumber',
+      fieldName: 'advanceNumber',
       label: 'Advance Number',
       textConfig: {
         textCase: ETextCase.UPPERCASE,

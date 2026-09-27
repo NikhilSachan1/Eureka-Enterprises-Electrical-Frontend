@@ -30,6 +30,7 @@
       [customBodyTemplates]="{
         docWorkspaceContext: docWorkspaceContext,
         documentReferenceChain: documentReferenceChain,
+        documentKindBadge: documentKindBadge,
         invoiceAmountBreakdown: invoiceAmountBreakdown,
         invoiceBookedPaidSummary: invoiceBookedPaidSummary,
       }"
@@ -87,6 +88,19 @@
   let-row
 >
   <app-doc-reference [root]="row.documentReferenceHierarchy" />
+</ng-template>
+
+<ng-template
+  #documentKindBadge
+  let-row
+>
+  <span
+    class="vo-kind"
+    [class.vo-kind--advance]="row.documentKind === 'Advance'"
+    [class.vo-kind--invoice]="row.documentKind === 'Invoice'"
+  >
+    {{ row.documentKind }}
+  </span>
 </ng-template>
 
 <ng-template

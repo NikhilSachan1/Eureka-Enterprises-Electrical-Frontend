@@ -64,6 +64,9 @@ $doc-ref-muted: var(--text-secondary-color, #64748b);
   &[data-tone="invoice"] {
     @include badge-tone(#f59e0b);
   }
+  &[data-tone="advance"] {
+    @include badge-tone(#14b8a6);
+  }
   &[data-tone="payment"] {
     @include badge-tone(#ec4899);
   }

@@ -7,8 +7,9 @@ import type { IVendorOutstandingUnbookedInvoice } from '../types/vendor-outstand
 type IVendorOutstandingBookPayment =
   IVendorOutstandingGetBaseResponseDto['bookPayments'][number];
 
-type IVendorOutstandingBookPaymentInvoice =
-  IVendorOutstandingBookPayment['invoice'];
+type IVendorOutstandingBookPaymentInvoice = NonNullable<
+  IVendorOutstandingBookPayment['invoice']
+>;
 
 function toAmountString(value: number | null | undefined): string {
   if (value === null || value === undefined) {

@@ -87,7 +87,7 @@ export const VendorOutstandingBookPaymentSchema = z.looseObject({
   bookingDate: isoDateTimeField,
   taxableAmount: z.number(),
   gstAmount: z.number(),
-  gstPercentage: z.number(),
+  gstPercentage: z.number().nullable(),
   tdsAmount: z.number(),
   isGstHold: z.boolean(),
   netPayableAmount: z.number(),
@@ -97,8 +97,17 @@ export const VendorOutstandingBookPaymentSchema = z.looseObject({
   remarks: z.string().nullable(),
   hasTransfer: z.boolean(),
   displayName: z.string(),
-  invoice: VendorOutstandingBookPaymentInvoiceSchema,
-  jmc: VendorOutstandingJmcSchema,
+  invoice: VendorOutstandingBookPaymentInvoiceSchema.nullable(),
+  jmc: VendorOutstandingJmcSchema.nullable(),
+  advance: z
+    .looseObject({
+      id: uuidField,
+      advanceNumber: z.string(),
+      advanceDate: isoDateTimeField,
+      amount: z.number(),
+      settledAmount: z.number(),
+    })
+    .nullable(),
   po: VendorOutstandingPoSchema,
   site: VendorOutstandingSiteSchema,
   company: VendorOutstandingCompanySchema,

@@ -48,6 +48,8 @@ export class DocReferenceComponent {
         return 'report';
       case EDocReferenceHierarchyKind.Invoice:
         return 'invoice';
+      case EDocReferenceHierarchyKind.Advance:
+        return 'advance';
       case EDocReferenceHierarchyKind.BookPayment:
       case EDocReferenceHierarchyKind.BankTransfer:
         return 'payment';

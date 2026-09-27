@@ -121,15 +121,15 @@
           let-row
         >
           <app-payment-sheet-amounts-cell
-            leftLabel="Actual Due"
+            [leftLabel]="amountLeftLabel(row)"
             [leftAmount]="row.actualDue"
             leftVariant="due"
             rightLabel="Payable"
             [rightAmount]="row.payableAmount"
             rightVariant="payable"
-            footerLabel="Remaining"
-            [footerAmount]="getRemainingAmount(row)"
-            settledLabel="Fully covered"
+            [footerLabel]="amountFooterLabel(row)"
+            [footerAmount]="amountFooterValue(row)"
+            [settledLabel]="amountSettledLabel(row)"
             [isSettled]="isFullyCovered(row)"
           />
         </ng-template>
@@ -359,6 +359,38 @@
           <app-bank-details-cell [bankDetails]="row.bankDetails" />
         </ng-template>
 
+        <ng-template
+          #invoiceDetailCell
+          let-row
+        >
+          <div class="ps-invoice">
+            <div class="ps-invoice__main">
+              @if (row.documentKind) {
+                <span
+                  class="ps-kind"
+                  [class.ps-kind--advance]="row.documentKind === 'Advance'"
+                  [class.ps-kind--invoice]="row.documentKind === 'Invoice'"
+                >
+                  {{ row.documentKind }}
+                </span>
+              }
+              <span class="ps-invoice__number">{{ row.invoiceNumber }}</span>
+            </div>
+            @if (row.invoiceDate) {
+              <span class="ps-invoice__date">
+                <i [class]="ICONS.COMMON.CALENDAR"></i>
+                {{
+                  row.invoiceDate
+                    | date
+                      : APP_CONFIG.DATE_FORMATS.DEFAULT
+                      : undefined
+                      : APP_CONFIG.DATE_FORMATS.DISPLAY_LOCALE
+                }}
+              </span>
+            }
+          </div>
+        </ng-template>
+
         @for (group of sourceGroups(); track group.sourceType; let tabIndex = $index) {
           <div
             class="outstanding-tab-panel"
@@ -376,6 +408,7 @@
                 itemStatusCell: itemStatusCell,
                 companyProjectCell: companyProjectCell,
                 bankDetailsCell: bankDetailsCell,
+                invoiceDetailCell: invoiceDetailCell,
               }"
               (rowActionClick)="handlePaymentSheetItemActionClick($any($event), false)"
               (bulkActionClick)="handlePaymentSheetItemActionClick($any($event), true)"

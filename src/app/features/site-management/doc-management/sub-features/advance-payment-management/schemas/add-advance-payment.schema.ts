@@ -6,7 +6,7 @@ import { transformDateFormat } from '@shared/utility/date-time.util';
 export const AddAdvancePaymentRequestSchema =
   AdvancePaymentUpsertShapeSchema.pick({
     poNumber: true,
-    vendorAdvanceNumber: true,
+    advanceNumber: true,
     amount: true,
     advanceDate: true,
     fileKey: true,
@@ -15,7 +15,7 @@ export const AddAdvancePaymentRequestSchema =
     .strict()
     .transform(data => ({
       poId: data.poNumber,
-      vendorAdvanceNumber: data.vendorAdvanceNumber.trim(),
+      advanceNumber: data.advanceNumber.trim(),
       amount: roundCurrencyAmount(Number(data.amount)),
       advanceDate: transformDateFormat(data.advanceDate),
       fileKey: data.fileKey,

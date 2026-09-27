@@ -135,7 +135,7 @@ export class EditBookPaymentComponent
         destroyRef: this.destroyRef,
         defaultValues: {
           projectName: record.siteId,
-          invoiceNumber: record.invoiceId,
+          invoiceNumber: record.invoiceId ?? undefined,
           bookingDate: parseProjectDateOnly(record.bookingDate),
           paymentTotalAmount: Number(record.paymentTotalAmount),
           paymentHoldReason: record.paymentHoldReason ?? null,
@@ -165,6 +165,10 @@ export class EditBookPaymentComponent
   private seedInvoiceNumberOption(
     record: IBookPaymentGetBaseResponseDto
   ): void {
+    if (!record.invoiceId) {
+      return;
+    }
+
     const base = this.form.fieldConfigs.invoiceNumber;
     const label = record.invoice?.invoiceNumber ?? record.invoiceId;
     this.form.fieldConfigs.invoiceNumber = {

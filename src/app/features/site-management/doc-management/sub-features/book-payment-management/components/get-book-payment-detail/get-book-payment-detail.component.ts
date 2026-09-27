@@ -101,9 +101,12 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
       {
         label: 'Document reference',
         value: DocReferenceHierarchy.forBookPaymentRow({
-          poNumber: record.invoice?.jmc?.po?.poNumber,
+          poNumber:
+            record.invoice?.jmc?.po?.poNumber ??
+            record.advancePayment?.po?.poNumber,
           jmcNumber: record.invoice?.jmc?.jmcNumber,
           invoiceNumber: record.invoice?.invoiceNumber,
+          advanceNumber: record.advancePayment?.advanceNumber,
         }),
         customTemplateKey: 'documentReferenceHierarchy',
         detailTemplateFullRow: false,
@@ -158,7 +161,10 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
     const { vendor } = record;
     return {
       name: vendor?.name?.trim() || 'Book payment',
-      subtitle: record.invoice?.invoiceNumber ?? record.id,
+      subtitle:
+        record.invoice?.invoiceNumber ??
+        record.advancePayment?.advanceNumber ??
+        record.id,
     };
   }
 }

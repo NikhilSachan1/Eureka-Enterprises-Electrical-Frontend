@@ -192,9 +192,12 @@ export class GetBookPaymentComponent implements OnInit {
         siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
       },
       documentReferenceHierarchy: DocReferenceHierarchy.forBookPaymentRow({
-        poNumber: record.invoice.jmc.po.poNumber,
-        jmcNumber: record.invoice.jmc.jmcNumber,
-        invoiceNumber: record.invoice.invoiceNumber,
+        poNumber:
+          record.invoice?.jmc?.po?.poNumber ??
+          record.advancePayment?.po?.poNumber,
+        jmcNumber: record.invoice?.jmc?.jmcNumber,
+        invoiceNumber: record.invoice?.invoiceNumber,
+        advanceNumber: record.advancePayment?.advanceNumber,
       }),
       originalRawData: record,
     }));
@@ -298,7 +301,10 @@ export class GetBookPaymentComponent implements OnInit {
       ],
       entity: {
         name: `${row.vendor?.name ?? ''}`.trim() || 'Book payment',
-        subtitle: row.invoice?.invoiceNumber ?? row.id,
+        subtitle:
+          row.invoice?.invoiceNumber ??
+          row.advancePayment?.advanceNumber ??
+          row.id,
       },
     };
   }

@@ -285,7 +285,31 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   protected isFullyCovered(row: IPaymentSheetDetailItemRow): boolean {
+    if (row.documentKind === 'Advance') {
+      return (row.settledAmount ?? 0) >= row.actualDue && row.actualDue > 0;
+    }
+
     return row.remainingAmount <= 0;
+  }
+
+  protected amountLeftLabel(row: IPaymentSheetDetailItemRow): string {
+    return row.documentKind === 'Advance' ? 'Amount' : 'Actual Due';
+  }
+
+  protected amountFooterLabel(row: IPaymentSheetDetailItemRow): string {
+    return row.documentKind === 'Advance' ? 'Settled' : 'Remaining';
+  }
+
+  protected amountFooterValue(row: IPaymentSheetDetailItemRow): number {
+    if (row.documentKind === 'Advance') {
+      return row.settledAmount ?? 0;
+    }
+
+    return this.getRemainingAmount(row);
+  }
+
+  protected amountSettledLabel(row: IPaymentSheetDetailItemRow): string {
+    return row.documentKind === 'Advance' ? 'Fully settled' : 'Fully covered';
   }
 
   protected hasCompanyProjectContext(row: IPaymentSheetDetailItemRow): boolean {
@@ -769,7 +793,8 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         : null;
 
       return (item.bookPaymentAllocations ?? []).map(allocation => {
-        const { invoice } = allocation;
+        const { invoice, advance } = allocation;
+        const documentKind = advance ? 'Advance' : 'Invoice';
 
         return {
           ...this.getWorkflowFields(detail),
@@ -778,15 +803,21 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           beneficiaryId: item.vendorId ?? '',
           beneficiaryName: item.vendor?.name ?? '-',
           beneficiaryCode: this.formatVendorLocation(item.vendor),
-          companyName: invoice?.companyName ?? '-',
-          projectName: invoice?.projectName ?? '-',
-          projectCity: invoice?.city,
-          projectState: invoice?.state,
-          invoiceNumber: invoice?.invoiceNumber ?? '-',
-          invoiceDate: invoice?.invoiceDate ?? null,
-          actualDue: invoice?.actualDueAmount ?? item.actualDueAmount,
-          payableAmount: invoice?.payableAmount ?? item.payableAmount,
+          documentKind,
+          companyName: invoice?.companyName ?? advance?.companyName ?? '-',
+          projectName: invoice?.projectName ?? advance?.projectName ?? '-',
+          projectCity: invoice?.city ?? advance?.city,
+          projectState: invoice?.state ?? advance?.state,
+          invoiceNumber:
+            invoice?.invoiceNumber ?? advance?.advanceNumber ?? '-',
+          invoiceDate: invoice?.invoiceDate ?? advance?.advanceDate ?? null,
+          actualDue: advance?.advanceAmount ?? invoice?.actualDueAmount ?? item.actualDueAmount,
+          payableAmount:
+            advance?.payableAmount ??
+            invoice?.payableAmount ??
+            item.payableAmount,
           remainingAmount: invoice?.remainingAmount ?? item.remainingAmount,
+          settledAmount: advance?.settledAmount ?? null,
           itemStatus: item.itemStatus,
           paidAt: item.paidAt ?? null,
           utrNumber: allocation.utrNumber ?? item.utrNumber ?? null,

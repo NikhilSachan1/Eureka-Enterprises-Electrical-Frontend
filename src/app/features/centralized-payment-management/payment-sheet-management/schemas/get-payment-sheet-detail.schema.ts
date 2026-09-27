@@ -55,6 +55,21 @@ const PaymentSheetBookPaymentAllocationInvoiceSchema = z.looseObject({
   state: z.string().optional(),
 });
 
+const PaymentSheetBookPaymentAllocationAdvanceSchema = z.looseObject({
+  advancePaymentId: uuidField,
+  advanceNumber: z.string(),
+  advanceDate: isoDateTimeField,
+  advanceAmount: z.coerce.number(),
+  settledAmount: z.coerce.number(),
+  payableAmount: z.coerce.number(),
+  poId: uuidField,
+  poNumber: z.string(),
+  companyName: z.string(),
+  projectName: z.string(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+});
+
 const PaymentSheetPaymentAdviceSchema = z
   .looseObject({
     referenceNumber: z.string(),
@@ -69,7 +84,8 @@ const PaymentSheetBookPaymentAllocationSchema = z.looseObject({
   allocatedAmount: z.coerce.number(),
   bankTransferId: uuidField.nullable().optional(),
   utrNumber: z.string().nullable().optional(),
-  invoice: PaymentSheetBookPaymentAllocationInvoiceSchema.optional(),
+  invoice: PaymentSheetBookPaymentAllocationInvoiceSchema.nullable(),
+  advance: PaymentSheetBookPaymentAllocationAdvanceSchema.nullable().optional(),
   paymentAdvice: PaymentSheetPaymentAdviceSchema,
 });
 
