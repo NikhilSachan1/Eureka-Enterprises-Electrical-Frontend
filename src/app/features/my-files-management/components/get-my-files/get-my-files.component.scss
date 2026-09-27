@@ -5,32 +5,32 @@
   gap: 0.75rem;
   width: 100%;
   margin-bottom: 1rem;
-}
 
-.my-files-toolbar__search {
-  width: 100%;
-  min-width: 0;
-
-  ::ng-deep .p-floatlabel,
-  ::ng-deep input.p-inputtext {
+  &__search {
     width: 100%;
-  }
-}
-
-.my-files-toolbar__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  width: 100%;
-
-  app-button {
-    flex: 1 1 calc(50% - 0.375rem);
     min-width: 0;
 
-    ::ng-deep .p-button {
+    ::ng-deep .p-floatlabel,
+    ::ng-deep input.p-inputtext {
       width: 100%;
-      justify-content: center;
-      white-space: nowrap;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    width: 100%;
+
+    app-button {
+      flex: 1 1 calc(50% - 0.375rem);
+      min-width: 0;
+
+      ::ng-deep .p-button {
+        width: 100%;
+        justify-content: center;
+        white-space: nowrap;
+      }
     }
   }
 }
@@ -39,25 +39,92 @@
   .my-files-toolbar {
     flex-direction: row;
     align-items: center;
-  }
 
-  .my-files-toolbar__search {
-    flex: 1 1 0;
-    width: 100%;
-    min-width: 0;
-  }
+    &__search {
+      flex: 1 1 0;
+      width: 100%;
+      min-width: 0;
+    }
 
-  .my-files-toolbar__actions {
-    flex: 0 0 auto;
-    width: auto;
-    margin-left: auto;
-
-    app-button {
+    &__actions {
       flex: 0 0 auto;
+      width: auto;
+      margin-left: auto;
 
-      ::ng-deep .p-button {
-        width: auto;
+      app-button {
+        flex: 0 0 auto;
+
+        ::ng-deep .p-button {
+          width: auto;
+        }
       }
     }
+  }
+}
+
+.my-file-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &__icon {
+    display: inline-flex;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    font-size: 1.05rem;
+
+    &--folder {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    &--pdf {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    &--image {
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+
+    &--spreadsheet {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    &--document {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    &--file {
+      background: var(--surface-100);
+      color: var(--text-color-secondary);
+    }
+  }
+
+  &__name {
+    min-width: 0;
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover &__name {
+    text-decoration: underline;
   }
 }

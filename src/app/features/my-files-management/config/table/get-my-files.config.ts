@@ -13,7 +13,7 @@ import { IMyFile } from '../../types/my-files.interface';
 const MY_FILES_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'This folder is empty.',
   emptyMessageDescription: 'No files or folders found in this location.',
-  emptyMessageIcon: ICONS.COMMON.INBOX,
+  emptyMessageIcon: ICONS.COMMON.FOLDER,
 };
 
 const MY_FILES_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
@@ -21,30 +21,22 @@ const MY_FILES_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     field: 'name',
     header: 'Name',
     bodyTemplate: EDataType.TEXT,
-    showImage: true,
-    iconField: 'itemIcon',
-    backgroundSeedField: 'name',
-    primaryFieldHighlight: true,
     customTemplateKey: 'myFileName',
     showSort: false,
   },
   {
-    field: 'mimeType',
-    header: 'File Type',
+    field: 'itemKind',
+    header: 'Type',
     bodyTemplate: EDataType.TEXT,
     showSort: false,
+    columnWidth: '9rem',
   },
   {
     field: 'formattedSize',
     header: 'Size',
     bodyTemplate: EDataType.TEXT,
     showSort: false,
-  },
-  {
-    field: 'documentKeys',
-    header: 'Attachments',
-    bodyTemplate: EDataType.ATTACHMENTS,
-    showSort: false,
+    columnWidth: '7rem',
   },
 ];
 

@@ -37,15 +37,23 @@
   #myFileName
   let-row
 >
-  @if (isFolder(row)) {
-    <button
-      type="button"
-      class="data-table-link cursor-pointer font-semibold text-left"
-      (click)="onFolderNameClick(row)"
+  <button
+    type="button"
+    class="my-file-row"
+    [attr.title]="isFolder(row) ? 'Open folder' : 'Open file'"
+    (click)="onItemClick(row)"
+  >
+    <span
+      class="my-file-row__icon"
+      [class.my-file-row__icon--folder]="row.iconTone === 'folder'"
+      [class.my-file-row__icon--pdf]="row.iconTone === 'pdf'"
+      [class.my-file-row__icon--image]="row.iconTone === 'image'"
+      [class.my-file-row__icon--spreadsheet]="row.iconTone === 'spreadsheet'"
+      [class.my-file-row__icon--document]="row.iconTone === 'document'"
+      [class.my-file-row__icon--file]="row.iconTone === 'file'"
     >
-      {{ row.name }}
-    </button>
-  } @else {
-    <span class="font-semibold">{{ row.name }}</span>
-  }
+      <i [class]="row.itemIcon"></i>
+    </span>
+    <span class="my-file-row__name">{{ row.name }}</span>
+  </button>
 </ng-template>
