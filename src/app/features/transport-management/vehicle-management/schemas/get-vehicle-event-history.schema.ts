@@ -75,7 +75,15 @@ export const VehicleEventHistoryGetBaseResponseObjectSchema = z.looseObject({
   createdByUser: UserSchema,
   fromUserDetails: makeFieldsNullable(UserSchema).nullable(),
   toUserDetails: makeFieldsNullable(UserSchema).nullable(),
-  metadata: z.record(z.string(), z.string()).nullable(),
+  metadata: z
+    .object({
+      reason: z.string().nullable().optional(),
+      remark: z.string().nullable().optional(),
+    })
+    .transform(({ reason, remark }) => ({
+      reason: reason?.trim() ? reason : (remark ?? null),
+    }))
+    .nullable(),
   vehicleFiles: z.array(makeFieldsNullable(VehicleBaseDocumentsSchema)),
   vehicle: z.looseObject({
     id,
