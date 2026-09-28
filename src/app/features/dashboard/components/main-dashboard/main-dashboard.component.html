@@ -4,8 +4,30 @@
     [ngStyle]="workflowColorVars"
   >
     <div class="status-dashboard__shell">
-      <app-page-header [pageHeaderConfig]="dashboardPageHeader" />
+      <app-page-header [pageHeaderConfig]="dashboardPageHeader()" />
 
+      @if (showComingSoon()) {
+        <section
+          class="dash-coming-soon"
+          aria-labelledby="dash-coming-soon-title"
+        >
+          <span
+            class="dash-coming-soon__icon"
+            aria-hidden="true"
+          >
+            <span [class]="ICONS.COMMON.CLOCK"></span>
+          </span>
+          <h2
+            id="dash-coming-soon-title"
+            class="dash-coming-soon__title"
+          >
+            Coming soon
+          </h2>
+          <p class="dash-coming-soon__desc">
+            This view is not ready for your role yet. Use the menu for day-to-day work.
+          </p>
+        </section>
+      } @else {
       <app-kpm-dashboard />
 
       <section
@@ -165,6 +187,7 @@
           }
         </div>
       </section>
+      }
     </div>
   </div>
 </div>

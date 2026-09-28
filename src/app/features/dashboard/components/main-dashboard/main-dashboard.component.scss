@@ -16,6 +16,47 @@
   margin: 0;
 }
 
+.dash-coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: 22rem;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  border-radius: 1rem;
+  border: 1px solid var(--border-light-color);
+  background: var(--background-default-color);
+}
+
+.dash-coming-soon__icon {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.35rem;
+  background: linear-gradient(145deg, #60a5fa 0%, #2563eb 100%);
+}
+
+.dash-coming-soon__title {
+  margin: 0.35rem 0 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary-color);
+}
+
+.dash-coming-soon__desc {
+  margin: 0;
+  max-width: 28rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-secondary-color);
+}
+
 /* —— Sections —— */
 .dash-section {
   margin-bottom: 2rem;
