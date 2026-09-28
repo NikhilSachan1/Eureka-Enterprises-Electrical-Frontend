@@ -1,3 +1,5 @@
+@use "../../styles/dashboard-card-block.shared" as *;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -6,94 +8,55 @@
 }
 
 .card-block {
-  position: relative;
-  padding: 1.1rem 1.2rem 1.2rem;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    border-radius: 1rem 1rem 0 0;
-    background: linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--primary-color) 55%, transparent),
-      color-mix(in srgb, var(--primary-color) 12%, transparent)
-    );
-    opacity: 0.85;
-    pointer-events: none;
-  }
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .card-block__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.1rem;
-
-  &--wrap {
-    flex-wrap: wrap;
-  }
-}
-
-.card-block__titles {
-  display: flex;
-  gap: 0.75rem;
-  align-items: flex-start;
-}
-
-.card-block__icon-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.65rem;
-  height: 2.65rem;
-  border-radius: 0.85rem;
   flex-shrink: 0;
-  background: linear-gradient(
-    145deg,
-    color-mix(in srgb, var(--primary-color) 12%, var(--background-paper-color)),
-    var(--background-paper-color)
-  );
-  border: 1px solid color-mix(in srgb, var(--primary-color) 15%, var(--border-light-color));
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
 }
 
-.card-block__icon {
-  font-size: 1.125rem;
-  color: var(--primary-color);
+.leave-employee-balance {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  --people-list-max-height: 16rem;
 }
 
-.card-block__title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary-color);
-}
+.leave-employee-balance__search {
+  flex-shrink: 0;
+  margin-bottom: 0.75rem;
 
-.card-block__hint {
-  margin: 0.15rem 0 0;
-  font-size: 0.8125rem;
-  color: var(--text-secondary-color);
-}
+  ::ng-deep .field {
+    margin-bottom: 0;
+  }
 
-.card-block__muted {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--text-secondary-color);
+  ::ng-deep .p-floatlabel,
+  ::ng-deep input.p-inputtext {
+    width: 100%;
+  }
+
+  ::ng-deep .p-floatlabel .p-inputtext,
+  ::ng-deep input.p-inputtext {
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+  }
 }
 
 .leave-employee-balance__list {
   margin: 0;
   padding: 0;
   list-style: none;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: var(--people-list-max-height);
+  overflow: auto;
   border: 1px solid var(--border-light-color);
   border-radius: 0.65rem;
   background: var(--background-default-color);
-  overflow-x: hidden;
 }
 
 .leave-employee-balance__row {
@@ -151,17 +114,6 @@
   color: var(--text-secondary-color);
 }
 
-.leave-employee-balance__category {
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: capitalize;
-  padding: 0.1rem 0.4rem;
-  border-radius: 0.3rem;
-  color: var(--primary-color);
-  background: color-mix(in srgb, var(--primary-color) 10%, var(--background-paper-color));
-  border: 1px solid color-mix(in srgb, var(--primary-color) 18%, var(--border-light-color));
-}
-
 .leave-employee-balance__balance {
   display: flex;
   align-items: baseline;
@@ -185,6 +137,11 @@
 
 .leave-employee-balance__empty {
   margin: 0;
+  padding: 0.85rem 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--text-secondary-color);
+  text-align: center;
 }
 
 .leave-balance-dashboard__loading {

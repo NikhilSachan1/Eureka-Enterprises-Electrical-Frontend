@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@core/services/api.service';
 import { LoggerService } from '@core/services/logger.service';
 import { catchError, Observable, shareReplay, tap, throwError } from 'rxjs';
+import { z } from 'zod';
 import { API_ROUTES } from '@core/constants';
 import {
   AnniversariesDashboardGetResponseSchema,
@@ -29,189 +30,87 @@ export class DashboardService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
   private ledgerBalanceShared$?: Observable<ILedgerBalanceDashboardGetResponseDto>;
+  private assetFleetAlertsShared$?: Observable<IAssetFleetAlertsDashboardGetResponseDto>;
 
   getApprovalPending(): Observable<IApprovalPendingDashboardGetResponseDto> {
-    this.logger.logUserAction('Get Approval Pending Request');
-
-    return this.apiService
-      .getValidated(API_ROUTES.DASHBOARD.APPROVAL_PENDING, {
-        response: ApprovalPendingDashboardGetResponseSchema,
-      })
-      .pipe(
-        tap((response: IApprovalPendingDashboardGetResponseDto) => {
-          this.logger.logUserAction('Get Approval Pending Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Approval Pending Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Approval Pending Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
-  }
-
-  getLedgerBalance(): Observable<ILedgerBalanceDashboardGetResponseDto> {
-    this.logger.logUserAction('Get Ledger Balance Request');
-
-    return this.apiService
-      .getValidated(API_ROUTES.DASHBOARD.LEDGER_BALANCES, {
-        response: LedgerBalanceDashboardGetResponseSchema,
-      })
-      .pipe(
-        tap((response: ILedgerBalanceDashboardGetResponseDto) => {
-          this.logger.logUserAction('Get Ledger Balance Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Ledger Balance Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Ledger Balance Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+    return this.fetch(
+      'Get Approval Pending',
+      API_ROUTES.DASHBOARD.APPROVAL_PENDING,
+      ApprovalPendingDashboardGetResponseSchema
+    );
   }
 
   getLedgerBalanceShared(): Observable<ILedgerBalanceDashboardGetResponseDto> {
-    this.ledgerBalanceShared$ ??= this.getLedgerBalance().pipe(
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+    this.ledgerBalanceShared$ ??= this.fetch(
+      'Get Ledger Balance',
+      API_ROUTES.DASHBOARD.LEDGER_BALANCES,
+      LedgerBalanceDashboardGetResponseSchema
+    ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
     return this.ledgerBalanceShared$;
   }
 
-  getAssetFleetAlerts(): Observable<IAssetFleetAlertsDashboardGetResponseDto> {
-    this.logger.logUserAction('Get Asset Fleet Alerts Request');
-
-    return this.apiService
-      .getValidated(API_ROUTES.DASHBOARD.ASSET_FLEET_ALERTS, {
-        response: AssetFleetAlertsDashboardGetResponseSchema,
-      })
-      .pipe(
-        tap((response: IAssetFleetAlertsDashboardGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Asset Fleet Alerts Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Asset Fleet Alerts Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Asset Fleet Alerts Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+  getAssetFleetAlertsShared(): Observable<IAssetFleetAlertsDashboardGetResponseDto> {
+    this.assetFleetAlertsShared$ ??= this.fetch(
+      'Get Asset Fleet Alerts',
+      API_ROUTES.DASHBOARD.ASSET_FLEET_ALERTS,
+      AssetFleetAlertsDashboardGetResponseSchema
+    ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
+    return this.assetFleetAlertsShared$;
   }
 
   getVehicleReadingsAlerts(): Observable<IVehicleReadingsAlertsDashboardGetResponseDto> {
-    this.logger.logUserAction('Get Vehicle Readings Alerts Request');
-
-    return this.apiService
-      .getValidated(API_ROUTES.DASHBOARD.VEHICLE_READINGS_ALERTS, {
-        response: VehicleReadingsAlertsDashboardGetResponseSchema,
-      })
-      .pipe(
-        tap((response: IVehicleReadingsAlertsDashboardGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Vehicle Readings Alerts Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Vehicle Readings Alerts Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction(
-              'Get Vehicle Readings Alerts Error',
-              error
-            );
-          }
-          return throwError(() => error);
-        })
-      );
+    return this.fetch(
+      'Get Vehicle Readings Alerts',
+      API_ROUTES.DASHBOARD.VEHICLE_READINGS_ALERTS,
+      VehicleReadingsAlertsDashboardGetResponseSchema
+    );
   }
 
   getAnniversaries(): Observable<IAnniversariesDashboardGetResponseDto> {
-    this.logger.logUserAction('Get Anniversaries Request');
-
-    return this.apiService
-      .getValidated(API_ROUTES.DASHBOARD.ANNIVERSARIES, {
-        response: AnniversariesDashboardGetResponseSchema,
-      })
-      .pipe(
-        tap((response: IAnniversariesDashboardGetResponseDto) => {
-          this.logger.logUserAction('Get Anniversaries Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Anniversaries Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Anniversaries Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+    return this.fetch(
+      'Get Anniversaries',
+      API_ROUTES.DASHBOARD.ANNIVERSARIES,
+      AnniversariesDashboardGetResponseSchema
+    );
   }
 
   getHolidays(): Observable<IHolidaysDashboardGetResponseDto> {
-    this.logger.logUserAction('Get Holidays Request');
-
-    return this.apiService
-      .getValidated(API_ROUTES.DASHBOARD.HOLIDAYS, {
-        response: HolidaysDashboardGetResponseSchema,
-      })
-      .pipe(
-        tap((response: IHolidaysDashboardGetResponseDto) => {
-          this.logger.logUserAction('Get Holidays Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Get Holidays Error', error);
-          } else {
-            this.logger.logUserAction('Get Holidays Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+    return this.fetch(
+      'Get Holidays',
+      API_ROUTES.DASHBOARD.HOLIDAYS,
+      HolidaysDashboardGetResponseSchema
+    );
   }
 
   getBirthdays(): Observable<IBirthdaysDashboardGetResponseDto> {
-    this.logger.logUserAction('Get Birthdays Request');
+    return this.fetch(
+      'Get Birthdays',
+      API_ROUTES.DASHBOARD.BIRTHDAYS,
+      BirthdaysDashboardGetResponseSchema
+    );
+  }
 
-    return this.apiService
-      .getValidated(API_ROUTES.DASHBOARD.BIRTHDAYS, {
-        response: BirthdaysDashboardGetResponseSchema,
-      })
-      .pipe(
-        tap((response: IBirthdaysDashboardGetResponseDto) => {
-          this.logger.logUserAction('Get Birthdays Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Get Birthdays Error', error);
-          } else {
-            this.logger.logUserAction('Get Birthdays Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+  private fetch<TResponse>(
+    action: string,
+    url: string,
+    response: z.ZodType<TResponse>
+  ): Observable<TResponse> {
+    this.logger.logUserAction(`${action} Request`);
+
+    return this.apiService.getValidated(url, { response }).pipe(
+      tap(payload => {
+        this.logger.logUserAction(`${action} Response`, payload);
+      }),
+      catchError(error => this.rethrowDashboardError(action, error))
+    );
+  }
+
+  private rethrowDashboardError(action: string, error: unknown) {
+    if (error instanceof z.ZodError) {
+      this.logger.logDtoValidationErrors(`${action} Error`, error);
+    } else {
+      this.logger.logUserAction(`${action} Error`, error);
+    }
+    return throwError(() => error);
   }
 }

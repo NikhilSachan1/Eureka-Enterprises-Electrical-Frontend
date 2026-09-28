@@ -85,10 +85,17 @@
 >
   <div
     class="kpm-card__row"
+    [class.kpm-card__row--clickable]="!!row.link && !row.valueLoading"
     [class.kpm-card__row--info]="row.state === KpmRowState.INFO"
     [class.kpm-card__row--warn]="row.state === KpmRowState.WARN"
     [class.kpm-card__row--alert]="row.state === KpmRowState.ALERT"
     [class.kpm-card__row--success]="row.state === KpmRowState.SUCCESS"
+    [attr.role]="row.link ? 'link' : null"
+    [attr.tabindex]="row.link && !row.valueLoading ? 0 : null"
+    [attr.aria-label]="row.link ? 'Open ' + row.label : null"
+    (click)="openMetric(row)"
+    (keydown.enter)="openMetric(row)"
+    (keydown.space)="$event.preventDefault(); openMetric(row)"
   >
     <span
       [class]="row.icon + ' kpm-card__ricon'"
@@ -118,5 +125,11 @@
         {{ row.value | number: config.DEFAULT : config.LOCALE }}
       }
     </span>
+    @if (row.link && !row.valueLoading) {
+      <span
+        [class]="ICONS.COMMON.ARROW_RIGHT + ' kpm-card__rarrow'"
+        aria-hidden="true"
+      ></span>
+    }
   </div>
 </ng-template>

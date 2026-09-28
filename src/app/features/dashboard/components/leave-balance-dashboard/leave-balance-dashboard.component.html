@@ -1,5 +1,5 @@
 @let config = APP_CONFIG.NUMBER_FORMATS;
-<p-card class="status-dashboard__card status-dashboard__card--leave-balance-fill">
+<p-card class="status-dashboard__card">
   <div class="card-block">
     <div class="card-block__head card-block__head--wrap">
       <div class="card-block__titles">
@@ -41,36 +41,47 @@
         <p class="card-block__muted">No leave balance found for your account.</p>
       }
     } @else if (employeeRows().length > 0) {
-      <ul
-        class="leave-employee-balance__list"
-        role="list"
-        aria-label="Employee leave balances"
-      >
-        @for (row of employeeRows(); track rowTrackKey(row, $index)) {
-          <li
-            class="leave-employee-balance__row"
-            [class.leave-employee-balance__row--zero]="row.balance === 0"
+      <div class="leave-employee-balance">
+        <div class="leave-employee-balance__search">
+          <app-input-field
+            [inputFieldConfig]="searchFieldConfig"
+            [fieldValue]="searchTerm()"
+            (onFieldChange)="onSearchFieldChange($event)"
+          ></app-input-field>
+        </div>
+
+        @if (filteredRows().length > 0) {
+          <ul
+            class="leave-employee-balance__list"
+            role="list"
+            aria-label="Employee leave balances"
           >
-            <div class="leave-employee-balance__who">
-              <span class="leave-employee-balance__name">{{ row.employeeName }}</span>
-              <span class="leave-employee-balance__meta">
-                @if (row.employeeCode) {
-                  <span class="leave-employee-balance__code">{{ row.employeeCode }}</span>
-                }
-                @if (row.leaveCategory) {
-                  <span class="leave-employee-balance__category">{{ row.leaveCategory }}</span>
-                }
-              </span>
-            </div>
-            <span class="leave-employee-balance__balance">
-              <span class="leave-employee-balance__amount">
-                {{ row.balance | number: config.WITH_DECIMALS : config.LOCALE }}
-              </span>
-              <span class="leave-employee-balance__unit">{{ row.unit ?? 'days' }}</span>
-            </span>
-          </li>
+            @for (row of filteredRows(); track rowTrackKey(row, $index)) {
+              <li
+                class="leave-employee-balance__row"
+                [class.leave-employee-balance__row--zero]="row.balance === 0"
+              >
+                <div class="leave-employee-balance__who">
+                  <span class="leave-employee-balance__name">{{ row.employeeName }}</span>
+                  <span class="leave-employee-balance__meta">
+                    @if (row.employeeCode) {
+                      <span class="leave-employee-balance__code">{{ row.employeeCode }}</span>
+                    }
+                  </span>
+                </div>
+                <span class="leave-employee-balance__balance">
+                  <span class="leave-employee-balance__amount">
+                    {{ row.balance | number: config.WITH_DECIMALS : config.LOCALE }}
+                  </span>
+                  <span class="leave-employee-balance__unit">{{ row.unit ?? 'days' }}</span>
+                </span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="leave-employee-balance__empty">No matching employee found.</p>
         }
-      </ul>
+      </div>
     } @else {
       <p class="card-block__muted leave-employee-balance__empty">No employee leave balances.</p>
     }

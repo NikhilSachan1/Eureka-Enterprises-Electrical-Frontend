@@ -42,25 +42,42 @@ export function aggregateLeaveBalanceRecords(
   };
 }
 
-/** One list row per API record (employee + leave category). */
+/** One dashboard row per employee — remaining balance summed across leave types. */
 export function mapLeaveBalanceRecordsToEmployeeRows(
   records: readonly ILeaveBalanceGetBaseResponseDto[]
 ): IDashboardEmployeeLeaveBalanceRow[] {
-  const rows = records
-    .filter(row => !!(row.user?.id ?? row.userId))
-    .map(row => ({
-      employeeName: employeeDisplayName(row),
-      employeeCode: row.user?.employeeId,
-      leaveCategory: row.leaveCategory,
-      balance: parseAmount(row.availableBalance),
-      unit: 'days' as const,
-    }));
+  const byEmployee = new Map<string, IDashboardEmployeeLeaveBalanceRow>();
 
-  return rows.sort((a, b) => {
-    const byName = a.employeeName.localeCompare(b.employeeName);
-    if (byName !== 0) {
-      return byName;
+  for (const row of records) {
+    const employeeKey = row.user?.id ?? row.userId;
+    if (!employeeKey) {
+      continue;
     }
-    return (a.leaveCategory ?? '').localeCompare(b.leaveCategory ?? '');
-  });
+
+    const existing = byEmployee.get(employeeKey);
+    const balance = parseAmount(row.availableBalance);
+
+    if (existing) {
+      byEmployee.set(employeeKey, {
+        ...existing,
+        balance: existing.balance + balance,
+      });
+      continue;
+    }
+
+    const employeeName = employeeDisplayName(row);
+    const employeeCode = row.user?.employeeId;
+
+    byEmployee.set(employeeKey, {
+      employeeName,
+      employeeCode,
+      searchText: `${employeeName} ${employeeCode ?? ''}`.toLowerCase(),
+      balance,
+      unit: 'days',
+    });
+  }
+
+  return [...byEmployee.values()].sort((a, b) =>
+    a.employeeName.localeCompare(b.employeeName)
+  );
 }

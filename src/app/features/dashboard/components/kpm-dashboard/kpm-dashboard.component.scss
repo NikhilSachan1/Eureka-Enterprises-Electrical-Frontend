@@ -138,6 +138,15 @@
     background: color-mix(in srgb, var(--kpm-accent) 7%, var(--background-default-color));
     box-shadow: 0 2px 8px rgb(0 0 0 / 0.07);
   }
+
+  &--clickable {
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid color-mix(in srgb, var(--kpm-accent) 55%, transparent);
+      outline-offset: 1px;
+    }
+  }
 }
 
 // ── Row icon (soft glyph, not a heavy tile) ────────────────────────────────────
@@ -211,6 +220,12 @@
   .kpm-card__row--success & {
     color: #16a34a;
   }
+}
+
+.kpm-card__rarrow {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--kpm-accent) 70%, var(--text-secondary-color));
 }
 
 .kpm-card__rvalue-loader {
