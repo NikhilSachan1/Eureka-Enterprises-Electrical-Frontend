@@ -201,7 +201,7 @@ export class GetJmcComponent implements OnInit {
           siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
         },
         jmcDate: record.jmcDate,
-        jmcNumber: record.jmcNumber,
+        jmcNumber: record.jmcNumber ?? 'No JMC',
         po: record.po,
         fileKey: record.fileKey,
         fileKeys: record.fileKey ? [record.fileKey] : [],
@@ -335,7 +335,7 @@ export class GetJmcComponent implements OnInit {
       ],
       entity: {
         name: `${selectedRow.contractor?.name ?? ''} ${selectedRow.vendor?.name ?? ''}`.trim(),
-        subtitle: `${selectedRow.jmcNumber}`,
+        subtitle: selectedRow.jmcNumber ?? 'No JMC',
       },
     };
   }

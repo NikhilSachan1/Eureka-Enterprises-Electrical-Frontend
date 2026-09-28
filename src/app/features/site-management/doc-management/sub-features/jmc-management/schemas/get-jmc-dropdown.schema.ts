@@ -15,7 +15,7 @@ export const JmcDropdownGetRequestSchema = z
   }));
 
 const JmcDropdownMetaSchema = z.looseObject({
-  jmcNumber: z.string(),
+  jmcNumber: z.string().nullable(),
 });
 
 export const JmcDropdownRecordSchema = z.looseObject({

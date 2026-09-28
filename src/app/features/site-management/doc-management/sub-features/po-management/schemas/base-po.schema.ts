@@ -49,6 +49,7 @@ export const PoUpsertShapeSchema = z
     poFileName: z.string().nullable(),
     poFileKey: z.string().nullable(),
     gstType: z.string().nullable(),
+    poType: z.string().nullable(),
     remarks: z.string().nullable(),
     items: z.array(PoItemUpsertSchema).nullable(),
     termsAndConditions: z.string().nullable().optional(),

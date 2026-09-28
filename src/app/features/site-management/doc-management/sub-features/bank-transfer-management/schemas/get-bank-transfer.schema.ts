@@ -85,7 +85,7 @@ export const BankTransferGetBaseResponseSchema = z.looseObject({
       invoiceId: uuidField.optional(),
       invoiceNumber: z.string(),
       jmc: z.looseObject({
-        jmcNumber: z.string(),
+        jmcNumber: z.string().nullable(),
         po: z.looseObject({
           poNumber: z.string(),
         }),
@@ -102,7 +102,7 @@ export const BankTransferGetBaseResponseSchema = z.looseObject({
           invoiceId: uuidField.optional(),
           invoiceNumber: z.string(),
           jmc: z.looseObject({
-            jmcNumber: z.string(),
+            jmcNumber: z.string().nullable(),
             po: z.looseObject({
               poNumber: z.string(),
             }),

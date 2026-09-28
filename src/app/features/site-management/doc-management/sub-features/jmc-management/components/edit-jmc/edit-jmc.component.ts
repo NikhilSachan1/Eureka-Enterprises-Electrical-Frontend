@@ -6,10 +6,11 @@ import {
   inject,
   input,
   OnInit,
+  Signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, map, switchMap } from 'rxjs';
+import { defer, finalize, map, of, switchMap } from 'rxjs';
 
 import { FormBase } from '@shared/base/form.base';
 import {
@@ -60,6 +61,25 @@ export class EditJmcComponent
     input.required<IJmcGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
 
+  private isNoJmcTracked!: Signal<boolean | null | undefined>;
+
+  /** Hidden when no JMC is selected; shown when unset (default) or a JMC exists. */
+  protected readonly showJmcDetails = computed(() => !this.isNoJmcTracked());
+
+  /** No JMC is only allowed on a supply-item PO. Unknown type keeps the old checkbox. */
+  protected readonly showNoJmcOption = computed(() => {
+    if (this.isSystemGenerated()) {
+      return false;
+    }
+
+    const poType = this.selectedRecord()[0]?.po?.poType ?? null;
+    if (poType == null) {
+      return true;
+    }
+
+    return poType === 'SUPPLY_ITEM';
+  });
+
   protected readonly isSystemGenerated = computed(
     () => this.selectedRecord()[0]?.isSystemGenerated === true
   );
@@ -85,6 +105,10 @@ export class EditJmcComponent
         defaultValues: {
           projectName: record.siteId,
           poNumber: record.po.poNumber,
+          isNoJmc:
+            !this.isSystemGenerated() &&
+            !record.jmcNumber &&
+            (record.po.poType == null || record.po.poType === 'SUPPLY_ITEM'),
           jmcNumber: record.jmcNumber,
           jmcDate: parseProjectDateOnly(record.jmcDate),
           jmcAttachment: [],
@@ -103,6 +127,12 @@ export class EditJmcComponent
     );
 
     this.seedPoOption(record.po.poNumber);
+
+    this.isNoJmcTracked = this.formService.trackFieldChanges(
+      this.form.formGroup,
+      'isNoJmc',
+      this.destroyRef
+    );
 
     applyProjectDateRangeFromSite(
       this.form,
@@ -219,7 +249,10 @@ export class EditJmcComponent
   }
 
   private executeEditJmcAction(jmcId: string): void {
+    const formData = this.form.getData();
     const isSystemGenerated = this.isSystemGenerated();
+    const isNoJmc = Boolean(formData.isNoJmc);
+    const file = formData.jmcAttachment as File[] | undefined;
 
     this.loadingService.show({
       title: 'Updating JMC',
@@ -228,18 +261,18 @@ export class EditJmcComponent
     });
     this.form.disable();
 
-    const submit$ = isSystemGenerated
-      ? this.jmcService.editJmc(this.prepareFormData(), jmcId)
-      : this.attachmentsService
-          .uploadFinancialDocument(this.form.getFieldData('jmcAttachment')[0])
-          .pipe(
-            switchMap(attachmentResponse =>
-              this.jmcService.editJmc(
-                this.prepareFormData(attachmentResponse),
-                jmcId
-              )
-            )
-          );
+    const submit$ = defer(() =>
+      !isSystemGenerated && !isNoJmc && file?.length
+        ? this.attachmentsService.uploadFinancialDocument(file[0])
+        : of<IFinancialFileUploadResponseDto | null>(null)
+    ).pipe(
+      switchMap(attachmentResponse =>
+        this.jmcService.editJmc(
+          this.prepareFormData(formData, attachmentResponse),
+          jmcId
+        )
+      )
+    );
 
     submit$
       .pipe(
@@ -266,22 +299,24 @@ export class EditJmcComponent
   }
 
   private prepareFormData(
-    attachmentResponse: IFinancialFileUploadResponseDto | null = null
+    formData: IEditJmcUIFormDto,
+    attachmentResponse: IFinancialFileUploadResponseDto | null
   ): IEditJmcFormDto {
-    const formData = this.form.getData();
+    const isNoJmc = Boolean(formData.isNoJmc);
     const record = { ...formData };
     delete (record as Record<string, unknown>)['jmcAttachment'];
     delete (record as Record<string, unknown>)['poNumber'];
     delete (record as Record<string, unknown>)['projectName'];
 
-    if (!this.isSystemGenerated()) {
+    if (!this.isSystemGenerated() || isNoJmc) {
       delete (record as Record<string, unknown>)['items'];
     }
 
     return {
       ...record,
-      jmcFileKey: attachmentResponse?.fileKey ?? null,
-      jmcFileName: attachmentResponse?.fileName ?? null,
+      jmcNumber: isNoJmc ? null : formData.jmcNumber,
+      jmcFileKey: isNoJmc ? null : (attachmentResponse?.fileKey ?? null),
+      jmcFileName: isNoJmc ? null : (attachmentResponse?.fileName ?? null),
     };
   }
 }

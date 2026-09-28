@@ -12,6 +12,7 @@ import {
   EButtonSeverity,
   EButtonVariant,
   EDataType,
+  EFieldSize,
   ETextCase,
   IFormConfig,
   IFormInputFieldsConfig,
@@ -46,6 +47,19 @@ const ADD_JMC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddJmcUIFormDto> = {
     },
     validators: [Validators.required],
   },
+  isNoJmc: {
+    fieldType: EDataType.CHECKBOX,
+    id: 'isNoJmc',
+    fieldName: 'isNoJmc',
+    fieldSize: EFieldSize.Small,
+    showStandardLabel: true,
+    defaultValue: false,
+    checkboxConfig: {
+      binary: true,
+      bordered: true,
+      options: [{ label: 'No JMC', value: 'noJmc' }],
+    },
+  },
   jmcNumber: {
     fieldType: EDataType.TEXT,
     id: 'jmcNumber',
@@ -57,8 +71,11 @@ const ADD_JMC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddJmcUIFormDto> = {
     },
     conditionalValidators: [
       {
-        shouldApply: (context): boolean => !context['isSystemGenerated'],
+        dependsOn: 'isNoJmc',
+        shouldApply: (isNoJmc: boolean, context): boolean =>
+          !isNoJmc && !context?.['isSystemGenerated'],
         validators: [Validators.required],
+        resetOnFalse: true,
       },
     ],
   },
@@ -71,7 +88,14 @@ const ADD_JMC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddJmcUIFormDto> = {
       maxDate: new Date(),
       touchUI: false,
     },
-    validators: [Validators.required],
+    conditionalValidators: [
+      {
+        dependsOn: 'isNoJmc',
+        shouldApply: (isNoJmc: boolean): boolean => !isNoJmc,
+        validators: [Validators.required],
+        resetOnFalse: true,
+      },
+    ],
   },
   jmcAttachment: {
     fieldType: EDataType.ATTACHMENTS,
@@ -87,8 +111,11 @@ const ADD_JMC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddJmcUIFormDto> = {
     },
     conditionalValidators: [
       {
-        shouldApply: (context): boolean => !context['isSystemGenerated'],
+        dependsOn: 'isNoJmc',
+        shouldApply: (isNoJmc: boolean, context): boolean =>
+          !isNoJmc && !context?.['isSystemGenerated'],
         validators: [Validators.required],
+        resetOnFalse: true,
       },
     ],
   },
@@ -158,6 +185,13 @@ const ADD_JMC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddJmcUIFormDto> = {
     id: 'remarks',
     fieldName: 'remarks',
     label: 'Remarks',
+    conditionalValidators: [
+      {
+        dependsOn: 'isNoJmc',
+        shouldApply: (isNoJmc: boolean) => Boolean(isNoJmc),
+        validators: [Validators.required],
+      },
+    ],
   },
 };
 

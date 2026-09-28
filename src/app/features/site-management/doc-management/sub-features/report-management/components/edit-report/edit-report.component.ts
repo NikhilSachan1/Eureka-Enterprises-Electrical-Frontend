@@ -82,7 +82,7 @@ export class EditReportComponent
         destroyRef: this.destroyRef,
         defaultValues: {
           projectName: record.siteId,
-          jmcNumber: record.jmc.jmcNumber,
+          jmcNumber: record.jmc.jmcNumber ?? 'No JMC',
           isNoReport: !record.fileKey,
           reportDate: parseProjectDateOnly(record.reportDate),
           reportAttachment: [],
@@ -91,7 +91,7 @@ export class EditReportComponent
       }
     );
 
-    this.seedJmcOption(record.jmc.jmcNumber);
+    this.seedJmcOption(record.jmc.jmcNumber ?? 'No JMC');
 
     applyProjectDateRangeFromSite(
       this.form,

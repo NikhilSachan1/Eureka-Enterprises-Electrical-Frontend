@@ -13,7 +13,7 @@ export const JmcBaseSchema = z.looseObject({
   partyType: z.enum(EDocContext),
   contractorId: uuidField.nullable(),
   vendorId: uuidField.nullable(),
-  jmcNumber: z.string(),
+  jmcNumber: z.string().nullable(),
   jmcDate: onlyDateStringField,
   fileKey: z.string().nullable(),
 });
@@ -29,8 +29,9 @@ export const JmcItemUpsertSchema = z
 export const JmcUpsertShapeSchema = z
   .object({
     poNumber: z.string(),
+    isNoJmc: z.boolean(),
     jmcNumber: z.string().nullable(),
-    jmcDate: dateField,
+    jmcDate: dateField.nullable(),
     jmcFileName: z.string().nullable(),
     jmcFileKey: z.string().nullable(),
     remarks: z.string().nullable(),

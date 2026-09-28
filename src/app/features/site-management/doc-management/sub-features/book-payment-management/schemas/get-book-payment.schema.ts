@@ -73,7 +73,7 @@ export const BookPaymentGetBaseResponseSchema = z.looseObject({
     .looseObject({
       invoiceNumber: z.string(),
       jmc: z.looseObject({
-        jmcNumber: z.string(),
+        jmcNumber: z.string().nullable(),
         po: z.looseObject({
           poNumber: z.string(),
         }),

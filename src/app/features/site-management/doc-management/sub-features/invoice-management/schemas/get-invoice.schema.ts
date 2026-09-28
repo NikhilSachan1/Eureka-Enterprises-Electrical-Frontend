@@ -78,7 +78,7 @@ export const InvoiceGetBaseResponseSchema = z.looseObject({
   advanceSettledAmount: z.string(),
   advanceSettlements: z.array(InvoiceAdvanceSettlementSchema),
   jmc: z.looseObject({
-    jmcNumber: z.string(),
+    jmcNumber: z.string().nullable(),
     po: z.looseObject({
       poNumber: z.string(),
     }),

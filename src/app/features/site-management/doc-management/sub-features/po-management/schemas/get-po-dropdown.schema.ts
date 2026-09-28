@@ -22,6 +22,7 @@ const PoDropdownAdvancePaymentMetaSchema = z.looseObject({
 
 const PoDropdownMetaSchema = z.looseObject({
   poNumber: z.string(),
+  poType: z.string().nullable().optional(),
   totalAmount: z.number(),
   invoicedTotal: z.number(),
   remaining: z.number(),

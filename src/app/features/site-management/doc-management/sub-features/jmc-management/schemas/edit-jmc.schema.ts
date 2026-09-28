@@ -7,13 +7,16 @@ export const EditJmcRequestSchema = JmcUpsertShapeSchema.omit({
 })
   .strict()
   .transform(data => {
+    const isNoJmc = Boolean(data.isNoJmc);
     const payload = {
-      jmcNumber: data.jmcNumber,
-      jmcDate: transformDateFormat(data.jmcDate),
-      fileKey: data.jmcFileKey,
-      fileName: data.jmcFileName,
+      ...(isNoJmc ? { noJmc: true as const } : {}),
+      jmcNumber: isNoJmc ? null : data.jmcNumber,
+      jmcDate:
+        isNoJmc || !data.jmcDate ? null : transformDateFormat(data.jmcDate),
+      fileKey: isNoJmc ? null : data.jmcFileKey,
+      fileName: isNoJmc ? null : data.jmcFileName,
       remarks: data.remarks,
-      ...(data.items !== null && data.items !== undefined
+      ...(data.items !== null && data.items !== undefined && !isNoJmc
         ? { items: data.items }
         : {}),
     };

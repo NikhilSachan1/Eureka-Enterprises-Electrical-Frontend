@@ -46,7 +46,10 @@ export class DocReferenceHierarchy {
     let tail: IDocReferenceHierarchyNode | null = null;
 
     for (const p of parts) {
-      const value = DocReferenceHierarchy.normalize(p.value);
+      const value =
+        p.kind === EDocReferenceHierarchyKind.Jmc && p.value === null
+          ? 'No JMC'
+          : DocReferenceHierarchy.normalize(p.value);
       if (value) {
         const node: IDocReferenceHierarchyNode = {
           kind: p.kind,

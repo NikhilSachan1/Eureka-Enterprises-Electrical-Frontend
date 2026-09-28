@@ -193,7 +193,7 @@ export class AddReportComponent
     records: IJmcDropdownRecordDto[]
   ): IOptionDropdown[] {
     return records.map(record => ({
-      label: record.label,
+      label: record.label.trim() || 'No JMC',
       value: record.id,
       disabled: !record.eligible,
       disabledReason: record.reason ?? undefined,
