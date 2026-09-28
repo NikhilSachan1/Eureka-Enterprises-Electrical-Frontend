@@ -2,19 +2,6 @@
   width: 100%;
 }
 
-.main-dashboard--coming-soon {
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100vh - 5rem);
-
-  app-empty-messages {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
-
 /* Dashboard shell — distinct from list pages: hero, pulse KPIs, sectioned grids. */
 
 .status-dashboard {
@@ -88,10 +75,6 @@
   background: linear-gradient(145deg, #60a5fa 0%, #2563eb 100%);
 }
 
-.dash-section__lead-icon--projects {
-  background: linear-gradient(145deg, #fb923c 0%, #ea580c 100%);
-}
-
 .dash-section__lead-icon--finance {
   background: linear-gradient(145deg, #f472b6 0%, #be185d 100%);
 }
@@ -100,6 +83,20 @@
   display: grid;
   gap: 1.15rem;
   align-items: stretch;
+}
+
+.dash-section__defer {
+  min-height: 12rem;
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--border-light-color) 28%, transparent);
+}
+
+.dash-section__defer--tall {
+  min-height: 18rem;
+
+  @media (min-width: 900px) {
+    min-height: 32rem;
+  }
 }
 
 .people-celebrations-grid {
@@ -127,53 +124,37 @@
   }
 }
 
-/* Left: Employees + Leave stacked; right: Attendance | Leave balance side by side */
-.dash-section__grid--people {
+/* Today's attendance | Leave balance — equal columns, equal height */
+.dash-section__grid--people-time {
   grid-template-columns: 1fr;
-  align-items: start;
-
-  @media (min-width: 900px) {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-    align-items: stretch;
-  }
-}
-
-.dash-people-col--stack {
-  display: flex;
-  flex-direction: column;
-  gap: 1.15rem;
-  min-width: 0;
-
-  app-leave-dashboard {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-}
-
-.dash-people-col--pair {
-  display: grid;
-  gap: 1.15rem;
-  grid-template-columns: 1fr;
-  min-width: 0;
   align-items: stretch;
 
-  @media (min-width: 560px) {
+  @media (min-width: 900px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 32rem;
+
+    > app-attendance-dashboard,
+    > app-leave-balance-dashboard {
+      height: 100%;
+      max-height: 36rem;
+    }
   }
 
   > app-attendance-dashboard,
   > app-leave-balance-dashboard {
+    min-width: 0;
     min-height: 0;
+    width: 100%;
     display: flex;
     flex-direction: column;
   }
 
   > app-attendance-dashboard ::ng-deep .status-dashboard__card,
   > app-leave-balance-dashboard ::ng-deep .status-dashboard__card {
+    width: 100%;
     height: 100%;
     min-height: 0;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
   }
@@ -190,6 +171,7 @@
   > app-leave-balance-dashboard ::ng-deep .status-dashboard__card > .p-card-body > .p-card-content {
     flex: 1 1 auto;
     min-height: 0;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
   }
@@ -202,86 +184,18 @@
     flex-direction: column;
   }
 
-  > app-attendance-dashboard ::ng-deep .card-stack {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
+  @media (min-width: 900px) {
+    > app-attendance-dashboard ::ng-deep .attendance-today__list,
+    > app-leave-balance-dashboard ::ng-deep .leave-employee-balance__list {
+      flex: 1 1 auto;
+      max-height: none;
+    }
   }
 }
 
-/* Left: Assets; right: Vehicle fleet | Vehicle service (same rhythm as People & time) */
+/* One attention board */
 .dash-section__grid--ops {
   grid-template-columns: 1fr;
-  align-items: start;
-
-  @media (min-width: 900px) {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-    align-items: stretch;
-  }
-}
-
-.dash-section__grid--ops + app-vehicle-reading-dashboard {
-  display: block;
-  margin-top: 1.15rem;
-}
-
-.dash-ops-col--stack {
-  display: flex;
-  flex-direction: column;
-  gap: 1.15rem;
-  min-width: 0;
-}
-
-.dash-ops-col--pair {
-  display: grid;
-  gap: 1.15rem;
-  grid-template-columns: 1fr;
-  min-width: 0;
-  align-items: stretch;
-
-  @media (min-width: 560px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  > app-vehicle-dashboard,
-  > app-vehicle-service-dashboard {
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  > app-vehicle-dashboard ::ng-deep .status-dashboard__card,
-  > app-vehicle-service-dashboard ::ng-deep .status-dashboard__card {
-    height: 100%;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  > app-vehicle-dashboard ::ng-deep .status-dashboard__card > .p-card-body,
-  > app-vehicle-service-dashboard ::ng-deep .status-dashboard__card > .p-card-body {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  > app-vehicle-dashboard ::ng-deep .status-dashboard__card > .p-card-body > .p-card-content,
-  > app-vehicle-service-dashboard ::ng-deep .status-dashboard__card > .p-card-body > .p-card-content {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  > app-vehicle-dashboard ::ng-deep .card-block,
-  > app-vehicle-service-dashboard ::ng-deep .card-block {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
 }
 
 .dash-section__grid--finance {
@@ -299,45 +213,6 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-/* Projects: pipeline + table (stack) | bar chart (side) */
-.dash-section__grid--projects {
-  grid-template-columns: 1fr;
-  align-items: start;
-
-  @media (min-width: 900px) {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-    align-items: stretch;
-  }
-}
-
-.dash-projects-col--stack {
-  display: flex;
-  flex-direction: column;
-  gap: 1.15rem;
-  min-width: 0;
-}
-
-.dash-projects-col--chart {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 280px;
-
-  app-project-chart-dashboard {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-
-  @media (min-width: 900px) {
-    min-height: 0;
-    align-self: stretch;
-    height: auto;
-  }
 }
 
 ::ng-deep .status-dashboard__card {
@@ -365,57 +240,8 @@
   }
 }
 
-::ng-deep .status-dashboard__card--wide {
-  grid-column: 1 / -1;
-}
-
-/* Match row height next to Attendance; list grows and scrolls */
-::ng-deep .status-dashboard__card--leave-balance-fill {
-  height: 100%;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-
-  > .p-card-body {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  > .p-card-body > .p-card-content {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .card-block {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .card-block__head {
-    flex-shrink: 0;
-  }
-
-  .leave-employee-balance__list {
-    flex: 1 1 auto;
-    min-height: 0;
-    max-height: none;
-    overflow-y: auto;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   ::ng-deep .status-dashboard__card {
-    transition: none;
-  }
-
-  .people-celebrations__row {
     transition: none;
   }
 }

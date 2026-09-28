@@ -8,11 +8,13 @@ import {
   signal,
 } from '@angular/core';
 import { CurrencyPipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { APP_CONFIG } from '@core/config';
-import { ICONS } from '@shared/constants';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { LoggerService } from '@core/services';
+import { AppConfigurationService } from '@shared/services';
 import { DashboardService } from '@features/dashboard/services/dashboard.services';
 import {
   IApprovalPendingDashboardGetResponseDto,
@@ -21,8 +23,15 @@ import {
   IVehicleReadingsAlertsDashboardGetResponseDto,
 } from '@features/dashboard/types/dashboard.dto';
 import { EKpmDashboardSeverity } from '@features/dashboard/types/dashboard.enum';
-import { EDataType } from '@shared/types';
-import { IDashboardKpmMetricRow } from '@features/dashboard/types/dashboard.interface';
+import { EApprovalStatus, EDataType } from '@shared/types';
+import {
+  IDashboardKpmMetricLink,
+  IDashboardKpmMetricRow,
+} from '@features/dashboard/types/dashboard.interface';
+import {
+  pickDropdownValue,
+  statusFilterQuery,
+} from '@features/dashboard/utils/kpm-dropdown-link.util';
 
 @Component({
   selector: 'app-kpm-dashboard',
@@ -35,6 +44,8 @@ export class KpmDashboardComponent implements OnInit {
   private readonly dashboardService = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly logger = inject(LoggerService);
+  private readonly router = inject(Router);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ICONS = ICONS;
@@ -89,6 +100,52 @@ export class KpmDashboardComponent implements OnInit {
     this.loadVehicleReadingsAlerts();
   }
 
+  protected openMetric(row: IDashboardKpmMetricRow): void {
+    if (!row.link || row.valueLoading) {
+      return;
+    }
+
+    void this.router.navigate([...row.link.commands], {
+      queryParams: row.link.queryParams,
+    });
+  }
+
+  private pendingQuery(): Record<string, string[]> {
+    return { approvalStatus: [EApprovalStatus.PENDING] };
+  }
+
+  private linkTo(
+    commands: readonly string[],
+    queryParams?: Record<string, string | readonly string[]>
+  ): IDashboardKpmMetricLink {
+    return queryParams ? { commands, queryParams } : { commands };
+  }
+
+  private assetLink(
+    field: string,
+    status: string | undefined
+  ): IDashboardKpmMetricLink {
+    return this.linkTo(
+      ['/', ROUTE_BASE_PATHS.ASSET, ROUTES.ASSET.LIST],
+      statusFilterQuery(field, status)
+    );
+  }
+
+  private vehicleLink(
+    field: string,
+    status: string | undefined
+  ): IDashboardKpmMetricLink {
+    return this.linkTo(
+      [
+        '/',
+        ROUTE_BASE_PATHS.TRANSPORT,
+        ROUTE_BASE_PATHS.VEHICLE,
+        ROUTES.VEHICLE.LIST,
+      ],
+      statusFilterQuery(field, status)
+    );
+  }
+
   private loadApprovalPending(): void {
     this.dashboardService
       .getApprovalPending()
@@ -127,7 +184,7 @@ export class KpmDashboardComponent implements OnInit {
 
   private loadAssetFleetAlerts(): void {
     this.dashboardService
-      .getAssetFleetAlerts()
+      .getAssetFleetAlertsShared()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.assetFleetAlertsLoading.set(false))
@@ -187,6 +244,10 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(totals?.attendance ?? 0, false),
         valueLoading,
+        link: this.linkTo(
+          ['/', ROUTE_BASE_PATHS.ATTENDANCE, ROUTES.ATTENDANCE.LIST],
+          this.pendingQuery()
+        ),
       },
       {
         icon: ICONS.LEAVE.CALENDAR_PLUS,
@@ -196,6 +257,10 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(totals?.leave ?? 0, false),
         valueLoading,
+        link: this.linkTo(
+          ['/', ROUTE_BASE_PATHS.LEAVE, ROUTES.LEAVE.LIST],
+          this.pendingQuery()
+        ),
       },
       {
         icon: ICONS.EXPENSE.MONEY,
@@ -205,6 +270,10 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(totals?.expense ?? 0, false),
         valueLoading,
+        link: this.linkTo(
+          ['/', ROUTE_BASE_PATHS.EXPENSE, ROUTES.EXPENSE.LEDGER],
+          this.pendingQuery()
+        ),
       },
       {
         icon: ICONS.EXPENSE.CAR,
@@ -214,6 +283,15 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(totals?.fuelExpense ?? 0, false),
         valueLoading,
+        link: this.linkTo(
+          [
+            '/',
+            ROUTE_BASE_PATHS.TRANSPORT,
+            ROUTE_BASE_PATHS.FUEL,
+            ROUTES.FUEL.LEDGER,
+          ],
+          this.pendingQuery()
+        ),
       },
       {
         icon: ICONS.SITE.BUILDING,
@@ -223,6 +301,23 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(totals?.siteDocuments ?? 0, true),
         valueLoading,
+        link: this.linkTo(
+          [
+            '/',
+            ROUTE_BASE_PATHS.SITE.BASE,
+            ROUTE_BASE_PATHS.SITE.PROJECT,
+            ROUTES.SITE.PROJECT.WORKSPACE,
+            ROUTES.SITE.PROJECT.CONTRACTOR_DOC,
+            ROUTES.SITE.PROJECT.WORKSPACE_DOC.PO,
+          ],
+          statusFilterQuery(
+            'approvalStatus',
+            pickDropdownValue(
+              this.appConfigurationService.projectDocumentApprovalStatuses(),
+              'pending'
+            ) ?? EApprovalStatus.PENDING
+          )
+        ),
       },
     ];
   }
@@ -309,6 +404,13 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(assetCalibrationDueSoon ?? 0, false),
         valueLoading,
+        link: this.assetLink(
+          'assetCalibrationStatus',
+          pickDropdownValue(
+            this.appConfigurationService.assetCalibrationStatuses(),
+            'soon'
+          )
+        ),
       },
       {
         icon: ICONS.STATUS.EXPIRED,
@@ -318,6 +420,13 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(assetCalibrationOverdue ?? 0, false),
         valueLoading,
+        link: this.assetLink(
+          'assetCalibrationStatus',
+          pickDropdownValue(
+            this.appConfigurationService.assetCalibrationStatuses(),
+            'expired'
+          )
+        ),
       },
       {
         icon: ICONS.SECURITY.SHIELD,
@@ -327,6 +436,13 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(assetWarrantyExpiringSoon ?? 0, false),
         valueLoading,
+        link: this.assetLink(
+          'assetWarrantyStatus',
+          pickDropdownValue(
+            this.appConfigurationService.assetWarrantyStatuses(),
+            'soon'
+          )
+        ),
       },
       {
         icon: ICONS.STATUS.EXPIRED,
@@ -336,6 +452,13 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(assetWarrantyExpired ?? 0, false),
         valueLoading,
+        link: this.assetLink(
+          'assetWarrantyStatus',
+          pickDropdownValue(
+            this.appConfigurationService.assetWarrantyStatuses(),
+            'expired'
+          )
+        ),
       },
     ];
   }
@@ -372,6 +495,13 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(pucExpiringSoon ?? 0, false),
         valueLoading: assetFleetValueLoading,
+        link: this.vehicleLink(
+          'vehiclePUCStatus',
+          pickDropdownValue(
+            this.appConfigurationService.vehicleDocumentStatuses(),
+            'soon'
+          )
+        ),
       },
       {
         icon: ICONS.STATUS.EXPIRED,
@@ -381,6 +511,13 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(pucExpired ?? 0, false),
         valueLoading: assetFleetValueLoading,
+        link: this.vehicleLink(
+          'vehiclePUCStatus',
+          pickDropdownValue(
+            this.appConfigurationService.vehicleDocumentStatuses(),
+            'expired'
+          )
+        ),
       },
       {
         icon: ICONS.FLEET.INSURANCE,
@@ -390,6 +527,13 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(insuranceExpiringSoon ?? 0, false),
         valueLoading: assetFleetValueLoading,
+        link: this.vehicleLink(
+          'vehicleInsuranceStatus',
+          pickDropdownValue(
+            this.appConfigurationService.vehicleDocumentStatuses(),
+            'soon'
+          )
+        ),
       },
       {
         icon: ICONS.STATUS.EXPIRED,
@@ -399,6 +543,13 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(insuranceExpired ?? 0, false),
         valueLoading: assetFleetValueLoading,
+        link: this.vehicleLink(
+          'vehicleInsuranceStatus',
+          pickDropdownValue(
+            this.appConfigurationService.vehicleDocumentStatuses(),
+            'expired'
+          )
+        ),
       },
       {
         icon: ICONS.SETTINGS.WRENCH,
@@ -408,6 +559,13 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(serviceDueSoon ?? 0, false),
         valueLoading: assetFleetValueLoading,
+        link: this.vehicleLink(
+          'vehicleServiceDueStatus',
+          pickDropdownValue(
+            this.appConfigurationService.vehicleServiceStatuses(),
+            'soon'
+          )
+        ),
       },
       {
         icon: ICONS.STATUS.EXPIRED,
@@ -417,6 +575,13 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(serviceOverdue ?? 0, false),
         valueLoading: assetFleetValueLoading,
+        link: this.vehicleLink(
+          'vehicleServiceDueStatus',
+          pickDropdownValue(
+            this.appConfigurationService.vehicleServiceStatuses(),
+            'expired'
+          )
+        ),
       },
       {
         icon: ICONS.FLEET.READING,
@@ -426,6 +591,12 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.NUMBER,
         state: sev(noReading2Days?.count ?? 0, false),
         valueLoading: vehicleReadingsValueLoading,
+        link: this.linkTo([
+          '/',
+          ROUTE_BASE_PATHS.TRANSPORT,
+          ROUTE_BASE_PATHS.VEHICLE_READING,
+          ROUTES.VEHICLE_READING.LIST,
+        ]),
       },
     ];
   }

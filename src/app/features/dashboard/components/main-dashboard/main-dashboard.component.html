@@ -1,9 +1,170 @@
-<div class="main-dashboard main-dashboard--coming-soon">
-  <app-page-header [pageHeaderConfig]="dashboardPageHeader" />
+<div class="main-dashboard">
+  <div
+    class="status-dashboard"
+    [ngStyle]="workflowColorVars"
+  >
+    <div class="status-dashboard__shell">
+      <app-page-header [pageHeaderConfig]="dashboardPageHeader" />
 
-  <app-empty-messages
-    [icon]="ICONS.COMMON.CLOCK"
-    title="Coming soon"
-    description="Dashboard widgets and insights are under development. Check back shortly."
-  />
+      <app-kpm-dashboard />
+
+      <section
+        class="dash-section"
+        aria-labelledby="dash-celebrations-title"
+      >
+        <div class="dash-section__head">
+          <div class="dash-section__lead dash-section__lead--celebrations">
+            <span
+              class="dash-section__lead-icon dash-section__lead-icon--celebrations"
+              aria-hidden="true"
+            >
+              <span [class]="ICONS.COMMON.GIFT"></span>
+            </span>
+            <div>
+              <h2
+                id="dash-celebrations-title"
+                class="dash-section__title"
+              >
+                Birthdays, anniversaries &amp; holidays
+              </h2>
+              <p class="dash-section__desc">People milestones and upcoming public / company holidays.</p>
+            </div>
+          </div>
+        </div>
+        @defer (on idle) {
+          <div class="people-celebrations-grid">
+            <app-birthdays-dashboard />
+            <app-anniversary-dashboard />
+            <app-holiday-dashboard />
+          </div>
+        } @placeholder {
+          <div
+            class="dash-section__defer"
+            aria-hidden="true"
+          ></div>
+        }
+      </section>
+
+      <section
+        class="dash-section"
+        aria-labelledby="dash-people-time-title"
+      >
+        <div class="dash-section__head">
+          <div class="dash-section__lead dash-section__lead--people">
+            <span
+              class="dash-section__lead-icon dash-section__lead-icon--people"
+              aria-hidden="true"
+            >
+              <span [class]="ICONS.COMMON.USERS"></span>
+            </span>
+            <div>
+              <h2
+                id="dash-people-time-title"
+                class="dash-section__title"
+              >
+                Attendance &amp; leave
+              </h2>
+              <p class="dash-section__desc">Today’s attendance list and remaining leave balances.</p>
+            </div>
+          </div>
+        </div>
+        <div
+          class="dash-section__grid dash-section__grid--people-time"
+          role="region"
+          aria-label="Attendance and leave balance"
+        >
+          @defer (on idle) {
+            <app-attendance-dashboard />
+            <app-leave-balance-dashboard />
+          } @placeholder {
+            <div
+              class="dash-section__defer dash-section__defer--tall"
+              aria-hidden="true"
+            ></div>
+          }
+        </div>
+      </section>
+
+      <section
+        class="dash-section"
+        aria-labelledby="dash-ops-title"
+      >
+        <div class="dash-section__head">
+          <div class="dash-section__lead dash-section__lead--ops">
+            <span
+              class="dash-section__lead-icon dash-section__lead-icon--ops"
+              aria-hidden="true"
+            >
+              <span [class]="ICONS.COMMON.CAR"></span>
+            </span>
+            <div>
+              <h2
+                id="dash-ops-title"
+                class="dash-section__title"
+              >
+                Assets &amp; transport
+              </h2>
+              <p class="dash-section__desc">
+                Work queue for calibration, warranty, fleet documents, and service — overdue vs coming due.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div
+          class="dash-section__grid dash-section__grid--ops"
+          role="region"
+          aria-label="Operations alerts"
+        >
+          @defer (on idle) {
+            <app-ops-attention-dashboard />
+          } @placeholder {
+            <div
+              class="dash-section__defer"
+              aria-hidden="true"
+            ></div>
+          }
+        </div>
+      </section>
+
+      <section
+        class="dash-section"
+        aria-labelledby="dash-finance-title"
+      >
+        <div class="dash-section__head">
+          <div class="dash-section__lead dash-section__lead--finance">
+            <span
+              class="dash-section__lead-icon dash-section__lead-icon--finance"
+              aria-hidden="true"
+            >
+              <span [class]="ICONS.COMMON.CREDIT_CARD"></span>
+            </span>
+            <div>
+              <h2
+                id="dash-finance-title"
+                class="dash-section__title"
+              >
+                Ledger &amp; spend
+              </h2>
+              <p class="dash-section__desc">Expense and fuel ledgers with balances and employee-wise summaries.</p>
+            </div>
+          </div>
+        </div>
+        <div
+          class="dash-section__grid dash-section__grid--finance"
+          role="region"
+          aria-label="Ledger metrics"
+        >
+          @defer (on idle) {
+            <app-expense-dashboard />
+            <app-fuel-expense-dashboard />
+          } @placeholder {
+            <div
+              class="dash-section__defer"
+              aria-hidden="true"
+            ></div>
+          }
+        </div>
+      </section>
+    </div>
+  </div>
 </div>

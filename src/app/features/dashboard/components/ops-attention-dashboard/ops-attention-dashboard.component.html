@@ -1,0 +1,181 @@
+@let config = APP_CONFIG.NUMBER_FORMATS;
+<p-card class="status-dashboard__card">
+  <div class="card-block ops-board">
+    <div class="card-block__head card-block__head--wrap">
+      <div class="card-block__titles">
+        <div
+          class="card-block__icon-wrap"
+          aria-hidden="true"
+        >
+          <span [class]="ICONS.COMMON.INBOX + ' card-block__icon'"></span>
+        </div>
+        <div>
+          <h2 class="card-block__title">Needs attention</h2>
+          <p class="card-block__hint">
+            One row per asset or vehicle — labels show calibration, warranty, documents, and service.
+          </p>
+        </div>
+      </div>
+      <div class="ops-board__links">
+        <app-button
+          [buttonConfig]="openAssetsButton"
+          (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.ASSET, ROUTES.ASSET.LIST])"
+        />
+        <app-button
+          [buttonConfig]="openVehiclesButton"
+          (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.TRANSPORT, ROUTE_BASE_PATHS.VEHICLE, ROUTES.VEHICLE.LIST])"
+        />
+        <app-button
+          [buttonConfig]="openServicesButton"
+          (onButtonClick)="
+            navigateTo(['/', ROUTE_BASE_PATHS.TRANSPORT, ROUTE_BASE_PATHS.VEHICLE_SERVICE, ROUTES.VEHICLE_SERVICE.LIST])
+          "
+        />
+      </div>
+    </div>
+
+    <div
+      class="ops-board__chips"
+      role="tablist"
+      aria-label="Alert domain"
+    >
+      @for (chip of chips(); track chip.id) {
+        <button
+          type="button"
+          class="ops-chip"
+          role="tab"
+          [class.ops-chip--all]="chip.id === 'all'"
+          [class.ops-chip--asset]="chip.id === 'asset'"
+          [class.ops-chip--vehicle]="chip.id === 'vehicle'"
+          [class.ops-chip--service]="chip.id === 'service'"
+          [class.ops-chip--active]="filter() === chip.id"
+          [attr.aria-selected]="filter() === chip.id"
+          (click)="setFilter(chip.id)"
+        >
+          @if (chip.id !== 'all') {
+            <span
+              [class]="domainIcon(chip.id) + ' ops-chip__icon'"
+              aria-hidden="true"
+            ></span>
+          }
+          <span class="ops-chip__label">{{ chip.label }}</span>
+          <span class="ops-chip__count">{{ chip.count | number: config.DEFAULT : config.LOCALE }}</span>
+        </button>
+      }
+    </div>
+
+    <div class="ops-lanes">
+      <section
+        class="ops-lane ops-lane--overdue"
+        aria-labelledby="ops-lane-overdue-title"
+      >
+        <header class="ops-lane__head">
+          <h3
+            id="ops-lane-overdue-title"
+            class="ops-lane__title"
+          >
+            Overdue
+          </h3>
+          <span class="ops-lane__count">{{ overdueRows().length | number: config.DEFAULT : config.LOCALE }}</span>
+        </header>
+        @if (overdueRows().length > 0) {
+          <ul
+            class="ops-lane__list"
+            aria-label="Overdue alerts"
+          >
+            @for (row of overdueRows(); track row.id) {
+              <li
+                class="ops-row"
+                [class.ops-row--asset]="row.domain === 'asset'"
+                [class.ops-row--vehicle]="row.domain === 'vehicle'"
+                [class.ops-row--service]="row.domain === 'service'"
+              >
+                <span
+                  [class]="domainIcon(row.domain) + ' ops-row__icon'"
+                  aria-hidden="true"
+                ></span>
+                <div class="ops-row__copy">
+                  <span class="ops-row__title">{{ row.title }}</span>
+                  @if (row.meta) {
+                    <span class="ops-row__meta">{{ row.meta }}</span>
+                  }
+                </div>
+                <div class="ops-row__tags">
+                  @for (tag of row.tags; track tag.label) {
+                    <span
+                      class="ops-tag"
+                      [class.ops-tag--calibration]="tag.kind === 'calibration'"
+                      [class.ops-tag--warranty]="tag.kind === 'warranty'"
+                      [class.ops-tag--fleet]="tag.kind === 'fleet'"
+                      [class.ops-tag--service]="tag.kind === 'service'"
+                    >
+                      {{ tag.label }}
+                    </span>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="ops-lane__empty">Nothing overdue in this view.</p>
+        }
+      </section>
+
+      <section
+        class="ops-lane ops-lane--soon"
+        aria-labelledby="ops-lane-soon-title"
+      >
+        <header class="ops-lane__head">
+          <h3
+            id="ops-lane-soon-title"
+            class="ops-lane__title"
+          >
+            Due soon
+          </h3>
+          <span class="ops-lane__count">{{ soonRows().length | number: config.DEFAULT : config.LOCALE }}</span>
+        </header>
+        @if (soonRows().length > 0) {
+          <ul
+            class="ops-lane__list"
+            aria-label="Due soon alerts"
+          >
+            @for (row of soonRows(); track row.id) {
+              <li
+                class="ops-row"
+                [class.ops-row--asset]="row.domain === 'asset'"
+                [class.ops-row--vehicle]="row.domain === 'vehicle'"
+                [class.ops-row--service]="row.domain === 'service'"
+              >
+                <span
+                  [class]="domainIcon(row.domain) + ' ops-row__icon'"
+                  aria-hidden="true"
+                ></span>
+                <div class="ops-row__copy">
+                  <span class="ops-row__title">{{ row.title }}</span>
+                  @if (row.meta) {
+                    <span class="ops-row__meta">{{ row.meta }}</span>
+                  }
+                </div>
+                <div class="ops-row__tags">
+                  @for (tag of row.tags; track tag.label) {
+                    <span
+                      class="ops-tag"
+                      [class.ops-tag--calibration]="tag.kind === 'calibration'"
+                      [class.ops-tag--warranty]="tag.kind === 'warranty'"
+                      [class.ops-tag--fleet]="tag.kind === 'fleet'"
+                      [class.ops-tag--service]="tag.kind === 'service'"
+                    >
+                      {{ tag.label }}
+                    </span>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="ops-lane__empty">Nothing coming due in this view.</p>
+        }
+      </section>
+    </div>
+  </div>
+</p-card>

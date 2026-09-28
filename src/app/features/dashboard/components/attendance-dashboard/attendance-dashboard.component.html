@@ -10,8 +10,8 @@
           <span [class]="ICONS.ATTENDANCE.CALENDAR + ' card-block__icon'"></span>
         </div>
         <div>
-          <h2 class="card-block__title">Attendance</h2>
-          <p class="card-block__hint">Presence, leave, and check-in status</p>
+          <h2 class="card-block__title">Today's attendance</h2>
+          <p class="card-block__hint">Floor snapshot, then people with assignment and status</p>
         </div>
       </div>
       <div class="card-block__controls">
@@ -22,107 +22,107 @@
       </div>
     </div>
 
-    @if (metrics(); as st) {
-      <div class="card-stack">
+    <div class="attendance-today">
+      @if (summary(); as st) {
         <div class="stat-grid stat-grid--attendance">
-          <div class="stat-tile stat-tile--present">
+          <div class="stat-tile stat-tile--compact stat-tile--present">
             <span class="stat-tile__label">Present</span>
             <span class="stat-tile__value">{{ st.attendance.present | number: config.DEFAULT : config.LOCALE }}</span>
           </div>
-          <div class="stat-tile stat-tile--absent">
+          <div class="stat-tile stat-tile--compact stat-tile--absent">
             <span class="stat-tile__label">Absent</span>
             <span class="stat-tile__value">{{ st.attendance.absent | number: config.DEFAULT : config.LOCALE }}</span>
           </div>
-          <div class="stat-tile stat-tile--leave">
+          <div class="stat-tile stat-tile--compact stat-tile--leave">
             <span class="stat-tile__label">Leave</span>
             <span class="stat-tile__value">{{ st.attendance.leave | number: config.DEFAULT : config.LOCALE }}</span>
           </div>
-          <div class="stat-tile stat-tile--neutral">
-            <span class="stat-tile__label">Records</span>
-            <span class="stat-tile__value">{{ st.attendance.total | number: config.DEFAULT : config.LOCALE }}</span>
+          <div class="stat-tile stat-tile--compact stat-tile--holiday">
+            <span class="stat-tile__label">Holiday</span>
+            <span class="stat-tile__value">{{ st.attendance.holiday | number: config.DEFAULT : config.LOCALE }}</span>
           </div>
-        </div>
-
-        <div class="stat-grid stat-grid--attendance-secondary">
-          <div class="stat-tile stat-tile--neutral stat-tile--compact">
+          <div class="stat-tile stat-tile--compact stat-tile--checked-in">
             <span class="stat-tile__label">Checked in</span>
             <span class="stat-tile__value">{{ st.attendance.checkedIn | number: config.DEFAULT : config.LOCALE }}</span>
           </div>
-          <div class="stat-tile stat-tile--neutral stat-tile--compact">
+          <div class="stat-tile stat-tile--compact stat-tile--neutral">
             <span class="stat-tile__label">Not checked in</span>
             <span class="stat-tile__value">
               {{ st.attendance.notCheckedInYet | number: config.DEFAULT : config.LOCALE }}
             </span>
           </div>
-          <div class="stat-tile stat-tile--neutral stat-tile--compact">
-            <span class="stat-tile__label">Holiday</span>
-            <span class="stat-tile__value">{{ st.attendance.holiday | number: config.DEFAULT : config.LOCALE }}</span>
-          </div>
         </div>
+      }
 
-        <section
-          class="approval-summary"
-          aria-label="Attendance approvals"
-        >
-          <div class="approval-summary__head">
-            <span
-              [class]="ICONS.COMMON.INBOX + ' approval-summary__head-icon'"
-              aria-hidden="true"
-            ></span>
-            <h3 class="approval-summary__heading">Approvals</h3>
-          </div>
-          <div class="approval-summary__pending-row">
-            <span
-              class="approval-summary__pending-num"
-              [class.approval-summary__pending-num--clear]="st.approval.pending === 0"
-            >
-              {{ st.approval.pending | number: config.DEFAULT : config.LOCALE }}
-            </span>
-            <span class="approval-summary__pending-caption">pending review</span>
-          </div>
-          @if (st.approval.total > 0) {
-            <div
-              class="approval-summary__bar"
-              role="img"
-            >
-              <span
-                class="approval-summary__bar-seg approval-summary__bar-seg--approved"
-                [style.width.%]="(100 * st.approval.approved) / st.approval.total"
-              ></span>
-              <span
-                class="approval-summary__bar-seg approval-summary__bar-seg--rejected"
-                [style.width.%]="(100 * st.approval.rejected) / st.approval.total"
-              ></span>
-              <span
-                class="approval-summary__bar-seg approval-summary__bar-seg--pending"
-                [style.width.%]="(100 * st.approval.pending) / st.approval.total"
-              ></span>
-            </div>
-          }
-          <div class="approval-summary__figures">
-            <div class="approval-summary__figure">
-              <span class="approval-summary__figure-label">Approved</span>
-              <span class="approval-summary__figure-value approval-summary__figure-value--ok">
-                {{ st.approval.approved | number: config.DEFAULT : config.LOCALE }}
-              </span>
-            </div>
-            <div class="approval-summary__figure">
-              <span class="approval-summary__figure-label">Rejected</span>
-              <span class="approval-summary__figure-value approval-summary__figure-value--no">
-                {{ st.approval.rejected | number: config.DEFAULT : config.LOCALE }}
-              </span>
-            </div>
-            <div class="approval-summary__figure">
-              <span class="approval-summary__figure-label">Total</span>
-              <span class="approval-summary__figure-value">
-                {{ st.approval.total | number: config.DEFAULT : config.LOCALE }}
-              </span>
-            </div>
-          </div>
-        </section>
+      <div class="attendance-today__search">
+        <app-input-field
+          [inputFieldConfig]="searchFieldConfig"
+          [fieldValue]="searchTerm()"
+          (onFieldChange)="onSearchFieldChange($event)"
+        ></app-input-field>
       </div>
-    } @else {
-      <p class="card-block__muted">No attendance metrics loaded.</p>
-    }
+
+      @if (loading()) {
+        <div
+          class="attendance-today__loader"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <span [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"></span>
+          <span>Loading today's attendance...</span>
+        </div>
+      } @else if (rows().length > 0) {
+        @if (filteredRows().length > 0) {
+          <ul
+            class="attendance-today__list"
+            role="list"
+          >
+            @for (row of filteredRows(); track row.id) {
+              <li [class]="'att-row att-row--' + row.statusTone">
+                <div class="att-row__top">
+                  <div class="att-row__who">
+                    <span class="att-row__name">{{ row.employeeName }}</span>
+                    @if (row.employeeCode) {
+                      <span class="att-row__code">{{ row.employeeCode }}</span>
+                    }
+                  </div>
+                  <span [class]="'att-status att-status--' + row.statusTone">
+                    {{ row.attendanceStatus }}
+                  </span>
+                </div>
+
+                @if (row.assignmentTrail.length > 0) {
+                  <div
+                    class="att-assign"
+                    aria-label="Assignment"
+                  >
+                    @for (stop of row.assignmentTrail; track stop.kind) {
+                      <div [class]="'att-assign__item att-assign__item--' + stop.kind">
+                        <span
+                          class="att-assign__icon"
+                          aria-hidden="true"
+                        >
+                          <i [class]="stop.icon"></i>
+                        </span>
+                        <span class="att-assign__text">
+                          <span class="att-assign__k">{{ stop.label }}</span>
+                          <span class="att-assign__v">{{ stop.value }}</span>
+                        </span>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <span class="att-row__unassigned">No assignment</span>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="attendance-today__empty">No matching employee found.</p>
+        }
+      } @else {
+        <p class="attendance-today__empty">No attendance records for today.</p>
+      }
+    </div>
   </div>
 </p-card>

@@ -18,7 +18,9 @@ import { LeaveBalanceCardsComponent } from '@features/leave-management/shared/co
 import { LeaveService } from '@features/leave-management/services/leave.service';
 import type { ILeaveBalanceGetBaseResponseDto } from '@features/leave-management/types/leave.dto';
 import { ButtonComponent } from '@shared/components/button/button.component';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { dashOutlinedLinkButton } from '@features/dashboard/utils/dashboard-link-button.config';
+import { DEFAULT_INPUT_FIELD_CONFIG } from '@shared/config/input-field.config';
 import {
   aggregateLeaveBalanceRecords,
   mapLeaveBalanceRecordsToEmployeeRows,
@@ -26,10 +28,11 @@ import {
 } from '@features/dashboard/utility/leave-balance-dashboard.util';
 import type { IDashboardEmployeeLeaveBalanceRow } from '@features/dashboard/types/dashboard.interface';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { EDataType, IInputFieldsConfig } from '@shared/types';
 
 @Component({
   selector: 'app-leave-balance-dashboard',
-  imports: [Card, ButtonComponent, DecimalPipe, LeaveBalanceCardsComponent],
+  imports: [Card, ButtonComponent, DecimalPipe, InputFieldComponent, LeaveBalanceCardsComponent],
   templateUrl: './leave-balance-dashboard.component.html',
   styleUrl: './leave-balance-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +55,16 @@ export class LeaveBalanceDashboardComponent implements OnInit {
 
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
+  protected readonly searchTerm = signal('');
+
+  protected readonly searchFieldConfig: IInputFieldsConfig = {
+    ...DEFAULT_INPUT_FIELD_CONFIG,
+    fieldType: EDataType.TEXT,
+    id: 'dashboard-leave-balance-search',
+    fieldName: 'dashboardLeaveBalanceSearch',
+    label: 'Search employee',
+    placeholder: 'Search by name',
+  } as IInputFieldsConfig;
 
   protected readonly ownBalance = signal<ILeaveBalanceCardAggregate | null>(
     null
@@ -69,6 +82,18 @@ export class LeaveBalanceDashboardComponent implements OnInit {
     this.showOwnBalanceCards()
       ? 'Your earned leave — allocated, consumed, and available'
       : 'Employee-wise leave balance (current financial year)'
+  );
+
+  protected readonly filteredRows = computed(
+    (): readonly IDashboardEmployeeLeaveBalanceRow[] => {
+      const keyword = this.searchTerm().trim().toLowerCase();
+      const rows = this.employeeRows();
+      if (!keyword) {
+        return rows;
+      }
+
+      return rows.filter((row): boolean => row.searchText.includes(keyword));
+    }
   );
 
   ngOnInit(): void {
@@ -95,17 +120,27 @@ export class LeaveBalanceDashboardComponent implements OnInit {
     void this.router.navigate(paths);
   }
 
+  protected onSearchFieldChange(value: unknown): void {
+    this.searchTerm.set(String(value ?? ''));
+  }
+
   protected rowTrackKey(
     row: IDashboardEmployeeLeaveBalanceRow,
     index: number
   ): string {
-    return `${row.employeeCode ?? row.employeeName}-${row.leaveCategory ?? ''}-${index}`;
+    return `${row.employeeCode ?? row.employeeName}-${index}`;
   }
 
   private applyRecords(records: ILeaveBalanceGetBaseResponseDto[]): void {
+    if (this.showOwnBalanceCards()) {
+      this.employeeRows.set([]);
+      this.ownBalance.set(
+        records.length > 0 ? aggregateLeaveBalanceRecords(records) : null
+      );
+      return;
+    }
+
+    this.ownBalance.set(null);
     this.employeeRows.set(mapLeaveBalanceRecordsToEmployeeRows(records));
-    this.ownBalance.set(
-      records.length > 0 ? aggregateLeaveBalanceRecords(records) : null
-    );
   }
 }
