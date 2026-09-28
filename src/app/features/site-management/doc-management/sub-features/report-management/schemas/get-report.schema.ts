@@ -71,7 +71,7 @@ export const ReportGetBaseResponseSchema = z.looseObject({
     }),
   }),
   jmc: z.looseObject({
-    jmcNumber: z.string(),
+    jmcNumber: z.string().nullable(),
     po: z.looseObject({
       poNumber: z.string(),
     }),

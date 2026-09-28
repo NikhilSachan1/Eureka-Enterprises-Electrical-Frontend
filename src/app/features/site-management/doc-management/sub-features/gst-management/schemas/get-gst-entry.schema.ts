@@ -73,7 +73,7 @@ export const GstEntryGetBaseResponseSchema = z.looseObject({
     invoiceDate: onlyDateStringField,
     jmc: z
       .looseObject({
-        jmcNumber: z.string(),
+        jmcNumber: z.string().nullable(),
         po: z.looseObject({
           poNumber: z.string(),
         }),

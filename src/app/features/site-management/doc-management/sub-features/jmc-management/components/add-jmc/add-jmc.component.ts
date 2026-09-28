@@ -2,14 +2,17 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   effect,
   inject,
   input,
   OnInit,
+  signal,
+  Signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, map, switchMap } from 'rxjs';
+import { defer, finalize, map, of, switchMap } from 'rxjs';
 
 import { FormBase } from '@shared/base/form.base';
 import {
@@ -67,6 +70,26 @@ export class AddJmcComponent
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   private trackedJmcUiFields!: ITrackedFields<IAddJmcUIFormDto>;
+  private isNoJmcTracked!: Signal<boolean | null | undefined>;
+  private poNumberTracked: Signal<string | null | undefined> | undefined;
+  private readonly poOptions = signal<
+    IOptionDropdown<IPoDropdownRecordDto['meta']>[]
+  >([]);
+
+  /** Hidden when no JMC is selected; shown when unset (default) or a JMC exists. */
+  protected readonly showJmcDetails = computed(() => !this.isNoJmcTracked());
+
+  /** No JMC is only allowed on a supply-item PO. */
+  protected readonly showNoJmcOption = computed(() => {
+    const poId = this.poNumberTracked?.();
+    if (typeof poId !== 'string' || !poId) {
+      return false;
+    }
+
+    const poType = this.poOptions().find(option => option.value === poId)?.data
+      ?.poType;
+    return poType === 'SUPPLY_ITEM';
+  });
 
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
@@ -85,6 +108,17 @@ export class AddJmcComponent
         }
 
         this.resetJmcDateField();
+      }
+    });
+
+    effect(() => {
+      if (this.showNoJmcOption() || !this.form) {
+        return;
+      }
+
+      const control = this.form.formGroup.get('isNoJmc');
+      if (control?.value) {
+        control.setValue(false);
       }
     });
   }
@@ -111,6 +145,17 @@ export class AddJmcComponent
         trackedFields,
         this.destroyRef
       );
+
+    this.isNoJmcTracked = this.formService.trackFieldChanges(
+      this.form.formGroup,
+      'isNoJmc',
+      this.destroyRef
+    );
+    this.poNumberTracked = this.formService.trackFieldChanges(
+      this.form.formGroup,
+      'poNumber',
+      this.destroyRef
+    );
 
     if (this.isSystemGenerated()) {
       this.setupJmcItemNameTypeahead();
@@ -225,16 +270,21 @@ export class AddJmcComponent
 
   private mapPoRecordToOption(
     records: IPoDropdownRecordDto[]
-  ): IOptionDropdown[] {
+  ): IOptionDropdown<IPoDropdownRecordDto['meta']>[] {
     return records.map(record => ({
       label: record.label,
       value: record.id,
       disabled: !record.eligible,
       disabledReason: record.reason ?? undefined,
+      data: record.meta,
     }));
   }
 
-  private applyPoOptions(options: IOptionDropdown[], loading: boolean): void {
+  private applyPoOptions(
+    options: IOptionDropdown<IPoDropdownRecordDto['meta']>[],
+    loading: boolean
+  ): void {
+    this.poOptions.set(options);
     const base = this.form.fieldConfigs.poNumber;
     this.form.fieldConfigs.poNumber = {
       ...base,
@@ -257,7 +307,10 @@ export class AddJmcComponent
   }
 
   private executeAddJmcAction(): void {
+    const formData = this.form.getData();
     const isGenerate = this.isSystemGenerated();
+    const isNoJmc = Boolean(formData.isNoJmc);
+    const file = formData.jmcAttachment as File[] | undefined;
 
     this.loadingService.show({
       title: isGenerate ? 'Generating JMC' : 'Adding JMC',
@@ -267,15 +320,17 @@ export class AddJmcComponent
     });
     this.form.disable();
 
-    const submit$ = isGenerate
-      ? this.jmcService.addJmc(this.prepareFormData())
-      : this.attachmentsService
-          .uploadFinancialDocument(this.form.getFieldData('jmcAttachment')[0])
-          .pipe(
-            switchMap(attachmentResponse =>
-              this.jmcService.addJmc(this.prepareFormData(attachmentResponse))
-            )
-          );
+    const submit$ = defer(() =>
+      !isGenerate && !isNoJmc && file?.length
+        ? this.attachmentsService.uploadFinancialDocument(file[0])
+        : of<IFinancialFileUploadResponseDto | null>(null)
+    ).pipe(
+      switchMap(attachmentResponse =>
+        this.jmcService.addJmc(
+          this.prepareFormData(formData, attachmentResponse)
+        )
+      )
+    );
 
     submit$
       .pipe(
@@ -307,16 +362,18 @@ export class AddJmcComponent
   }
 
   private prepareFormData(
-    attachmentResponse: IFinancialFileUploadResponseDto | null = null
+    formData: IAddJmcUIFormDto,
+    attachmentResponse: IFinancialFileUploadResponseDto | null
   ): IAddJmcFormDto {
-    const formData = this.form.getData();
+    const isNoJmc = Boolean(formData.isNoJmc);
     const record = { ...formData };
     delete (record as Record<string, unknown>)['jmcAttachment'];
     delete (record as Record<string, unknown>)['projectName'];
     return {
       ...record,
-      jmcFileKey: attachmentResponse?.fileKey ?? null,
-      jmcFileName: attachmentResponse?.fileName ?? null,
+      jmcNumber: isNoJmc ? null : formData.jmcNumber,
+      jmcFileKey: isNoJmc ? null : (attachmentResponse?.fileKey ?? null),
+      jmcFileName: isNoJmc ? null : (attachmentResponse?.fileName ?? null),
     };
   }
 }

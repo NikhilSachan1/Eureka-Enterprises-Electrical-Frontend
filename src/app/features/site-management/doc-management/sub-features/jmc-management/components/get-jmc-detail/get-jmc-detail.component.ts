@@ -199,7 +199,7 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
     const parts = [contractor?.name, vendor?.name].filter(Boolean);
     return {
       name: parts.length > 0 ? parts.join(' · ') : 'Job material certificate',
-      subtitle: jmcNumber,
+      subtitle: jmcNumber ?? 'No JMC',
     };
   }
 

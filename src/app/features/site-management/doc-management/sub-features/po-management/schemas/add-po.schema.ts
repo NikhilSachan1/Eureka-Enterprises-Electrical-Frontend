@@ -15,6 +15,7 @@ export const AddPoRequestSchema = PoUpsertShapeSchema.strict().transform(
         poDate: transformDateFormat(data.poDate),
         gstPercentage: data.gstPercent,
         gstType: data.gstType,
+        poType: data.poType,
         remarks: data.remarks,
         items: data.items,
         termsAndConditions: data.termsAndConditions,
@@ -34,6 +35,7 @@ export const AddPoRequestSchema = PoUpsertShapeSchema.strict().transform(
       totalAmount: data.totalAmount,
       fileKey: data.poFileKey,
       fileName: data.poFileName,
+      poType: data.poType,
       remarks: data.remarks,
     };
   }

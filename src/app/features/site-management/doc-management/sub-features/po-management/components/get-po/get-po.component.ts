@@ -308,6 +308,12 @@ export class GetPoComponent implements OnInit {
         },
         poDate: record.poDate,
         poNumber: record.poNumber,
+        poTypeLabel: record.poType
+          ? getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.poTypes(),
+              record.poType
+            )
+          : '-',
         taxableAmount: record.taxableAmount,
         gstPercentage: `${record.gstPercentage}%`,
         gstAmount: record.gstAmount,
@@ -491,6 +497,16 @@ export class GetPoComponent implements OnInit {
         value: selectedRow.poDate,
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+      },
+      {
+        label: 'PO Type',
+        value: selectedRow.poType
+          ? getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.poTypes(),
+              selectedRow.poType
+            )
+          : '-',
+        type: EDataType.TEXT,
       },
       {
         label: 'PO Taxable Amount',

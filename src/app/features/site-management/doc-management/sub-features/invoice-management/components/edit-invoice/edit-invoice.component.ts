@@ -140,7 +140,7 @@ export class EditInvoiceComponent
       }
     );
 
-    this.seedJmcOption(record.jmc.jmcNumber, record.jmcId);
+    this.seedJmcOption(record.jmc.jmcNumber ?? 'No JMC', record.jmcId);
 
     applyProjectDateRangeFromSite(
       this.form,

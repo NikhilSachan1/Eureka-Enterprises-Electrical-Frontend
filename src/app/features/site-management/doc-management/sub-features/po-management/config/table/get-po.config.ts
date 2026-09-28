@@ -65,6 +65,12 @@ export const PO_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     },
   },
   {
+    field: 'poTypeLabel',
+    header: 'PO Type',
+    bodyTemplate: EDataType.TEXT,
+    showSort: false,
+  },
+  {
     field: 'totalAmount',
     header: 'Amounts',
     bodyTemplate: EDataType.TEXT,

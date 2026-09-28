@@ -31,5 +31,6 @@ export interface IPo
   > {
   docWorkspaceContext: IDocWorkspaceContextView;
   fileKeys: string[];
+  poTypeLabel: string;
   originalRawData: IPoGetBaseResponseDto;
 }

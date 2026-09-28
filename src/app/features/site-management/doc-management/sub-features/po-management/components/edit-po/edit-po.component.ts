@@ -145,6 +145,7 @@ export class EditPoComponent
           gstAmount: Number(record.gstAmount),
           totalAmount: Number(record.totalAmount),
           gstType: record.gstType ?? ADD_PO_DEFAULT_GST_TYPE,
+          poType: record.poType ?? undefined,
           poAttachment: [],
           remarks: record.remarks ?? null,
           terms: systemGenerated

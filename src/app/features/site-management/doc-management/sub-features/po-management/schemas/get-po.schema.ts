@@ -68,6 +68,7 @@ export const PoGetBaseResponseSchema = z.looseObject({
   ...PoBaseSchema.shape,
   isSystemGenerated: z.boolean(),
   gstType: z.string().nullable().optional(),
+  poType: z.string().nullable().optional(),
   items: z.array(PoItemGetResponseSchema).nullable().optional(),
   termsAndConditions: z.string().nullable().optional(),
   isLocked: z.boolean(),

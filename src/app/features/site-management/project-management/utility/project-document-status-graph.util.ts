@@ -147,6 +147,10 @@ function graphPrimaryText(data: IDocChainNodeVm): string {
     if (data.stage === EDocChainStage.INVOICE) {
       return 'No invoice';
     }
+
+    if (data.stage === EDocChainStage.JMC) {
+      return 'No JMC';
+    }
   }
 
   if (data.isExpectedMissing) {
@@ -260,6 +264,7 @@ function appendJmcBranch(
     createNode(EDocChainStage.JMC, approvalState(jmc.status), ctx, {
       docNumber: jmc.jmcNumber,
       docDate: jmc.jmcDate,
+      isNotApplicable: !jmc.jmcNumber?.trim(),
     })
   );
   pushLink(links, poNodeId, jmcNodeId);

@@ -112,6 +112,7 @@ export const CONFIGURATION_KEYS = {
   PURCHASE_ORDER: {
     GST_TYPES: 'po_gst_types',
     UNITS: 'po_units',
+    PO_TYPES: 'po_types',
   },
   PERMISSION: {
     MODULE_CONFIG_DROPDOWN: 'modules',

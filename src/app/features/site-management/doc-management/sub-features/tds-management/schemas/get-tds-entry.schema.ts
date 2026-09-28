@@ -74,7 +74,7 @@ export const TdsEntryGetBaseResponseSchema = z.looseObject({
         .looseObject({
           invoiceNumber: z.string(),
           jmc: z.looseObject({
-            jmcNumber: z.string(),
+            jmcNumber: z.string().nullable(),
             po: z.looseObject({
               poNumber: z.string(),
             }),
@@ -91,7 +91,7 @@ export const TdsEntryGetBaseResponseSchema = z.looseObject({
         .looseObject({
           invoiceNumber: z.string(),
           jmc: z.looseObject({
-            jmcNumber: z.string(),
+            jmcNumber: z.string().nullable(),
             po: z.looseObject({
               poNumber: z.string(),
             }),

@@ -51,7 +51,7 @@ const PoBreakdownReportSchema = z.looseObject({
 
 const PoBreakdownJmcSchema = z.looseObject({
   id: uuidField,
-  jmcNumber: z.string(),
+  jmcNumber: z.string().nullable(),
   jmcDate: z.string().nullable().optional(),
   status: z.string(),
   hasReport: z.coerce.boolean().optional(),

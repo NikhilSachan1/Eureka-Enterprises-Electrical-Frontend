@@ -54,7 +54,7 @@ export const VendorOutstandingCompanySchema = z.looseObject({
 
 export const VendorOutstandingJmcSchema = z.looseObject({
   id: uuidField,
-  jmcNumber: z.string(),
+  jmcNumber: z.string().nullable(),
   jmcDate: isoDateTimeField,
 });
 

@@ -169,6 +169,7 @@ export class AppConfigurationService {
   );
   private readonly _siteRoles = signal<IOptionDropdown[]>([]);
   private readonly _poGstTypes = signal<IOptionDropdown[]>([]);
+  private readonly _poTypes = signal<IOptionDropdown[]>([]);
   private readonly _units = signal<IOptionDropdown[]>([]);
   private readonly _projectWorkTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectDocumentTypes = signal<IOptionDropdown[]>([]);
@@ -248,6 +249,7 @@ export class AppConfigurationService {
     this._projectAllocationStatuses.asReadonly();
   readonly siteRoles = this._siteRoles.asReadonly();
   readonly poGstTypes = this._poGstTypes.asReadonly();
+  readonly poTypes = this._poTypes.asReadonly();
   readonly units = this._units.asReadonly();
   readonly projectWorkTypes = this._projectWorkTypes.asReadonly();
   readonly projectDocumentTypes = this._projectDocumentTypes.asReadonly();
@@ -534,6 +536,10 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.PURCHASE_ORDER.GST_TYPES,
         signal: this._poGstTypes,
+      },
+      {
+        key: CONFIGURATION_KEYS.PURCHASE_ORDER.PO_TYPES,
+        signal: this._poTypes,
       },
       {
         key: CONFIGURATION_KEYS.PURCHASE_ORDER.UNITS,
@@ -1804,6 +1810,7 @@ export class AppConfigurationService {
   private isPurchaseOrderConfiguredDropdown(key: string): boolean {
     return (
       key === CONFIGURATION_KEYS.PURCHASE_ORDER.GST_TYPES ||
+      key === CONFIGURATION_KEYS.PURCHASE_ORDER.PO_TYPES ||
       key === CONFIGURATION_KEYS.PURCHASE_ORDER.UNITS
     );
   }

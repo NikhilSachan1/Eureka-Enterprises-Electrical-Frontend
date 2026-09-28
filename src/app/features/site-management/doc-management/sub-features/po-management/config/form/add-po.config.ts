@@ -113,6 +113,19 @@ const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
     },
     validators: [Validators.required],
   },
+  poType: {
+    fieldType: EDataType.SELECT,
+    id: 'poType',
+    fieldName: 'poType',
+    label: 'PO Type',
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.PURCHASE_ORDER,
+        dropdownName: CONFIGURATION_KEYS.PURCHASE_ORDER.PO_TYPES,
+      },
+    },
+    validators: [Validators.required],
+  },
   items: {
     fieldType: EDataType.LINE_ITEMS,
     id: 'items',

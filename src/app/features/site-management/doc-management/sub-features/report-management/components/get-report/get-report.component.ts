@@ -284,7 +284,7 @@ export class GetReportComponent implements OnInit {
       ],
       entity: {
         name: `${selectedRow.contractor?.name ?? ''} ${selectedRow.vendor?.name ?? ''}`.trim(),
-        subtitle: selectedRow.jmc?.jmcNumber ?? selectedRow.id,
+        subtitle: selectedRow.jmc?.jmcNumber ?? 'No JMC',
       },
     };
   }

@@ -69,7 +69,7 @@ export interface IPoBreakdownReport {
 
 export interface IPoBreakdownJmc {
   id: string;
-  jmcNumber: string;
+  jmcNumber: string | null;
   jmcDate: string | null;
   status: string;
   hasReport: boolean;

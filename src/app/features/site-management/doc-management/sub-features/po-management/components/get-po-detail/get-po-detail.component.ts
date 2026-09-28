@@ -125,6 +125,16 @@ export class GetPoDetailComponent extends DrawerDetailBase {
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
       {
+        label: 'PO Type',
+        value: record.poType
+          ? getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.poTypes(),
+              record.poType
+            )
+          : '-',
+        type: EDataType.TEXT,
+      },
+      {
         label: 'Lock status',
         value: record.isLocked ? 'Locked' : 'Unlocked',
         type: EDataType.STATUS,

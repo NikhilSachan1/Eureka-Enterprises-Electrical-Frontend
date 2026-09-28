@@ -74,6 +74,7 @@ export const JmcGetBaseResponseSchema = z.looseObject({
   createdBy,
   po: z.looseObject({
     poNumber: z.string(),
+    poType: z.string().nullable().optional(),
   }),
   site: z.looseObject({
     name: z.string(),
