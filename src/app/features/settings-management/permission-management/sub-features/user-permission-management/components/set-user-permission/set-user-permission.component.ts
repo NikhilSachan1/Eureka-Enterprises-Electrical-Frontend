@@ -20,7 +20,7 @@ import {
 import { SetPermissionComponent } from '../../../../shared/components/set-permission/set-permission.component';
 import {
   IDefaultPermissions,
-  IMatrixModuleSaveEvent,
+  IPermissionSaveEvent,
   IRolePermissionMatrixColumn,
 } from '../../../../shared/types/set-permission.interface';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -28,7 +28,6 @@ import { FormBase } from '@shared/base/form.base';
 
 interface IUserPermissionNavigationState {
   userLabel?: string;
-  userCode?: string;
 }
 
 @Component({
@@ -57,10 +56,10 @@ export class SetUserPermissionComponent extends FormBase implements OnInit {
   }
 
   protected override handleSubmit(): void {
-    // Matrix saves per module; no global submit action.
+    // The permission workbench owns its own save action.
   }
 
-  protected onMatrixModuleSave(event: IMatrixModuleSaveEvent): void {
+  protected onPermissionSave(event: IPermissionSaveEvent): void {
     const [userUpdate] = event.roleUpdates;
     if (!userUpdate) {
       return;
@@ -96,9 +95,9 @@ export class SetUserPermissionComponent extends FormBase implements OnInit {
             return;
           }
 
-          this.commitMatrixModuleSave(event);
+          this.commitPermissionSave(event);
           this.notificationService.success(
-            'Module permissions updated successfully.'
+            'User permissions updated successfully.'
           );
         },
         error: () => {
@@ -145,10 +144,6 @@ export class SetUserPermissionComponent extends FormBase implements OnInit {
         navigationState?.userLabel ??
         userPermissionRouteData.role?.label ??
         'User',
-      name:
-        navigationState?.userCode ??
-        userPermissionRouteData.role?.name ??
-        userPermissionRouteData.userId,
     };
   }
 
@@ -169,7 +164,7 @@ export class SetUserPermissionComponent extends FormBase implements OnInit {
       );
   }
 
-  private commitMatrixModuleSave(event: IMatrixModuleSaveEvent): void {
+  private commitPermissionSave(event: IPermissionSaveEvent): void {
     this.userDefaultPermissions.update(current => {
       const next = { ...current };
 
@@ -181,14 +176,6 @@ export class SetUserPermissionComponent extends FormBase implements OnInit {
         });
         categorizedPermissions.revokedPermissions.forEach(permissionId => {
           userPermissions[permissionId] = { value: false, source: 'override' };
-        });
-        categorizedPermissions.defaultPermissions.forEach(permissionId => {
-          const existingSource =
-            userPermissions[permissionId]?.source ?? 'role';
-          userPermissions[permissionId] = {
-            value: true,
-            source: existingSource,
-          };
         });
 
         next[roleId] = userPermissions;
@@ -212,7 +199,7 @@ export class SetUserPermissionComponent extends FormBase implements OnInit {
     return {
       title: 'Set User Permissions',
       subtitle: userColumn
-        ? `Permissions are fixed on the left; use Update on each module to save changes for ${userColumn.label}.`
+        ? `Pick a module, tick the permissions ${userColumn.label} should have, then save your changes.`
         : 'Set permissions for the selected user.',
     };
   }
