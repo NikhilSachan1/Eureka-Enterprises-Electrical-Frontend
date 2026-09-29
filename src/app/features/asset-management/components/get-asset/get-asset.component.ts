@@ -1,11 +1,13 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
   inject,
-  signal,
   OnInit,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoggerService } from '@core/services';
@@ -36,12 +38,15 @@ import {
 import {
   EButtonActionType,
   EDataType,
+  ETabMode,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
   IGalleryInputData,
   IMetricGroup,
   IPageHeaderConfig,
+  ITabChange,
+  ITabItem,
   ETableActionTypeValue,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -52,6 +57,7 @@ import { GetAssetDetailComponent } from '../get-asset-detail/get-asset-detail.co
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
+import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
@@ -61,12 +67,15 @@ import {
 } from '@shared/utility';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { EAssetScope } from '@features/asset-management/types/asset.enum';
 
 @Component({
   selector: 'app-get-asset',
   imports: [
+    NgTemplateOutlet,
     PageHeaderComponent,
     MetricsCardComponent,
+    NavTabsComponent,
     SearchFilterComponent,
     DataTableComponent,
     StatusTagComponent,
@@ -77,6 +86,7 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 })
 export class GetAssetComponent implements OnInit {
   protected readonly ICONS = ICONS;
+  protected readonly ASSET_SCOPE = EAssetScope;
 
   private readonly allowedLatestEventTypes = new Set<string>([
     ETableActionTypeValue.HANDOVER_ACCEPTED,
@@ -101,6 +111,40 @@ export class GetAssetComponent implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
   private readonly galleryService = inject(GalleryService);
+  private readonly dataTable = viewChild(DataTableComponent);
+
+  protected readonly assetTabMode = ETabMode.CONTENT;
+  protected readonly assetScopeTabs: ITabItem[] = [
+    {
+      route: EAssetScope.MY,
+      label: 'My Assets',
+      icon: ICONS.COMMON.USER,
+      tooltip: 'Assets assigned to you',
+    },
+    {
+      route: EAssetScope.ALL,
+      label: 'All Assets',
+      icon: ICONS.COMMON.USERS,
+      tooltip: 'Every asset record',
+    },
+  ];
+
+  /** Active tab. Switching it rebuilds the filter and table, so nothing carries over. */
+  protected readonly assetScope = signal<EAssetScope>(EAssetScope.MY);
+
+  /** On My Assets every record is assigned to the logged-in user, so these add nothing. */
+  private readonly myAssetsHiddenFilterFields = new Set([
+    'assetAssignee',
+    'assetStatus',
+  ]);
+
+  protected readonly assetFilterVisibleFields = computed(() =>
+    this.assetScope() === EAssetScope.MY
+      ? Object.keys(SEARCH_FILTER_ASSET_FORM_CONFIG.fields).filter(
+          fieldName => !this.myAssetsHiddenFilterFields.has(fieldName)
+        )
+      : undefined
+  );
 
   protected table!: IEnhancedTable;
   protected readonly HANDOVER_EVENT_TYPES = ETableActionTypeValue;
@@ -118,6 +162,30 @@ export class GetAssetComponent implements OnInit {
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricGroups = computed(() => this.getMetricGroups());
+
+  protected onAssetScopeTabChanged(change: ITabChange): void {
+    const scope =
+      change.tab.route === EAssetScope.MY ? EAssetScope.MY : EAssetScope.ALL;
+
+    if (scope === this.assetScope()) {
+      return;
+    }
+
+    this.assetScope.set(scope);
+    this.clearTableFilters();
+  }
+
+  /** Drops the applied column filters so the new tab starts fresh, then reloads. */
+  private clearTableFilters(): void {
+    const table = this.dataTable()?.dt();
+    if (!table) {
+      return;
+    }
+
+    table.filters = {};
+    table.first = 0;
+    table.reset();
+  }
 
   ngOnInit(): void {
     const loggedInUserId = this.authService.getCurrentUser()?.userId;
@@ -156,10 +224,18 @@ export class GetAssetComponent implements OnInit {
   }
 
   private prepareParamData(): IAssetGetFormDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IAssetGetFormDto>(
-      this.tableFilterData,
-      this.table.getHeaders()
-    );
+    const params =
+      this.tableServerSideFilterAndSortService.buildQueryParams<IAssetGetFormDto>(
+        this.tableFilterData,
+        this.table.getHeaders()
+      );
+
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
+    if (this.assetScope() === EAssetScope.MY && loggedInUserId) {
+      params.assetAssignee = loggedInUserId;
+    }
+
+    return params;
   }
 
   private mapTableData(response: IAssetGetBaseResponseDto[]): IAsset[] {
@@ -491,22 +567,6 @@ export class GetAssetComponent implements OnInit {
     }
   }
 
-  protected onHeaderButtonClick(actionName: string): void {
-    let navigationRoute: string[] = [];
-    if (actionName === 'addAsset') {
-      navigationRoute = [ROUTE_BASE_PATHS.ASSET, ROUTES.ASSET.ADD];
-    }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
-  }
-
   private openExportAssetDialog(
     selectedRows: IAssetGetBaseResponseDto[],
     isBulk: boolean
@@ -528,6 +588,22 @@ export class GetAssetComponent implements OnInit {
         selectedRecord: selectedRows,
       }
     );
+  }
+
+  protected onHeaderButtonClick(actionName: string): void {
+    let navigationRoute: string[] = [];
+    if (actionName === 'addAsset') {
+      navigationRoute = [ROUTE_BASE_PATHS.ASSET, ROUTES.ASSET.ADD];
+    }
+    const success =
+      this.routerNavigationService.navigateToRoute(navigationRoute);
+
+    if (!success) {
+      this.logger.logUserAction(
+        'Navigation failed for header button',
+        navigationRoute
+      );
+    }
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

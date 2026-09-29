@@ -6,6 +6,7 @@ import {
   inject,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
 import { LoggerService } from '@core/services';
 import {
@@ -21,6 +22,7 @@ import { VehicleService } from '../../services/vehicle.service';
 import {
   EButtonActionType,
   EDataType,
+  ETabMode,
   ETableActionTypeValue,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
@@ -28,6 +30,8 @@ import {
   IGalleryInputData,
   IMetricGroup,
   IPageHeaderConfig,
+  ITabChange,
+  ITabItem,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
@@ -56,18 +60,22 @@ import { GetVehicleDetailComponent } from '../get-vehicle-detail/get-vehicle-det
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
+import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { APP_CONFIG } from '@core/config';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
+import { EVehicleScope } from '../../types/vehicle.enum';
 
 @Component({
   selector: 'app-get-vehicle',
   imports: [
+    NgTemplateOutlet,
     PageHeaderComponent,
     MetricsCardComponent,
+    NavTabsComponent,
     SearchFilterComponent,
     DataTableComponent,
     DatePipe,
@@ -88,6 +96,7 @@ export class GetVehicleComponent implements OnInit {
 
   protected readonly HANDOVER_EVENT_TYPES = ETableActionTypeValue;
   protected readonly ICONS = ICONS;
+  protected readonly VEHICLE_SCOPE = EVehicleScope;
 
   private static readonly HANDOVER_DIALOG_ACTIONS = new Set<EButtonActionType>([
     EButtonActionType.HANDOVER_INITIATE,
@@ -113,6 +122,40 @@ export class GetVehicleComponent implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
   private readonly galleryService = inject(GalleryService);
+  private readonly dataTable = viewChild(DataTableComponent);
+
+  protected readonly vehicleTabMode = ETabMode.CONTENT;
+  protected readonly vehicleScopeTabs: ITabItem[] = [
+    {
+      route: EVehicleScope.MY,
+      label: 'My Vehicles',
+      icon: ICONS.COMMON.USER,
+      tooltip: 'Vehicles assigned to you',
+    },
+    {
+      route: EVehicleScope.ALL,
+      label: 'All Vehicles',
+      icon: ICONS.COMMON.USERS,
+      tooltip: 'Every vehicle record',
+    },
+  ];
+
+  /** Active tab. Switching it rebuilds the filter and reloads, so nothing carries over. */
+  protected readonly vehicleScope = signal<EVehicleScope>(EVehicleScope.MY);
+
+  /** On My Vehicles every record is assigned to the logged-in user, so these add nothing. */
+  private readonly myVehiclesHiddenFilterFields = new Set([
+    'vehicleAssignee',
+    'vehicleStatus',
+  ]);
+
+  protected readonly vehicleFilterVisibleFields = computed(() =>
+    this.vehicleScope() === EVehicleScope.MY
+      ? Object.keys(SEARCH_FILTER_VEHICLE_FORM_CONFIG.fields).filter(
+          fieldName => !this.myVehiclesHiddenFilterFields.has(fieldName)
+        )
+      : undefined
+  );
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -125,6 +168,32 @@ export class GetVehicleComponent implements OnInit {
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricGroups = computed(() => this.getMetricGroups());
+
+  protected onVehicleScopeTabChanged(change: ITabChange): void {
+    const scope =
+      change.tab.route === EVehicleScope.MY
+        ? EVehicleScope.MY
+        : EVehicleScope.ALL;
+
+    if (scope === this.vehicleScope()) {
+      return;
+    }
+
+    this.vehicleScope.set(scope);
+    this.clearTableFilters();
+  }
+
+  /** Drops the applied column filters so the new tab starts fresh, then reloads. */
+  private clearTableFilters(): void {
+    const table = this.dataTable()?.dt();
+    if (!table) {
+      return;
+    }
+
+    table.filters = {};
+    table.first = 0;
+    table.reset();
+  }
 
   ngOnInit(): void {
     const loggedInUserId = this.authService.getCurrentUser()?.userId;
@@ -163,10 +232,18 @@ export class GetVehicleComponent implements OnInit {
   }
 
   private prepareParamData(): IvehicleGetFormDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IvehicleGetFormDto>(
-      this.tableFilterData,
-      this.table.getHeaders()
-    );
+    const params =
+      this.tableServerSideFilterAndSortService.buildQueryParams<IvehicleGetFormDto>(
+        this.tableFilterData,
+        this.table.getHeaders()
+      );
+
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
+    if (this.vehicleScope() === EVehicleScope.MY && loggedInUserId) {
+      params.vehicleAssignee = loggedInUserId;
+    }
+
+    return params;
   }
 
   private mapTableData(response: IVehicleGetBaseResponseDto[]): IVehicle[] {
