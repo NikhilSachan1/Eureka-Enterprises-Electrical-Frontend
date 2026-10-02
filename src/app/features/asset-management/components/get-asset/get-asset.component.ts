@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
 import {
   ASSET_ACTION_CONFIG_MAP,
   createAssetTableEnhancedConfig,
@@ -110,6 +110,7 @@ export class GetAssetComponent implements OnInit {
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
+  private readonly appPermissionService = inject(AppPermissionService);
   private readonly galleryService = inject(GalleryService);
   private readonly dataTable = viewChild(DataTableComponent);
 
@@ -119,7 +120,7 @@ export class GetAssetComponent implements OnInit {
   >({});
   protected readonly assetScopeTabs = computed<ITabItem[]>(() => {
     const counts = this.assetScopeCounts();
-    const ownPending = this.authService.isActiveRoleEmployeeLike();
+    const ownPending = this.canSeeAssetTab(EAssetScope.MY);
 
     return [
       {
@@ -128,6 +129,7 @@ export class GetAssetComponent implements OnInit {
         icon: ICONS.COMMON.USER,
         tooltip: 'Assets assigned to you',
         badge: counts[EAssetScope.MY],
+        visible: ownPending,
       },
       {
         route: EAssetScope.ALL,
@@ -135,6 +137,7 @@ export class GetAssetComponent implements OnInit {
         icon: ICONS.COMMON.USERS,
         tooltip: 'Every asset record',
         badge: counts[EAssetScope.ALL],
+        visible: this.canSeeAssetTab(EAssetScope.ALL),
       },
       {
         route: EAssetScope.PENDING,
@@ -144,12 +147,19 @@ export class GetAssetComponent implements OnInit {
           ? 'Handovers waiting for you'
           : 'Assets with handover initiated',
         badge: counts[EAssetScope.PENDING],
+        visible: this.canSeeAssetTab(EAssetScope.PENDING),
       },
     ];
   });
 
+  protected readonly showAssetScopeTabs = computed(() =>
+    this.assetScopeTabs().some(tab => tab.visible !== false)
+  );
+
   /** Active tab. Switching it rebuilds the filter and table, so nothing carries over. */
-  protected readonly assetScope = signal<EAssetScope>(EAssetScope.MY);
+  protected readonly assetScope = signal<EAssetScope>(
+    this.resolveDefaultAssetScope()
+  );
 
   /** On My Assets every record is assigned to the logged-in user, so these add nothing. */
   private readonly myAssetsHiddenFilterFields = new Set([
@@ -229,8 +239,34 @@ export class GetAssetComponent implements OnInit {
     this.loadAssetScopeCounts();
   }
 
+  private canSeeAssetTab(scope: EAssetScope): boolean {
+    this.appPermissionService.getPermissions();
+    const permission = {
+      [EAssetScope.MY]: APP_PERMISSION.UI.ASSET.TAB_MY,
+      [EAssetScope.ALL]: APP_PERMISSION.UI.ASSET.TAB_ALL,
+      [EAssetScope.PENDING]: APP_PERMISSION.UI.ASSET.TAB_PENDING,
+    }[scope];
+
+    return this.appPermissionService.hasPermission(permission);
+  }
+
+  private resolveDefaultAssetScope(): EAssetScope {
+    if (this.canSeeAssetTab(EAssetScope.MY)) {
+      return EAssetScope.MY;
+    }
+    return EAssetScope.ALL;
+  }
+
   private loadAssetScopeCounts(): void {
-    const scopes = [EAssetScope.MY, EAssetScope.ALL, EAssetScope.PENDING];
+    const scopes = [
+      EAssetScope.MY,
+      EAssetScope.ALL,
+      EAssetScope.PENDING,
+    ].filter(scope => this.canSeeAssetTab(scope));
+
+    if (!scopes.length) {
+      return;
+    }
 
     forkJoin(
       scopes.map(scope =>
