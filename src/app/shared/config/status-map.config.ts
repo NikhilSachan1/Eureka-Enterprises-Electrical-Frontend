@@ -153,6 +153,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
     icon: ICONS.STATUS.EXPIRING_SOON,
     severity: 'warning',
   },
+  initiated: { icon: ICONS.ACTIONS.SEND, severity: 'warning' },
   'handover initiated': { icon: ICONS.ACTIONS.SEND, severity: 'warning' },
   'handover accepted': {
     icon: ICONS.ACTIONS.CHECK_CIRCLE,
@@ -201,6 +202,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   duesoon: { icon: ICONS.STATUS.EXPIRING_SOON, severity: 'warning' },
   'service due soon': { icon: ICONS.STATUS.EXPIRING_SOON, severity: 'warning' },
   overdue: { icon: ICONS.STATUS.EXPIRED, severity: 'danger' },
+  'service overdue': { icon: ICONS.STATUS.EXPIRED, severity: 'danger' },
   'service due overdue': { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   'under maintenance': { icon: ICONS.STATUS.EXPIRING_SOON, severity: 'info' },
   'total services': { icon: ICONS.COMMON.LIST, severity: 'info' },

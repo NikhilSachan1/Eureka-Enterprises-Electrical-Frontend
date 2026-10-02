@@ -652,6 +652,14 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
           : (dropdownConfig.optionsDropdown ?? []);
     } else if (dropdownConfig.dynamicDropdown) {
       options = this.getDynamicDropdownOptions(dropdownConfig.dynamicDropdown);
+      const extraOptions = dropdownConfig.optionsDropdown ?? [];
+      if (extraOptions.length) {
+        const existing = new Set(options.map(option => option.value));
+        options = [
+          ...options,
+          ...extraOptions.filter(option => !existing.has(option.value)),
+        ];
+      }
     } else {
       options = dropdownConfig.optionsDropdown ?? [];
     }

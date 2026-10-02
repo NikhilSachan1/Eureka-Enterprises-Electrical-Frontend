@@ -6,12 +6,14 @@
 <app-metrics-card [metricGroups]="metricGroups()" />
 
 <app-nav-tabs
-  [tabs]="vehicleScopeTabs"
+  [tabs]="vehicleScopeTabs()"
   [tabMode]="vehicleTabMode"
   (tabChanged)="onVehicleScopeTabChanged($event)"
 >
-  <!-- Both branches render the same filter; switching tabs rebuilds it empty. -->
+  <!-- Switching tabs rebuilds the filter empty. -->
   @if (vehicleScope() === VEHICLE_SCOPE.MY) {
+    <ng-container [ngTemplateOutlet]="vehicleSearchFilter" />
+  } @else if (vehicleScope() === VEHICLE_SCOPE.ALL) {
     <ng-container [ngTemplateOutlet]="vehicleSearchFilter" />
   } @else {
     <ng-container [ngTemplateOutlet]="vehicleSearchFilter" />

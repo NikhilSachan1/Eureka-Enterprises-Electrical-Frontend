@@ -42,6 +42,7 @@ export {
   SHIFT_DATA,
   PAYSLIP_DATE_DATA,
   SITE_ALLOCATION_STATUS_DATA,
+  INITIATED_STATUS_FILTER_DATA,
 } from './static-data.config';
 export { DEFAULT_BUTTON_CONFIG } from './button.config';
 export { DEFAULT_PAGE_HEADER_CONFIG } from './page-header.config';

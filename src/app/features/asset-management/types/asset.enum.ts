@@ -3,8 +3,9 @@ export enum EAssetType {
   NON_CALIBRATED = 'NON_CALIBRATED',
 }
 
-/** Asset list tab: assets assigned to the logged-in user, or every asset. */
+/** Asset list tab: assigned to you, every asset, or handover still pending. */
 export enum EAssetScope {
   MY = 'MY',
   ALL = 'ALL',
+  PENDING = 'PENDING',
 }

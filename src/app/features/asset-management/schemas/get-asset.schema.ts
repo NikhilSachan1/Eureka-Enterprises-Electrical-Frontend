@@ -21,6 +21,7 @@ export const AssetGetRequestSchema = z
     assetStatus: z.string().optional(),
     assetType: z.string().optional(),
     assetCategory: z.array(z.string()).optional(),
+    handoverToUser: z.string().optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -35,15 +36,20 @@ export const AssetGetRequestSchema = z
       assetCategory,
       assetCalibrationStatus,
       assetWarrantyStatus,
+      handoverToUser,
       ...rest
     }) => {
+      const isInitiated = assetStatus === 'INITIATED';
+
       return {
         ...rest,
         assignedTo: assetAssignee,
-        status: assetStatus,
+        handoverToUser,
+        status: isInitiated ? undefined : assetStatus,
         category: assetCategory,
         calibrationStatus: assetCalibrationStatus,
         warrantyStatus: assetWarrantyStatus,
+        handoverStatus: isInitiated ? 'INITIATED' : undefined,
         includeLatestEventFiles: true,
       };
     }
@@ -82,6 +88,10 @@ export const AssetGetBaseResponseSchema = z
 
 export const AssetGetStatsResponseSchema = z.looseObject({
   total: z.number().int().nonnegative(),
+  handover: z.object({
+    initiated: z.number().int().nonnegative(),
+    accepted: z.number().int().nonnegative(),
+  }),
   byStatus: z.object({
     available: z.number().int().nonnegative(),
     assigned: z.number().int().nonnegative(),

@@ -6,12 +6,14 @@
 <app-metrics-card [metricGroups]="metricGroups()" />
 
 <app-nav-tabs
-  [tabs]="assetScopeTabs"
+  [tabs]="assetScopeTabs()"
   [tabMode]="assetTabMode"
   (tabChanged)="onAssetScopeTabChanged($event)"
 >
-  <!-- Both branches render the same filter; switching tabs rebuilds it empty. -->
+  <!-- Switching tabs rebuilds the filter empty. -->
   @if (assetScope() === ASSET_SCOPE.MY) {
+    <ng-container [ngTemplateOutlet]="assetSearchFilter" />
+  } @else if (assetScope() === ASSET_SCOPE.ALL) {
     <ng-container [ngTemplateOutlet]="assetSearchFilter" />
   } @else {
     <ng-container [ngTemplateOutlet]="assetSearchFilter" />

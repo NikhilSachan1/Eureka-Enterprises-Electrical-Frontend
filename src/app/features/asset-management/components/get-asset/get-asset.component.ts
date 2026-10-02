@@ -52,7 +52,7 @@ import {
   ITableSearchFilterFormConfig,
 } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin, map } from 'rxjs';
 import { GetAssetDetailComponent } from '../get-asset-detail/get-asset-detail.component';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -114,20 +114,39 @@ export class GetAssetComponent implements OnInit {
   private readonly dataTable = viewChild(DataTableComponent);
 
   protected readonly assetTabMode = ETabMode.CONTENT;
-  protected readonly assetScopeTabs: ITabItem[] = [
-    {
-      route: EAssetScope.MY,
-      label: 'My Assets',
-      icon: ICONS.COMMON.USER,
-      tooltip: 'Assets assigned to you',
-    },
-    {
-      route: EAssetScope.ALL,
-      label: 'All Assets',
-      icon: ICONS.COMMON.USERS,
-      tooltip: 'Every asset record',
-    },
-  ];
+  private readonly assetScopeCounts = signal<
+    Partial<Record<EAssetScope, number>>
+  >({});
+  protected readonly assetScopeTabs = computed<ITabItem[]>(() => {
+    const counts = this.assetScopeCounts();
+    const ownPending = this.authService.isActiveRoleEmployeeLike();
+
+    return [
+      {
+        route: EAssetScope.MY,
+        label: 'My Assets',
+        icon: ICONS.COMMON.USER,
+        tooltip: 'Assets assigned to you',
+        badge: counts[EAssetScope.MY],
+      },
+      {
+        route: EAssetScope.ALL,
+        label: 'All Assets',
+        icon: ICONS.COMMON.USERS,
+        tooltip: 'Every asset record',
+        badge: counts[EAssetScope.ALL],
+      },
+      {
+        route: EAssetScope.PENDING,
+        label: ownPending ? 'Your Pending' : 'Handover Pending',
+        icon: ICONS.ACTIONS.SEND,
+        tooltip: ownPending
+          ? 'Handovers waiting for you'
+          : 'Assets with handover initiated',
+        badge: counts[EAssetScope.PENDING],
+      },
+    ];
+  });
 
   /** Active tab. Switching it rebuilds the filter and table, so nothing carries over. */
   protected readonly assetScope = signal<EAssetScope>(EAssetScope.MY);
@@ -138,13 +157,24 @@ export class GetAssetComponent implements OnInit {
     'assetStatus',
   ]);
 
-  protected readonly assetFilterVisibleFields = computed(() =>
-    this.assetScope() === EAssetScope.MY
-      ? Object.keys(SEARCH_FILTER_ASSET_FORM_CONFIG.fields).filter(
-          fieldName => !this.myAssetsHiddenFilterFields.has(fieldName)
-        )
-      : undefined
-  );
+  private readonly pendingAssetsHiddenFilterFields = new Set(['assetStatus']);
+
+  protected readonly assetFilterVisibleFields = computed(() => {
+    const hiddenFields =
+      this.assetScope() === EAssetScope.MY
+        ? this.myAssetsHiddenFilterFields
+        : this.assetScope() === EAssetScope.PENDING
+          ? this.pendingAssetsHiddenFilterFields
+          : null;
+
+    if (!hiddenFields) {
+      return undefined;
+    }
+
+    return Object.keys(SEARCH_FILTER_ASSET_FORM_CONFIG.fields).filter(
+      fieldName => !hiddenFields.has(fieldName)
+    );
+  });
 
   protected table!: IEnhancedTable;
   protected readonly HANDOVER_EVENT_TYPES = ETableActionTypeValue;
@@ -164,8 +194,11 @@ export class GetAssetComponent implements OnInit {
   protected metricGroups = computed(() => this.getMetricGroups());
 
   protected onAssetScopeTabChanged(change: ITabChange): void {
-    const scope =
-      change.tab.route === EAssetScope.MY ? EAssetScope.MY : EAssetScope.ALL;
+    const scope = Object.values(EAssetScope).includes(
+      change.tab.route as EAssetScope
+    )
+      ? (change.tab.route as EAssetScope)
+      : EAssetScope.ALL;
 
     if (scope === this.assetScope()) {
       return;
@@ -193,6 +226,49 @@ export class GetAssetComponent implements OnInit {
       createAssetTableEnhancedConfig(loggedInUserId)
     );
     this.searchFilterConfig = SEARCH_FILTER_ASSET_FORM_CONFIG;
+    this.loadAssetScopeCounts();
+  }
+
+  private loadAssetScopeCounts(): void {
+    const scopes = [EAssetScope.MY, EAssetScope.ALL, EAssetScope.PENDING];
+
+    forkJoin(
+      scopes.map(scope =>
+        this.assetService.getAssetList(this.buildScopeCountParams(scope)).pipe(
+          map(response => ({
+            scope,
+            totalRecords: response.totalRecords,
+          }))
+        )
+      )
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(results => {
+        const counts: Partial<Record<EAssetScope, number>> = {};
+        for (const result of results) {
+          counts[result.scope] = result.totalRecords;
+        }
+        this.assetScopeCounts.set(counts);
+      });
+  }
+
+  private buildScopeCountParams(scope: EAssetScope): IAssetGetFormDto {
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
+    const params: IAssetGetFormDto = { page: 1, pageSize: 1 };
+
+    if (scope === EAssetScope.MY && loggedInUserId) {
+      params.assetAssignee = loggedInUserId;
+    }
+
+    if (scope === EAssetScope.PENDING) {
+      params.assetStatus = 'INITIATED';
+
+      if (this.authService.isActiveRoleEmployeeLike() && loggedInUserId) {
+        params.handoverToUser = loggedInUserId;
+      }
+    }
+
+    return params;
   }
 
   private loadAssetList(): void {
@@ -235,6 +311,18 @@ export class GetAssetComponent implements OnInit {
       params.assetAssignee = loggedInUserId;
     }
 
+    if (this.assetScope() === EAssetScope.PENDING) {
+      params.assetStatus = 'INITIATED';
+    }
+
+    if (
+      params.assetStatus === 'INITIATED' &&
+      this.authService.isActiveRoleEmployeeLike() &&
+      loggedInUserId
+    ) {
+      params.handoverToUser = loggedInUserId;
+    }
+
     return params;
   }
 
@@ -242,23 +330,23 @@ export class GetAssetComponent implements OnInit {
     return response.map((record: IAssetGetBaseResponseDto) => {
       const latestEvent = record.latestEvent
         ? {
-            ...record.latestEvent,
-            eventTypeCode: record.latestEvent.eventType,
-            eventType: this.allowedLatestEventTypes.has(
+          ...record.latestEvent,
+          eventTypeCode: record.latestEvent.eventType,
+          eventType: this.allowedLatestEventTypes.has(
+            record.latestEvent.eventType
+          )
+            ? getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.assetEventStatuses(),
               record.latestEvent.eventType
             )
-              ? getMappedValueFromArrayOfObjects(
-                  this.appConfigurationService.assetEventStatuses(),
-                  record.latestEvent.eventType
-                )
-              : '',
-            fromUserName: record.latestEvent.fromUserUser
-              ? `${record.latestEvent.fromUserUser.firstName} ${record.latestEvent.fromUserUser.lastName}`
-              : '-',
-            toUserName: record.latestEvent.toUserUser
-              ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
-              : '-',
-          }
+            : '',
+          fromUserName: record.latestEvent.fromUserUser
+            ? `${record.latestEvent.fromUserUser.firstName} ${record.latestEvent.fromUserUser.lastName}`
+            : '-',
+          toUserName: record.latestEvent.toUserUser
+            ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
+            : '-',
+        }
         : null;
 
       return {
@@ -275,9 +363,9 @@ export class GetAssetComponent implements OnInit {
         assetAssigneeCode: record.assignedToUser?.employeeId ?? null,
         calibrationFrom: record.calibrationFrom
           ? getMappedValueFromArrayOfObjects(
-              this.appConfigurationService.assetCalibrationSources(),
-              record.calibrationFrom
-            )
+            this.appConfigurationService.assetCalibrationSources(),
+            record.calibrationFrom
+          )
           : '-',
         calibrationStatus: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.assetCalibrationStatuses(),
@@ -317,6 +405,11 @@ export class GetAssetComponent implements OnInit {
           { label: 'Total', value: stats?.total ?? 0 },
           { label: 'Available', value: stats?.byStatus?.available ?? 0 },
           { label: 'Assigned', value: stats?.byStatus?.assigned ?? 0 },
+          {
+            label: 'Initiated',
+            icon: ICONS.ACTIONS.SEND,
+            value: stats?.handover.initiated ?? 0,
+          },
         ],
       },
       {
@@ -335,8 +428,8 @@ export class GetAssetComponent implements OnInit {
         ],
       },
       {
-        id: 'calibration',
-        title: 'Calibration',
+        id: 'validity-status',
+        title: 'Validity',
         icon: ICONS.COMMON.GAUGE,
         metrics: [
           {
@@ -347,13 +440,6 @@ export class GetAssetComponent implements OnInit {
             label: 'Calibration Expired',
             value: stats?.calibration?.expired ?? 0,
           },
-        ],
-      },
-      {
-        id: 'warranty',
-        title: 'Warranty',
-        icon: ICONS.SECURITY.SHIELD,
-        metrics: [
           {
             label: 'Warranty Expiring Soon',
             value: stats?.warranty?.expiringSoon ?? 0,
@@ -409,6 +495,7 @@ export class GetAssetComponent implements OnInit {
       selectedRecord: selectedRows,
       onSuccess: () => {
         this.loadAssetList();
+        this.loadAssetScopeCounts();
       },
     };
 
@@ -579,9 +666,9 @@ export class GetAssetComponent implements OnInit {
       isBulk
         ? null
         : this.prepareAssetRecordDetail(
-            selectedFirstRow,
-            EButtonActionType.DOWNLOAD
-          ),
+          selectedFirstRow,
+          EButtonActionType.DOWNLOAD
+        ),
       isBulk,
       !isBulk,
       {
