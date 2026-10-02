@@ -5,12 +5,31 @@
 
 <app-metrics-card [metricGroups]="metricGroups()" />
 
-<div class="search-filter-wrapper">
-  <app-search-filter
-    [tableRef]="dataTable.dt()"
-    [searchFilterConfig]="searchFilterConfig"
-  />
-</div>
+<app-nav-tabs
+  [tabs]="assetScopeTabs()"
+  [tabMode]="assetTabMode"
+  (tabChanged)="onAssetScopeTabChanged($event)"
+>
+  <!-- Switching tabs rebuilds the filter empty. -->
+  @if (assetScope() === ASSET_SCOPE.MY) {
+    <ng-container [ngTemplateOutlet]="assetSearchFilter" />
+  } @else if (assetScope() === ASSET_SCOPE.ALL) {
+    <ng-container [ngTemplateOutlet]="assetSearchFilter" />
+  } @else {
+    <ng-container [ngTemplateOutlet]="assetSearchFilter" />
+  }
+</app-nav-tabs>
+
+<ng-template #assetSearchFilter>
+  <div class="search-filter-wrapper">
+    <app-search-filter
+      [tableRef]="dataTable.dt()"
+      [searchFilterConfig]="searchFilterConfig"
+      [visibleFieldNames]="assetFilterVisibleFields()"
+      [syncToUrl]="false"
+    />
+  </div>
+</ng-template>
 
 <ng-template
   #latestEventFlow

@@ -1,4 +1,7 @@
-import { COMMON_FORM_ACTIONS } from '@shared/config';
+import {
+  COMMON_FORM_ACTIONS,
+  INITIATED_STATUS_FILTER_DATA,
+} from '@shared/config';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
@@ -36,8 +39,9 @@ const SEARCH_FILTER_VEHICLE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
         moduleName: MODULE_NAMES.VEHICLE,
         dropdownName: CONFIGURATION_KEYS.VEHICLE.STATUS_LIST,
       },
+      optionsDropdown: INITIATED_STATUS_FILTER_DATA,
       filterOptions: {
-        include: ['ASSIGNED', 'AVAILABLE'],
+        include: ['ASSIGNED', 'AVAILABLE', 'INITIATED'],
       },
     },
     matchmode: ETableFilterMatchMode.IN,

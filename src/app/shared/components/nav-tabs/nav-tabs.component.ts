@@ -52,6 +52,13 @@ export class NavTabsComponent implements OnInit {
   tabMode = input<ETabMode>(ETabMode.ROUTER_OUTLET);
   layout = input<ETabLayout>(ETabLayout.HORIZONTAL);
   tier = input<ETabTier>(ETabTier.PRIMARY);
+  /**
+   * Content mode only. When false, the active tab stays in the component and
+   * the `tab` query param is left alone, so several tab sets can share a page.
+   */
+  syncUrl = input<boolean>(true);
+  /** Content mode only. When set, the parent owns which tab is active. */
+  activeRoute = input<string | undefined>(undefined);
   allTabMode = ETabMode;
   protected readonly tabLayout = ETabLayout;
   protected readonly tabTier = ETabTier;
@@ -82,7 +89,9 @@ export class NavTabsComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.tabMode() === this.allTabMode.CONTENT) {
-      this.initializeContentTab();
+      if (this.syncUrl()) {
+        this.initializeContentTab();
+      }
     } else {
       this.currentRoute.set(this.router.url);
       this.redirectToFirstVisibleTabIfAtParent(this.router.url);
@@ -138,13 +147,20 @@ export class NavTabsComponent implements OnInit {
       return match?.route ?? tabs[0]?.route ?? '';
     }
 
+    const controlledRoute = this.activeRoute();
+    if (controlledRoute && tabs.some(tab => tab.route === controlledRoute)) {
+      return controlledRoute;
+    }
+
     return tabs[this.selectedTabIndex()]?.route || tabs[0]?.route || '';
   });
 
   onTabClick(tab: ITabItem, index: number): void {
     if (this.tabMode() === this.allTabMode.CONTENT) {
       this.selectedTabIndex.set(index);
-      this.updateUrlWithoutNavigation(index);
+      if (this.syncUrl()) {
+        this.updateUrlWithoutNavigation(index);
+      }
       this.tabChanged.emit({ tab, index });
     }
   }

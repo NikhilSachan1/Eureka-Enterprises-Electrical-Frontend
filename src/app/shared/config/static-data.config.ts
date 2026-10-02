@@ -23,3 +23,7 @@ export const SITE_ALLOCATION_STATUS_DATA: IOptionDropdown[] = [
   { label: 'Free', value: 'FREE' },
   { label: 'Allocated', value: 'ALLOCATED' },
 ];
+
+export const INITIATED_STATUS_FILTER_DATA: IOptionDropdown[] = [
+  { label: 'Initiated', value: 'INITIATED' },
+];

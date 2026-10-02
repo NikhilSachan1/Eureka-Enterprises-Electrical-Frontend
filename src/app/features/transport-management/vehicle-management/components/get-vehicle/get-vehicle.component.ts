@@ -6,6 +6,7 @@ import {
   inject,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
 import { LoggerService } from '@core/services';
 import {
@@ -21,6 +22,7 @@ import { VehicleService } from '../../services/vehicle.service';
 import {
   EButtonActionType,
   EDataType,
+  ETabMode,
   ETableActionTypeValue,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
@@ -28,6 +30,8 @@ import {
   IGalleryInputData,
   IMetricGroup,
   IPageHeaderConfig,
+  ITabChange,
+  ITabItem,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
@@ -45,7 +49,7 @@ import {
   VEHICLE_ACTION_CONFIG_MAP,
 } from '../../config';
 import { AuthService } from '@features/auth-management/services/auth.service';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin, map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IVehicle } from '../../types/vehicle.interface';
 import {
@@ -56,18 +60,22 @@ import { GetVehicleDetailComponent } from '../get-vehicle-detail/get-vehicle-det
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
+import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { APP_CONFIG } from '@core/config';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
+import { EVehicleScope } from '../../types/vehicle.enum';
 
 @Component({
   selector: 'app-get-vehicle',
   imports: [
+    NgTemplateOutlet,
     PageHeaderComponent,
     MetricsCardComponent,
+    NavTabsComponent,
     SearchFilterComponent,
     DataTableComponent,
     DatePipe,
@@ -88,6 +96,7 @@ export class GetVehicleComponent implements OnInit {
 
   protected readonly HANDOVER_EVENT_TYPES = ETableActionTypeValue;
   protected readonly ICONS = ICONS;
+  protected readonly VEHICLE_SCOPE = EVehicleScope;
 
   private static readonly HANDOVER_DIALOG_ACTIONS = new Set<EButtonActionType>([
     EButtonActionType.HANDOVER_INITIATE,
@@ -113,6 +122,72 @@ export class GetVehicleComponent implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
   private readonly galleryService = inject(GalleryService);
+  private readonly dataTable = viewChild(DataTableComponent);
+
+  protected readonly vehicleTabMode = ETabMode.CONTENT;
+  private readonly vehicleScopeCounts = signal<
+    Partial<Record<EVehicleScope, number>>
+  >({});
+  protected readonly vehicleScopeTabs = computed<ITabItem[]>(() => {
+    const counts = this.vehicleScopeCounts();
+    const ownPending = this.authService.isActiveRoleEmployeeLike();
+
+    return [
+      {
+        route: EVehicleScope.MY,
+        label: 'My Vehicles',
+        icon: ICONS.COMMON.USER,
+        tooltip: 'Vehicles assigned to you',
+        badge: counts[EVehicleScope.MY],
+      },
+      {
+        route: EVehicleScope.ALL,
+        label: 'All Vehicles',
+        icon: ICONS.COMMON.USERS,
+        tooltip: 'Every vehicle record',
+        badge: counts[EVehicleScope.ALL],
+      },
+      {
+        route: EVehicleScope.PENDING,
+        label: ownPending ? 'Your Pending' : 'Handover Pending',
+        icon: ICONS.ACTIONS.SEND,
+        tooltip: ownPending
+          ? 'Handovers waiting for you'
+          : 'Vehicles with handover initiated',
+        badge: counts[EVehicleScope.PENDING],
+      },
+    ];
+  });
+
+  /** Active tab. Switching it rebuilds the filter and reloads, so nothing carries over. */
+  protected readonly vehicleScope = signal<EVehicleScope>(EVehicleScope.MY);
+
+  /** On My Vehicles every record is assigned to the logged-in user, so these add nothing. */
+  private readonly myVehiclesHiddenFilterFields = new Set([
+    'vehicleAssignee',
+    'vehicleStatus',
+  ]);
+
+  private readonly pendingVehiclesHiddenFilterFields = new Set([
+    'vehicleStatus',
+  ]);
+
+  protected readonly vehicleFilterVisibleFields = computed(() => {
+    const hiddenFields =
+      this.vehicleScope() === EVehicleScope.MY
+        ? this.myVehiclesHiddenFilterFields
+        : this.vehicleScope() === EVehicleScope.PENDING
+          ? this.pendingVehiclesHiddenFilterFields
+          : null;
+
+    if (!hiddenFields) {
+      return undefined;
+    }
+
+    return Object.keys(SEARCH_FILTER_VEHICLE_FORM_CONFIG.fields).filter(
+      fieldName => !hiddenFields.has(fieldName)
+    );
+  });
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -126,12 +201,84 @@ export class GetVehicleComponent implements OnInit {
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricGroups = computed(() => this.getMetricGroups());
 
+  protected onVehicleScopeTabChanged(change: ITabChange): void {
+    const scope = Object.values(EVehicleScope).includes(
+      change.tab.route as EVehicleScope
+    )
+      ? (change.tab.route as EVehicleScope)
+      : EVehicleScope.ALL;
+
+    if (scope === this.vehicleScope()) {
+      return;
+    }
+
+    this.vehicleScope.set(scope);
+    this.clearTableFilters();
+  }
+
+  /** Drops the applied column filters so the new tab starts fresh, then reloads. */
+  private clearTableFilters(): void {
+    const table = this.dataTable()?.dt();
+    if (!table) {
+      return;
+    }
+
+    table.filters = {};
+    table.first = 0;
+    table.reset();
+  }
+
   ngOnInit(): void {
     const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
       createVehicleTableEnhancedConfig(loggedInUserId)
     );
     this.searchFilterConfig = SEARCH_FILTER_VEHICLE_FORM_CONFIG;
+    this.loadVehicleScopeCounts();
+  }
+
+  private loadVehicleScopeCounts(): void {
+    const scopes = [EVehicleScope.MY, EVehicleScope.ALL, EVehicleScope.PENDING];
+
+    forkJoin(
+      scopes.map(scope =>
+        this.vehicleService
+          .getVehicleList(this.buildScopeCountParams(scope))
+          .pipe(
+            map(response => ({
+              scope,
+              totalRecords: response.totalRecords,
+            }))
+          )
+      )
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(results => {
+        const counts: Partial<Record<EVehicleScope, number>> = {};
+        for (const result of results) {
+          counts[result.scope] = result.totalRecords;
+        }
+        this.vehicleScopeCounts.set(counts);
+      });
+  }
+
+  private buildScopeCountParams(scope: EVehicleScope): IvehicleGetFormDto {
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
+    const params: IvehicleGetFormDto = { page: 1, pageSize: 1 };
+
+    if (scope === EVehicleScope.MY && loggedInUserId) {
+      params.vehicleAssignee = loggedInUserId;
+    }
+
+    if (scope === EVehicleScope.PENDING) {
+      params.vehicleStatus = 'INITIATED';
+
+      if (this.authService.isActiveRoleEmployeeLike() && loggedInUserId) {
+        params.handoverToUser = loggedInUserId;
+      }
+    }
+
+    return params;
   }
 
   private loadVehicleList(): void {
@@ -163,33 +310,53 @@ export class GetVehicleComponent implements OnInit {
   }
 
   private prepareParamData(): IvehicleGetFormDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IvehicleGetFormDto>(
-      this.tableFilterData,
-      this.table.getHeaders()
-    );
+    const params =
+      this.tableServerSideFilterAndSortService.buildQueryParams<IvehicleGetFormDto>(
+        this.tableFilterData,
+        this.table.getHeaders()
+      );
+
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
+    if (this.vehicleScope() === EVehicleScope.MY && loggedInUserId) {
+      params.vehicleAssignee = loggedInUserId;
+    }
+
+    if (this.vehicleScope() === EVehicleScope.PENDING) {
+      params.vehicleStatus = 'INITIATED';
+    }
+
+    if (
+      params.vehicleStatus === 'INITIATED' &&
+      this.authService.isActiveRoleEmployeeLike() &&
+      loggedInUserId
+    ) {
+      params.handoverToUser = loggedInUserId;
+    }
+
+    return params;
   }
 
   private mapTableData(response: IVehicleGetBaseResponseDto[]): IVehicle[] {
     return response.map((record: IVehicleGetBaseResponseDto) => {
       const latestEvent = record.latestEvent
         ? {
-            ...record.latestEvent,
-            eventTypeCode: record.latestEvent.eventType,
-            eventType: this.allowedLatestEventTypes.has(
+          ...record.latestEvent,
+          eventTypeCode: record.latestEvent.eventType,
+          eventType: this.allowedLatestEventTypes.has(
+            record.latestEvent.eventType
+          )
+            ? getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.vehicleEventStatuses(),
               record.latestEvent.eventType
             )
-              ? getMappedValueFromArrayOfObjects(
-                  this.appConfigurationService.vehicleEventStatuses(),
-                  record.latestEvent.eventType
-                )
-              : '',
-            fromUserName: record.latestEvent.fromUserUser
-              ? `${record.latestEvent.fromUserUser.firstName} ${record.latestEvent.fromUserUser.lastName}`
-              : '-',
-            toUserName: record.latestEvent.toUserUser
-              ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
-              : '-',
-          }
+            : '',
+          fromUserName: record.latestEvent.fromUserUser
+            ? `${record.latestEvent.fromUserUser.firstName} ${record.latestEvent.fromUserUser.lastName}`
+            : '-',
+          toUserName: record.latestEvent.toUserUser
+            ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
+            : '-',
+        }
         : null;
 
       return {
@@ -243,11 +410,16 @@ export class GetVehicleComponent implements OnInit {
           { label: 'Total', value: stats?.total ?? 0 },
           { label: 'Available', value: stats?.byStatus?.available ?? 0 },
           { label: 'Assigned', value: stats?.byStatus?.assigned ?? 0 },
+          {
+            label: 'Initiated',
+            icon: ICONS.ACTIONS.SEND,
+            value: stats?.handover.initiated ?? 0,
+          },
         ],
       },
       {
-        id: 'puc-status',
-        title: 'PUC Status',
+        id: 'validity-status',
+        title: 'Validity',
         icon: ICONS.COMMON.FILE,
         metrics: [
           {
@@ -255,13 +427,6 @@ export class GetVehicleComponent implements OnInit {
             value: stats?.pucStatus?.expiringSoon ?? 0,
           },
           { label: 'PUC Expired', value: stats?.pucStatus?.expired ?? 0 },
-        ],
-      },
-      {
-        id: 'insurance-status',
-        title: 'Insurance Status',
-        icon: ICONS.SECURITY.SHIELD,
-        metrics: [
           {
             label: 'Insurance Expiring Soon',
             value: stats?.insuranceStatus?.expiringSoon ?? 0,
@@ -282,7 +447,8 @@ export class GetVehicleComponent implements OnInit {
             value: stats?.serviceDueStatus?.dueSoon ?? 0,
           },
           {
-            label: 'Service Due Overdue',
+            label: 'Service Overdue',
+            icon: ICONS.STATUS.EXPIRED,
             value: stats?.serviceDueStatus?.overdue ?? 0,
           },
         ],
@@ -323,6 +489,7 @@ export class GetVehicleComponent implements OnInit {
       selectedRecord: selectedRows,
       onSuccess: () => {
         this.loadVehicleList();
+        this.loadVehicleScopeCounts();
       },
     };
 
@@ -380,7 +547,7 @@ export class GetVehicleComponent implements OnInit {
         label: 'Petro Card',
         value:
           selectedRow.associatedCard?.cardName &&
-          selectedRow.associatedCard?.cardNumber
+            selectedRow.associatedCard?.cardNumber
             ? `${selectedRow.associatedCard?.cardName} (${selectedRow.associatedCard?.cardNumber})`
             : 'N/A',
       },

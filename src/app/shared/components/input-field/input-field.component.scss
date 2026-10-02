@@ -326,7 +326,14 @@
 }
 
 ::ng-deep .p-multiselect-overlay .p-multiselect-option > .p-checkbox {
-  margin-top: 0.7rem;
+  align-self: center;
+}
+
+// Rich / icon rows run two lines, so pin the box to the first line instead.
+::ng-deep .p-multiselect-overlay .p-multiselect-option:has(.ee-dropdown-option--rich) > .p-checkbox,
+::ng-deep .p-multiselect-overlay .p-multiselect-option:has(.ee-dropdown-option--icon) > .p-checkbox {
+  align-self: flex-start;
+  margin-top: 0.45rem;
 }
 
 ::ng-deep .p-select-overlay .ee-dropdown-option,

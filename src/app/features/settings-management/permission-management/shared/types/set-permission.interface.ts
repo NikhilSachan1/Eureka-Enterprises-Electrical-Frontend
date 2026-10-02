@@ -4,13 +4,6 @@ export interface ICategorizedPermissions {
   newPermissions: string[];
 }
 
-export interface IModuleStats {
-  label: string;
-  value: number;
-  colorClass: string;
-  icon?: string;
-}
-
 export interface IPermissionData {
   value: boolean;
   source?: 'override' | 'role';
@@ -21,7 +14,6 @@ export type IDefaultPermissions = Record<string, IPermissionData>;
 export interface IRolePermissionMatrixColumn {
   id: string;
   label: string;
-  name: string;
 }
 
 export interface IMatrixRolePermissionUpdate {
@@ -29,17 +21,17 @@ export interface IMatrixRolePermissionUpdate {
   categorizedPermissions: ICategorizedPermissions;
 }
 
-export interface IMatrixModuleSaveEvent {
-  moduleId: string;
+/** Every pending change across all modules, grouped per role or user. */
+export interface IPermissionSaveEvent {
   roleUpdates: IMatrixRolePermissionUpdate[];
 }
 
-export interface IMatrixRoleStatsSummary {
-  roleId: string;
+/** Per-column (role or user) roll-up for the module currently being edited. */
+export interface IPermissionColumnSummary {
+  id: string;
   label: string;
-  name: string;
   total: number;
-  currentGranted: number;
-  stats: IModuleStats[];
+  granted: number;
   pending: number;
+  allGranted: boolean;
 }

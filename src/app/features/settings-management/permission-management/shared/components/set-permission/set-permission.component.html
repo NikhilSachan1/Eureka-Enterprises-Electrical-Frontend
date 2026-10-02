@@ -1,182 +1,283 @@
-@let modulesPermissions = modulePermissions();
+@let modules = modulePermissions();
+@let columns = roleColumns();
 
-@if (modulesPermissions.length === 0 && !loadingState().isLoading) {
+@if (!modules.length && !loadingState().isLoading) {
   <app-empty-messages
     [icon]="icons.SECURITY.SHIELD"
     [title]="'No modules available'"
-    [description]="'No modules available'"
+    [description]="'There are no permission modules configured yet.'"
   />
-} @else {
-  @if (roleColumns().length === 0) {
-    <app-empty-messages
-      [icon]="icons.SECURITY.SHIELD"
-      [title]="'No columns available'"
-      [description]="'Add a role or select a user to manage permissions.'"
-    />
-  } @else if (modulesPermissions.length > 0) {
-    <div class="permission-workspace">
-      <div class="module-panel-toolbar">
+} @else if (!columns.length) {
+  <app-empty-messages
+    [icon]="icons.SECURITY.SHIELD"
+    [title]="'Nothing to configure'"
+    [description]="'Add a role or select a user to manage permissions.'"
+  />
+} @else if (modules.length) {
+  <section class="permission-workbench">
+    <header class="workbench-toolbar">
+      <p-iconfield class="workbench-toolbar__search">
+        <p-inputicon [styleClass]="icons.COMMON.SEARCH" />
+        <input
+          pInputText
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Search a module or permission"
+        />
+      </p-iconfield>
+
+      <div class="workbench-toolbar__actions">
         @if (globalPendingCount() > 0) {
-          <span class="module-panel-toolbar__pending">{{ globalPendingCount() }} unsaved across modules</span>
+          <span class="unsaved-indicator">
+            <span
+              class="unsaved-indicator__dot"
+              aria-hidden="true"
+            ></span>
+            {{ globalPendingCount() }} unsaved
+          </span>
         }
         <app-button
-          [buttonConfig]="expandAllButtonConfig"
-          (onButtonClick)="onPanelBulkAction($event)"
+          [buttonConfig]="changedOnlyButtonConfig()"
+          (onButtonClick)="onToolbarAction($event)"
         />
         <app-button
-          [buttonConfig]="collapseAllButtonConfig"
-          (onButtonClick)="onPanelBulkAction($event)"
+          [buttonConfig]="discardButtonConfig()"
+          (onButtonClick)="onToolbarAction($event)"
+        />
+        <app-button
+          [buttonConfig]="saveButtonConfig()"
+          (onButtonClick)="onToolbarAction($event)"
         />
       </div>
+    </header>
 
-      <div class="module-panels">
-        @for (module of modulesPermissions; track module.id) {
-          @let modulePendingCount = modulePendingCounts()[module.id];
+    @if (!moduleTabs().length) {
+      <div class="module-detail module-detail--empty">
+        <app-empty-messages
+          [icon]="icons.COMMON.SEARCH"
+          [title]="'No matching permissions'"
+          [description]="'Try a different search term or turn off the changed-only filter.'"
+        />
+      </div>
+    } @else {
+      <app-nav-tabs
+        [tabs]="moduleTabs()"
+        [tabMode]="contentTabMode"
+        [layout]="isCompactViewport() ? horizontalTabLayout : verticalTabLayout"
+        [syncUrl]="false"
+        [activeRoute]="activeModuleId()"
+        (tabChanged)="onModuleTabChange($event)"
+      >
+        @let activeView = activeModuleView();
 
-          <p-panel
-            [toggleable]="true"
-            [collapsed]="isModuleCollapsed(module.id)"
-            (collapsedChange)="onModuleCollapsedChange(module.id, $event)"
-            styleClass="module-panel"
-          >
-            <ng-template pTemplate="header">
-              <div class="module-panel-header">
-                <span class="module-panel-header__title">{{ module.moduleName }}</span>
-                <div class="module-panel-header__meta-row">
-                  <span class="module-panel-header__meta">{{ getModuleMetaLabel(module) }}</span>
-                  @if (modulePendingCount > 0) {
-                    <span class="module-panel-header__sep">|</span>
-                    <span class="module-panel-header__pending">{{ modulePendingCount }} unsaved</span>
-                  }
-                </div>
-              </div>
-            </ng-template>
+        @if (activeView) {
+          <div class="module-detail">
+            <div class="module-detail__header">
+              <h2 class="module-detail__title">{{ activeView.module.moduleName | textCase: 'title' }}</h2>
+              <p class="module-detail__meta">
+                <span>{{ activeView.permissions.length }} permissions</span>
+                @if (activeModulePendingCount() > 0) {
+                  <span class="module-detail__meta-pending">{{ activeModulePendingCount() }} unsaved</span>
+                }
+              </p>
+            </div>
 
-            @if (module.permissions.length) {
-              @if (isModuleLoaded(module.id) || !isModuleCollapsed(module.id)) {
-                <div
-                  class="module-panel-body"
-                  [hidden]="isModuleCollapsed(module.id)"
-                >
-                  <div class="matrix-wrapper">
-                    <div class="matrix-scroll">
-                      <table class="permission-matrix">
-                        <thead>
-                          <tr class="matrix-head-names">
-                            <th class="matrix-sticky-col matrix-corner-cell">
-                              <span class="matrix-corner-label">
-                                <i
-                                  [class]="icons.SECURITY.SHIELD"
-                                  aria-hidden="true"
-                                ></i>
-                                Permission
-                              </span>
-                            </th>
-                            @for (role of roleColumns(); track role.id) {
-                              @let roleSummary = getModuleRoleSummary(module.id, role.id);
-                              <th
-                                class="matrix-role-col matrix-role-col--header"
-                                [class.matrix-role-col--dirty]="(roleSummary?.pending ?? 0) > 0"
-                              >
-                                <div class="matrix-role-header">
-                                  <span class="matrix-role-label">{{ role.label | textCase: 'title' }}</span>
-                                  @if (roleSummary) {
-                                    <div class="matrix-role-stats">
-                                      @for (stat of roleSummary.stats; track stat.label) {
-                                        @if (stat.label !== 'Total') {
-                                          <span [class]="`matrix-role-stat ${stat.colorClass}`">
-                                            @if (stat.icon) {
-                                              <i [class]="stat.icon"></i>
-                                            }
-                                            {{ stat.value }}
-                                          </span>
-                                        }
-                                      }
-                                    </div>
-                                    @if (roleSummary.pending > 0) {
-                                      <span class="matrix-role-pending">{{ roleSummary.pending }}</span>
-                                    }
-                                  }
-                                </div>
-                              </th>
-                            }
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (permission of module.permissions; track permission.id) {
-                            @if (permission.id) {
-                              <tr>
-                                <td class="matrix-sticky-col matrix-permission-cell">
-                                  <div class="matrix-permission-info">
-                                    <div class="matrix-permission-primary">
-                                      <span class="matrix-permission-label">
-                                        {{ permission.label | textCase: 'title' }}
-                                      </span>
-                                      @if (permission.name) {
-                                        <span
-                                          class="matrix-permission-sep"
-                                          aria-hidden="true"
-                                        >
-                                          ·
-                                        </span>
-                                        <code class="matrix-permission-code">{{ permission.name }}</code>
-                                      }
-                                    </div>
-                                    @if (permission.description) {
-                                      <span class="matrix-permission-description">{{ permission.description }}</span>
-                                    }
-                                    @if (isUserPermissionMode()) {
-                                      @let source = getPermissionSource(permission.id);
-                                      @if (source) {
-                                        <span [class]="'matrix-permission-source matrix-permission-source-' + source">
-                                          {{ source === 'override' ? 'Override' : 'Role' }}
-                                        </span>
-                                      }
-                                    }
-                                  </div>
-                                </td>
-                                @for (role of roleColumns(); track role.id) {
-                                  <td
-                                    class="matrix-role-col matrix-checkbox-cell"
-                                    [ngClass]="getMatrixCellHighlightClass(module.id, role.id, permission.id)"
-                                  >
-                                    <p-checkbox
-                                      [binary]="true"
-                                      [ngModel]="isMatrixGranted(module.id, role.id, permission.id)"
-                                      [disabled]="isSubmitting()"
-                                      (ngModelChange)="
-                                        onMatrixPermissionToggle(module.id, role.id, permission.id, $event)
-                                      "
-                                    />
-                                  </td>
-                                }
-                              </tr>
-                            }
-                          }
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  <div class="module-panel-footer">
-                    <app-button
-                      [buttonConfig]="moduleUpdateButtonConfigs()[module.id]"
-                      (onButtonClick)="onMatrixModuleUpdate(module)"
+            @if (isCompactViewport()) {
+              @let activeColumn = activeColumnSummary();
+
+              @if (activeColumn) {
+                @if (!isSingleColumnMode()) {
+                  <app-nav-tabs
+                    [tabs]="roleTabs()"
+                    [tabMode]="contentTabMode"
+                    [layout]="horizontalTabLayout"
+                    [tier]="secondaryTabTier"
+                    [syncUrl]="false"
+                    [activeRoute]="activeColumn.id"
+                    (tabChanged)="onRoleTabChange($event)"
+                  >
+                    <ng-container
+                      [ngTemplateOutlet]="compactPermissions"
+                      [ngTemplateOutletContext]="{ $implicit: activeColumn }"
                     />
+                  </app-nav-tabs>
+                } @else {
+                  <ng-container
+                    [ngTemplateOutlet]="compactPermissions"
+                    [ngTemplateOutletContext]="{ $implicit: activeColumn }"
+                  />
+                }
+
+                <ng-template
+                  #compactPermissions
+                  let-column
+                >
+                  <div class="compact-list">
+                    <div
+                      class="compact-bulk"
+                      role="checkbox"
+                      tabindex="0"
+                      [attr.aria-checked]="column.allGranted"
+                      (click)="onColumnToggle(column.id, !column.allGranted)"
+                      (keydown.enter)="onColumnToggle(column.id, !column.allGranted)"
+                      (keydown.space)="onColumnToggle(column.id, !column.allGranted)"
+                    >
+                      <p-checkbox
+                        [binary]="true"
+                        [ngModel]="column.allGranted"
+                        [disabled]="isSubmitting()"
+                        [tabindex]="-1"
+                      />
+                      <span class="compact-bulk__text">
+                        Select all {{ column.total }} for
+                        <strong>{{ column.label | textCase: 'title' }}</strong>
+                      </span>
+                    </div>
+
+                    @for (permission of activeView.permissions; track permission.id) {
+                      @defer (on viewport) {
+                        <div
+                          class="compact-row"
+                          role="checkbox"
+                          tabindex="0"
+                          [attr.aria-checked]="isGranted(column.id, permission.id)"
+                          [class.compact-row--changed]="isCellChanged(column.id, permission.id)"
+                          (click)="onCompactRowToggle(column.id, permission.id)"
+                          (keydown.enter)="onCompactRowToggle(column.id, permission.id)"
+                          (keydown.space)="onCompactRowToggle(column.id, permission.id)"
+                        >
+                          <span class="compact-row__text">
+                            <span class="matrix-permission__label">
+                              {{ permission.label | textCase: 'title' }}
+                              @if (isUserPermissionMode()) {
+                                @let source = getPermissionSource(permission.id);
+                                @if (source) {
+                                  <span [class]="'matrix-permission__source matrix-permission__source--' + source">
+                                    {{ source === 'override' ? 'Override' : 'Role' }}
+                                  </span>
+                                }
+                              }
+                            </span>
+                            @if (permission.description) {
+                              <span class="matrix-permission__description">{{ permission.description }}</span>
+                            }
+                            @if (permission.name) {
+                              <code class="matrix-permission__code">{{ permission.name }}</code>
+                            }
+                          </span>
+                          <p-checkbox
+                            [binary]="true"
+                            [ngModel]="isGranted(column.id, permission.id)"
+                            [disabled]="isSubmitting()"
+                            [tabindex]="-1"
+                          />
+                        </div>
+                      } @placeholder {
+                        <div
+                          class="compact-row compact-row--pending"
+                          aria-hidden="true"
+                        ></div>
+                      }
+                    }
                   </div>
-                </div>
+                </ng-template>
               }
             } @else {
-              <app-empty-messages
-                [icon]="icons.SECURITY.SHIELD"
-                [title]="'No permissions available'"
-                [description]="
-                  'This module does not have any permissions configured yet. Contact your administrator to set up permissions for this module.'
-                "
-              />
+              <div class="matrix-scroll">
+                <table class="permission-matrix">
+                  <thead>
+                    <tr>
+                      <th
+                        scope="col"
+                        class="matrix-cell--sticky matrix-corner"
+                      >
+                        Permission
+                      </th>
+                      @for (summary of columnSummaries(); track summary.id) {
+                        <th
+                          scope="col"
+                          class="matrix-column"
+                          [class.matrix-column--dirty]="summary.pending > 0"
+                        >
+                          <span class="matrix-column__label">{{ summary.label | textCase: 'title' }}</span>
+                          <span class="matrix-column__controls">
+                            <p-checkbox
+                              [binary]="true"
+                              [ngModel]="summary.allGranted"
+                              [disabled]="isSubmitting()"
+                              (ngModelChange)="onColumnToggle(summary.id, $event)"
+                              [ariaLabel]="'Toggle every listed permission for ' + summary.label"
+                              [pTooltip]="
+                                summary.allGranted ? 'Revoke every listed permission' : 'Grant every listed permission'
+                              "
+                            />
+                            <span class="matrix-column__count">{{ summary.granted }}/{{ summary.total }}</span>
+                          </span>
+                          @if (summary.pending > 0) {
+                            <span class="matrix-column__pending">{{ summary.pending }} changed</span>
+                          }
+                        </th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (permission of activeView.permissions; track permission.id) {
+                      @defer (on viewport) {
+                        <tr>
+                          <th
+                            scope="row"
+                            class="matrix-cell--sticky matrix-permission"
+                          >
+                            <span class="matrix-permission__label">
+                              {{ permission.label | textCase: 'title' }}
+                              @if (isUserPermissionMode()) {
+                                @let source = getPermissionSource(permission.id);
+                                @if (source) {
+                                  <span [class]="'matrix-permission__source matrix-permission__source--' + source">
+                                    {{ source === 'override' ? 'Override' : 'Role' }}
+                                  </span>
+                                }
+                              }
+                            </span>
+                            @if (permission.description) {
+                              <span class="matrix-permission__description">{{ permission.description }}</span>
+                            }
+                            @if (permission.name) {
+                              <code class="matrix-permission__code">{{ permission.name }}</code>
+                            }
+                          </th>
+                          @for (column of columns; track column.id) {
+                            <td
+                              class="matrix-checkbox"
+                              [class.matrix-checkbox--changed]="isCellChanged(column.id, permission.id)"
+                            >
+                              <p-checkbox
+                                [binary]="true"
+                                [ngModel]="isGranted(column.id, permission.id)"
+                                [disabled]="isSubmitting()"
+                                (ngModelChange)="onPermissionToggle(column.id, permission.id, $event)"
+                                [ariaLabel]="permission.label + ' for ' + column.label"
+                              />
+                            </td>
+                          }
+                        </tr>
+                      } @placeholder {
+                        <tr
+                          class="matrix-row--pending"
+                          aria-hidden="true"
+                        >
+                          <td [attr.colspan]="columns.length + 1"></td>
+                        </tr>
+                      }
+                    }
+                  </tbody>
+                </table>
+              </div>
             }
-          </p-panel>
+          </div>
         }
-      </div>
-    </div>
-  }
+      </app-nav-tabs>
+    }
+  </section>
 }

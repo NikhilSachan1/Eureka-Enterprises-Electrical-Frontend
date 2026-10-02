@@ -16,7 +16,7 @@ import { IRolePermissionsSetResponseDto } from '../../types/role-permission.dto'
 import { SetPermissionComponent } from '../../../../shared/components/set-permission/set-permission.component';
 import {
   IDefaultPermissions,
-  IMatrixModuleSaveEvent,
+  IPermissionSaveEvent,
   IRolePermissionMatrixColumn,
 } from '../../../../shared/types/set-permission.interface';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -50,10 +50,10 @@ export class SetRolePermissionComponent extends FormBase implements OnInit {
   }
 
   protected override handleSubmit(): void {
-    // Matrix saves per module; no global submit action.
+    // The permission workbench owns its own save action.
   }
 
-  protected onMatrixModuleSave(event: IMatrixModuleSaveEvent): void {
+  protected onPermissionSave(event: IPermissionSaveEvent): void {
     if (!event.roleUpdates.length) {
       return;
     }
@@ -94,9 +94,9 @@ export class SetRolePermissionComponent extends FormBase implements OnInit {
             return;
           }
 
-          this.commitMatrixModuleSave(event);
+          this.commitPermissionSave(event);
           this.notificationService.success(
-            'Module permissions updated successfully.'
+            'Role permissions updated successfully.'
           );
         },
         error: () => {
@@ -183,7 +183,7 @@ export class SetRolePermissionComponent extends FormBase implements OnInit {
     );
   }
 
-  private commitMatrixModuleSave(event: IMatrixModuleSaveEvent): void {
+  private commitPermissionSave(event: IPermissionSaveEvent): void {
     this.roleDefaultPermissions.update(current => {
       const next = { ...current };
 
@@ -195,9 +195,6 @@ export class SetRolePermissionComponent extends FormBase implements OnInit {
         });
         categorizedPermissions.revokedPermissions.forEach(permissionId => {
           rolePermissions[permissionId] = { value: false };
-        });
-        categorizedPermissions.defaultPermissions.forEach(permissionId => {
-          rolePermissions[permissionId] = { value: true };
         });
 
         next[roleId] = rolePermissions;
@@ -213,7 +210,6 @@ export class SetRolePermissionComponent extends FormBase implements OnInit {
     return {
       id: role.id,
       label: role.label,
-      name: role.name,
     };
   }
 
@@ -229,7 +225,7 @@ export class SetRolePermissionComponent extends FormBase implements OnInit {
     return {
       title: 'Set Role Permissions',
       subtitle:
-        'Permissions are fixed on the left; scroll roles horizontally. Use Update on each module to save.',
+        'Pick a module, tick the permissions each role should have, then save your changes.',
     };
   }
 }

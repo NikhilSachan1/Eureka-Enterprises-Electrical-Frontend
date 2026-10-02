@@ -24,6 +24,7 @@ export const VehicleGetRequestSchema = z
     vehiclePUCStatus: z.array(z.string()).optional(),
     vehicleServiceDueStatus: z.array(z.string()).optional(),
     vehicleFuelType: z.array(z.string()).optional(),
+    handoverToUser: z.string().optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -39,16 +40,21 @@ export const VehicleGetRequestSchema = z
       vehiclePUCStatus,
       vehicleServiceDueStatus,
       vehicleFuelType,
+      handoverToUser,
       ...rest
     }) => {
+      const isInitiated = vehicleStatus === 'INITIATED';
+
       return {
         ...rest,
         assignedTo: vehicleAssignee,
-        statuses: vehicleStatus,
+        handoverToUser,
+        statuses: isInitiated ? undefined : vehicleStatus,
         insuranceStatuses: vehicleInsuranceStatus,
         pucStatuses: vehiclePUCStatus,
         serviceDueStatuses: vehicleServiceDueStatus,
         fuelTypes: vehicleFuelType,
+        handoverStatuses: isInitiated ? 'INITIATED' : undefined,
         includeLatestEventFiles: true,
       };
     }
@@ -107,6 +113,10 @@ export const VehicleGetBaseResponseSchema = z
 
 export const VehicleGetStatsResponseSchema = z.looseObject({
   total: z.number().int().nonnegative(),
+  handover: z.object({
+    initiated: z.number().int().nonnegative(),
+    accepted: z.number().int().nonnegative(),
+  }),
   byStatus: z.object({
     available: z.number().int().nonnegative(),
     assigned: z.number().int().nonnegative(),

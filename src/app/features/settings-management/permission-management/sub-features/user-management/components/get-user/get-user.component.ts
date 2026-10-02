@@ -229,7 +229,6 @@ export class GetUserComponent implements OnInit {
       void this.routerNavigationService.navigateWithState(routeSegments, {
         userPermissionContext: {
           userLabel: `${selectedUser.firstName} ${selectedUser.lastName}`,
-          userCode: selectedUser.employeeId?.trim() ?? '',
         },
       });
     } catch (error) {

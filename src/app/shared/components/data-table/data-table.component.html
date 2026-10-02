@@ -644,11 +644,13 @@
       @let isPenalty =
         $any(row)?.originalRawData?.expenseEntryType === 'penalty';
       @let colorClass =
-        isPenalty || entryType === 'debit'
-          ? 'text-red-600 font-semibold'
-          : entryType === 'credit'
-            ? 'text-green-600 font-semibold'
-            : 'font-semibold';
+        isPenalty
+          ? 'text-yellow-600 font-semibold'
+          : entryType === 'debit'
+            ? 'text-red-600 font-semibold'
+            : entryType === 'credit'
+              ? 'text-green-600 font-semibold'
+              : 'font-semibold';
       <span [ngClass]="colorClass">{{ $any(val) | currency: col.currencyFormat }}</span>
     }
     @case (ALL_DATA_TYPES.NUMBER) {

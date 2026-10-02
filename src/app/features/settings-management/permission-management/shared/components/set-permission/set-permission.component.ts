@@ -1,96 +1,89 @@
 import {
-  Component,
-  signal,
-  inject,
-  OnInit,
-  input,
-  computed,
-  output,
-  effect,
   ChangeDetectionStrategy,
+  Component,
   DestroyRef,
+  HostListener,
+  OnInit,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
 } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PanelModule } from 'primeng/panel';
 import { CheckboxModule } from 'primeng/checkbox';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
+import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { ICONS } from '@shared/constants';
-import { EButtonSeverity, EButtonVariant, IButtonConfig } from '@shared/types';
+import {
+  EButtonSeverity,
+  EButtonVariant,
+  ETabLayout,
+  ETabMode,
+  ETabTier,
+  IButtonConfig,
+  ITabChange,
+  ITabItem,
+} from '@shared/types';
 import { LoadingService } from '@shared/services';
+import { TextCasePipe } from '@shared/pipes/text-case.pipe';
+import { toTitleCase } from '@shared/utility';
+import { LoggerService } from '@core/services';
+import { finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IModulePermission } from '../../../sub-features/system-permission-management/types/system-permission.interface';
 import { SystemPermissionService } from '../../../sub-features/system-permission-management/services/system-permission.service';
 import {
   ICategorizedPermissions,
   IDefaultPermissions,
-  IRolePermissionMatrixColumn,
-  IMatrixModuleSaveEvent,
+  IPermissionSaveEvent,
   IMatrixRolePermissionUpdate,
-  IMatrixRoleStatsSummary,
-  IModuleStats,
+  IPermissionColumnSummary,
+  IRolePermissionMatrixColumn,
 } from '../../types/set-permission.interface';
-import { finalize } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
-import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 
-const STAT_LABEL = {
-  TOTAL: 'Total',
-  GRANTED: 'Granted',
-  REVOKED: 'Revoked',
-  NEW: 'New',
-} as const;
+type ModulePermissionEntry = IModulePermission['permissions'][number];
 
-function buildStatsArray(
-  total: number,
-  granted: number,
-  revoked: number,
-  newCount: number
-): IModuleStats[] {
-  return [
-    {
-      label: STAT_LABEL.TOTAL,
-      value: total,
-      colorClass: 'text-content-secondary',
-      icon: ICONS.STATUS.TOTAL,
-    },
-    {
-      label: STAT_LABEL.GRANTED,
-      value: granted,
-      colorClass: 'text-emerald-600',
-      icon: ICONS.SECURITY.LOCK_OPEN,
-    },
-    {
-      label: STAT_LABEL.REVOKED,
-      value: revoked,
-      colorClass: 'text-red-600',
-      icon: ICONS.SECURITY.LOCK,
-    },
-    {
-      label: STAT_LABEL.NEW,
-      value: newCount,
-      colorClass: 'text-blue-600',
-      icon: ICONS.COMMON.PLUS,
-    },
-  ];
+/** A module together with the permissions left visible by the active filters. */
+interface IModuleView {
+  module: IModulePermission;
+  permissions: ModulePermissionEntry[];
 }
 
-function matrixCellKey(roleId: string, permissionId: string): string {
-  return `${roleId}:${permissionId}`;
+type MatrixState = Record<string, boolean>;
+
+/**
+ * Below this width the side-by-side layout no longer fits, so modules and roles
+ * become tabs and one role is edited at a time. Matches the stylesheet breakpoint.
+ */
+const COMPACT_VIEWPORT_MAX_WIDTH = 1023;
+
+function cellKey(columnId: string, permissionId: string): string {
+  return `${columnId}:${permissionId}`;
 }
 
 @Component({
   selector: 'app-set-permission',
   standalone: true,
   imports: [
-    NgClass,
     FormsModule,
-    PanelModule,
     CheckboxModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    TooltipModule,
     ButtonComponent,
     EmptyMessagesComponent,
+    NavTabsComponent,
     TextCasePipe,
+    NgTemplateOutlet,
   ],
   templateUrl: './set-permission.component.html',
   styleUrls: ['./set-permission.component.scss'],
@@ -103,59 +96,10 @@ export class SetPermissionComponent implements OnInit {
   private readonly logger = inject(LoggerService);
 
   protected readonly icons = ICONS;
-
-  protected readonly modulePermissions = signal<IModulePermission[]>([]);
-  protected readonly matrixState = signal<
-    Record<string, Record<string, boolean>>
-  >({});
-  private readonly matrixInitialized = signal(false);
-
-  protected readonly modulePendingCounts = computed(() => {
-    this.matrixState();
-
-    return this.modulePermissions().reduce<Record<string, number>>(
-      (acc, module) => {
-        acc[module.id] = this.getModulePendingCount(module);
-        return acc;
-      },
-      {}
-    );
-  });
-  protected readonly computedModuleRoleStats = computed(() => {
-    this.matrixState();
-
-    return this.modulePermissions().reduce<
-      Record<string, IMatrixRoleStatsSummary[]>
-    >((acc, module) => {
-      acc[module.id] = this.buildModuleRoleStats(module);
-      return acc;
-    }, {});
-  });
-  protected readonly globalPendingCount = computed(() => {
-    const counts = this.modulePendingCounts();
-    return Object.values(counts).reduce((sum, count) => sum + count, 0);
-  });
-  protected readonly moduleUpdateButtonConfigs = computed(() => {
-    const pendingCounts = this.modulePendingCounts();
-    const submitting = this.isSubmitting();
-
-    return this.modulePermissions().reduce<
-      Record<string, Partial<IButtonConfig>>
-    >((acc, module) => {
-      const pendingCount = pendingCounts[module.id] ?? 0;
-
-      acc[module.id] = {
-        ...this.matrixModuleUpdateButtonConfig,
-        label: pendingCount ? `Update (${pendingCount})` : 'Update',
-        disabled: pendingCount === 0 || submitting,
-      };
-
-      return acc;
-    }, {});
-  });
-
-  protected readonly collapsedByModuleId = signal<Record<string, boolean>>({});
-  private readonly loadedModuleIds = signal<Record<string, true>>({});
+  protected readonly contentTabMode = ETabMode.CONTENT;
+  protected readonly horizontalTabLayout = ETabLayout.HORIZONTAL;
+  protected readonly verticalTabLayout = ETabLayout.VERTICAL;
+  protected readonly secondaryTabTier = ETabTier.SECONDARY;
 
   readonly roleColumns = input<IRolePermissionMatrixColumn[]>([]);
   readonly roleDefaultPermissions = input<Record<string, IDefaultPermissions>>(
@@ -164,32 +108,245 @@ export class SetPermissionComponent implements OnInit {
   readonly isUserPermissionMode = input<boolean>(false);
   readonly isSubmitting = input<boolean>(false);
 
-  readonly matrixModuleSave = output<IMatrixModuleSaveEvent>();
+  readonly permissionSave = output<IPermissionSaveEvent>();
 
   protected readonly loadingState = this.loadingService.loadingState;
 
-  protected readonly expandAllButtonConfig: Partial<IButtonConfig> = {
-    label: 'Expand All',
-    severity: EButtonSeverity.SUCCESS,
-    variant: EButtonVariant.OUTLINED,
-    icon: ICONS.ACTIONS.CHECK_CIRCLE,
-    actionName: 'expandAll',
-  };
+  protected readonly modulePermissions = signal<IModulePermission[]>([]);
+  protected readonly matrixState = signal<MatrixState>({});
+  protected readonly selectedModuleId = signal<string>('');
+  protected readonly searchTerm = signal<string>('');
+  protected readonly showChangedOnly = signal<boolean>(false);
+  /** Only used on compact viewports, where columns are edited one at a time. */
+  protected readonly selectedColumnId = signal<string>('');
+  protected readonly isCompactViewport = signal(
+    window.innerWidth <= COMPACT_VIEWPORT_MAX_WIDTH
+  );
 
-  protected readonly collapseAllButtonConfig: Partial<IButtonConfig> = {
-    label: 'Collapse All',
-    severity: EButtonSeverity.DANGER,
-    variant: EButtonVariant.OUTLINED,
-    icon: ICONS.ACTIONS.TIMES,
-    actionName: 'collapseAll',
-  };
+  private readonly matrixInitialized = signal(false);
 
-  protected readonly matrixModuleUpdateButtonConfig: Partial<IButtonConfig> = {
-    label: 'Update',
-    severity: EButtonSeverity.PRIMARY,
-    variant: EButtonVariant.OUTLINED,
-    actionName: 'updateModule',
-  };
+  @HostListener('window:resize')
+  protected onViewportResize(): void {
+    this.isCompactViewport.set(window.innerWidth <= COMPACT_VIEWPORT_MAX_WIDTH);
+  }
+
+  private readonly permissionIdsByModule = computed(() =>
+    this.modulePermissions().reduce<Record<string, string[]>>((acc, module) => {
+      acc[module.id] = this.toPermissionIds(module.permissions);
+      return acc;
+    }, {})
+  );
+
+  private readonly normalizedSearch = computed(() =>
+    this.searchTerm().trim().toLowerCase()
+  );
+
+  /** Pending cell count per module, always over the full module (never filtered). */
+  protected readonly modulePendingCounts = computed(() => {
+    const state = this.matrixState();
+    const columns = this.roleColumns();
+
+    return Object.entries(this.permissionIdsByModule()).reduce<
+      Record<string, number>
+    >((acc, [moduleId, permissionIds]) => {
+      acc[moduleId] = columns.reduce(
+        (count, column) =>
+          count +
+          permissionIds.filter(permissionId =>
+            this.isPending(column.id, permissionId, state)
+          ).length,
+        0
+      );
+      return acc;
+    }, {});
+  });
+
+  protected readonly globalPendingCount = computed(() =>
+    Object.values(this.modulePendingCounts()).reduce(
+      (sum, count) => sum + count,
+      0
+    )
+  );
+
+  private readonly moduleViews = computed<IModuleView[]>(() => {
+    const term = this.normalizedSearch();
+    const changedOnly = this.showChangedOnly();
+    // Only a changed-only filter depends on the grid, so a plain toggle does not rebuild it.
+    const state = changedOnly ? this.matrixState() : null;
+    const columns = this.roleColumns();
+
+    return this.modulePermissions().reduce<IModuleView[]>((acc, module) => {
+      const moduleNameMatches =
+        !term || module.moduleName.toLowerCase().includes(term);
+
+      const permissions = module.permissions.filter(permission => {
+        if (!permission.id) {
+          return false;
+        }
+        if (!moduleNameMatches && !this.matchesSearch(permission, term)) {
+          return false;
+        }
+        if (
+          changedOnly &&
+          state !== null &&
+          !columns.some(column =>
+            this.isPending(column.id, permission.id as string, state)
+          )
+        ) {
+          return false;
+        }
+        return true;
+      });
+
+      if (permissions.length) {
+        acc.push({ module, permissions });
+      }
+
+      return acc;
+    }, []);
+  });
+
+  /** Falls back to the first visible module so filtering never leaves an empty pane. */
+  protected readonly activeModuleView = computed<IModuleView | undefined>(
+    () => {
+      const views = this.moduleViews();
+      const selectedId = this.selectedModuleId();
+
+      return views.find(view => view.module.id === selectedId) ?? views[0];
+    }
+  );
+
+  protected readonly activeModuleId = computed(
+    () => this.activeModuleView()?.module.id ?? ''
+  );
+
+  protected readonly activeModulePendingCount = computed(
+    () => this.modulePendingCounts()[this.activeModuleId()] ?? 0
+  );
+
+  protected readonly columnSummaries = computed<IPermissionColumnSummary[]>(
+    () => {
+      const view = this.activeModuleView();
+      if (!view) {
+        return [];
+      }
+
+      const state = this.matrixState();
+      const permissionIds = this.toPermissionIds(view.permissions);
+
+      return this.roleColumns().map(column => {
+        const granted = permissionIds.filter(
+          permissionId => state[cellKey(column.id, permissionId)]
+        ).length;
+        const pending = permissionIds.filter(permissionId =>
+          this.isPending(column.id, permissionId, state)
+        ).length;
+
+        return {
+          id: column.id,
+          label: column.label,
+          total: permissionIds.length,
+          granted,
+          pending,
+          allGranted:
+            permissionIds.length > 0 && granted === permissionIds.length,
+        };
+      });
+    }
+  );
+
+  protected readonly isSingleColumnMode = computed(
+    () => this.roleColumns().length === 1
+  );
+
+  /** The column being edited on a compact viewport; falls back to the first one. */
+  protected readonly activeColumnSummary = computed<
+    IPermissionColumnSummary | undefined
+  >(() => {
+    const summaries = this.columnSummaries();
+    const selectedId = this.selectedColumnId();
+
+    return summaries.find(summary => summary.id === selectedId) ?? summaries[0];
+  });
+
+  protected readonly moduleTabs = computed<ITabItem[]>(() => {
+    const singleColumn = this.isSingleColumnMode();
+    const pendingCounts = this.modulePendingCounts();
+    const columnId = singleColumn ? this.roleColumns()[0]?.id : undefined;
+    const state = columnId ? this.matrixState() : null;
+
+    return this.moduleViews().map(({ module, permissions }) => {
+      const permissionIds = this.toPermissionIds(permissions);
+      const pendingCount = pendingCounts[module.id] ?? 0;
+      const grantedCount =
+        state && columnId
+          ? permissionIds.filter(permissionId =>
+              state[cellKey(columnId, permissionId)]
+            ).length
+          : 0;
+
+      return {
+        route: module.id,
+        label: toTitleCase(module.moduleName),
+        badge: pendingCount > 0 ? pendingCount : undefined,
+        tooltip: singleColumn
+          ? `${grantedCount} of ${permissionIds.length} granted`
+          : `${permissionIds.length} permissions`,
+      };
+    });
+  });
+
+  protected readonly roleTabs = computed<ITabItem[]>(() =>
+    this.columnSummaries().map(summary => ({
+      route: summary.id,
+      label: toTitleCase(summary.label),
+      badge: summary.pending > 0 ? summary.pending : undefined,
+      tooltip: `${summary.granted} of ${summary.total} granted`,
+    }))
+  );
+
+  protected readonly saveButtonConfig = computed<Partial<IButtonConfig>>(() => {
+    const pendingCount = this.globalPendingCount();
+
+    return {
+      label: pendingCount ? `Save ${pendingCount} Changes` : 'Save Changes',
+      icon: ICONS.COMMON.CHECK_TICK,
+      severity: EButtonSeverity.PRIMARY,
+      actionName: 'save',
+      disabled: pendingCount === 0 || this.isSubmitting(),
+      disabledTooltip: 'Toggle a permission to enable saving.',
+    };
+  });
+
+  protected readonly discardButtonConfig = computed<Partial<IButtonConfig>>(
+    () => ({
+      label: 'Discard All',
+      icon: ICONS.ACTIONS.TIMES,
+      severity: EButtonSeverity.SECONDARY,
+      variant: EButtonVariant.OUTLINED,
+      actionName: 'discard',
+      disabled: this.globalPendingCount() === 0 || this.isSubmitting(),
+      tooltip: 'Revert every unsaved change back to the saved permissions.',
+      disabledTooltip: 'There are no unsaved changes to discard.',
+    })
+  );
+
+  protected readonly changedOnlyButtonConfig = computed<Partial<IButtonConfig>>(
+    () => {
+      const active = this.showChangedOnly();
+
+      return {
+        label: 'Changed Only',
+        icon: ICONS.COMMON.FILTER,
+        severity: active ? EButtonSeverity.WARNING : EButtonSeverity.SECONDARY,
+        variant: active ? undefined : EButtonVariant.OUTLINED,
+        actionName: 'toggleChangedOnly',
+        tooltip: active
+          ? 'Showing only permissions you changed'
+          : 'Show only permissions you changed',
+      };
+    }
+  );
 
   constructor() {
     effect(() => {
@@ -198,14 +355,16 @@ export class SetPermissionComponent implements OnInit {
       }
 
       const modules = this.modulePermissions();
-      const roles = this.roleColumns();
+      const columns = this.roleColumns();
       const defaults = this.roleDefaultPermissions();
 
-      if (!modules.length || !roles.length || !Object.keys(defaults).length) {
+      if (!modules.length || !columns.length || !Object.keys(defaults).length) {
         return;
       }
 
-      this.initializeMatrixState();
+      this.resetMatrixState();
+      this.selectedModuleId.set(modules[0]?.id ?? '');
+      this.selectedColumnId.set(columns[0]?.id ?? '');
       this.matrixInitialized.set(true);
     });
   }
@@ -214,97 +373,185 @@ export class SetPermissionComponent implements OnInit {
     this.loadModulePermissions();
   }
 
-  protected isMatrixGranted(
-    moduleId: string,
-    roleId: string,
-    permissionId: string
-  ): boolean {
-    return (
-      this.matrixState()[moduleId]?.[matrixCellKey(roleId, permissionId)] ??
-      false
+  protected onModuleTabChange(change: ITabChange): void {
+    this.selectedModuleId.set(change.tab.route);
+  }
+
+  protected onRoleTabChange(change: ITabChange): void {
+    this.selectedColumnId.set(change.tab.route);
+  }
+
+  protected isGranted(columnId: string, permissionId: string): boolean {
+    return this.matrixState()[cellKey(columnId, permissionId)] ?? false;
+  }
+
+  protected isCellChanged(columnId: string, permissionId: string): boolean {
+    return this.isPending(columnId, permissionId, this.matrixState());
+  }
+
+  /** Compact rows are tapped as a whole, so the row owns the flip. */
+  protected onCompactRowToggle(columnId: string, permissionId: string): void {
+    if (this.isSubmitting()) {
+      return;
+    }
+
+    this.onPermissionToggle(
+      columnId,
+      permissionId,
+      !this.isGranted(columnId, permissionId)
     );
   }
 
-  protected onMatrixPermissionToggle(
-    moduleId: string,
-    roleId: string,
+  protected onPermissionToggle(
+    columnId: string,
     permissionId: string,
     granted: boolean
   ): void {
-    const key = matrixCellKey(roleId, permissionId);
-
     this.matrixState.update(state => ({
       ...state,
-      [moduleId]: {
-        ...state[moduleId],
-        [key]: granted,
-      },
+      [cellKey(columnId, permissionId)]: granted,
     }));
   }
 
-  protected getMatrixCellHighlightClass(
-    moduleId: string,
-    roleId: string,
-    permissionId: string
-  ): Record<string, boolean> {
-    const wasGranted =
-      this.roleDefaultPermissions()[roleId]?.[permissionId]?.value === true;
-    const isChecked = this.isMatrixGranted(moduleId, roleId, permissionId);
+  /** Grants or revokes every visible permission of the open module for one column. */
+  protected onColumnToggle(columnId: string, granted: boolean): void {
+    const view = this.activeModuleView();
+    if (!view || this.isSubmitting()) {
+      return;
+    }
 
-    return {
-      'matrix-checkbox-cell--granted': wasGranted && isChecked,
-      'matrix-checkbox-cell--revoked': wasGranted && !isChecked,
-      'matrix-checkbox-cell--new': !wasGranted && isChecked,
-      'matrix-checkbox-cell--default': !wasGranted && !isChecked,
-    };
+    const permissionIds = this.toPermissionIds(view.permissions);
+
+    this.matrixState.update(state =>
+      permissionIds.reduce<MatrixState>(
+        (acc, permissionId) => {
+          acc[cellKey(columnId, permissionId)] = granted;
+          return acc;
+        },
+        { ...state }
+      )
+    );
   }
 
   protected getPermissionSource(
     permissionId: string
   ): 'override' | 'role' | undefined {
-    const [role] = this.roleColumns();
-    if (!role) {
+    const [column] = this.roleColumns();
+    if (!column) {
       return undefined;
     }
 
-    return this.roleDefaultPermissions()[role.id]?.[permissionId]?.source;
+    return this.roleDefaultPermissions()[column.id]?.[permissionId]?.source;
   }
 
-  protected getModuleRoleSummary(
-    moduleId: string,
-    roleId: string
-  ): IMatrixRoleStatsSummary | undefined {
-    return this.computedModuleRoleStats()[moduleId]?.find(
-      summary => summary.roleId === roleId
-    );
+  protected onSearchChange(value: string): void {
+    this.searchTerm.set(value);
   }
 
-  protected onMatrixModuleUpdate(module: IModulePermission): void {
-    const roleUpdates = this.buildRoleUpdatesForModule(module);
-    if (!roleUpdates.length || !module.id) {
+  protected onToolbarAction(actionName: string): void {
+    if (actionName === 'save') {
+      this.saveAllChanges();
+    } else if (actionName === 'discard') {
+      this.resetMatrixState();
+    } else if (actionName === 'toggleChangedOnly') {
+      this.showChangedOnly.update(active => !active);
+    }
+  }
+
+  /** One request per column carrying the delta across every module. */
+  private saveAllChanges(): void {
+    const state = this.matrixState();
+    const permissionIdsByModule = this.permissionIdsByModule();
+    const allPermissionIds = Object.values(permissionIdsByModule).flat();
+
+    const roleUpdates = this.roleColumns().reduce<
+      IMatrixRolePermissionUpdate[]
+    >((acc, column) => {
+      const categorizedPermissions = this.categorizeChanges(
+        column.id,
+        allPermissionIds,
+        state
+      );
+
+      if (
+        categorizedPermissions.newPermissions.length ||
+        categorizedPermissions.revokedPermissions.length
+      ) {
+        acc.push({ roleId: column.id, categorizedPermissions });
+      }
+
+      return acc;
+    }, []);
+
+    if (!roleUpdates.length) {
       return;
     }
 
-    this.matrixModuleSave.emit({ moduleId: module.id, roleUpdates });
+    this.permissionSave.emit({ roleUpdates });
   }
 
-  protected getModuleMetaLabel(module: IModulePermission): string {
-    const permissionCount = this.getModulePermissionIds(module).length;
-    const permissionLabel =
-      permissionCount === 1 ? 'permission' : 'permissions';
-    return `${permissionCount} ${permissionLabel}`;
+  private categorizeChanges(
+    columnId: string,
+    permissionIds: string[],
+    state: MatrixState
+  ): ICategorizedPermissions {
+    return permissionIds.reduce<ICategorizedPermissions>(
+      (acc, permissionId) => {
+        if (this.isPending(columnId, permissionId, state)) {
+          const target = state[cellKey(columnId, permissionId)]
+            ? acc.newPermissions
+            : acc.revokedPermissions;
+          target.push(permissionId);
+        }
+
+        return acc;
+      },
+      { defaultPermissions: [], revokedPermissions: [], newPermissions: [] }
+    );
   }
 
-  protected onPanelBulkAction(actionName: string): void {
-    if (actionName === 'expandAll') {
-      this.expandAll();
-    } else if (actionName === 'collapseAll') {
-      this.collapseAll();
-    }
+  private isPending(
+    columnId: string,
+    permissionId: string,
+    state: MatrixState
+  ): boolean {
+    const key = cellKey(columnId, permissionId);
+    const wasGranted =
+      this.roleDefaultPermissions()[columnId]?.[permissionId]?.value === true;
+
+    return wasGranted !== (state[key] ?? false);
   }
 
-  public hasUnsavedChanges(): boolean {
-    return this.globalPendingCount() > 0;
+  private resetMatrixState(): void {
+    const defaults = this.roleDefaultPermissions();
+    const columns = this.roleColumns();
+
+    const state = this.modulePermissions()
+      .flatMap(module => this.toPermissionIds(module.permissions))
+      .reduce<MatrixState>((acc, permissionId) => {
+        columns.forEach(column => {
+          acc[cellKey(column.id, permissionId)] =
+            defaults[column.id]?.[permissionId]?.value ?? false;
+        });
+        return acc;
+      }, {});
+
+    this.matrixState.set(state);
+  }
+
+  private matchesSearch(
+    permission: ModulePermissionEntry,
+    term: string
+  ): boolean {
+    return [permission.label, permission.name, permission.description].some(
+      value => value?.toLowerCase().includes(term)
+    );
+  }
+
+  private toPermissionIds(permissions: ModulePermissionEntry[]): string[] {
+    return permissions
+      .map(permission => permission.id)
+      .filter((id): id is string => Boolean(id));
   }
 
   private loadModulePermissions(): void {
@@ -331,226 +578,5 @@ export class SetPermissionComponent implements OnInit {
           this.logger.logUserAction('Failed to load module permissions');
         },
       });
-  }
-
-  private expandAll(): void {
-    const modules = this.modulePermissions();
-    const next = modules.reduce<Record<string, boolean>>((acc, module) => {
-      acc[module.id] = false;
-      return acc;
-    }, {});
-    const loaded = modules.reduce<Record<string, true>>((acc, module) => {
-      acc[module.id] = true;
-      return acc;
-    }, {});
-
-    this.loadedModuleIds.set(loaded);
-    this.collapsedByModuleId.set(next);
-  }
-
-  private collapseAll(): void {
-    const next = this.modulePermissions().reduce<Record<string, boolean>>(
-      (acc, module) => {
-        acc[module.id] = true;
-        return acc;
-      },
-      {}
-    );
-    this.collapsedByModuleId.set(next);
-  }
-
-  protected isModuleCollapsed(moduleId: string): boolean {
-    return this.collapsedByModuleId()[moduleId] ?? true;
-  }
-
-  protected isModuleLoaded(moduleId: string): boolean {
-    return Boolean(this.loadedModuleIds()[moduleId]);
-  }
-
-  protected onModuleCollapsedChange(
-    moduleId: string,
-    collapsed: boolean
-  ): void {
-    if (!collapsed) {
-      this.loadedModuleIds.update(current => ({
-        ...current,
-        [moduleId]: true,
-      }));
-    }
-
-    this.collapsedByModuleId.update(current => ({
-      ...current,
-      [moduleId]: collapsed,
-    }));
-  }
-
-  private getModulePermissionIds(module: IModulePermission): string[] {
-    return module.permissions
-      .map(permission => permission.id)
-      .filter((id): id is string => Boolean(id));
-  }
-
-  private buildModuleRoleStats(
-    module: IModulePermission
-  ): IMatrixRoleStatsSummary[] {
-    const permissionIds = this.getModulePermissionIds(module);
-    const roles = this.roleColumns();
-    const defaults = this.roleDefaultPermissions();
-    const moduleState = this.matrixState()[module.id] ?? {};
-    const total = permissionIds.length;
-
-    return roles.map(role => {
-      let revoked = 0;
-      let newCount = 0;
-      let currentGranted = 0;
-
-      permissionIds.forEach(permissionId => {
-        const wasOriginallyGranted =
-          defaults[role.id]?.[permissionId]?.value === true;
-        const isCurrentlyChecked =
-          moduleState[matrixCellKey(role.id, permissionId)] ?? false;
-
-        if (isCurrentlyChecked) {
-          currentGranted++;
-        }
-
-        if (wasOriginallyGranted) {
-          if (!isCurrentlyChecked) {
-            revoked++;
-          }
-        } else if (isCurrentlyChecked) {
-          newCount++;
-        }
-      });
-
-      return {
-        roleId: role.id,
-        label: role.label,
-        name: role.name,
-        total,
-        currentGranted,
-        stats: buildStatsArray(total, currentGranted, revoked, newCount),
-        pending: revoked + newCount,
-      };
-    });
-  }
-
-  private initializeMatrixState(): void {
-    const roles = this.roleColumns();
-    const defaults = this.roleDefaultPermissions();
-    const modules = this.modulePermissions();
-
-    const state = modules.reduce<Record<string, Record<string, boolean>>>(
-      (acc, module) => {
-        const permissionIds = this.getModulePermissionIds(module);
-
-        acc[module.id] = permissionIds.reduce<Record<string, boolean>>(
-          (moduleAcc, permissionId) => {
-            roles.forEach(role => {
-              moduleAcc[matrixCellKey(role.id, permissionId)] =
-                defaults[role.id]?.[permissionId]?.value ?? false;
-            });
-            return moduleAcc;
-          },
-          {}
-        );
-
-        return acc;
-      },
-      {}
-    );
-
-    this.matrixState.set(state);
-  }
-
-  private getModulePendingCount(module: IModulePermission): number {
-    const permissionIds = this.getModulePermissionIds(module);
-    const moduleState = this.matrixState()[module.id] ?? {};
-
-    return this.roleColumns().reduce(
-      (count, role) =>
-        count +
-        permissionIds.filter(permissionId =>
-          this.hasMatrixCellPending(role.id, permissionId, moduleState)
-        ).length,
-      0
-    );
-  }
-
-  private hasMatrixCellPending(
-    roleId: string,
-    permissionId: string,
-    moduleState: Record<string, boolean>
-  ): boolean {
-    const wasGranted =
-      this.roleDefaultPermissions()[roleId]?.[permissionId]?.value === true;
-    const isChecked = moduleState[matrixCellKey(roleId, permissionId)] ?? false;
-    return wasGranted !== isChecked;
-  }
-
-  private buildRoleUpdatesForModule(
-    module: IModulePermission
-  ): IMatrixRolePermissionUpdate[] {
-    const permissionIds = this.getModulePermissionIds(module);
-    const moduleState = this.matrixState()[module.id] ?? {};
-
-    return this.roleColumns()
-      .map(role => {
-        const categorizedPermissions = this.getCategorizePermissionsForRole(
-          role.id,
-          permissionIds,
-          moduleState
-        );
-        const hasChanges =
-          categorizedPermissions.defaultPermissions.length +
-            categorizedPermissions.revokedPermissions.length +
-            categorizedPermissions.newPermissions.length >
-          0;
-
-        if (!hasChanges) {
-          return null;
-        }
-
-        return {
-          roleId: role.id,
-          categorizedPermissions,
-        };
-      })
-      .filter(
-        (update): update is IMatrixRolePermissionUpdate => update !== null
-      );
-  }
-
-  private getCategorizePermissionsForRole(
-    roleId: string,
-    permissionIds: string[],
-    moduleState: Record<string, boolean>
-  ): ICategorizedPermissions {
-    const categorizedPermissions: ICategorizedPermissions = {
-      defaultPermissions: [],
-      revokedPermissions: [],
-      newPermissions: [],
-    };
-
-    permissionIds.forEach(permissionId => {
-      if (!this.hasMatrixCellPending(roleId, permissionId, moduleState)) {
-        return;
-      }
-
-      const wasGranted =
-        this.roleDefaultPermissions()[roleId]?.[permissionId]?.value === true;
-      const isChecked =
-        moduleState[matrixCellKey(roleId, permissionId)] ?? false;
-
-      if (wasGranted && isChecked) {
-        categorizedPermissions.defaultPermissions.push(permissionId);
-      } else if (wasGranted && !isChecked) {
-        categorizedPermissions.revokedPermissions.push(permissionId);
-      } else if (!wasGranted && isChecked) {
-        categorizedPermissions.newPermissions.push(permissionId);
-      }
-    });
-
-    return categorizedPermissions;
   }
 }

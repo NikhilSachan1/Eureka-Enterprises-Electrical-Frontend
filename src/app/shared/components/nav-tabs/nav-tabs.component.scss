@@ -155,9 +155,35 @@ $secondary-active-border: color-mix(in srgb, var(--primary-color) 28%, transpare
   }
 }
 
+.nav-tabs-root--horizontal {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+}
+
+.nav-tabs-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.nav-tabs-projected {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .nav-tabs-vertical {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 1.5rem;
   min-width: 0;
 
@@ -203,12 +229,14 @@ $secondary-active-border: color-mix(in srgb, var(--primary-color) 28%, transpare
     gap: 0.5rem;
     padding: 0.55rem 0.7rem;
     border-radius: 0.375rem;
-    border-left: 2px solid transparent;
+    border-left: 3px solid transparent;
     font-size: 0.8125rem;
     font-weight: 500;
     line-height: 1.25;
     color: var(--text-secondary-color);
     text-decoration: none;
+    cursor: pointer;
+    user-select: none;
     transition:
       color 0.15s ease,
       background 0.15s ease,
@@ -216,21 +244,20 @@ $secondary-active-border: color-mix(in srgb, var(--primary-color) 28%, transpare
 
     @media (width < 768px) {
       border-left: none;
-      border-bottom: 2px solid transparent;
+      border-bottom: 3px solid transparent;
       padding: 0.45rem 0.65rem;
     }
 
     &:hover:not(&--active) {
       color: var(--text-primary-color);
-      background: color-mix(in srgb, var(--surface-border) 55%, transparent);
+      background: color-mix(in srgb, var(--primary-color) 8%, transparent);
     }
 
     &--active {
       color: var(--primary-color);
-      font-weight: 600;
+      font-weight: 700;
       border-left-color: var(--primary-color);
-      background: var(--background-default-color, #fff);
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+      background: color-mix(in srgb, var(--primary-color) 14%, var(--background-default-color, #fff));
 
       @media (width < 768px) {
         border-left-color: transparent;
@@ -250,8 +277,9 @@ $secondary-active-border: color-mix(in srgb, var(--primary-color) 28%, transpare
   }
 
   &__content {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
+    width: 100%;
   }
 
   &__outlet {

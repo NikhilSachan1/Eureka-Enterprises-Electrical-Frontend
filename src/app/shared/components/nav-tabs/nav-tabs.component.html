@@ -1,5 +1,9 @@
-@if (layout() === tabLayout.VERTICAL) {
-  <div class="nav-tabs-vertical">
+<div
+  class="nav-tabs-root"
+  [class.nav-tabs-vertical]="layout() === tabLayout.VERTICAL"
+  [class.nav-tabs-root--horizontal]="layout() !== tabLayout.VERTICAL"
+>
+  @if (layout() === tabLayout.VERTICAL) {
     @if (visibleTabs().length) {
       <nav
         class="nav-tabs-vertical__sidebar"
@@ -21,79 +25,76 @@
               <i [ngClass]="['nav-tabs-vertical__icon', tab.icon]"></i>
             }
             <span class="nav-tabs-vertical__label">{{ tab.label }}</span>
-            @if (tab.badge) {
+            @if (tab.badge != null && tab.badge !== '') {
               <p-badge [value]="tab.badge.toString()" />
             }
           </a>
         }
       </nav>
     }
-
-    <div class="nav-tabs-vertical__content">
-      @if (isRouterOutletMode()) {
-        <div
-          class="nav-tabs-vertical__outlet"
-          [@routeOutletFade]="currentRoute()"
+  } @else {
+    <div
+      class="nav-tabs-horizontal"
+      [class.nav-tabs-horizontal--secondary]="isSecondary()"
+    >
+      @if (visibleTabs().length) {
+        <p-tabs
+          class="nav-tabs-horizontal__tabs"
+          [class.nav-tabs-horizontal__tabs--secondary]="isSecondary()"
+          [scrollable]="true"
+          [value]="currentActiveTab()"
         >
-          <router-outlet />
-        </div>
-      } @else {
-        <ng-content />
+          <p-tablist>
+            @for (tab of visibleTabs(); track tab.route; let i = $index) {
+              <p-tab
+                [value]="tab.route"
+                [routerLink]="isRouterOutletMode() ? [tab.route] : null"
+                [relativeTo]="isRouterOutletMode() ? route : undefined"
+                queryParamsHandling="preserve"
+                [disabled]="tab.disabled"
+                [pTooltip]="tab.tooltip"
+                tooltipPosition="top"
+                (click)="onTabClick(tab, i)"
+                class="flex items-center !gap-2 text-inherit"
+              >
+                @if (tab.icon) {
+                  <i [class]="tab.icon"></i>
+                }
+                <span>{{ tab.label }}</span>
+                @if (tab.badge != null && tab.badge !== '') {
+                  <p-badge [value]="tab.badge.toString()" />
+                }
+              </p-tab>
+            }
+          </p-tablist>
+        </p-tabs>
       }
     </div>
-  </div>
-} @else {
-  <div
-    class="nav-tabs-horizontal"
-    [class.nav-tabs-horizontal--secondary]="isSecondary()"
-  >
-    @if (visibleTabs().length) {
-      <p-tabs
-        class="nav-tabs-horizontal__tabs"
-        [class.nav-tabs-horizontal__tabs--secondary]="isSecondary()"
-        [scrollable]="true"
-        [value]="currentActiveTab()"
-      >
-        <p-tablist>
-          @for (tab of visibleTabs(); track tab.route; let i = $index) {
-            <p-tab
-              [value]="tab.route"
-              [routerLink]="isRouterOutletMode() ? [tab.route] : null"
-              [relativeTo]="isRouterOutletMode() ? route : undefined"
-              queryParamsHandling="preserve"
-              [disabled]="tab.disabled"
-              [pTooltip]="tab.tooltip"
-              tooltipPosition="top"
-              (click)="onTabClick(tab, i)"
-              class="flex items-center !gap-2 text-inherit"
-            >
-              @if (tab.icon) {
-                <i [class]="tab.icon"></i>
-              }
-              <span>{{ tab.label }}</span>
-              @if (tab.badge) {
-                <p-badge [value]="tab.badge.toString()" />
-              }
-            </p-tab>
-          }
-        </p-tablist>
-      </p-tabs>
-    }
-  </div>
+  }
 
   <div
-    class="tab-content mt-4"
-    [class.tab-content--secondary]="isSecondary()"
+    class="nav-tabs-panel"
+    [class.nav-tabs-vertical__content]="layout() === tabLayout.VERTICAL"
+    [class.tab-content]="layout() !== tabLayout.VERTICAL"
+    [class.mt-4]="layout() !== tabLayout.VERTICAL"
+    [class.tab-content--secondary]="layout() !== tabLayout.VERTICAL && isSecondary()"
   >
     @if (isRouterOutletMode()) {
       <div
-        class="tab-content__outlet"
+        [class.nav-tabs-vertical__outlet]="layout() === tabLayout.VERTICAL"
+        [class.tab-content__outlet]="layout() !== tabLayout.VERTICAL"
         [@routeOutletFade]="currentRoute()"
       >
         <router-outlet />
       </div>
-    } @else {
-      <ng-content />
     }
+
+    <!-- Always in the template. ng-content inside @if never receives projected content. -->
+    <div
+      class="nav-tabs-projected"
+      [hidden]="isRouterOutletMode()"
+    >
+      <ng-content />
+    </div>
   </div>
-}
+</div>
