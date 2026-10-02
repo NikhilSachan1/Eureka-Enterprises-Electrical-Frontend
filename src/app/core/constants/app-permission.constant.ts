@@ -388,8 +388,27 @@ export const APP_PERMISSION = {
       TABLE_EMPLOYEE_NAME: 'ui_dsr_table_employee_name',
       SEARCH_FILTER_EMPLOYEE_NAME: 'ui_dsr_search_filter_employee_name',
     },
+    ASSET: {
+      TAB_MY: 'ui_asset_tab_my',
+      TAB_ALL: 'ui_asset_tab_all',
+      TAB_PENDING: 'ui_asset_tab_pending',
+    },
+    VEHICLE: {
+      TAB_MY: 'ui_vehicle_tab_my',
+      TAB_ALL: 'ui_vehicle_tab_all',
+      TAB_PENDING: 'ui_vehicle_tab_pending',
+    },
   },
 } as const;
+
+const UI_TAB_OWN_ROLES = {
+  [EUserRole.ADMIN]: false,
+  [EUserRole.DRIVER]: true,
+  [EUserRole.EMPLOYEE]: true,
+  [EUserRole.OPERATION_MANAGER]: false,
+  [EUserRole.SUPER_ADMIN]: false,
+  [EUserRole.HR]: false,
+} as const satisfies UIRolePermissionAccess;
 
 export const UI_PERMISSIONS_ROLE_MAP = {
   SALARY_STRUCTURE: {
@@ -587,5 +606,15 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
     },
+  },
+  ASSET: {
+    TAB_MY: UI_TAB_OWN_ROLES,
+    TAB_ALL: UI_TAB_OWN_ROLES,
+    TAB_PENDING: UI_TAB_OWN_ROLES,
+  },
+  VEHICLE: {
+    TAB_MY: UI_TAB_OWN_ROLES,
+    TAB_ALL: UI_TAB_OWN_ROLES,
+    TAB_PENDING: UI_TAB_OWN_ROLES,
   },
 } as const satisfies Record<string, Record<string, UIRolePermissionAccess>>;

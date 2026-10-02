@@ -8,7 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
@@ -121,6 +121,7 @@ export class GetVehicleComponent implements OnInit {
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
+  private readonly appPermissionService = inject(AppPermissionService);
   private readonly galleryService = inject(GalleryService);
   private readonly dataTable = viewChild(DataTableComponent);
 
@@ -130,7 +131,7 @@ export class GetVehicleComponent implements OnInit {
   >({});
   protected readonly vehicleScopeTabs = computed<ITabItem[]>(() => {
     const counts = this.vehicleScopeCounts();
-    const ownPending = this.authService.isActiveRoleEmployeeLike();
+    const ownPending = this.canSeeVehicleTab(EVehicleScope.MY);
 
     return [
       {
@@ -139,6 +140,7 @@ export class GetVehicleComponent implements OnInit {
         icon: ICONS.COMMON.USER,
         tooltip: 'Vehicles assigned to you',
         badge: counts[EVehicleScope.MY],
+        visible: ownPending,
       },
       {
         route: EVehicleScope.ALL,
@@ -146,6 +148,7 @@ export class GetVehicleComponent implements OnInit {
         icon: ICONS.COMMON.USERS,
         tooltip: 'Every vehicle record',
         badge: counts[EVehicleScope.ALL],
+        visible: this.canSeeVehicleTab(EVehicleScope.ALL),
       },
       {
         route: EVehicleScope.PENDING,
@@ -155,12 +158,19 @@ export class GetVehicleComponent implements OnInit {
           ? 'Handovers waiting for you'
           : 'Vehicles with handover initiated',
         badge: counts[EVehicleScope.PENDING],
+        visible: this.canSeeVehicleTab(EVehicleScope.PENDING),
       },
     ];
   });
 
+  protected readonly showVehicleScopeTabs = computed(() =>
+    this.vehicleScopeTabs().some(tab => tab.visible !== false)
+  );
+
   /** Active tab. Switching it rebuilds the filter and reloads, so nothing carries over. */
-  protected readonly vehicleScope = signal<EVehicleScope>(EVehicleScope.MY);
+  protected readonly vehicleScope = signal<EVehicleScope>(
+    this.resolveDefaultVehicleScope()
+  );
 
   /** On My Vehicles every record is assigned to the logged-in user, so these add nothing. */
   private readonly myVehiclesHiddenFilterFields = new Set([
@@ -237,8 +247,34 @@ export class GetVehicleComponent implements OnInit {
     this.loadVehicleScopeCounts();
   }
 
+  private canSeeVehicleTab(scope: EVehicleScope): boolean {
+    this.appPermissionService.getPermissions();
+    const permission = {
+      [EVehicleScope.MY]: APP_PERMISSION.UI.VEHICLE.TAB_MY,
+      [EVehicleScope.ALL]: APP_PERMISSION.UI.VEHICLE.TAB_ALL,
+      [EVehicleScope.PENDING]: APP_PERMISSION.UI.VEHICLE.TAB_PENDING,
+    }[scope];
+
+    return this.appPermissionService.hasPermission(permission);
+  }
+
+  private resolveDefaultVehicleScope(): EVehicleScope {
+    if (this.canSeeVehicleTab(EVehicleScope.MY)) {
+      return EVehicleScope.MY;
+    }
+    return EVehicleScope.ALL;
+  }
+
   private loadVehicleScopeCounts(): void {
-    const scopes = [EVehicleScope.MY, EVehicleScope.ALL, EVehicleScope.PENDING];
+    const scopes = [
+      EVehicleScope.MY,
+      EVehicleScope.ALL,
+      EVehicleScope.PENDING,
+    ].filter(scope => this.canSeeVehicleTab(scope));
+
+    if (!scopes.length) {
+      return;
+    }
 
     forkJoin(
       scopes.map(scope =>
