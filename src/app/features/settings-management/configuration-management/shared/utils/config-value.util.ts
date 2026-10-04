@@ -107,6 +107,15 @@ export function isTValueKind(value: unknown): value is TConfigurationValueKind {
   );
 }
 
+export function isPrimitiveValueKind(kind: TConfigurationValueKind): boolean {
+  return (
+    kind === 'string' ||
+    kind === 'number' ||
+    kind === 'boolean' ||
+    kind === 'date'
+  );
+}
+
 /** ISO date / datetime strings often used in JSON APIs. */
 export function isLikelyIsoDateString(s: string): boolean {
   const t = s.trim();

@@ -1,0 +1,133 @@
+<ng-template
+  #node
+  let-view="view"
+  let-featured="featured"
+>
+  @switch (view.kind) {
+    @case ('empty') {
+      <span class="cfg-empty">—</span>
+    }
+    @case ('scalar') {
+      <span
+        class="cfg-scalar"
+        [class.cfg-scalar--hero]="featured"
+        [class.cfg-scalar--number]="view.tone === 'number'"
+        [class.cfg-scalar--boolean]="view.tone === 'boolean'"
+        [class.cfg-scalar--muted]="view.tone === 'muted'"
+      >
+        {{ view.text }}
+      </span>
+    }
+    @case ('chips') {
+      <ul class="cfg-chips">
+        @for (item of view.items; track $index) {
+          <li class="cfg-chip">{{ item }}</li>
+        }
+      </ul>
+    }
+    @case ('table') {
+      <div class="cfg-table-wrap">
+        <table class="cfg-table">
+          <thead>
+            <tr>
+              @for (column of view.columns; track column) {
+                <th>{{ column }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of view.rows; track $index) {
+              <tr>
+                @for (cell of row; track $index) {
+                  <td>
+                    <ng-container
+                      [ngTemplateOutlet]="node"
+                      [ngTemplateOutletContext]="{ view: cell }"
+                    />
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+    @case ('fields') {
+      <dl class="cfg-fields">
+        @for (entry of view.entries; track $index) {
+          <div class="cfg-field">
+            <dt>{{ entry.key }}</dt>
+            <dd>
+              <ng-container
+                [ngTemplateOutlet]="node"
+                [ngTemplateOutletContext]="{ view: entry.value }"
+              />
+            </dd>
+          </div>
+        }
+      </dl>
+    }
+    @case ('list') {
+      <ol class="cfg-stack">
+        @for (item of view.items; track $index) {
+          <li class="cfg-stack__item">
+            <ng-container
+              [ngTemplateOutlet]="node"
+              [ngTemplateOutletContext]="{ view: item }"
+            />
+          </li>
+        }
+      </ol>
+    }
+  }
+</ng-template>
+
+@if (settings().length) {
+  <div class="cfg-settings">
+    @for (row of settings(); track row.id) {
+      @let view = viewOf(row.value);
+
+      <section class="cfg-setting">
+        @if (hasSettingMeta(row)) {
+          <header class="cfg-setting__meta">
+            @if (trimmedContext(row.contextKey); as context) {
+              <span class="cfg-setting__context">{{ context }}</span>
+            }
+            @if (row.effectiveFrom || row.effectiveTo) {
+              <span class="cfg-setting__dates">
+                @if (row.effectiveFrom) {
+                  {{ row.effectiveFrom | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
+                }
+                @if (row.effectiveFrom && row.effectiveTo) {
+                  –
+                }
+                @if (row.effectiveTo) {
+                  {{ row.effectiveTo | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
+                }
+              </span>
+            }
+            <span
+              class="cfg-setting__status"
+              [class.cfg-setting__status--off]="!row.isActive"
+            >
+              {{ row.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </header>
+        }
+
+        <div
+          class="cfg-sheet"
+          [class.cfg-sheet--flush]="view.kind === 'table'"
+          [class.cfg-sheet--hero]="view.kind === 'scalar' || view.kind === 'empty'"
+        >
+          <ng-container
+            [ngTemplateOutlet]="node"
+            [ngTemplateOutletContext]="{ view: view, featured: true }"
+          />
+        </div>
+      </section>
+    }
+  </div>
+} @else {
+  <p class="cfg-settings__empty">No settings have been saved for this configuration yet.</p>
+}

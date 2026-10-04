@@ -2,22 +2,19 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   forwardRef,
   inject,
   input,
   output,
-  signal,
 } from '@angular/core';
 import { CONFIGURATION_TYPE_DATA } from '@shared/config/static-data.config';
-import { CONFIGURATION_KEYS, ICONS, MODULE_NAMES } from '@shared/constants';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IInputFieldsConfig } from '@shared/types';
 import { AppConfigurationService } from '@shared/services';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import {
   ADD_CONFIGURATION_VALUE_EDITOR_BUTTONS,
-  ADD_CONFIGURATION_VALUE_EDITOR_COLLECTION_ACTIONS,
   ADD_CONFIGURATION_VALUE_EDITOR_DEFAULT_MAX_DEPTH,
   ADD_CONFIGURATION_VALUE_EDITOR_HINTS,
   buildAddConfigurationBooleanValueFieldConfig,
@@ -33,6 +30,7 @@ import { IConfigValueNode } from '../../types/config-value-node.model';
 import {
   cloneNode,
   createEmptyNode,
+  isPrimitiveValueKind,
   isTValueKind,
 } from '../../utils/config-value.util';
 
@@ -61,27 +59,15 @@ export class AddConfigurationValueNodeComponent {
   readonly depth = input(0);
   readonly maxDepth = input(ADD_CONFIGURATION_VALUE_EDITOR_DEFAULT_MAX_DEPTH);
   readonly showKindSelector = input(true);
+  readonly compact = input(false);
   readonly rowKey = input('root');
   readonly valueValidationAttempt = input(0);
-  /**
-   * When true, new object/array rows start collapsed (e.g. edit screen).
-   * When false, rows start expanded (e.g. add screen).
-   */
-  readonly collapseChildrenByDefault = input(false);
 
   readonly nodeChange = output<IConfigValueNode>();
 
   protected readonly requiredFieldMessage = 'This field is required';
-
   protected readonly hints = ADD_CONFIGURATION_VALUE_EDITOR_HINTS;
-  protected readonly collectionActions =
-    ADD_CONFIGURATION_VALUE_EDITOR_COLLECTION_ACTIONS;
-
-  protected readonly chevronExpandedIcon = ICONS.COMMON.CHEVRON_DOWN;
-  protected readonly chevronCollapsedIcon = ICONS.COMMON.CHEVRON_RIGHT;
-
-  /** Per object property row: expanded when true (arrays are always fully expanded). */
-  private readonly objectRowExpanded = signal<boolean[]>([]);
+  protected readonly isPrimitiveKind = isPrimitiveValueKind;
 
   protected readonly addObjectRowButtonConfig =
     ADD_CONFIGURATION_VALUE_EDITOR_BUTTONS.addObjectRow;
@@ -90,39 +76,34 @@ export class AddConfigurationValueNodeComponent {
   protected readonly removeRowButtonConfig =
     ADD_CONFIGURATION_VALUE_EDITOR_BUTTONS.removeRow;
 
-  constructor() {
-    effect(() => {
-      const n = this.node();
-      const defaultExpanded = !this.collapseChildrenByDefault();
-      if (n.kind === 'object') {
-        const len = n.objectEntries?.length ?? 0;
-        this.objectRowExpanded.update(arr => {
-          const next = arr.slice(0, len);
-          while (next.length < len) {
-            next.push(defaultExpanded);
-          }
-          return next;
-        });
-      }
-    });
-  }
-
-  protected readonly kindOptionsFiltered = computed(() => {
+  private readonly mappedKindOptions = computed(() => {
     const fromService = this.configurationTypeOptions();
     const base = fromService.length > 0 ? fromService : CONFIGURATION_TYPE_DATA;
-    const mapped = mapConfigurationTypeOptionsToValueEditorKinds(base);
-    return filterAddConfigurationValueKindOptions(
+    return mapConfigurationTypeOptionsToValueEditorKinds(base);
+  });
+
+  protected readonly kindOptionsFiltered = computed(() =>
+    filterAddConfigurationValueKindOptions(
       this.depth(),
       this.maxDepth(),
-      mapped
-    );
-  });
+      this.mappedKindOptions()
+    )
+  );
+
+  protected readonly childKindOptions = computed(() =>
+    filterAddConfigurationValueKindOptions(
+      this.depth() + 1,
+      this.maxDepth(),
+      this.mappedKindOptions()
+    )
+  );
 
   protected readonly kindSelectFieldConfig = computed(() =>
     buildAddConfigurationKindSelectFieldConfig({
       rowKey: this.rowKey(),
       depth: this.depth(),
       options: this.kindOptionsFiltered(),
+      compact: this.compact(),
     })
   );
 
@@ -130,6 +111,7 @@ export class AddConfigurationValueNodeComponent {
     buildAddConfigurationStringValueFieldConfig({
       rowKey: this.rowKey(),
       depth: this.depth(),
+      compact: this.compact(),
     })
   );
 
@@ -137,6 +119,7 @@ export class AddConfigurationValueNodeComponent {
     buildAddConfigurationNumberValueFieldConfig({
       rowKey: this.rowKey(),
       depth: this.depth(),
+      compact: this.compact(),
     })
   );
 
@@ -144,6 +127,7 @@ export class AddConfigurationValueNodeComponent {
     buildAddConfigurationBooleanValueFieldConfig({
       rowKey: this.rowKey(),
       depth: this.depth(),
+      compact: this.compact(),
     })
   );
 
@@ -151,6 +135,7 @@ export class AddConfigurationValueNodeComponent {
     buildAddConfigurationDateValueFieldConfig({
       rowKey: this.rowKey(),
       depth: this.depth(),
+      compact: this.compact(),
     })
   );
 
@@ -159,6 +144,17 @@ export class AddConfigurationValueNodeComponent {
       rowKey: this.rowKey(),
       depth: this.depth(),
       index,
+    });
+  }
+
+  protected childKindFieldConfig(
+    index: number,
+    prefix: string
+  ): IInputFieldsConfig {
+    return buildAddConfigurationKindSelectFieldConfig({
+      rowKey: `${this.rowKey()}-${prefix}-${index}`,
+      depth: this.depth() + 1,
+      options: this.childKindOptions(),
     });
   }
 
@@ -226,32 +222,13 @@ export class AddConfigurationValueNodeComponent {
     if (n.kind !== 'object') {
       return;
     }
-    const entries = [
-      ...(n.objectEntries ?? []),
-      { key: '', value: createEmptyNode('string') },
-    ];
-    this.nodeChange.emit({ ...n, objectEntries: entries });
-
-    // Edit mode collapses rows by default; newly added properties should open for editing.
-    if (this.collapseChildrenByDefault()) {
-      setTimeout(() => {
-        this.objectRowExpanded.update(arr => {
-          const current = this.node();
-          if (current.kind !== 'object') {
-            return arr;
-          }
-          const len = current.objectEntries?.length ?? 0;
-          const next = arr.slice(0, len);
-          while (next.length < len) {
-            next.push(false);
-          }
-          if (len > 0) {
-            next[len - 1] = true;
-          }
-          return next;
-        });
-      }, 0);
-    }
+    this.nodeChange.emit({
+      ...n,
+      objectEntries: [
+        ...(n.objectEntries ?? []),
+        { key: '', value: createEmptyNode('string') },
+      ],
+    });
   }
 
   protected removeObjectEntry(index: number): void {
@@ -270,8 +247,16 @@ export class AddConfigurationValueNodeComponent {
       return;
     }
     const entries = [...(n.objectEntries ?? [])];
-    entries[index] = { ...entries[index], key: String(raw ?? '') };
+    const current = entries[index];
+    if (!current) {
+      return;
+    }
+    entries[index] = { ...current, key: String(raw ?? '') };
     this.nodeChange.emit({ ...n, objectEntries: entries });
+  }
+
+  protected onObjectValueKindChange(index: number, raw: unknown): void {
+    this.replaceEntryValueKind(index, raw, 'object');
   }
 
   protected onObjectValueChange(index: number, value: IConfigValueNode): void {
@@ -280,7 +265,11 @@ export class AddConfigurationValueNodeComponent {
       return;
     }
     const entries = [...(n.objectEntries ?? [])];
-    entries[index] = { ...entries[index], value: cloneNode(value) };
+    const current = entries[index];
+    if (!current) {
+      return;
+    }
+    entries[index] = { ...current, value: cloneNode(value) };
     this.nodeChange.emit({ ...n, objectEntries: entries });
   }
 
@@ -289,8 +278,10 @@ export class AddConfigurationValueNodeComponent {
     if (n.kind !== 'array') {
       return;
     }
-    const items = [...(n.arrayItems ?? []), createEmptyNode('string')];
-    this.nodeChange.emit({ ...n, arrayItems: items });
+    this.nodeChange.emit({
+      ...n,
+      arrayItems: [...(n.arrayItems ?? []), createEmptyNode('string')],
+    });
   }
 
   protected removeArrayItem(index: number): void {
@@ -301,6 +292,10 @@ export class AddConfigurationValueNodeComponent {
     const items = [...(n.arrayItems ?? [])];
     items.splice(index, 1);
     this.nodeChange.emit({ ...n, arrayItems: items });
+  }
+
+  protected onArrayItemKindChange(index: number, raw: unknown): void {
+    this.replaceEntryValueKind(index, raw, 'array');
   }
 
   protected onArrayItemChange(index: number, value: IConfigValueNode): void {
@@ -360,39 +355,38 @@ export class AddConfigurationValueNodeComponent {
     return key.trim() === '';
   }
 
-  protected isObjectRowExpanded(index: number): boolean {
-    return this.objectRowExpanded()[index] === true;
-  }
-
-  protected objectRowChevronClass(index: number): string {
-    return this.isObjectRowExpanded(index)
-      ? this.chevronExpandedIcon
-      : this.chevronCollapsedIcon;
-  }
-
-  protected toggleObjectRow(index: number): void {
-    this.objectRowExpanded.update(arr => {
-      const next = [...arr];
-      next[index] = !next[index];
-      return next;
-    });
-  }
-
-  protected expandAllObjectRows(): void {
-    const n = this.node();
-    if (n.kind !== 'object') {
+  private replaceEntryValueKind(
+    index: number,
+    raw: unknown,
+    collection: 'object' | 'array'
+  ): void {
+    const kind = typeof raw === 'string' ? raw : String(raw ?? '');
+    if (!isTValueKind(kind)) {
       return;
     }
-    const len = n.objectEntries?.length ?? 0;
-    this.objectRowExpanded.set(Array(len).fill(true));
-  }
-
-  protected collapseAllObjectRows(): void {
     const n = this.node();
-    if (n.kind !== 'object') {
+    if (collection === 'object') {
+      if (n.kind !== 'object') {
+        return;
+      }
+      const entries = [...(n.objectEntries ?? [])];
+      const current = entries[index];
+      if (!current || current.value.kind === kind) {
+        return;
+      }
+      entries[index] = { ...current, value: createEmptyNode(kind) };
+      this.nodeChange.emit({ ...n, objectEntries: entries });
       return;
     }
-    const len = n.objectEntries?.length ?? 0;
-    this.objectRowExpanded.set(Array(len).fill(false));
+    if (n.kind !== 'array') {
+      return;
+    }
+    const items = [...(n.arrayItems ?? [])];
+    const current = items[index];
+    if (!current || current.kind === kind) {
+      return;
+    }
+    items[index] = createEmptyNode(kind);
+    this.nodeChange.emit({ ...n, arrayItems: items });
   }
 }
