@@ -449,7 +449,7 @@ export class GetVehicleComponent implements OnInit {
           {
             label: 'Initiated',
             icon: ICONS.ACTIONS.SEND,
-            value: stats?.handover.initiated ?? 0,
+            value: stats?.handover?.initiated ?? 0,
           },
         ],
       },

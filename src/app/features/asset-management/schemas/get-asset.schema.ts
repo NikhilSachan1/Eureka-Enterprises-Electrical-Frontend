@@ -88,10 +88,12 @@ export const AssetGetBaseResponseSchema = z
 
 export const AssetGetStatsResponseSchema = z.looseObject({
   total: z.number().int().nonnegative(),
-  handover: z.object({
-    initiated: z.number().int().nonnegative(),
-    accepted: z.number().int().nonnegative(),
-  }),
+  handover: z
+    .object({
+      initiated: z.number().int().nonnegative(),
+      accepted: z.number().int().nonnegative(),
+    })
+    .nullish(),
   byStatus: z.object({
     available: z.number().int().nonnegative(),
     assigned: z.number().int().nonnegative(),

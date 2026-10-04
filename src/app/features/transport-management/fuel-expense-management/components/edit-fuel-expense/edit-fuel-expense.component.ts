@@ -5,6 +5,7 @@ import {
   inject,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import {
@@ -25,6 +26,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { FuelExpenseAmountFieldComponent } from '@features/transport-management/fuel-expense-management/shared/fuel-expense-amount-field/fuel-expense-amount-field.component';
 
 @Component({
   selector: 'app-edit-fuel-expense',
@@ -33,6 +35,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     InputFieldComponent,
     ButtonComponent,
     ReactiveFormsModule,
+    FuelExpenseAmountFieldComponent,
   ],
   templateUrl: './edit-fuel-expense.component.html',
   styleUrl: './edit-fuel-expense.component.scss',
@@ -45,6 +48,7 @@ export class EditFuelExpenseComponent
   private readonly fuelExpenseService = inject(FuelExpenseService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly fuelAmountField = viewChild(FuelExpenseAmountFieldComponent);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly initialFuelExpenseData =
@@ -128,6 +132,12 @@ export class EditFuelExpenseComponent
       'fuelExpenseId'
     ] as string;
     if (!fuelExpenseId) {
+      this.isSubmitting.set(false);
+      return;
+    }
+
+    if (!this.fuelAmountField()?.ensureCanSubmit()) {
+      this.isSubmitting.set(false);
       return;
     }
 

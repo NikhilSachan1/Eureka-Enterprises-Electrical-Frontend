@@ -5,6 +5,7 @@ import {
   inject,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import { RouterNavigationService } from '@shared/services';
@@ -24,6 +25,7 @@ import { ButtonComponent } from '@shared/components/button/button.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LinkedVehiclePetroCardComponent } from '../../shared/linked-vehicle-petro-card/linked-vehicle-petro-card.component';
+import { FuelExpenseAmountFieldComponent } from '../../shared/fuel-expense-amount-field/fuel-expense-amount-field.component';
 
 @Component({
   selector: 'app-force-fuel-expense',
@@ -33,6 +35,7 @@ import { LinkedVehiclePetroCardComponent } from '../../shared/linked-vehicle-pet
     ButtonComponent,
     ReactiveFormsModule,
     LinkedVehiclePetroCardComponent,
+    FuelExpenseAmountFieldComponent,
   ],
   templateUrl: './force-fuel-expense.component.html',
   styleUrl: './force-fuel-expense.component.scss',
@@ -44,6 +47,7 @@ export class ForceFuelExpenseComponent
 {
   private readonly fuelExpenseService = inject(FuelExpenseService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly fuelAmountField = viewChild(FuelExpenseAmountFieldComponent);
 
   private trackedFuelExpenseFields!: ITrackedFields<IFuelExpenseForceUIFormDto>;
 
@@ -86,6 +90,10 @@ export class ForceFuelExpenseComponent
   }
 
   protected override handleSubmit(): void {
+    if (!this.fuelAmountField()?.ensureCanSubmit()) {
+      this.isSubmitting.set(false);
+      return;
+    }
     const formData = this.prepareFormData();
     this.executeForceExpense(formData);
   }
@@ -105,6 +113,7 @@ export class ForceFuelExpenseComponent
       detail?.vehicle && Object.keys(detail.vehicle).length > 0;
     if (!hasValidVehicle) {
       this.notificationService.error('No vehicle linked for this employee.');
+      this.isSubmitting.set(false);
       return;
     }
 

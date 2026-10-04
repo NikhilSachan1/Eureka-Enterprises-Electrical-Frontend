@@ -13,7 +13,17 @@
           >
             <span [class]="ICONS.COMMON.CREDIT_CARD"></span>
           </span>
-          <span class="petro-wallet-dash__eyebrow">Available balance</span>
+          <div class="petro-wallet-dash__titles">
+            <span class="petro-wallet-dash__eyebrow">PetroCard wallet</span>
+            <span class="petro-wallet-dash__label">Available balance</span>
+          </div>
+          @if (showWalletLink()) {
+            <app-button
+              class="petro-wallet-dash__action"
+              [buttonConfig]="openWalletButton"
+              (onButtonClick)="openWallet()"
+            />
+          }
         </div>
 
         <div
@@ -42,100 +52,10 @@
               }}
             </span>
             <span class="petro-wallet-dash__amount-note">
-              Ready to use across all PetroCards
+              Shared balance for every PetroCard
             </span>
           }
         </div>
-      </div>
-
-      <div class="petro-wallet-dash__panel">
-        <div class="petro-wallet-dash__panel-head">
-          <div>
-            <h2 class="petro-wallet-dash__title">PetroCard wallet</h2>
-            <p class="petro-wallet-dash__hint">
-              One shared wallet — recharge once, use on every card.
-            </p>
-          </div>
-          @if (showWalletLink()) {
-            <app-button
-              [buttonConfig]="openWalletButton"
-              (onButtonClick)="openWallet()"
-            />
-          }
-        </div>
-
-        @if (balance(); as snapshot) {
-          <div
-            class="petro-wallet-dash__stats"
-            role="list"
-            aria-label="Wallet summary"
-          >
-            <div
-              class="petro-wallet-dash__stat"
-              role="listitem"
-            >
-              <span
-                class="petro-wallet-dash__stat-icon petro-wallet-dash__stat-icon--in"
-                aria-hidden="true"
-              >
-                <span [class]="ICONS.COMMON.ARROW_DOWN"></span>
-              </span>
-              <div class="petro-wallet-dash__stat-copy">
-                <span class="petro-wallet-dash__stat-label">Total recharged</span>
-                <span class="petro-wallet-dash__stat-value">
-                  {{
-                    snapshot.totalRecharged
-                      | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                  }}
-                </span>
-              </div>
-            </div>
-
-            <div
-              class="petro-wallet-dash__stat"
-              role="listitem"
-            >
-              <span
-                class="petro-wallet-dash__stat-icon petro-wallet-dash__stat-icon--out"
-                aria-hidden="true"
-              >
-                <span [class]="ICONS.COMMON.ARROW_RIGHT"></span>
-              </span>
-              <div class="petro-wallet-dash__stat-copy">
-                <span class="petro-wallet-dash__stat-label">Total consumed</span>
-                <span class="petro-wallet-dash__stat-value">
-                  {{
-                    snapshot.totalConsumed
-                      | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                  }}
-                </span>
-              </div>
-            </div>
-
-            <div
-              class="petro-wallet-dash__stat"
-              role="listitem"
-            >
-              <span
-                class="petro-wallet-dash__stat-icon petro-wallet-dash__stat-icon--pending"
-                aria-hidden="true"
-              >
-                <span [class]="ICONS.COMMON.CLOCK"></span>
-              </span>
-              <div class="petro-wallet-dash__stat-copy">
-                <span class="petro-wallet-dash__stat-label">Pending consume</span>
-                <span class="petro-wallet-dash__stat-value">
-                  {{
-                    snapshot.pendingConsumed
-                      | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                  }}
-                </span>
-              </div>
-            </div>
-          </div>
-        } @else if (!loading() && !loadError()) {
-          <p class="petro-wallet-dash__empty">No wallet activity yet.</p>
-        }
       </div>
     </div>
   </p-card>

@@ -1734,6 +1734,12 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     if (errors['mismatch']) {
       return 'Passwords do not match';
     }
+    if (errors['insufficientWalletBalance']) {
+      const e = errors['insufficientWalletBalance'];
+      return typeof e === 'string'
+        ? e
+        : 'Insufficient wallet balance. Please recharge first.';
+    }
 
     return 'Invalid value';
   }
