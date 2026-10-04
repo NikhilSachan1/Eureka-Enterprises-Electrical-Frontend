@@ -1,0 +1,14 @@
+<ng-template
+  #paidFromAccountDetails
+  let-entry
+>
+  <app-bank-details-cell
+    [bankDetails]="$any(entry.value)"
+    [displayMode]="EBankDetailsDisplayMode.COMPACT"
+  />
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="_rechargeDetails()"
+  [customTemplates]="{ paidFromAccountDetails: paidFromAccountDetails }"
+/>

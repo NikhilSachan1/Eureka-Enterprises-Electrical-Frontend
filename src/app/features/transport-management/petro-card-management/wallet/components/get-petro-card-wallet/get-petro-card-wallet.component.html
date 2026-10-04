@@ -1,0 +1,21 @@
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+/>
+
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="rechargeTableRef.dt()"
+    [searchFilterConfig]="rechargeSearchFilterConfig"
+  />
+</div>
+<app-data-table
+  #rechargeTableRef
+  [tableConfig]="rechargeTable.tableConfig()"
+  [tableHeader]="rechargeTable.headers()"
+  [tableData]="rechargeTable.data()"
+  [loading]="rechargeTable.loading()"
+  [rowActions]="rechargeTable.rowActions()"
+  (rowActionClick)="handleRechargeAction($any($event))"
+  (filterData)="onRechargeTableStateChange($event)"
+/>

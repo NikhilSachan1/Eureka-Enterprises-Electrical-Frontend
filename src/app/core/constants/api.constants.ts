@@ -128,6 +128,15 @@ export const API_ROUTES = {
     EDIT: (petroCardId: string) => `cards/${petroCardId}`,
     LINK: 'cards/action',
   },
+  PETRO_CARD_WALLET: {
+    BALANCE: 'petro-card-wallet/balance',
+    LIST: 'petro-card-wallet/recharges',
+    ADD: 'petro-card-wallet/recharges',
+    EDIT: (rechargeId: string) =>
+      `petro-card-wallet/recharges/${rechargeId}`,
+    DELETE: (rechargeId: string) =>
+      `petro-card-wallet/recharges/${rechargeId}`,
+  },
   COMPANY_BANK_ACCOUNT: {
     LIST: 'company-bank-accounts',
     ADD: 'company-bank-accounts',

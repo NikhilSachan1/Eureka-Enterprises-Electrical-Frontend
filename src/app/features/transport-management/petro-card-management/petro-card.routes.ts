@@ -42,4 +42,42 @@ export const PETRO_CARD_MANAGEMENT_ROUTES: Routes = [
       permissions: [APP_PERMISSION.PETRO_CARD.EDIT],
     },
   },
+  {
+    path: ROUTES.PETRO_CARD.WALLET,
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import(
+            './wallet/components/get-petro-card-wallet/get-petro-card-wallet.component'
+          ).then(m => m.GetPetroCardWalletComponent),
+        canActivate: [permissionGuard],
+        data: {
+          permissions: [APP_PERMISSION.PETRO_CARD.WALLET_VIEW],
+        },
+      },
+      {
+        path: ROUTES.PETRO_CARD.WALLET_ADD,
+        loadComponent: () =>
+          import(
+            './wallet/components/add-wallet-recharge/add-wallet-recharge.component'
+          ).then(m => m.AddWalletRechargeComponent),
+        canActivate: [permissionGuard],
+        data: {
+          permissions: [APP_PERMISSION.PETRO_CARD.WALLET_MANAGE],
+        },
+      },
+      {
+        path: `${ROUTES.PETRO_CARD.WALLET_EDIT}/:rechargeId`,
+        loadComponent: () =>
+          import(
+            './wallet/components/edit-wallet-recharge/edit-wallet-recharge.component'
+          ).then(m => m.EditWalletRechargeComponent),
+        canActivate: [permissionGuard],
+        data: {
+          permissions: [APP_PERMISSION.PETRO_CARD.WALLET_MANAGE],
+        },
+      },
+    ],
+  },
 ];

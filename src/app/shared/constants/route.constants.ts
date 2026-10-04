@@ -213,6 +213,9 @@ export const ROUTES = {
     LIST: `list`,
     ADD: `add`,
     EDIT: `edit`,
+    WALLET: `wallet`,
+    WALLET_ADD: `add`,
+    WALLET_EDIT: `edit`,
   },
 
   COMPANY_BANK_ACCOUNT: {
