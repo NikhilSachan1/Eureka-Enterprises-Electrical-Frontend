@@ -1,0 +1,257 @@
+:host {
+  display: block;
+}
+
+:host:not(:empty) {
+  margin-bottom: 1.5rem;
+}
+
+.petro-wallet-dash {
+  --pw-accent: #0f766e;
+  --pw-accent-dark: #115e59;
+  --pw-accent-soft: color-mix(in srgb, var(--pw-accent) 12%, #fff);
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid var(--border-light-color);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 8px 28px -12px rgb(0 0 0 / 0.12);
+  background: var(--background-default-color);
+
+  &--healthy {
+    --pw-accent: #0f766e;
+    --pw-accent-dark: #115e59;
+  }
+
+  &--low {
+    --pw-accent: #b45309;
+    --pw-accent-dark: #92400e;
+  }
+}
+
+:host ::ng-deep .petro-wallet-dash > .p-card-body {
+  padding: 0;
+}
+
+.petro-wallet-dash__shell {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.95fr) minmax(0, 1.35fr);
+  min-height: 11.5rem;
+
+  @media (max-width: 860px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.petro-wallet-dash__spotlight {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.35rem 1.4rem 1.45rem;
+  color: #fff;
+  background:
+    radial-gradient(
+      120% 90% at 100% 0%,
+      rgb(255 255 255 / 0.16),
+      transparent 55%
+    ),
+    linear-gradient(145deg, var(--pw-accent) 0%, var(--pw-accent-dark) 100%);
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: auto -20% -45% 35%;
+    height: 9rem;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.08);
+    pointer-events: none;
+  }
+}
+
+.petro-wallet-dash__spotlight-top {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.petro-wallet-dash__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 0.16);
+  border: 1px solid rgb(255 255 255 / 0.22);
+  backdrop-filter: blur(4px);
+  font-size: 1.05rem;
+}
+
+.petro-wallet-dash__eyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.92;
+}
+
+.petro-wallet-dash__hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.petro-wallet-dash__amount {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.08);
+}
+
+.petro-wallet-dash__amount-note {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  opacity: 0.88;
+  max-width: 16rem;
+}
+
+.petro-wallet-dash__loading,
+.petro-wallet-dash__error {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.petro-wallet-dash__error {
+  opacity: 0.95;
+}
+
+.petro-wallet-dash__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.15rem;
+  padding: 1.25rem 1.35rem 1.3rem;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--pw-accent) 5%, var(--background-paper-color)) 0%,
+      var(--background-paper-color) 42%
+    );
+}
+
+.petro-wallet-dash__panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.petro-wallet-dash__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary-color);
+}
+
+.petro-wallet-dash__hint {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--text-secondary-color);
+  max-width: 26rem;
+}
+
+.petro-wallet-dash__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.petro-wallet-dash__stat {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.8rem 0.85rem;
+  border-radius: 0.85rem;
+  border: 1px solid
+    color-mix(in srgb, var(--border-light-color) 88%, var(--pw-accent));
+  background: color-mix(
+    in srgb,
+    var(--background-default-color) 55%,
+    var(--background-paper-color)
+  );
+}
+
+.petro-wallet-dash__stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.6rem;
+  flex-shrink: 0;
+  font-size: 0.85rem;
+
+  &--in {
+    color: #047857;
+    background: color-mix(in srgb, #10b981 16%, #fff);
+  }
+
+  &--out {
+    color: #b91c1c;
+    background: color-mix(in srgb, #ef4444 14%, #fff);
+  }
+
+  &--pending {
+    color: #b45309;
+    background: color-mix(in srgb, #f59e0b 16%, #fff);
+  }
+}
+
+.petro-wallet-dash__stat-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.petro-wallet-dash__stat-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary-color);
+}
+
+.petro-wallet-dash__stat-value {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-primary-color);
+  font-variant-numeric: tabular-nums;
+  word-break: break-word;
+}
+
+.petro-wallet-dash__empty {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary-color);
+}

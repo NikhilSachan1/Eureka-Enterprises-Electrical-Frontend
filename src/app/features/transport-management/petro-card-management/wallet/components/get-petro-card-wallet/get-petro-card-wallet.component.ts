@@ -5,11 +5,13 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants';
 import { LoggerService } from '@core/services';
+import { PetroCardWalletDashboardComponent } from '@features/dashboard/components/petro-card-wallet-dashboard/petro-card-wallet-dashboard.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
@@ -50,7 +52,12 @@ import { GetWalletRechargeDetailComponent } from '../get-wallet-recharge-detail/
 
 @Component({
   selector: 'app-get-petro-card-wallet',
-  imports: [PageHeaderComponent, SearchFilterComponent, DataTableComponent],
+  imports: [
+    PageHeaderComponent,
+    SearchFilterComponent,
+    DataTableComponent,
+    PetroCardWalletDashboardComponent,
+  ],
   templateUrl: './get-petro-card-wallet.component.html',
   styleUrl: './get-petro-card-wallet.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,6 +75,7 @@ export class GetPetroCardWalletComponent implements OnInit {
 
   protected rechargeTable!: IEnhancedTable;
   protected rechargeSearchFilterConfig!: ITableSearchFilterFormConfig;
+  private readonly walletBalanceCard = viewChild(PetroCardWalletDashboardComponent);
 
   protected readonly pageHeaderConfig = computed(() =>
     this.getPageHeaderConfig()
@@ -221,6 +229,7 @@ export class GetPetroCardWalletComponent implements OnInit {
         rechargeId: id,
         onSuccess: () => {
           this.loadRecharges();
+          this.walletBalanceCard()?.reloadBalance();
         },
       }
     );

@@ -10,6 +10,7 @@ import { AttendanceDashboardComponent } from '@features/dashboard/components/att
 import { LeaveBalanceDashboardComponent } from '@features/dashboard/components/leave-balance-dashboard/leave-balance-dashboard.component';
 import { ExpenseDashboardComponent } from '@features/dashboard/components/expense-dashboard/expense-dashboard.component';
 import { FuelExpenseDashboardComponent } from '@features/dashboard/components/fuel-expense-dashboard/fuel-expense-dashboard.component';
+import { PetroCardWalletDashboardComponent } from '@features/dashboard/components/petro-card-wallet-dashboard/petro-card-wallet-dashboard.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { AnniversaryDashboardComponent } from '../anniversary-dashboard/anniversary-dashboard.component';
 import { BirthdaysDashboardComponent } from '../birthdays-dashboard/birthdays-dashboard.component';
@@ -27,6 +28,7 @@ const DASHBOARD_COMING_SOON_ROLES = new Set<string>([
     NgStyle,
     PageHeaderComponent,
     KpmDashboardComponent,
+    PetroCardWalletDashboardComponent,
     OpsAttentionDashboardComponent,
     AttendanceDashboardComponent,
     LeaveBalanceDashboardComponent,
