@@ -1,14 +1,39 @@
 <ng-template
-  #paidFromAccountDetails
+  #paymentDetails
   let-entry
 >
-  <app-bank-details-cell
-    [bankDetails]="$any(entry.value)"
-    [displayMode]="EBankDetailsDisplayMode.COMPACT"
-  />
+  @let payment = $any(entry.value);
+  @if (payment.isPaid) {
+    <div class="flex flex-col gap-2 text-sm">
+      @if (payment.referenceNumber) {
+        <span>UTR · {{ payment.referenceNumber }}</span>
+      }
+      @if (payment.paymentModeLabel) {
+        <span class="text-content-secondary">{{ payment.paymentModeLabel }}</span>
+      }
+      @if (payment.paidFromAccount) {
+        <div class="flex flex-col gap-1">
+          <span class="text-content-secondary">Paid from</span>
+          <app-bank-details-cell
+            [bankDetails]="payment.paidFromAccount"
+            [displayMode]="EBankDetailsDisplayMode.COMPACT"
+          />
+        </div>
+      }
+      @if (
+        !payment.referenceNumber &&
+        !payment.paymentModeLabel &&
+        !payment.paidFromAccount
+      ) {
+        <span>-</span>
+      }
+    </div>
+  } @else {
+    <app-status-tag value="pending" />
+  }
 </ng-template>
 
 <app-view-detail
   [drawerDetails]="_rechargeDetails()"
-  [customTemplates]="{ paidFromAccountDetails: paidFromAccountDetails }"
+  [customTemplates]="{ paymentDetails: paymentDetails }"
 />

@@ -1,22 +1,18 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   inject,
+  input,
   OnInit,
-  signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { FormBase } from '@shared/base/form.base';
-import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { ButtonComponent } from '@shared/components/button/button.component';
-import { RouterNavigationService } from '@shared/services';
-import { IPageHeaderConfig } from '@shared/types';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import { ConfirmationDialogService } from '@shared/services';
+import { IDialogActionHandler } from '@shared/types';
 import { EDIT_WALLET_RECHARGE_FORM_CONFIG } from '../../config/form/edit-wallet-recharge.config';
 import { PetroCardWalletService } from '../../services/petro-card-wallet.service';
 import {
@@ -26,76 +22,61 @@ import {
 
 @Component({
   selector: 'app-edit-wallet-recharge',
-  imports: [
-    PageHeaderComponent,
-    InputFieldComponent,
-    ButtonComponent,
-    ReactiveFormsModule,
-  ],
+  imports: [InputFieldComponent, ReactiveFormsModule],
   templateUrl: './edit-wallet-recharge.component.html',
   styleUrl: './edit-wallet-recharge.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditWalletRechargeComponent
   extends FormBase<IWalletRechargeEditUIFormDto>
-  implements OnInit
+  implements OnInit, IDialogActionHandler
 {
   private readonly walletService = inject(PetroCardWalletService);
-  private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly activatedRoute = inject(ActivatedRoute);
-
-  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  private readonly initialRecharge = signal<IWalletRechargeEditUIFormDto | null>(
-    null
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService
   );
 
+  protected readonly selectedRecord =
+    input.required<IWalletRechargeGetBaseResponseDto[]>();
+  protected readonly onSuccess = input.required<() => void>();
+
   ngOnInit(): void {
-    this.loadRechargeFromRoute();
+    const record = this.selectedRecord()?.[0];
+    if (!record) {
+      this.notificationService.error(
+        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+      );
+      this.logger.error('Edit wallet recharge: selected record was not provided');
+      this.confirmationDialogService.closeDialog();
+      return;
+    }
+
     this.form = this.formService.createForm<IWalletRechargeEditUIFormDto>(
       EDIT_WALLET_RECHARGE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
-        defaultValues: this.initialRecharge(),
+        defaultValues: {
+          amount: Number(record.amount),
+          rechargeDate: new Date(record.rechargeDate),
+          remarks: record.remarks ?? '',
+        },
       }
     );
   }
 
+  onDialogAccept(): void {
+    super.onSubmit();
+  }
+
   protected override handleSubmit(): void {
-    const rechargeId = this.activatedRoute.snapshot.params['rechargeId'] as
-      | string
-      | undefined;
-    if (!rechargeId) {
-      return;
-    }
-    this.executeEdit(this.form.getData(), rechargeId);
-  }
-
-  protected onReset(): void {
-    this.onResetSingleForm();
-  }
-
-  private loadRechargeFromRoute(): void {
-    const routeState =
-      this.routerNavigationService.getRouterStateData<IWalletRechargeGetBaseResponseDto>(
-        'rechargeData'
+    const record = this.selectedRecord()?.[0];
+    if (!record?.id) {
+      this.notificationService.error(
+        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
-    if (!routeState) {
-      this.logger.logUserAction('No wallet recharge data found in route');
-      void this.routerNavigationService.navigateToRoute([
-        ROUTE_BASE_PATHS.TRANSPORT,
-        ROUTE_BASE_PATHS.PETRO_CARD,
-        ROUTES.PETRO_CARD.WALLET,
-      ]);
       return;
     }
-    this.initialRecharge.set({
-      amount: Number(routeState.amount),
-      rechargeDate: new Date(routeState.rechargeDate),
-      referenceNumber: routeState.referenceNumber ?? '',
-      paymentMode: routeState.paymentMode ?? null,
-      paidFromAccountId: routeState.paidFromAccountId ?? null,
-      remarks: routeState.remarks ?? '',
-    });
+    this.executeEdit(this.form.getData(), record.id);
   }
 
   private executeEdit(
@@ -121,22 +102,12 @@ export class EditWalletRechargeComponent
       .subscribe({
         next: response => {
           this.notificationService.success(response.message);
-          void this.routerNavigationService.navigateToRoute([
-            ROUTE_BASE_PATHS.TRANSPORT,
-            ROUTE_BASE_PATHS.PETRO_CARD,
-            ROUTES.PETRO_CARD.WALLET,
-          ]);
+          this.onSuccess()();
+          this.confirmationDialogService.closeDialog();
         },
         error: error => {
           this.logger.logUserAction('Failed to update wallet recharge', error);
         },
       });
-  }
-
-  private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
-    return {
-      title: 'Edit Recharge',
-      subtitle: 'Correct a PetroCard wallet recharge',
-    };
   }
 }

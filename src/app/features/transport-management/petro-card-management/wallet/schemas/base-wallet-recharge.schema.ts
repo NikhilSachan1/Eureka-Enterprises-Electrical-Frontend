@@ -28,9 +28,6 @@ export const WalletRechargeUpsertShapeSchema = z
   .object({
     amount: z.coerce.number().positive(),
     rechargeDate: dateField,
-    referenceNumber: z.string().nullish(),
-    paymentMode: z.string().nullish(),
-    paidFromAccountId: z.union([uuidField, z.literal(''), z.null()]).optional(),
     remarks: z.string().nullish(),
   })
   .strict();

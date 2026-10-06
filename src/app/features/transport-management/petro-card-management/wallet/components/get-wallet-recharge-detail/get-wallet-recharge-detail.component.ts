@@ -7,6 +7,7 @@ import {
 import { APP_CONFIG } from '@core/config';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
+import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { AppConfigurationService } from '@shared/services';
@@ -21,10 +22,11 @@ import {
   mapPaidFromAccountToBankDetails,
 } from '@shared/utility';
 import { IWalletRechargeGetBaseResponseDto } from '../../types/petro-card-wallet.dto';
+import { isWalletRechargePaymentRecorded } from '../../utils/wallet-recharge-payment.util';
 
 @Component({
   selector: 'app-get-wallet-recharge-detail',
-  imports: [ViewDetailComponent, BankDetailsCellComponent],
+  imports: [ViewDetailComponent, BankDetailsCellComponent, StatusTagComponent],
   templateUrl: './get-wallet-recharge-detail.component.html',
   styleUrl: './get-wallet-recharge-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,6 +50,14 @@ export class GetWalletRechargeDetailComponent extends DrawerDetailBase {
   private mapDetailData(
     record: IWalletRechargeGetBaseResponseDto
   ): IDataViewDetailsWithEntity {
+    const isPaid = isWalletRechargePaymentRecorded(record);
+    const paymentModeLabel = record.paymentMode
+      ? getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.expensePaymentMethods(),
+          record.paymentMode
+        )
+      : null;
+
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Date',
@@ -62,29 +72,19 @@ export class GetWalletRechargeDetailComponent extends DrawerDetailBase {
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
       {
-        label: 'Reference / UTR',
-        value: record.referenceNumber || '-',
+        label: 'Payment',
+        value: {
+          isPaid,
+          referenceNumber: record.referenceNumber?.trim() || null,
+          paymentModeLabel,
+          paidFromAccount: record.paidFromAccount
+            ? mapPaidFromAccountToBankDetails(record.paidFromAccount)
+            : null,
+        },
+        customTemplateKey: 'paymentDetails',
+        detailTemplateFullRow: true,
+        detailTemplatePlain: true,
       },
-      {
-        label: 'Payment Mode',
-        value: record.paymentMode
-          ? getMappedValueFromArrayOfObjects(
-              this.appConfigurationService.expensePaymentMethods(),
-              record.paymentMode
-            )
-          : '-',
-      },
-      ...(record.paidFromAccount
-        ? [
-            {
-              label: 'Paid From Account',
-              value: mapPaidFromAccountToBankDetails(record.paidFromAccount),
-              customTemplateKey: 'paidFromAccountDetails',
-              detailTemplateFullRow: true,
-              detailTemplatePlain: true,
-            },
-          ]
-        : []),
     ];
 
     return {

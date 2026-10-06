@@ -15,16 +15,15 @@ import { PetroCardWalletDashboardComponent } from '@features/dashboard/component
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
-  RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   EButtonActionType,
   EDataType,
@@ -39,7 +38,7 @@ import {
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
-import { WALLET_RECHARGE_ACTION_CONFIG_MAP } from '../../config/dialog/delete-wallet-recharge.config';
+import { WALLET_RECHARGE_ACTION_CONFIG_MAP } from '../../config/dialog/get-wallet-recharge.config';
 import { SEARCH_FILTER_WALLET_RECHARGES_FORM_CONFIG } from '../../config/form/search-filter-wallet.config';
 import { WALLET_RECHARGE_TABLE_ENHANCED_CONFIG } from '../../config/table/get-wallet.config';
 import { PetroCardWalletService } from '../../services/petro-card-wallet.service';
@@ -48,6 +47,7 @@ import {
   IWalletRechargeGetFormDto,
 } from '../../types/petro-card-wallet.dto';
 import { IWalletRecharge } from '../../types/petro-card-wallet.interface';
+import { isWalletRechargePaymentRecorded } from '../../utils/wallet-recharge-payment.util';
 import { GetWalletRechargeDetailComponent } from '../get-wallet-recharge-detail/get-wallet-recharge-detail.component';
 
 @Component({
@@ -57,6 +57,7 @@ import { GetWalletRechargeDetailComponent } from '../get-wallet-recharge-detail/
     SearchFilterComponent,
     DataTableComponent,
     PetroCardWalletDashboardComponent,
+    StatusTagComponent,
   ],
   templateUrl: './get-petro-card-wallet.component.html',
   styleUrl: './get-petro-card-wallet.component.scss',
@@ -70,12 +71,13 @@ export class GetPetroCardWalletComponent implements OnInit {
   private readonly tableParams = inject(TableServerSideParamsBuilderService);
   private readonly confirmationDialogService = inject(ConfirmationDialogService);
   private readonly drawerService = inject(DrawerService);
-  private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected rechargeTable!: IEnhancedTable;
   protected rechargeSearchFilterConfig!: ITableSearchFilterFormConfig;
-  private readonly walletBalanceCard = viewChild(PetroCardWalletDashboardComponent);
+  private readonly walletBalanceCard = viewChild(
+    PetroCardWalletDashboardComponent
+  );
 
   protected readonly pageHeaderConfig = computed(() =>
     this.getPageHeaderConfig()
@@ -100,12 +102,7 @@ export class GetPetroCardWalletComponent implements OnInit {
     if (actionName !== 'addWalletRecharge') {
       return;
     }
-    void this.routerNavigationService.navigateToRoute([
-      ROUTE_BASE_PATHS.TRANSPORT,
-      ROUTE_BASE_PATHS.PETRO_CARD,
-      ROUTES.PETRO_CARD.WALLET,
-      ROUTES.PETRO_CARD.WALLET_ADD,
-    ]);
+    this.openAddRechargeDialog();
   }
 
   protected handleRechargeAction(
@@ -120,12 +117,41 @@ export class GetPetroCardWalletComponent implements OnInit {
       return;
     }
     if (event.actionType === EButtonActionType.EDIT) {
-      this.openRechargeEditor(row);
+      this.openEditRechargeDialog(row);
       return;
     }
     if (event.actionType === EButtonActionType.DELETE) {
       this.confirmDelete(row.id, row.amount, row.referenceNumber ?? null);
     }
+  }
+
+  private openAddRechargeDialog(): void {
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.ADD,
+      WALLET_RECHARGE_ACTION_CONFIG_MAP[EButtonActionType.ADD],
+      null,
+      false,
+      false,
+      {
+        onSuccess: () => this.refreshAfterMutation(),
+      }
+    );
+  }
+
+  private openEditRechargeDialog(
+    record: IWalletRechargeGetBaseResponseDto
+  ): void {
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.EDIT,
+      WALLET_RECHARGE_ACTION_CONFIG_MAP[EButtonActionType.EDIT],
+      null,
+      false,
+      false,
+      {
+        selectedRecord: [record],
+        onSuccess: () => this.refreshAfterMutation(),
+      }
+    );
   }
 
   private showRechargeDetailsDrawer(
@@ -174,32 +200,29 @@ export class GetPetroCardWalletComponent implements OnInit {
   private mapTableData(
     records: IWalletRechargeGetBaseResponseDto[]
   ): IWalletRecharge[] {
-    return records.map(record => ({
-      id: record.id,
-      rechargeDate: record.rechargeDate,
-      amount: record.amount,
-      referenceNumber: record.referenceNumber ?? null,
-      paymentMode: record.paymentMode
-        ? getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.expensePaymentMethods(),
-            record.paymentMode
-          )
-        : null,
-      originalRawData: record,
-    }));
-  }
-
-  private openRechargeEditor(record: IWalletRechargeGetBaseResponseDto): void {
-    void this.routerNavigationService.navigateWithState(
-      [
-        ROUTE_BASE_PATHS.TRANSPORT,
-        ROUTE_BASE_PATHS.PETRO_CARD,
-        ROUTES.PETRO_CARD.WALLET,
-        ROUTES.PETRO_CARD.WALLET_EDIT,
-        record.id,
-      ],
-      { rechargeData: record }
-    );
+    return records.map(record => {
+      const bankName = record.paidFromAccount?.bankName?.trim();
+      return {
+        id: record.id,
+        rechargeDate: record.rechargeDate,
+        amount: record.amount,
+        referenceNumber: record.referenceNumber ?? null,
+        isPaymentRecorded: isWalletRechargePaymentRecorded(record),
+        paymentModeLabel: record.paymentMode
+          ? getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.expensePaymentMethods(),
+              record.paymentMode
+            )
+          : null,
+        paidFromBankName: bankName
+          ? getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.bankNames(),
+              bankName
+            )
+          : null,
+        originalRawData: record,
+      };
+    });
   }
 
   private confirmDelete(
@@ -227,12 +250,14 @@ export class GetPetroCardWalletComponent implements OnInit {
       true,
       {
         rechargeId: id,
-        onSuccess: () => {
-          this.loadRecharges();
-          this.walletBalanceCard()?.reloadBalance();
-        },
+        onSuccess: () => this.refreshAfterMutation(),
       }
     );
+  }
+
+  private refreshAfterMutation(): void {
+    this.loadRecharges();
+    this.walletBalanceCard()?.reloadBalance();
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

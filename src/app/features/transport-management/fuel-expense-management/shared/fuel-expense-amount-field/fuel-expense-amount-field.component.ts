@@ -30,9 +30,6 @@ import {
 
 const PETRO_CARD_PAYMENT_MODE = 'petro_card';
 
-const INSUFFICIENT_BALANCE_MESSAGE =
-  'Insufficient PetroCard wallet balance. Please recharge the wallet first.';
-
 @Component({
   selector: 'app-fuel-expense-amount-field',
   imports: [InputFieldComponent],
@@ -63,11 +60,17 @@ export class FuelExpenseAmountFieldComponent {
     }
 
     const amount = Number(control.value);
+    // Mirror backend: refuse only when amount > balance (exact balance is allowed).
     if (!Number.isFinite(amount) || amount <= 0 || amount <= balance) {
       return null;
     }
 
-    return { insufficientWalletBalance: INSUFFICIENT_BALANCE_MESSAGE };
+    return {
+      insufficientWalletBalance: this.buildInsufficientBalanceMessage(
+        balance,
+        amount
+      ),
+    };
   };
 
   private validatorAttached = false;
@@ -172,7 +175,9 @@ export class FuelExpenseAmountFieldComponent {
     if (Number.isFinite(amount) && amount > balance) {
       amountControl?.markAsTouched();
       amountControl?.updateValueAndValidity();
-      this.notificationService.error(INSUFFICIENT_BALANCE_MESSAGE);
+      this.notificationService.error(
+        this.buildInsufficientBalanceMessage(balance, amount)
+      );
       return false;
     }
 
@@ -206,6 +211,13 @@ export class FuelExpenseAmountFieldComponent {
   private resolveAmountControl(formGroup: FormGroup): AbstractControl | null {
     const fieldName = this.fieldConfig().fieldName || 'fuelAmount';
     return formGroup.get(fieldName);
+  }
+
+  private buildInsufficientBalanceMessage(
+    available: number,
+    needed: number
+  ): string {
+    return `Insufficient PetroCard Wallet balance. Available ${this.formatCurrency(available)}, this entry needs ${this.formatCurrency(needed)}. Recharge the wallet before recording this fuel entry.`;
   }
 
   private formatCurrency(amount: number): string {
