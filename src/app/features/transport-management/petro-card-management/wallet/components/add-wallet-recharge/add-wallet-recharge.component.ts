@@ -68,7 +68,10 @@ export class AddWalletRechargeComponent
       )
       .subscribe({
         next: response => {
-          this.notificationService.success(response.message);
+          this.notificationService.success(
+            response.message ||
+              'Recharge raised — balance will update after payment.'
+          );
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },

@@ -58,7 +58,6 @@ export class EditWalletRechargeComponent
         defaultValues: {
           amount: Number(record.amount),
           rechargeDate: new Date(record.rechargeDate),
-          remarks: record.remarks ?? '',
         },
       }
     );

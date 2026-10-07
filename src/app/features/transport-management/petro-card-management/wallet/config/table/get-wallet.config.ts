@@ -9,6 +9,7 @@ import {
   ITableActionConfig,
 } from '@shared/types';
 import { IWalletRechargeGetBaseResponseDto } from '../../types/petro-card-wallet.dto';
+import { isWalletRechargeEditable } from '../../utils/wallet-recharge-payment.util';
 
 export const WALLET_RECHARGE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No recharges recorded.',
@@ -32,6 +33,12 @@ const rechargeHeaders: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'statusLabel',
+    header: 'Status',
+    bodyTemplate: EDataType.STATUS,
+    showSort: false,
+  },
+  {
     field: 'paymentDetails',
     header: 'Payment',
     bodyTemplate: EDataType.TEXT,
@@ -45,19 +52,20 @@ const rechargeRowActions: Partial<
   ITableActionConfig<IWalletRechargeGetBaseResponseDto>
 >[] = [
   {
-    ...COMMON_ROW_ACTIONS.VIEW,
-    tooltip: 'View recharge details',
-    permission: [APP_PERMISSION.PETRO_CARD.WALLET_VIEW],
-  },
-  {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit recharge',
     permission: [APP_PERMISSION.PETRO_CARD.WALLET_MANAGE],
+    disableWhen: row => !isWalletRechargeEditable(row),
+    disableReason: () =>
+      'This recharge has already been paid and cannot be edited.',
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete recharge',
     permission: [APP_PERMISSION.PETRO_CARD.WALLET_MANAGE],
+    disableWhen: row => !isWalletRechargeEditable(row),
+    disableReason: () =>
+      'This recharge has already been paid and cannot be deleted.',
   },
 ];
 

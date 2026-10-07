@@ -11,7 +11,8 @@ export const WALLET_RECHARGE_ACTION_CONFIG_MAP: Record<
   [EButtonActionType.ADD]: {
     dialogConfig: {
       header: 'Record Recharge',
-      message: 'Add money to the shared PetroCard wallet.',
+      message:
+        'Raise a wallet recharge. Balance updates after Payment Sheet payment.',
     },
     dynamicComponent: AddWalletRechargeComponent,
   },

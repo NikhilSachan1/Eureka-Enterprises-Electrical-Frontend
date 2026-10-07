@@ -1,9 +1,13 @@
 import { dateField, uuidField } from '@shared/schemas';
 import z from 'zod';
 
+export const WalletRechargeStatusSchema = z.enum(['PENDING', 'PAID']);
+
 export const WalletRechargeBaseSchema = z.looseObject({
   id: uuidField,
   amount: z.coerce.number(),
+  status: WalletRechargeStatusSchema.optional(),
+  editable: z.boolean().optional(),
   rechargeDate: z.string(),
   referenceNumber: z.string().nullable().optional(),
   paymentMode: z.string().nullable().optional(),
@@ -28,6 +32,5 @@ export const WalletRechargeUpsertShapeSchema = z
   .object({
     amount: z.coerce.number().positive(),
     rechargeDate: dateField,
-    remarks: z.string().nullish(),
   })
   .strict();

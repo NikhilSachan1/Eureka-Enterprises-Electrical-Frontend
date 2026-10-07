@@ -7,7 +7,6 @@ export const WalletRechargeEditRequestSchema =
   WalletRechargeUpsertShapeSchema.transform(data => ({
     amount: data.amount,
     rechargeDate: transformDateFormat(data.rechargeDate),
-    remarks: data.remarks?.trim() || undefined,
   }));
 
 export const WalletRechargeEditResponseSchema = z.looseObject({

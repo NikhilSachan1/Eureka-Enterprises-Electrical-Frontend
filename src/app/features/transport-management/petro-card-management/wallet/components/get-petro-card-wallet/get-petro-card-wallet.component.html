@@ -17,28 +17,42 @@
   let-row
 >
   @if (row.isPaymentRecorded) {
-    <div class="flex flex-col gap-0.5 text-sm">
+    <div class="wallet-payment-cell">
       @if (row.referenceNumber) {
-        <span>UTR · {{ row.referenceNumber }}</span>
-      }
-      @if (row.paidFromBankName) {
-        <span class="text-content-secondary">
-          Paid from · {{ row.paidFromBankName }}
-        </span>
+        <div class="wallet-payment-cell__row">
+          <span class="wallet-payment-cell__label">UTR</span>
+          <span class="wallet-payment-cell__value">{{
+            row.referenceNumber
+          }}</span>
+        </div>
       }
       @if (row.paymentModeLabel) {
-        <span class="text-content-secondary">{{ row.paymentModeLabel }}</span>
+        <div class="wallet-payment-cell__row">
+          <span class="wallet-payment-cell__label">Mode</span>
+          <span class="wallet-payment-cell__value">{{
+            row.paymentModeLabel
+          }}</span>
+        </div>
+      }
+      @if (row.paidFromAccount) {
+        <div class="wallet-payment-cell__bank">
+          <span class="wallet-payment-cell__label">Paid from</span>
+          <app-bank-details-cell
+            [bankDetails]="row.paidFromAccount"
+            [displayMode]="EBankDetailsDisplayMode.COMPACT"
+          />
+        </div>
       }
       @if (
         !row.referenceNumber &&
-        !row.paidFromBankName &&
-        !row.paymentModeLabel
+        !row.paymentModeLabel &&
+        !row.paidFromAccount
       ) {
         <span>-</span>
       }
     </div>
   } @else {
-    <app-status-tag value="pending" />
+    <span class="text-content-secondary text-sm">Awaiting payment</span>
   }
 </ng-template>
 

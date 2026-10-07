@@ -1,5 +1,6 @@
 export {
   WalletRechargeBaseSchema,
+  WalletRechargeStatusSchema,
   WalletRechargeUpsertShapeSchema,
 } from './base-wallet-recharge.schema';
 export { WalletBalanceResponseSchema } from './get-wallet-balance.schema';

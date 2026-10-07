@@ -10,7 +10,7 @@ import {
 } from '@shared/types';
 import { IWalletRechargeAddUIFormDto } from '../../types/petro-card-wallet.dto';
 
-/** Manual recharge: amount + rechargeDate required; optional remarks only. */
+/** Manual recharge: amount + rechargeDate only. Payment happens via Payment Sheet. */
 const ADD_WALLET_RECHARGE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IWalletRechargeAddUIFormDto> =
   {
     rechargeDate: {
@@ -37,12 +37,6 @@ const ADD_WALLET_RECHARGE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IWalletRech
       },
       validators: [Validators.required, Validators.min(0.01)],
     },
-    remarks: {
-      fieldType: EDataType.TEXT_AREA,
-      id: 'remarks',
-      fieldName: 'remarks',
-      label: 'Remarks',
-    },
   };
 
 const ADD_WALLET_RECHARGE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
@@ -52,7 +46,7 @@ const ADD_WALLET_RECHARGE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   submit: {
     ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Record Recharge',
-    tooltip: 'Add money to the PetroCard wallet',
+    tooltip: 'Raise a wallet recharge for payment',
   },
 };
 
