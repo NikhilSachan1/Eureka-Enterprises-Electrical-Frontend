@@ -29,6 +29,13 @@ export const TRANSPORT_MANAGEMENT_ROUTES: Routes = [
       ),
   },
   {
+    path: ROUTE_BASE_PATHS.PETRO_CARD_WALLET,
+    loadChildren: () =>
+      import('./petro-card-wallet-management/petro-card-wallet.routes').then(
+        m => m.PETRO_CARD_WALLET_MANAGEMENT_ROUTES
+      ),
+  },
+  {
     path: ROUTE_BASE_PATHS.VEHICLE_READING,
     loadChildren: () =>
       import('./vehicle-reading-management/vehicle-reading.routes').then(

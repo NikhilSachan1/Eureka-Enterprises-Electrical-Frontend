@@ -42,15 +42,4 @@ export const PETRO_CARD_MANAGEMENT_ROUTES: Routes = [
       permissions: [APP_PERMISSION.PETRO_CARD.EDIT],
     },
   },
-  {
-    path: ROUTES.PETRO_CARD.WALLET,
-    loadComponent: () =>
-      import(
-        './wallet/components/get-petro-card-wallet/get-petro-card-wallet.component'
-      ).then(m => m.GetPetroCardWalletComponent),
-    canActivate: [permissionGuard],
-    data: {
-      permissions: [APP_PERMISSION.PETRO_CARD.WALLET_VIEW],
-    },
-  },
 ];

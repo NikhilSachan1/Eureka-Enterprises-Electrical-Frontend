@@ -13,7 +13,7 @@ import {
   ValidatorFn,
 } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
-import { PetroCardWalletService } from '@features/transport-management/petro-card-management/wallet/services/petro-card-wallet.service';
+import { PetroCardWalletService } from '@features/transport-management/petro-card-wallet-management/services/petro-card-wallet.service';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { NotificationService } from '@shared/services';
 import type { IInputFieldsConfig } from '@shared/types';

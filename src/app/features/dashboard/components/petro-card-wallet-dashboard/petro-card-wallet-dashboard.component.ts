@@ -17,8 +17,8 @@ import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { dashOutlinedLinkButton } from '@features/dashboard/utils/dashboard-link-button.config';
-import { PetroCardWalletService } from '@features/transport-management/petro-card-management/wallet/services/petro-card-wallet.service';
-import type { IWalletBalanceResponseDto } from '@features/transport-management/petro-card-management/wallet/types/petro-card-wallet.dto';
+import { PetroCardWalletService } from '@features/transport-management/petro-card-wallet-management/services/petro-card-wallet.service';
+import type { IWalletBalanceResponseDto } from '@features/transport-management/petro-card-wallet-management/types/petro-card-wallet.dto';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 
@@ -99,8 +99,8 @@ export class PetroCardWalletDashboardComponent implements OnInit {
     void this.router.navigate([
       '/',
       ROUTE_BASE_PATHS.TRANSPORT,
-      ROUTE_BASE_PATHS.PETRO_CARD,
-      ROUTES.PETRO_CARD.WALLET,
+      ROUTE_BASE_PATHS.PETRO_CARD_WALLET,
+      ROUTES.PETRO_CARD_WALLET.LIST,
     ]);
   }
 }
