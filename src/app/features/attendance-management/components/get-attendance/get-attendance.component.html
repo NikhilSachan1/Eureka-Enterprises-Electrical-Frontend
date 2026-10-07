@@ -21,54 +21,12 @@
 >
   @let snap = row.assignmentSnapshot;
   @let hasAssignment =
-    !!snap?.company?.name ||
-    !!snap?.contractorDisplay ||
     !!snap?.assignedDriverDisplay ||
     !!snap?.assignedEmployeeDisplay ||
     !!snap?.vehicleDisplay;
 
   @if (hasAssignment) {
   <div class="attendance-assignment-details">
-    @if (snap?.company?.name) {
-      <div class="attendance-assignment-details__row">
-        <span
-          class="attendance-assignment-details__icon attendance-assignment-details__icon--company"
-          aria-hidden="true"
-        >
-          <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
-        </span>
-        <div class="attendance-assignment-details__text">
-          <span class="attendance-assignment-details__label">Company</span>
-          <span class="attendance-assignment-details__value">{{ snap.company.name }}</span>
-          @if (snap.companyAddressDisplay) {
-            <span class="attendance-assignment-details__meta">
-              {{ snap.companyAddressDisplay }}
-            </span>
-          }
-        </div>
-      </div>
-    }
-
-    @if (snap?.contractorDisplay) {
-      <div class="attendance-assignment-details__row">
-        <span
-          class="attendance-assignment-details__icon attendance-assignment-details__icon--contractor"
-          aria-hidden="true"
-        >
-          <i [class]="ALL_ICONS.SITE.BUILDING"></i>
-        </span>
-        <div class="attendance-assignment-details__text">
-          <span class="attendance-assignment-details__label">Contractor</span>
-          <span class="attendance-assignment-details__value">{{ snap.contractorDisplay }}</span>
-          @if (snap.contractorAddressDisplay) {
-            <span class="attendance-assignment-details__meta">
-              {{ snap.contractorAddressDisplay }}
-            </span>
-          }
-        </div>
-      </div>
-    }
-
     @if (snap.assignedDriverDisplay || snap.assignedEmployeeDisplay) {
       <div class="attendance-assignment-details__row">
         <span
@@ -112,7 +70,7 @@
     }
   </div>
   } @else {
-    <span class="attendance-assignment-details__empty">No assignment</span>
+    <span class="attendance-assignment-details__empty">No vehicle or driver</span>
   }
 </ng-template>
 

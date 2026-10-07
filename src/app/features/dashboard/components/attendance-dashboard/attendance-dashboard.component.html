@@ -11,7 +11,7 @@
         </div>
         <div>
           <h2 class="card-block__title">Today's attendance</h2>
-          <p class="card-block__hint">Floor snapshot, then people with assignment and status</p>
+          <p class="card-block__hint">Floor snapshot, then people with vehicle, driver and status</p>
         </div>
       </div>
       <div class="card-block__controls">
@@ -94,7 +94,7 @@
                 @if (row.assignmentTrail.length > 0) {
                   <div
                     class="att-assign"
-                    aria-label="Assignment"
+                    aria-label="Vehicle & Driver"
                   >
                     @for (stop of row.assignmentTrail; track stop.kind) {
                       <div [class]="'att-assign__item att-assign__item--' + stop.kind">
@@ -112,7 +112,7 @@
                     }
                   </div>
                 } @else {
-                  <span class="att-row__unassigned">No assignment</span>
+                  <span class="att-row__unassigned">No vehicle or driver</span>
                 }
               </li>
             }

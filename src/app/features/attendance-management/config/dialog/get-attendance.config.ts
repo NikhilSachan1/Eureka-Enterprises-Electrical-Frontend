@@ -25,7 +25,7 @@ export const ATTENDANCE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> =
       dialogConfig: {
         header: 'Regularize attendance',
         message:
-          'Update status and assignment for this day. Food allowance follows the engineer on the snapshot.',
+          'Update status, vehicle and driver for this day. Food allowance follows the engineer on the snapshot.',
         size: EDialogSize.LARGE,
       },
     },

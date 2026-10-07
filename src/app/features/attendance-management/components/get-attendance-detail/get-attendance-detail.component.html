@@ -9,87 +9,59 @@
     @let employeeName = employee
       ? ((employee.firstName ?? '') + ' ' + (employee.lastName ?? '')).trim()
       : '';
+    @let hasAssignment =
+      !!driverNames || !!employee || !!snap.vehicle;
 
-    <div class="assignment-snapshot">
-      @if (snap.company?.name) {
-        <div class="assignment-snapshot__tile">
-          <div class="assignment-snapshot__icon assignment-snapshot__icon--company">
-            <i [class]="ICONS.COMMON.MAP_MARKER"></i>
+    @if (hasAssignment) {
+      <div class="assignment-snapshot">
+        @if (driverNames) {
+          <div class="assignment-snapshot__tile">
+            <div class="assignment-snapshot__icon assignment-snapshot__icon--engineer">
+              <i [class]="ICONS.COMMON.USER"></i>
+            </div>
+            <div class="assignment-snapshot__body">
+              <span class="assignment-snapshot__kicker">
+                {{ driverNames.includes(',') ? 'Assigned drivers' : 'Assigned driver' }}
+              </span>
+              <span class="assignment-snapshot__title">
+                {{ driverNames | textCase: 'title' }}
+              </span>
+            </div>
           </div>
-          <div class="assignment-snapshot__body">
-            <span class="assignment-snapshot__kicker">Company</span>
-            <span class="assignment-snapshot__title">
-              {{ snap.company.name | textCase: 'title' }}
-            </span>
-            @if (snap.company.fullAddress?.trim()) {
-              <span class="assignment-snapshot__meta">{{ snap.company.fullAddress }}</span>
-            }
+        } @else if (employee) {
+          <div class="assignment-snapshot__tile">
+            <div class="assignment-snapshot__icon assignment-snapshot__icon--engineer">
+              <i [class]="ICONS.COMMON.USER"></i>
+            </div>
+            <div class="assignment-snapshot__body">
+              <span class="assignment-snapshot__kicker">Assigned engineer</span>
+              <span class="assignment-snapshot__title">
+                {{ employeeName | textCase: 'title' }}
+              </span>
+              @if (employee.employeeId?.trim()) {
+                <span class="assignment-snapshot__meta">ID: {{ employee.employeeId }}</span>
+              }
+            </div>
           </div>
-        </div>
-      }
+        }
 
-      @if (snap.contractors?.[0]?.name) {
-        <div class="assignment-snapshot__tile">
-          <div class="assignment-snapshot__icon assignment-snapshot__icon--contractor">
-            <i [class]="ICONS.SITE.BUILDING"></i>
+        @if (snap.vehicle) {
+          <div class="assignment-snapshot__tile">
+            <div class="assignment-snapshot__icon assignment-snapshot__icon--vehicle">
+              <i [class]="ICONS.COMMON.CAR"></i>
+            </div>
+            <div class="assignment-snapshot__body">
+              <span class="assignment-snapshot__kicker">Vehicle</span>
+              <span class="assignment-snapshot__title">{{ snap.vehicle.registrationNo }}</span>
+            </div>
           </div>
-          <div class="assignment-snapshot__body">
-            <span class="assignment-snapshot__kicker">Contractor</span>
-            <span class="assignment-snapshot__title">
-              {{ snap.contractors[0].name | textCase: 'title' }}
-            </span>
-            @if (formatAddress(snap.contractors[0]); as contractorAddress) {
-              <span class="assignment-snapshot__meta">{{ contractorAddress }}</span>
-            }
-          </div>
-        </div>
-      }
-
-      @if (driverNames) {
-        <div class="assignment-snapshot__tile">
-          <div class="assignment-snapshot__icon assignment-snapshot__icon--engineer">
-            <i [class]="ICONS.COMMON.USER"></i>
-          </div>
-          <div class="assignment-snapshot__body">
-            <span class="assignment-snapshot__kicker">
-              {{ driverNames.includes(',') ? 'Assigned drivers' : 'Assigned driver' }}
-            </span>
-            <span class="assignment-snapshot__title">
-              {{ driverNames | textCase: 'title' }}
-            </span>
-          </div>
-        </div>
-      } @else if (employee) {
-        <div class="assignment-snapshot__tile">
-          <div class="assignment-snapshot__icon assignment-snapshot__icon--engineer">
-            <i [class]="ICONS.COMMON.USER"></i>
-          </div>
-          <div class="assignment-snapshot__body">
-            <span class="assignment-snapshot__kicker">Assigned engineer</span>
-            <span class="assignment-snapshot__title">
-              {{ employeeName | textCase: 'title' }}
-            </span>
-            @if (employee.employeeId?.trim()) {
-              <span class="assignment-snapshot__meta">ID: {{ employee.employeeId }}</span>
-            }
-          </div>
-        </div>
-      }
-
-      @if (snap.vehicle) {
-        <div class="assignment-snapshot__tile">
-          <div class="assignment-snapshot__icon assignment-snapshot__icon--vehicle">
-            <i [class]="ICONS.COMMON.CAR"></i>
-          </div>
-          <div class="assignment-snapshot__body">
-            <span class="assignment-snapshot__kicker">Vehicle</span>
-            <span class="assignment-snapshot__title">{{ snap.vehicle.registrationNo }}</span>
-          </div>
-        </div>
-      }
-    </div>
+        }
+      </div>
+    } @else {
+      <span class="assignment-snapshot__empty">No vehicle or driver for this entry.</span>
+    }
   } @else {
-    <span class="assignment-snapshot__empty">No assignment data for this entry.</span>
+    <span class="assignment-snapshot__empty">No vehicle or driver for this entry.</span>
   }
 </ng-template>
 

@@ -445,7 +445,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
     },
     {
       field: 'assignmentSnapshot',
-      header: 'Assignment Details',
+      header: 'Vehicle & Driver',
       customTemplateKey: 'attendanceAssignmentDetails',
       showSort: false,
     },

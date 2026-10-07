@@ -195,9 +195,9 @@ export class ForceAttendanceComponent
 
   private loadCurrentStatusDetail(userId: string): void {
     this.loadingService.show({
-      title: 'Loading employee assignment',
+      title: 'Loading vehicle & driver',
       message:
-        "We're loading the employee assignment. This will just take a moment.",
+        "We're loading vehicle and driver details. This will just take a moment.",
     });
 
     const paramData = this.prepareParamDataForCurrentStatusDetail(userId);

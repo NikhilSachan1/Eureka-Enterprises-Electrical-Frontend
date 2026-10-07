@@ -17,8 +17,6 @@ export function buildAssignmentTrail(
 ): IDashboardAttendanceTrailStop[] {
   const snapshot = record.assignmentSnapshot;
   const stops: IDashboardAttendanceTrailStop[] = [];
-  const companyName = snapshot?.company?.name?.trim();
-  const contractorName = snapshot?.contractors?.[0]?.name?.trim();
   const vehicleNo = snapshot?.vehicle?.registrationNo?.trim();
   const driverName = getAssignedDriverDisplayName(record);
   const employeeName = getAssignedEmployeeDisplayName(record);
@@ -28,24 +26,6 @@ export function buildAssignmentTrail(
       ? 'Assigned Drivers'
       : 'Assigned Driver'
     : 'Assigned Engineer';
-
-  if (companyName) {
-    stops.push({
-      kind: 'company',
-      label: 'Company',
-      value: companyName,
-      icon: ICONS.COMMON.MAP_MARKER,
-    });
-  }
-
-  if (contractorName) {
-    stops.push({
-      kind: 'contractor',
-      label: 'Contractor',
-      value: contractorName,
-      icon: ICONS.SITE.BUILDING,
-    });
-  }
 
   if (personName) {
     stops.push({

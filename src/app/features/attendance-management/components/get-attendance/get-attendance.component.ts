@@ -59,7 +59,6 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
-  formatAssignmentAddress,
   getAssignedDriverDisplayName,
   getAssignedEmployeeDisplayName,
 } from '@features/attendance-management/utility/attendance-assignment.util';
@@ -172,14 +171,6 @@ export class GetAttendanceComponent implements OnInit {
         assignedDrivers: record.assignedDrivers ?? [],
         assignmentSnapshot: {
           ...record.assignmentSnapshot,
-          companyAddressDisplay: formatAssignmentAddress(
-            record.assignmentSnapshot?.company
-          ),
-          contractorDisplay:
-            record.assignmentSnapshot?.contractors?.[0]?.name?.trim() ?? null,
-          contractorAddressDisplay: formatAssignmentAddress(
-            record.assignmentSnapshot?.contractors?.[0]
-          ),
           vehicleDisplay:
             record.assignmentSnapshot?.vehicle?.registrationNo ?? null,
           assignedDriverDisplay:
@@ -315,14 +306,6 @@ export class GetAttendanceComponent implements OnInit {
               selectedRow.status
             ),
         type: EDataType.STATUS,
-      },
-      {
-        label: 'Company',
-        value: selectedRow.assignmentSnapshot?.company?.name ?? 'N/A',
-      },
-      {
-        label: 'Contractor',
-        value: selectedRow.assignmentSnapshot?.contractors?.[0]?.name ?? 'N/A',
       },
       {
         label: assignedDriverName
