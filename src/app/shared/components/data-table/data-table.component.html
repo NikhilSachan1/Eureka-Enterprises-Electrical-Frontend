@@ -272,6 +272,15 @@
               column.customTemplateKey === 'invoiceBookedPaidSummary' ||
               column.customTemplateKey === 'vendorAmountSummary' ||
               column.customTemplateKey === 'vendorDocumentCounts';
+            @let isAttendanceWrapCol =
+              column.customTemplateKey === 'attendanceProjectDetails' ||
+              column.customTemplateKey === 'attendanceAssignmentDetails';
+            @let allowCellWrap =
+              hasLead ||
+              isReadMoreCol ||
+              isWorkspaceContextCol ||
+              isDocAmountCol ||
+              isAttendanceWrapCol;
             @let t = customBodyTemplates();
             <td
               pFrozenColumn
@@ -280,7 +289,7 @@
               [class]="column.columnStyleClass"
               [style.width]="getColumnWidth(column)"
               [style.minWidth]="getColumnWidth(column)"
-              [class.cell-allow-wrap]="hasLead || isReadMoreCol || isWorkspaceContextCol || isDocAmountCol"
+              [class.cell-allow-wrap]="allowCellWrap"
               [class.doc-workspace-context-col]="isWorkspaceContextCol"
             >
               <div
@@ -296,7 +305,7 @@
                 }
                 <div
                   [class.flex-1]="hasLead"
-                  [class.min-w-0]="hasLead || isReadMoreCol || isWorkspaceContextCol"
+                  [class.min-w-0]="allowCellWrap"
                 >
                   @if (column.customTemplateKey && t?.[column.customTemplateKey]) {
                     <ng-container
