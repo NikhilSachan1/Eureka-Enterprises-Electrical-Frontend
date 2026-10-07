@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   DestroyRef,
   effect,
   inject,
@@ -14,40 +13,24 @@ import {
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   buildAssignmentSubmitPayload,
-  getAssignedDriverDisplayName,
-  getAssignedDriverId,
-  getAssignedDrivers,
   toAssignedDriverIds,
   getAssignmentSource,
-  getDropdownRecord,
   NULL_ASSIGNMENT_FORM_VALUES,
-  toDisplayName,
-  toPersonName,
 } from '@features/attendance-management/utility/attendance-assignment.util';
 import {
   IAttendanceAssignmentFormValues,
   IAttendanceAssignmentSubmitPayload,
 } from '@features/attendance-management/types/attendance.interface';
-import { ICompanyGetBaseResponseDto } from '@features/site-management/company-management/types/company.dto';
-import { IContractorGetBaseResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
-import { IEmployeeGetBaseResponseDto } from '@features/employee-management/types/employee.dto';
-import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { ICONS } from '@shared/constants/icon.constants';
-import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 import {
   AppConfigurationService,
   FormService,
 } from '@shared/services';
 import { IInputFieldsConfig, ITrackedFields } from '@shared/types';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import type { z } from 'zod';
-
-type VehicleValue = z.infer<typeof VehicleBaseSchema>;
 
 @Component({
   selector: 'app-attendance-assignment-fields',
-  imports: [InputFieldComponent, ReactiveFormsModule, TextCasePipe],
+  imports: [InputFieldComponent, ReactiveFormsModule],
   templateUrl: './attendance-assignment-fields.component.html',
   styleUrl: './attendance-assignment-fields.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,12 +42,9 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
 
   readonly formGroup = input.required<FormGroup>();
   readonly fieldConfigs = input.required<{
-    company: IInputFieldsConfig;
-    contractor: IInputFieldsConfig;
     vehicle: IInputFieldsConfig;
     assignedDriver: IInputFieldsConfig;
   }>();
-  readonly viewOnly = input(false);
   readonly assignmentPayload = input<unknown>(null);
   readonly submitPayload = model<IAttendanceAssignmentSubmitPayload>(
     NULL_ASSIGNMENT_FORM_VALUES
@@ -74,26 +54,11 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
     IAttendanceAssignmentFormValues
   > | null>(null);
 
-  protected readonly ALL_ICONS = ICONS;
-  protected readonly displayLabels = computed(() => {
-    this.readTrackedAssignmentFields();
-    this.assignmentPayload();
-    this.appConfigurationService.companyList();
-    this.appConfigurationService.contractorList();
-    this.appConfigurationService.vehicleList();
-    this.appConfigurationService.employeeList();
-    this.appConfigurationService.cities();
-    this.appConfigurationService.states();
-    return this.buildLabels();
-  });
-
   constructor() {
     effect(() => {
       this.readTrackedAssignmentFields();
       this.formGroup();
       this.assignmentPayload();
-      this.appConfigurationService.companyList();
-      this.appConfigurationService.contractorList();
       this.appConfigurationService.vehicleList();
       this.appConfigurationService.employeeList();
       untracked(() => this.submitPayload.set(this.buildSubmitPayload()));
@@ -105,7 +70,7 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
     this.trackedAssignmentFields.set(
       this.formService.trackMultipleFieldChanges<IAttendanceAssignmentFormValues>(
         this.formGroup(),
-        ['company', 'contractor', 'vehicle', 'assignedDriver'],
+        ['vehicle', 'assignedDriver'],
         this.destroyRef
       )
     );
@@ -113,8 +78,6 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
 
   private readTrackedAssignmentFields(): void {
     const tracked = this.trackedAssignmentFields();
-    tracked?.company?.();
-    tracked?.contractor?.();
     tracked?.vehicle?.();
     tracked?.assignedDriver?.();
   }
@@ -133,183 +96,7 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
     });
   }
 
-  private buildLabels(): {
-    companyName: string;
-    companyCity: string;
-    companyState: string;
-    contractorName: string;
-    contractorCity: string;
-    contractorState: string;
-    driver: string;
-    driverLabel: string;
-    vehicle: string;
-  } {
-    const payload = this.assignmentPayload();
-    const site = getAssignmentSource(payload);
-
-    const companyId = this.getControlId('company') ?? site?.company?.id ?? null;
-    const contractorId =
-      this.getControlId('contractor') ?? site?.contractors?.[0]?.id ?? null;
-    const vehicleId = this.getControlId('vehicle') ?? site?.vehicle?.id ?? null;
-    const driverIds = this.getAssignedDriverControlIds();
-    const driverId = driverIds[0] ?? getAssignedDriverId(payload);
-
-    const companyFromList = getDropdownRecord<ICompanyGetBaseResponseDto>(
-      this.appConfigurationService.companyList(),
-      companyId
-    );
-    const companyName = toDisplayName(
-      site?.company?.name,
-      site?.company?.id,
-      companyId,
-      companyFromList?.name
-    );
-    let companyCity = toDisplayName(
-      site?.company?.city,
-      site?.company?.id,
-      companyId,
-      null
-    );
-    let companyState = toDisplayName(
-      site?.company?.state,
-      site?.company?.id,
-      companyId,
-      null
-    );
-    if (companyCity === '-' && site?.company?.fullAddress?.trim()) {
-      companyCity = site.company.fullAddress.trim();
-    }
-    if (companyFromList) {
-      if (companyCity === '-') {
-        companyCity =
-          getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.cities(),
-            companyFromList.city,
-            'value',
-            'label'
-          ) ??
-          companyFromList.city?.trim() ??
-          '-';
-      }
-      if (companyState === '-') {
-        companyState =
-          this.appConfigurationService
-            .states()
-            .find(state => state.value === companyFromList.state?.trim())
-            ?.label ??
-          companyFromList.state?.trim() ??
-          '-';
-      }
-    }
-
-    const contractorFromList = getDropdownRecord<IContractorGetBaseResponseDto>(
-      this.appConfigurationService.contractorList(),
-      contractorId
-    );
-    let contractorCity = toDisplayName(
-      site?.contractors?.[0]?.city,
-      site?.contractors?.[0]?.id,
-      contractorId,
-      null
-    );
-    let contractorState = toDisplayName(
-      site?.contractors?.[0]?.state,
-      site?.contractors?.[0]?.id,
-      contractorId,
-      null
-    );
-    if (contractorFromList) {
-      if (contractorCity === '-') {
-        contractorCity =
-          getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.cities(),
-            contractorFromList.city,
-            'value',
-            'label'
-          ) ??
-          contractorFromList.city?.trim() ??
-          '-';
-      }
-      if (contractorState === '-') {
-        contractorState =
-          this.appConfigurationService
-            .states()
-            .find(state => state.value === contractorFromList.state?.trim())
-            ?.label ??
-          contractorFromList.state?.trim() ??
-          '-';
-      }
-    }
-
-    const payloadDrivers = getAssignedDrivers(payload);
-    const payloadDriverNames = getAssignedDriverDisplayName(
-      payload,
-      this.appConfigurationService.employeeList()
-    );
-    const driverFromList = getDropdownRecord<IEmployeeGetBaseResponseDto>(
-      this.appConfigurationService.employeeList(),
-      driverId
-    );
-    const vehicleFromList = getDropdownRecord<VehicleValue>(
-      this.appConfigurationService.vehicleList(),
-      vehicleId
-    );
-
-    const listDriverName = toPersonName(driverFromList);
-
-    return {
-      companyName,
-      companyCity,
-      companyState,
-      contractorName: toDisplayName(
-        site?.contractors?.[0]?.name,
-        site?.contractors?.[0]?.id,
-        contractorId,
-        contractorFromList?.name
-      ),
-      contractorCity,
-      contractorState,
-      driver:
-        payloadDriverNames !== null && payloadDriverNames !== ''
-          ? payloadDriverNames
-          : toDisplayName(
-              null,
-              null,
-              driverId,
-              listDriverName !== '' ? listDriverName : null
-            ),
-      driverLabel:
-        payloadDrivers.length > 1 || driverIds.length > 1
-          ? 'Assigned Drivers'
-          : 'Assigned Driver',
-      vehicle: toDisplayName(
-        site?.vehicle?.registrationNo,
-        site?.vehicle?.id,
-        vehicleId,
-        vehicleFromList?.registrationNo
-      ),
-    };
-  }
-
-  protected formatLocationLine(city: string, state: string): string | null {
-    const cityValue = city !== '-' ? city.trim() : '';
-    const stateValue = state !== '-' ? state.trim() : '';
-    if (!cityValue && !stateValue) {
-      return null;
-    }
-    if (
-      cityValue &&
-      stateValue &&
-      cityValue.toLowerCase().includes(stateValue.toLowerCase())
-    ) {
-      return cityValue;
-    }
-    return [cityValue, stateValue].filter(Boolean).join(', ');
-  }
-
-  private getControlId(
-    fieldName: 'company' | 'contractor' | 'vehicle'
-  ): string | null {
+  private getControlId(fieldName: 'vehicle'): string | null {
     const value = this.formGroup().get(fieldName)?.value;
     return typeof value === 'string' && value.trim() ? value : null;
   }
@@ -323,15 +110,11 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
   private buildSubmitPayload(): IAttendanceAssignmentSubmitPayload {
     const assignedDriverIds = this.getAssignedDriverControlIds();
     return buildAssignmentSubmitPayload({
-      companyId: this.getControlId('company'),
-      contractorId: this.getControlId('contractor'),
       vehicleId: this.getControlId('vehicle'),
       assignedDriverId:
         assignedDriverIds.length > 1
           ? assignedDriverIds
           : (assignedDriverIds[0] ?? null),
-      companyList: this.appConfigurationService.companyList(),
-      contractorList: this.appConfigurationService.contractorList(),
       vehicleList: this.appConfigurationService.vehicleList(),
       source: getAssignmentSource(this.assignmentPayload()),
     });

@@ -13,24 +13,10 @@ export const AttendanceApplyRequestSchema =
     notes: data.remark,
     action: EApplyAttendanceAction.CHECK_IN,
     assignmentSnapshot:
-      data.company ||
-      data.contractor ||
-      data.vehicle ||
-      toAssignedDriverIds(data.assignedDriver).length
+      data.vehicle || toAssignedDriverIds(data.assignedDriver).length
         ? {
-            company: data.company
-              ? {
-                  id: data.company.id,
-                  name: data.company.name,
-                  fullAddress: data.company.fullAddress,
-                }
-              : null,
-            contractors: (data.contractor ? [data.contractor] : []).map(c => ({
-              id: c?.id,
-              name: c?.name,
-              city: c?.city,
-              state: c?.state,
-            })),
+            company: null,
+            contractors: [],
             vehicle: data.vehicle
               ? {
                   id: data.vehicle.id,

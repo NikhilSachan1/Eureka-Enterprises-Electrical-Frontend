@@ -1,7 +1,5 @@
 import { IAttendanceGetBaseResponseDto } from './attendance.dto';
 import { EAttendanceStatus } from './attendance.enum';
-import { ICompanyGetBaseResponseDto } from '@features/site-management/company-management/types/company.dto';
-import { IContractorGetBaseResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
 import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
 import type { z } from 'zod';
 
@@ -65,15 +63,11 @@ export interface IAttendanceAssignmentPayload {
 }
 
 export interface IAttendanceAssignmentFormValues {
-  company: string | null;
-  contractor: string | null;
   vehicle: string | null;
   assignedDriver: string | string[] | null;
 }
 
 export interface IAttendanceAssignmentSubmitPayload {
-  company: ICompanyGetBaseResponseDto | null;
-  contractor: IContractorGetBaseResponseDto | null;
   vehicle: z.infer<typeof VehicleBaseSchema> | null;
   assignedDriver: string | string[] | null;
 }

@@ -183,8 +183,6 @@ export class ForceAttendanceComponent
       'employeeName',
       'attendanceStatus',
       'assignedDriver',
-      'company',
-      'contractor',
       'vehicle',
     ];
     this.trackedAttendanceFields =

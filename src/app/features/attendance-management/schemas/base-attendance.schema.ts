@@ -6,8 +6,6 @@ import {
 } from '@shared/schemas';
 import { z } from 'zod';
 import { EEntrySourceType, EEntryType } from '@shared/types';
-import { CompanyGetBaseResponseSchema } from '@features/site-management/company-management/schemas';
-import { ContractorGetBaseResponseSchema } from '@features/site-management/contractor-management/schemas';
 import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
 
 export const AttendanceAssignedDriverSchema = z.looseObject({
@@ -82,8 +80,6 @@ export const AttendanceBaseSchema = z.looseObject({
 
 export const AttendanceUpsertShapeSchema = z
   .object({
-    company: CompanyGetBaseResponseSchema.nullable(),
-    contractor: ContractorGetBaseResponseSchema.nullable(),
     vehicle: VehicleBaseSchema.nullable(),
     assignedDriver: z.union([z.string(), z.array(z.string())]).nullable(),
     remark: z.string().nullable(),

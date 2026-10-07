@@ -10,8 +10,6 @@ import { IAttendanceRegularizedUIFormDto } from '@features/attendance-management
 const {
   fields: {
     attendanceStatus,
-    company,
-    contractor,
     assignedDriver,
     vehicle,
   },
@@ -40,8 +38,6 @@ export function getRegularizeAttendanceFormConfig(
 ): IFormConfig<IAttendanceRegularizedUIFormDto> {
   const fields: IFormInputFieldsConfig<IAttendanceRegularizedUIFormDto> = {
     attendanceStatus,
-    company,
-    contractor,
     assignedDriver: getAssignedDriverFieldConfig(assignedDriverMultiple),
     vehicle,
   };

@@ -206,43 +206,9 @@
 
 .content-card__main {
   min-width: 0;
-}
-
-// Assignment section — compact
-.assignment-section {
   padding: 1rem 1.25rem 1rem;
 }
 
-// Note — card ke bahar
-.assignment-note {
-  margin-bottom: 0.75rem;
-  padding: 0.625rem 0.875rem;
-  font-size: 0.6875rem;
-  font-weight: 500;
-  line-height: 1.45;
-  border-radius: 0.5rem;
-  border: 1px solid var(--border-main-color);
-  background-color: var(--surface-200);
-  color: var(--text-primary-color);
-}
-
-.assignment-note__list {
-  list-style: disc;
-  padding-left: 1rem;
-  margin-top: 0.375rem;
-  margin-bottom: 0;
-
-  li {
-    margin-bottom: 0.25rem;
-
-    b {
-      font-weight: 600;
-      color: var(--text-primary-color);
-    }
-  }
-}
-
-// Action row: one app-button = full width; two app-buttons = equal halves (no reliance on extra class)
 .action-button {
   margin-top: 0.75rem;
   width: 100%;

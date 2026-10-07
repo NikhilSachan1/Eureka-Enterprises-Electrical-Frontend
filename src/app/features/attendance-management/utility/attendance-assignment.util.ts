@@ -6,8 +6,6 @@ import {
   IAttendanceAssignmentSubmitPayload,
 } from '../types/attendance.interface';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import { ICompanyGetBaseResponseDto } from '@features/site-management/company-management/types/company.dto';
-import { IContractorGetBaseResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
 import { IEmployeeGetBaseResponseDto } from '@features/employee-management/types/employee.dto';
 
 type AssignmentVehicle = NonNullable<
@@ -21,8 +19,6 @@ export function isAttendanceAssignmentApplicable(
 }
 
 export const NULL_ASSIGNMENT_FORM_VALUES = {
-  company: null,
-  contractor: null,
   vehicle: null,
   assignedDriver: null,
 } as const;
@@ -161,10 +157,6 @@ export function getAssignmentFormValues(
   const assignedDriverMultiple = options?.assignedDriverMultiple === true;
 
   return {
-    company: includeSiteFields ? (source?.company?.id ?? null) : null,
-    contractor: includeSiteFields
-      ? (source?.contractors?.[0]?.id ?? null)
-      : null,
     vehicle: includeSiteFields ? (source?.vehicle?.id ?? null) : null,
     assignedDriver: includeAssignedDriver
       ? assignedDriverMultiple
@@ -176,9 +168,9 @@ export function getAssignmentFormValues(
 
 export function getAssignmentSiteFormValues(
   payload: unknown
-): Pick<IAttendanceAssignmentFormValues, 'company' | 'contractor' | 'vehicle'> {
-  const { company, contractor, vehicle } = getAssignmentFormValues(payload);
-  return { company, contractor, vehicle };
+): Pick<IAttendanceAssignmentFormValues, 'vehicle'> {
+  const { vehicle } = getAssignmentFormValues(payload);
+  return { vehicle };
 }
 
 export function getDropdownRecord<T extends object>(
@@ -248,43 +240,19 @@ export function formatAssignmentAddress(
 }
 
 export function buildAssignmentSubmitPayload(params: {
-  companyId: string | null;
-  contractorId: string | null;
   vehicleId: string | null;
   assignedDriverId: string | string[] | null;
-  companyList: { value?: string; data?: unknown }[];
-  contractorList: { value?: string; data?: unknown }[];
   vehicleList: { value?: string; data?: unknown }[];
   source: IAttendanceAssignmentPayload | null;
 }): IAttendanceAssignmentSubmitPayload {
-  const companyFromList = getDropdownRecord<ICompanyGetBaseResponseDto>(
-    params.companyList,
-    params.companyId
-  );
-  const contractorFromList = getDropdownRecord<IContractorGetBaseResponseDto>(
-    params.contractorList,
-    params.contractorId
-  );
   const vehicleFromList = getDropdownRecord<AssignmentVehicle>(
     params.vehicleList,
     params.vehicleId
   );
 
-  const sourceCompany = params.source?.company;
-  const sourceContractor = params.source?.contractors?.[0];
   const sourceVehicle = params.source?.vehicle;
 
   return {
-    company:
-      companyFromList ??
-      (sourceCompany?.id === params.companyId
-        ? (sourceCompany as ICompanyGetBaseResponseDto)
-        : null),
-    contractor:
-      contractorFromList ??
-      (sourceContractor?.id === params.contractorId
-        ? (sourceContractor as IContractorGetBaseResponseDto)
-        : null),
     vehicle:
       vehicleFromList ??
       (sourceVehicle?.id === params.vehicleId
