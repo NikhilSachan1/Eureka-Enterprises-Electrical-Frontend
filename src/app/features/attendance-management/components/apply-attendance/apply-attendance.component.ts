@@ -19,11 +19,12 @@ import {
 import { IAttendanceAssignmentSubmitPayload } from '@features/attendance-management/types/attendance.interface';
 import { APPLY_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/apply-attendance.config';
 import {
-  getAssignmentFormValues,
+  formatProjectLocation,
   NULL_ASSIGNMENT_FORM_VALUES,
 } from '@features/attendance-management/utility/attendance-assignment.util';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { EUserRole, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ICONS } from '@shared/constants/icon.constants';
 import { IPageHeaderConfig } from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
@@ -81,6 +82,8 @@ export class ApplyAttendanceComponent
 
   protected readonly todayDate = new Date();
   protected readonly APP_CONFIG = APP_CONFIG;
+  protected readonly ALL_ICONS = ICONS;
+  protected readonly formatProjectLocation = formatProjectLocation;
   protected isEmployeeUser = false;
   protected isDriverUser = false;
 
@@ -119,10 +122,7 @@ export class ApplyAttendanceComponent
     }
     this.currentStatusData.set(currentStatusFromResolver);
     this.initialAttendanceData.set({
-      ...getAssignmentFormValues(currentStatusFromResolver, {
-        includeSiteFields: this.isEmployeeUser,
-        includeAssignedDriver: false,
-      }),
+      ...NULL_ASSIGNMENT_FORM_VALUES,
       remark: null,
     });
   }

@@ -65,16 +65,45 @@
           (ngSubmit)="onSubmit()"
         >
           @if (isEmployeeUser) {
+            @if (currentStatusData()?.site; as site) {
+              @if (site.name) {
+                <div class="apply-project">
+                  <div class="apply-project__accent" aria-hidden="true"></div>
+                  <div class="apply-project__content">
+                    <span
+                      class="apply-project__icon"
+                      aria-hidden="true"
+                    >
+                      <i [class]="ALL_ICONS.SITE.BUILDING"></i>
+                    </span>
+                    <div class="apply-project__text">
+                      <p class="apply-project__name">
+                        {{ site.name | textCase: 'title' }}
+                      </p>
+                      @if (formatProjectLocation(site); as location) {
+                        <div class="apply-project__location">
+                          <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
+                          <span>{{ location }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            }
             <app-attendance-assignment-fields
               [formGroup]="form.formGroup"
               [fieldConfigs]="form.fieldConfigs"
+              [viewOnly]="!!currentStatusData()?.checkInTime"
               [assignmentPayload]="currentStatusData()"
               [(submitPayload)]="assignmentSubmitPayload"
             />
-            <app-input-field
-              [formGroup]="form.formGroup"
-              [inputFieldConfig]="form.fieldConfigs.remark"
-            />
+            @if (!currentStatusData()?.checkInTime) {
+              <app-input-field
+                [formGroup]="form.formGroup"
+                [inputFieldConfig]="form.fieldConfigs.remark"
+              />
+            }
           }
           @if (!currentStatusData()?.checkInTime) {
             <div class="action-button">

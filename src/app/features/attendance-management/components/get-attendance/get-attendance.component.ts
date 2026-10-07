@@ -313,11 +313,14 @@ export class GetAttendanceComponent implements OnInit {
       },
       {
         label: 'Project',
-        value: selectedRow.site?.name?.trim() || 'N/A',
-      },
-      {
-        label: 'Project Location',
-        value: formatProjectLocation(selectedRow.site) ?? 'N/A',
+        value: (() => {
+          const name = selectedRow.site?.name?.trim();
+          if (!name) {
+            return 'N/A';
+          }
+          const location = formatProjectLocation(selectedRow.site);
+          return location ? `${name} · ${location}` : name;
+        })(),
       },
       {
         label: assignedDriverName
@@ -330,7 +333,7 @@ export class GetAttendanceComponent implements OnInit {
         value: assignedDriverName ?? assignedEmployeeName ?? 'N/A',
       },
       {
-        label: 'Associated Vehicle',
+        label: 'Vehicle',
         value: selectedRow.assignmentSnapshot?.vehicle?.registrationNo ?? 'N/A',
       },
     ];

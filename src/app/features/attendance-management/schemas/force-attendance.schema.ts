@@ -31,8 +31,6 @@ export const AttendanceForceRequestSchema = AttendanceUpsertShapeSchema.extend({
     checkOutTime: SHIFT_DATA.END_TIME,
     assignmentSnapshot: isAttendanceAssignmentApplicable(data.attendanceStatus)
       ? {
-          company: null,
-          contractors: [],
           vehicle: data.vehicle
             ? {
                 id: data.vehicle.id,

@@ -41,22 +41,13 @@ export interface IAttendanceAssignmentPerson {
 }
 
 export interface IAttendanceAssignmentPayload {
-  company?: {
+  site?: {
     id?: string | null;
     name?: string | null;
     city?: string | null;
     state?: string | null;
     fullAddress?: string | null;
   } | null;
-  contractors?: (| {
-        id?: string | null;
-        name?: string | null;
-        city?: string | null;
-        state?: string | null;
-        gstNumber?: string | null;
-      }
-    | null
-    | undefined)[] | null;
   vehicle?: { id?: string | null; registrationNo?: string | null } | null;
   assignedDrivers?: IAttendanceAssignmentPerson[] | null;
   assignedEngineer?: IAttendanceAssignmentPerson | null;

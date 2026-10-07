@@ -15,8 +15,6 @@ export const AttendanceApplyRequestSchema =
     assignmentSnapshot:
       data.vehicle || toAssignedDriverIds(data.assignedDriver).length
         ? {
-            company: null,
-            contractors: [],
             vehicle: data.vehicle
               ? {
                   id: data.vehicle.id,

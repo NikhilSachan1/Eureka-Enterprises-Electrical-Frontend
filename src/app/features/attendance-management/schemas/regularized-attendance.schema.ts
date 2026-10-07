@@ -32,8 +32,6 @@ export const AttendanceRegularizedRequestSchema =
       ...(isAttendanceAssignmentApplicable(data.attendanceStatus)
         ? {
             assignmentSnapshot: {
-              company: null,
-              contractors: [],
               vehicle: data.vehicle
                 ? {
                     id: data.vehicle.id,

@@ -134,8 +134,7 @@ export function getAssignmentSource(
   const snapshot = record.assignmentSnapshot;
 
   return {
-    company: record.company ?? snapshot?.company ?? null,
-    contractors: record.contractors ?? snapshot?.contractors ?? null,
+    site: record.site ?? snapshot?.site ?? null,
     vehicle: record.vehicle ?? snapshot?.vehicle ?? null,
     assignedDrivers: getAssignedDrivers(payload),
     assignedEngineer: getAssignedEmployee(payload),

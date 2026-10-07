@@ -216,12 +216,12 @@ export class RegularizeAttendanceComponent
   }
 
   private getAssignmentPatch(
-    record: IAttendanceGetBaseResponseDto
+    _record: IAttendanceGetBaseResponseDto
   ): ReturnType<typeof getAssignmentFormValues> {
-    return getAssignmentFormValues(record, {
-      includeAssignedDriver: true,
-      assignedDriverMultiple: this.assignedDriverMultiple,
-    });
+    return {
+      ...NULL_ASSIGNMENT_FORM_VALUES,
+      assignedDriver: this.assignedDriverMultiple ? [] : null,
+    };
   }
 
   private prepareFormData(userId: string): IAttendanceRegularizedFormDto {

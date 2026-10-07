@@ -53,29 +53,6 @@ export const AttendanceBaseSchema = z.looseObject({
   workDuration: z.number().int().nonnegative(),
   assignmentSnapshot: z
     .looseObject({
-      company: z
-        .looseObject({
-          id: uuidField,
-          name: z.string(),
-          fullAddress: z.string(),
-        })
-        .optional()
-        .nullable(),
-      contractors: z
-        .array(
-          z
-            .looseObject({
-              id: uuidField,
-              name: z.string(),
-              city: z.string().optional().nullable(),
-              state: z.string().optional().nullable(),
-              gstNumber: z.string().optional().nullable(),
-            })
-            .optional()
-            .nullable()
-        )
-        .optional()
-        .nullable(),
       vehicle: z
         .looseObject({
           id: uuidField,
@@ -84,6 +61,10 @@ export const AttendanceBaseSchema = z.looseObject({
         .optional()
         .nullable(),
       assignedEngineer: AttendanceAssignedDriverSchema.optional().nullable(),
+      assignedDrivers: z
+        .array(AttendanceAssignedDriverSchema)
+        .optional()
+        .nullable(),
     })
     .nullable(),
   assignedDrivers: z.array(AttendanceAssignedDriverSchema).optional(),

@@ -10,13 +10,11 @@ const {
   workDuration,
   attendanceDate,
   assignmentSnapshot,
+  site,
+  assignedDrivers,
 } = AttendanceBaseSchema.shape;
 
-const {
-  company: companySchema,
-  contractors: contractorsSchema,
-  vehicle: vehicleSchema,
-} = assignmentSnapshot.unwrap().shape;
+const { vehicle: vehicleSchema } = assignmentSnapshot.unwrap().shape;
 
 export const AttendanceCurrentStatusGetFormSchema = z
   .object({
@@ -36,8 +34,8 @@ export const AttendanceCurrentStatusGetResponseSchema = z.looseObject({
   approvalStatus: approvalStatus.nullable(),
   workDuration,
   user: UserSchema.nullable(),
-  company: companySchema,
-  contractors: contractorsSchema,
-  vehicle: vehicleSchema,
-  assignedDrivers: AttendanceBaseSchema.shape.assignedDrivers,
+  site: site.optional().nullable(),
+  vehicle: vehicleSchema.optional().nullable(),
+  assignedDrivers,
+  assignmentSnapshot: assignmentSnapshot.optional().nullable(),
 });
