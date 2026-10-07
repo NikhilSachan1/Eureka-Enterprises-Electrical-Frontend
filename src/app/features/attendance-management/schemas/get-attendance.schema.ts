@@ -20,6 +20,7 @@ const {
   attendanceType,
   assignmentSnapshot,
   assignedDrivers,
+  site,
 } = AttendanceBaseSchema.shape;
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
@@ -73,6 +74,7 @@ export const AttendanceGetBaseResponseSchema = z.looseObject({
   approvalBy: makeFieldsNullable(UserSchema).nullable(),
   assignmentSnapshot: assignmentSnapshot.optional().nullable(),
   assignedDrivers,
+  site: site.optional().nullable(),
 });
 
 export const AttendanceGetStatsResponseSchema = z.looseObject({

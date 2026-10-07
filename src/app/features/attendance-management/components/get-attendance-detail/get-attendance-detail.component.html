@@ -1,4 +1,32 @@
 <ng-template
+  #projectDetails
+  let-entry
+>
+  @let site = $any(entry.value);
+  @if (site?.name) {
+    <div class="project-detail">
+      <div class="project-detail__icon" aria-hidden="true">
+        <i [class]="ICONS.SITE.BUILDING"></i>
+      </div>
+      <div class="project-detail__body">
+        <span class="project-detail__kicker">Project</span>
+        <span class="project-detail__title">
+          {{ site.name | textCase: 'title' }}
+        </span>
+        @if (formatLocation(site); as location) {
+          <span class="project-detail__meta">
+            <i [class]="ICONS.COMMON.MAP_MARKER"></i>
+            {{ location }}
+          </span>
+        }
+      </div>
+    </div>
+  } @else {
+    <span class="project-detail__empty">No project linked</span>
+  }
+</ng-template>
+
+<ng-template
   #assignmentSnapshot
   let-entry
 >
@@ -14,6 +42,18 @@
 
     @if (hasAssignment) {
       <div class="assignment-snapshot">
+        @if (snap.vehicle) {
+          <div class="assignment-snapshot__tile">
+            <div class="assignment-snapshot__icon assignment-snapshot__icon--vehicle">
+              <i [class]="ICONS.COMMON.CAR"></i>
+            </div>
+            <div class="assignment-snapshot__body">
+              <span class="assignment-snapshot__kicker">Vehicle</span>
+              <span class="assignment-snapshot__title">{{ snap.vehicle.registrationNo }}</span>
+            </div>
+          </div>
+        }
+
         @if (driverNames) {
           <div class="assignment-snapshot__tile">
             <div class="assignment-snapshot__icon assignment-snapshot__icon--engineer">
@@ -44,18 +84,6 @@
             </div>
           </div>
         }
-
-        @if (snap.vehicle) {
-          <div class="assignment-snapshot__tile">
-            <div class="assignment-snapshot__icon assignment-snapshot__icon--vehicle">
-              <i [class]="ICONS.COMMON.CAR"></i>
-            </div>
-            <div class="assignment-snapshot__body">
-              <span class="assignment-snapshot__kicker">Vehicle</span>
-              <span class="assignment-snapshot__title">{{ snap.vehicle.registrationNo }}</span>
-            </div>
-          </div>
-        }
       </div>
     } @else {
       <span class="assignment-snapshot__empty">No vehicle or driver for this entry.</span>
@@ -68,6 +96,7 @@
 <app-view-detail
   [drawerDetails]="_attendanceDetails()"
   [customTemplates]="{
+    projectDetails: projectDetails,
     assignmentSnapshot: assignmentSnapshot,
   }"
 />

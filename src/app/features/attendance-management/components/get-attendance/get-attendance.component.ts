@@ -59,6 +59,7 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
+  formatProjectLocation,
   getAssignedDriverDisplayName,
   getAssignedEmployeeDisplayName,
 } from '@features/attendance-management/utility/attendance-assignment.util';
@@ -169,6 +170,9 @@ export class GetAttendanceComponent implements OnInit {
         employeeCode: record.user.employeeId,
         attendanceType: record.attendanceType,
         assignedDrivers: record.assignedDrivers ?? [],
+        projectName: record.site?.name?.trim() || null,
+        projectLocation: formatProjectLocation(record.site),
+        site: record.site ?? null,
         assignmentSnapshot: {
           ...record.assignmentSnapshot,
           vehicleDisplay:
@@ -306,6 +310,14 @@ export class GetAttendanceComponent implements OnInit {
               selectedRow.status
             ),
         type: EDataType.STATUS,
+      },
+      {
+        label: 'Project',
+        value: selectedRow.site?.name?.trim() || 'N/A',
+      },
+      {
+        label: 'Project Location',
+        value: formatProjectLocation(selectedRow.site) ?? 'N/A',
       },
       {
         label: assignedDriverName

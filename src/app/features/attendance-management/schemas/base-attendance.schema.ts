@@ -15,6 +15,18 @@ export const AttendanceAssignedDriverSchema = z.looseObject({
   employeeId: z.string(),
 });
 
+export const AttendanceSiteSchema = z.looseObject({
+  id: uuidField,
+  name: z.string(),
+  city: z.string().optional().nullable(),
+  state: z.string().optional().nullable(),
+  fullAddress: z.string().optional().nullable(),
+  pincode: z.string().optional().nullable(),
+  status: z.string().optional().nullable(),
+  startDate: z.string().optional().nullable(),
+  managerName: z.string().optional().nullable(),
+});
+
 export const notesField = z.string().trim();
 export const entrySourceTypeSchema = z.enum(EEntrySourceType);
 export const attendanceTypeSchema = z.enum(EEntryType);
@@ -75,6 +87,7 @@ export const AttendanceBaseSchema = z.looseObject({
     })
     .nullable(),
   assignedDrivers: z.array(AttendanceAssignedDriverSchema).optional(),
+  site: AttendanceSiteSchema.optional().nullable(),
   ...auditSchema,
 });
 

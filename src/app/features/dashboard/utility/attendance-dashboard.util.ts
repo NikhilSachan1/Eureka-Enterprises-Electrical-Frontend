@@ -1,6 +1,7 @@
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import type { IAttendanceGetBaseResponseDto } from '@features/attendance-management/types/attendance.dto';
 import {
+  formatProjectLocation,
   getAssignedDriverDisplayName,
   getAssignedEmployeeDisplayName,
 } from '@features/attendance-management/utility/attendance-assignment.util';
@@ -17,6 +18,8 @@ export function buildAssignmentTrail(
 ): IDashboardAttendanceTrailStop[] {
   const snapshot = record.assignmentSnapshot;
   const stops: IDashboardAttendanceTrailStop[] = [];
+  const projectName = record.site?.name?.trim();
+  const projectLocation = formatProjectLocation(record.site);
   const vehicleNo = snapshot?.vehicle?.registrationNo?.trim();
   const driverName = getAssignedDriverDisplayName(record);
   const employeeName = getAssignedEmployeeDisplayName(record);
@@ -27,12 +30,14 @@ export function buildAssignmentTrail(
       : 'Assigned Driver'
     : 'Assigned Engineer';
 
-  if (personName) {
+  if (projectName) {
     stops.push({
-      kind: 'person',
-      label: personLabel,
-      value: personName,
-      icon: ICONS.COMMON.USER,
+      kind: 'project',
+      label: 'Project',
+      value: projectLocation
+        ? `${projectName} · ${projectLocation}`
+        : projectName,
+      icon: ICONS.COMMON.MAP_MARKER,
     });
   }
 
@@ -42,6 +47,15 @@ export function buildAssignmentTrail(
       label: 'Vehicle',
       value: vehicleNo,
       icon: ICONS.COMMON.CAR,
+    });
+  }
+
+  if (personName) {
+    stops.push({
+      kind: 'person',
+      label: personLabel,
+      value: personName,
+      icon: ICONS.COMMON.USER,
     });
   }
 

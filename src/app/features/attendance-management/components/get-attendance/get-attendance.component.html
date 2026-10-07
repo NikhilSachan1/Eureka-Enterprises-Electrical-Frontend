@@ -16,6 +16,33 @@
 </div>
 
 <ng-template
+  #attendanceProjectDetails
+  let-row
+>
+  @if (row.projectName) {
+    <div class="attendance-project">
+      <span
+        class="attendance-project__icon"
+        aria-hidden="true"
+      >
+        <i [class]="ALL_ICONS.SITE.BUILDING"></i>
+      </span>
+      <div class="attendance-project__text">
+        <span class="attendance-project__name">{{ row.projectName }}</span>
+        @if (row.projectLocation) {
+          <span class="attendance-project__location">
+            <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
+            {{ row.projectLocation }}
+          </span>
+        }
+      </div>
+    </div>
+  } @else {
+    <span class="attendance-project__empty">No project</span>
+  }
+</ng-template>
+
+<ng-template
   #attendanceAssignmentDetails
   let-row
 >
@@ -27,6 +54,21 @@
 
   @if (hasAssignment) {
   <div class="attendance-assignment-details">
+    @if (snap.vehicleDisplay) {
+      <div class="attendance-assignment-details__row">
+        <span
+          class="attendance-assignment-details__icon attendance-assignment-details__icon--vehicle"
+          aria-hidden="true"
+        >
+          <i [class]="ALL_ICONS.COMMON.CAR"></i>
+        </span>
+        <div class="attendance-assignment-details__text">
+          <span class="attendance-assignment-details__label">Vehicle</span>
+          <span class="attendance-assignment-details__value">{{ snap.vehicleDisplay }}</span>
+        </div>
+      </div>
+    }
+
     @if (snap.assignedDriverDisplay || snap.assignedEmployeeDisplay) {
       <div class="attendance-assignment-details__row">
         <span
@@ -53,21 +95,6 @@
         </div>
       </div>
     }
-
-    @if (snap.vehicleDisplay) {
-      <div class="attendance-assignment-details__row">
-        <span
-          class="attendance-assignment-details__icon attendance-assignment-details__icon--vehicle"
-          aria-hidden="true"
-        >
-          <i [class]="ALL_ICONS.COMMON.CAR"></i>
-        </span>
-        <div class="attendance-assignment-details__text">
-          <span class="attendance-assignment-details__label">Vehicle</span>
-          <span class="attendance-assignment-details__value">{{ snap.vehicleDisplay }}</span>
-        </div>
-      </div>
-    }
   </div>
   } @else {
     <span class="attendance-assignment-details__empty">No vehicle or driver</span>
@@ -82,7 +109,10 @@
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
-  [customBodyTemplates]="{ attendanceAssignmentDetails: attendanceAssignmentDetails }"
+  [customBodyTemplates]="{
+    attendanceProjectDetails: attendanceProjectDetails,
+    attendanceAssignmentDetails: attendanceAssignmentDetails
+  }"
   (rowActionClick)="handleAttendanceTableActionClick($any($event), false)"
   (bulkActionClick)="handleAttendanceTableActionClick($any($event), true)"
   (filterData)="onTableStateChange($event)"

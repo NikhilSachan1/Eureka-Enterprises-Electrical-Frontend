@@ -26,7 +26,10 @@ import { EAttendanceStatus } from '../../types/attendance.enum';
 import { APP_CONFIG } from '@core/config';
 import { ICONS } from '@shared/constants/icon.constants';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
-import { getAssignedDriverDisplayName } from '../../utility/attendance-assignment.util';
+import {
+  formatProjectLocation,
+  getAssignedDriverDisplayName,
+} from '../../utility/attendance-assignment.util';
 
 @Component({
   selector: 'app-get-attendance-detail',
@@ -49,6 +52,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly ICONS = ICONS;
   protected readonly formatDrivers = getAssignedDriverDisplayName;
+  protected readonly formatLocation = formatProjectLocation;
 
   override onDrawerShow(): void {
     this.loadAttendanceDetails();
@@ -88,7 +92,11 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   private mapDetailData(
     response: IAttendanceHistoryGetResponseDto
   ): IDataViewDetailsWithEntity {
+    const fallbackSite = this.drawerData.attendance.site ?? null;
+
     const mappedDetails = response.map(record => {
+      const site = record.site ?? fallbackSite;
+
       const entryData: IDataViewDetails['entryData'] = [
         {
           label: 'Date',
@@ -123,6 +131,11 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
                   record.status
                 ),
           type: EDataType.STATUS,
+        },
+        {
+          label: 'Project',
+          value: site,
+          customTemplateKey: 'projectDetails',
         },
         {
           label: 'Vehicle & Driver',

@@ -18,6 +18,8 @@ export interface IAttendance
   attendanceStatus: string;
   employeeName: string;
   employeeCode: string;
+  projectName: string | null;
+  projectLocation: string | null;
   originalRawData: IAttendanceGetBaseResponseDto;
 }
 

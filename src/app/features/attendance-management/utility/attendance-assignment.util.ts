@@ -224,19 +224,24 @@ export function formatAssignmentAddress(
     return fullAddress;
   }
 
-  const city = location?.city?.trim();
-  const state = location?.state?.trim();
+  return formatProjectLocation(location);
+}
+
+export function formatProjectLocation(
+  site:
+    | {
+        city?: string | null;
+        state?: string | null;
+      }
+    | null
+    | undefined
+): string | null {
+  const city = site?.city?.trim() || '';
+  const state = site?.state?.trim() || '';
   if (city && state && city.toLowerCase() !== state.toLowerCase()) {
     return `${city}, ${state}`;
   }
-
-  if (city) {
-    return city;
-  }
-  if (state) {
-    return state;
-  }
-  return null;
+  return city || state || null;
 }
 
 export function buildAssignmentSubmitPayload(params: {

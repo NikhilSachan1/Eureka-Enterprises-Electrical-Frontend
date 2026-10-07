@@ -180,12 +180,16 @@ $-tx2: var(--text-secondary-color, #64748b);
   font-size: 0.7rem;
 }
 
-.att-assign__item--person .att-assign__icon {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+.att-assign__item--project .att-assign__icon {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
 }
 
 .att-assign__item--vehicle .att-assign__icon {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.att-assign__item--person .att-assign__icon {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
 }
 
 .att-assign__text {
