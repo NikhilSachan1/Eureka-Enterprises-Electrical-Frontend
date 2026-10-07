@@ -408,6 +408,7 @@ export const API_ROUTES = {
     EXPENSE_PENDING_SETTLEMENT: 'expenses/pending-settlement',
     FUEL_EXPENSE_PENDING_SETTLEMENT: 'fuel-expenses/pending-settlement',
     VENDOR_PENDING_SETTLEMENT: 'book-payments/vendor-list',
+    WALLET_OUTSTANDING: 'petro-card-wallet/outstanding',
     PAYMENT_SHEETS: 'payment-sheets',
     PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
       `payment-sheets/${paymentSheetId}`,

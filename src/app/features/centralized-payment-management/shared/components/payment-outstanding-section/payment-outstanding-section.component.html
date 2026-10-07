@@ -4,54 +4,99 @@
       class="outstanding-section__overview"
       [attr.aria-label]="overviewAriaLabel()"
     >
-      @for (section of overviewCards(); track section.value) {
+      @for (section of overviewCards(); track section.value; let i = $index) {
+        @let view = overviewViews()[i];
         <article
           class="outstanding-section__card"
           [style.--os-accent]="section.accentLight"
           [style.--os-accent-dark]="section.accentDark"
         >
-          <header class="outstanding-section__card-header">
-            <span
-              class="outstanding-section__card-icon"
-              aria-hidden="true"
-            >
-              <i [class]="section.icon"></i>
-            </span>
-            <h3 class="outstanding-section__card-title">{{ section.label }}</h3>
-          </header>
-          <div class="outstanding-section__card-body">
-            <div class="outstanding-section__stats">
-              @for (stat of section.stats; track stat.label) {
-                @if (stat.dividerBefore) {
-                  <span
-                    class="outstanding-section__stat-divider"
-                    aria-hidden="true"
-                  ></span>
-                }
-                <div
-                  class="outstanding-section__stat"
-                  [class.outstanding-section__stat--amount]="stat.kind === 'currency'"
+          <div class="outstanding-section__card-main">
+            <div class="outstanding-section__card-left">
+              <div class="outstanding-section__card-title-row">
+                <span
+                  class="outstanding-section__card-icon"
+                  aria-hidden="true"
                 >
-                  <span
-                    class="outstanding-section__stat-value"
-                    [class.outstanding-section__stat-value--debit]="stat.tone === 'debit'"
-                    [class.outstanding-section__stat-value--to-book]="stat.tone === 'to-book'"
-                  >
-                    @if (stat.kind === 'currency') {
+                  <i [class]="section.icon"></i>
+                </span>
+                <h3 class="outstanding-section__card-title">
+                  {{ section.label }}
+                </h3>
+              </div>
+
+              <div class="outstanding-section__meta">
+                @for (count of view.counts; track count.label) {
+                  <span class="outstanding-section__meta-item">
+                    <strong>{{ count.value }}</strong>
+                    {{ count.label | lowercase }}
+                  </span>
+                }
+                @for (secondary of view.secondary; track secondary.label) {
+                  <span class="outstanding-section__meta-item">
+                    <strong
+                      [class.outstanding-section__meta-amount--debit]="
+                        secondary.tone === 'debit'
+                      "
+                      [class.outstanding-section__meta-amount--to-book]="
+                        secondary.tone === 'to-book'
+                      "
+                    >
                       {{
-                        stat.value
+                        secondary.value
                           | currency
                             : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
                             : 'symbol'
                             : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
                             : APP_CONFIG.NUMBER_FORMATS.LOCALE
                       }}
-                    } @else {
-                      {{ stat.value }}
-                    }
+                    </strong>
+                    {{ secondary.label | lowercase }}
                   </span>
-                  <span class="outstanding-section__stat-label">{{ stat.label }}</span>
-                </div>
+                }
+              </div>
+            </div>
+
+            <div class="outstanding-section__card-right">
+              @if (view.hero; as hero) {
+                <span
+                  class="outstanding-section__hero-value"
+                  [class.outstanding-section__hero-value--debit]="
+                    hero.tone === 'debit'
+                  "
+                  [class.outstanding-section__hero-value--to-book]="
+                    hero.tone === 'to-book'
+                  "
+                >
+                  {{
+                    hero.value
+                      | currency
+                        : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                        : 'symbol'
+                        : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                        : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                  }}
+                </span>
+                <span class="outstanding-section__hero-label">{{
+                  hero.label
+                }}</span>
+              }
+
+              @if (view.selectionCount > 0) {
+                <span class="outstanding-section__selection-chip">
+                  {{ view.selectionCount }} selected
+                  @if (view.selectionAmount > 0) {
+                    ·
+                    {{
+                      view.selectionAmount
+                        | currency
+                          : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                          : 'symbol'
+                          : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                          : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                    }}
+                  }
+                </span>
               }
             </div>
           </div>

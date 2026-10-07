@@ -1,6 +1,7 @@
 import { IExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/expense-payment-management/types/expense-outstanding.dto';
 import { IFuelExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/fuel-expense-payment-management/types/fuel-expense-outstanding.dto';
 import { IVendorBookPaymentTableRow } from '@features/centralized-payment-management/vendor-payment-management/types/vendor-outstanding.interface';
+import { IWalletOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/wallet-payment-management/types/wallet-outstanding.dto';
 import { IAddPaymentSheetItemsFormDto } from '../types/payment-sheet.dto';
 import {
   EPaymentSheetBeneficiaryType,
@@ -10,7 +11,8 @@ import {
 export function buildPaymentSheetItemsFromOutstanding(
   expenseRecords: IExpenseOutstandingGetBaseResponseDto[],
   fuelRecords: IFuelExpenseOutstandingGetBaseResponseDto[],
-  vendorBookPayments: IVendorBookPaymentTableRow[] = []
+  vendorBookPayments: IVendorBookPaymentTableRow[] = [],
+  walletRecords: IWalletOutstandingGetBaseResponseDto[] = []
 ): IAddPaymentSheetItemsFormDto['items'] {
   const expenseItems = expenseRecords.map(record => ({
     beneficiaryType: EPaymentSheetBeneficiaryType.USER,
@@ -43,5 +45,11 @@ export function buildPaymentSheetItemsFromOutstanding(
     })
   );
 
-  return [...expenseItems, ...fuelItems, ...vendorItems];
+  const walletItems = walletRecords.map(record => ({
+    beneficiaryType: EPaymentSheetBeneficiaryType.WALLET,
+    sourceType: EPaymentSheetSourceType.PETRO_CARD_WALLET,
+    rechargeId: record.id,
+  }));
+
+  return [...expenseItems, ...fuelItems, ...vendorItems, ...walletItems];
 }

@@ -1,4 +1,4 @@
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, LowerCasePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -24,8 +24,17 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import {
   IPaymentOutstandingSectionOverview,
+  IPaymentOutstandingSectionStat,
   IPaymentOutstandingSectionTab,
 } from '../../types/payment-outstanding-section.interface';
+
+interface IOverviewCardView {
+  hero: IPaymentOutstandingSectionStat | null;
+  secondary: IPaymentOutstandingSectionStat[];
+  counts: IPaymentOutstandingSectionStat[];
+  selectionCount: number;
+  selectionAmount: number;
+}
 
 @Component({
   selector: 'app-payment-outstanding-section',
@@ -35,6 +44,7 @@ import {
     InputIconModule,
     NavTabsComponent,
     CurrencyPipe,
+    LowerCasePipe,
   ],
   templateUrl: './payment-outstanding-section.component.html',
   styleUrl: './payment-outstanding-section.component.scss',
@@ -63,6 +73,10 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
 
   protected readonly navTabItems = computed(() =>
     this.mapTabsToNavItems(this.tabs())
+  );
+
+  protected readonly overviewViews = computed(() =>
+    this.overviewCards().map(card => this.buildOverviewView(card.stats))
   );
 
   protected readonly searchTerm = signal('');
@@ -98,6 +112,35 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
 
   protected onNavTabChanged(event: ITabChange): void {
     this.activeTabIndex.set(event.index);
+  }
+
+  private buildOverviewView(
+    stats: IPaymentOutstandingSectionStat[]
+  ): IOverviewCardView {
+    const selectionIndex = stats.findIndex(stat => !!stat.dividerBefore);
+    const mainStats =
+      selectionIndex >= 0 ? stats.slice(0, selectionIndex) : stats;
+    const selectionStats =
+      selectionIndex >= 0 ? stats.slice(selectionIndex) : [];
+
+    const counts = mainStats.filter(stat => stat.kind === 'count');
+    const currencies = mainStats.filter(stat => stat.kind === 'currency');
+    const hero =
+      currencies.find(stat => stat.tone === 'debit') ?? currencies[0] ?? null;
+    const secondary = currencies.filter(stat => stat !== hero);
+
+    const selectionCount =
+      selectionStats.find(stat => stat.kind === 'count')?.value ?? 0;
+    const selectionAmount =
+      selectionStats.find(stat => stat.kind === 'currency')?.value ?? 0;
+
+    return {
+      hero,
+      secondary,
+      counts,
+      selectionCount,
+      selectionAmount,
+    };
   }
 
   private mapTabsToNavItems(tabs: IPaymentOutstandingSectionTab[]): ITabItem[] {

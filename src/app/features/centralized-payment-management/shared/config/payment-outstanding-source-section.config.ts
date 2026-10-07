@@ -5,6 +5,7 @@ export enum EPaymentOutstandingSourceType {
   EXPENSE = 'EXPENSE',
   FUEL_EXPENSE = 'FUEL_EXPENSE',
   VENDOR_PAYMENT = 'VENDOR_PAYMENT',
+  PETRO_CARD_WALLET = 'PETRO_CARD_WALLET',
 }
 
 export enum EPaymentOutstandingSectionContext {
@@ -24,6 +25,8 @@ const OUTSTANDING_SUBTITLES: Record<EPaymentOutstandingSourceType, string> = {
     'Pending fuel reimbursements to be paid.',
   [EPaymentOutstandingSourceType.VENDOR_PAYMENT]:
     'Pending vendor payments to be paid.',
+  [EPaymentOutstandingSourceType.PETRO_CARD_WALLET]:
+    'Pending wallet recharges to be paid.',
 };
 
 const PAYMENT_SHEET_SUBTITLES: Record<EPaymentOutstandingSourceType, string> = {
@@ -33,6 +36,8 @@ const PAYMENT_SHEET_SUBTITLES: Record<EPaymentOutstandingSourceType, string> = {
     'Employee fuel reimbursements on this sheet.',
   [EPaymentOutstandingSourceType.VENDOR_PAYMENT]:
     'Vendor payments on this sheet.',
+  [EPaymentOutstandingSourceType.PETRO_CARD_WALLET]:
+    'Petro card wallet recharges on this sheet.',
 };
 
 const SECTION_CONFIG_BY_SOURCE: Record<
@@ -51,6 +56,10 @@ const SECTION_CONFIG_BY_SOURCE: Record<
     title: 'Vendor',
     icon: ICONS.SITE.BUILDING,
   },
+  [EPaymentOutstandingSourceType.PETRO_CARD_WALLET]: {
+    title: 'Wallet',
+    icon: ICONS.PAYROLL.WALLET,
+  },
 };
 
 const RECORD_COUNT_UNIT_BY_SOURCE: Record<
@@ -60,6 +69,7 @@ const RECORD_COUNT_UNIT_BY_SOURCE: Record<
   [EPaymentOutstandingSourceType.EXPENSE]: 'employee',
   [EPaymentOutstandingSourceType.FUEL_EXPENSE]: 'employee',
   [EPaymentOutstandingSourceType.VENDOR_PAYMENT]: 'vendor',
+  [EPaymentOutstandingSourceType.PETRO_CARD_WALLET]: 'recharge',
 };
 
 export function getPaymentOutstandingSourceSectionMeta(
@@ -91,4 +101,17 @@ export function isPaymentOutstandingRowSelectionDisabled(
   }
 
   return excludedUserIds.has(String(row['userId'] ?? ''));
+}
+
+export function isWalletOutstandingRowSelectionDisabled(
+  row: Record<string, unknown>,
+  excludedRechargeIds: ReadonlySet<string> = new Set()
+): boolean {
+  const pendingAmount = Number(row['pendingAmount'] ?? row['amount'] ?? 0);
+
+  if (pendingAmount <= 0) {
+    return true;
+  }
+
+  return excludedRechargeIds.has(String(row['id'] ?? ''));
 }

@@ -149,6 +149,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     EPaymentSheetSourceType.EXPENSE,
     EPaymentSheetSourceType.FUEL_EXPENSE,
     EPaymentSheetSourceType.VENDOR_PAYMENT,
+    EPaymentSheetSourceType.PETRO_CARD_WALLET,
   ];
 
   private readonly sourceTypeMap: Record<
@@ -160,6 +161,8 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       EPaymentOutstandingSourceType.FUEL_EXPENSE,
     [EPaymentSheetSourceType.VENDOR_PAYMENT]:
       EPaymentOutstandingSourceType.VENDOR_PAYMENT,
+    [EPaymentSheetSourceType.PETRO_CARD_WALLET]:
+      EPaymentOutstandingSourceType.PETRO_CARD_WALLET,
   };
 
   private readonly sourceTables = new Map<
@@ -693,15 +696,22 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     return {
       ...this.getWorkflowFields(detail),
       id: item.id,
-      beneficiaryId: item.userId ?? item.vendorId ?? '',
+      beneficiaryId: item.userId ?? item.vendorId ?? item.rechargeId ?? '',
       actualDue: item.actualDueAmount,
       payableAmount: item.payableAmount,
       remainingAmount: item.remainingAmount,
       beneficiaryName: item.user
         ? `${item.user.firstName} ${item.user.lastName}`.trim()
-        : (item.vendor?.name ?? '-'),
-      beneficiaryCode:
-        item.user?.employeeId ?? this.formatVendorLocation(item.vendor),
+        : item.vendor?.name
+          ? item.vendor.name
+          : item.sourceType === EPaymentSheetSourceType.PETRO_CARD_WALLET
+            ? 'Petro Card Wallet'
+            : '-',
+      beneficiaryCode: item.user?.employeeId
+        ? item.user.employeeId
+        : item.sourceType === EPaymentSheetSourceType.PETRO_CARD_WALLET
+          ? 'Wallet recharge'
+          : this.formatVendorLocation(item.vendor),
       itemStatus: item.itemStatus,
       paidAt: item.paidAt ?? null,
       utrNumber: item.utrNumber ?? null,
@@ -976,6 +986,14 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       EPaymentOutstandingSectionContext.PAYMENT_SHEET
     ).recordCountUnit;
 
-    return unit === 'vendor' ? 'Vendors' : 'Employees';
+    if (unit === 'vendor') {
+      return 'Vendors';
+    }
+
+    if (unit === 'recharge') {
+      return 'Recharges';
+    }
+
+    return 'Employees';
   }
 }

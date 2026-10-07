@@ -10,6 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/expense-payment-management/types/expense-outstanding.dto';
 import { IFuelExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/fuel-expense-payment-management/types/fuel-expense-outstanding.dto';
 import { IVendorBookPaymentTableRow } from '@features/centralized-payment-management/vendor-payment-management/types/vendor-outstanding.interface';
+import { IWalletOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/wallet-payment-management/types/wallet-outstanding.dto';
 import { FormBase } from '@shared/base/form.base';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import {
@@ -58,16 +59,21 @@ export class CreatePaymentSheetComponent
   protected readonly selectedVendorBookPayments = input<
     IVendorBookPaymentTableRow[]
   >([]);
+  protected readonly selectedWalletRecords = input<
+    IWalletOutstandingGetBaseResponseDto[]
+  >([]);
 
   ngOnInit(): void {
     const expenseRecords = this.selectedExpenseRecords();
     const fuelRecords = this.selectedFuelRecords();
     const vendorBookPayments = this.selectedVendorBookPayments();
+    const walletRecords = this.selectedWalletRecords();
 
     if (
       !expenseRecords.length &&
       !fuelRecords.length &&
-      !vendorBookPayments.length
+      !vendorBookPayments.length &&
+      !walletRecords.length
     ) {
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
@@ -94,7 +100,8 @@ export class CreatePaymentSheetComponent
     const formData = this.prepareFormData(
       this.selectedExpenseRecords(),
       this.selectedFuelRecords(),
-      this.selectedVendorBookPayments()
+      this.selectedVendorBookPayments(),
+      this.selectedWalletRecords()
     );
     this.executeCreatePaymentSheetAction(formData);
   }
@@ -102,7 +109,8 @@ export class CreatePaymentSheetComponent
   private prepareFormData(
     expenseRecords: IExpenseOutstandingGetBaseResponseDto[],
     fuelRecords: IFuelExpenseOutstandingGetBaseResponseDto[],
-    vendorBookPayments: IVendorBookPaymentTableRow[]
+    vendorBookPayments: IVendorBookPaymentTableRow[],
+    walletRecords: IWalletOutstandingGetBaseResponseDto[]
   ): ICreatePaymentSheetFormDto {
     const title = this.form.getData().title?.trim();
 
@@ -111,7 +119,8 @@ export class CreatePaymentSheetComponent
       items: buildPaymentSheetItemsFromOutstanding(
         expenseRecords,
         fuelRecords,
-        vendorBookPayments
+        vendorBookPayments,
+        walletRecords
       ),
     };
   }

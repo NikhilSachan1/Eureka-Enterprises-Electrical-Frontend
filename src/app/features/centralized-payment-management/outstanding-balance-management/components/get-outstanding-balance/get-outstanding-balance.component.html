@@ -42,4 +42,15 @@
       (selectionChange)="onVendorSelectionChange($event)"
     />
   </div>
+
+  <div
+    class="outstanding-tab-panel"
+    [class.outstanding-tab-panel--active]="activeTabIndex() === 3"
+  >
+    <app-get-wallet-outstanding
+      [showSelection]="canCreatePaymentSheet()"
+      (sectionSummaryChange)="onSectionSummaryChange(sourceType.PETRO_CARD_WALLET, $event)"
+      (selectionChange)="onWalletSelectionChange($event)"
+    />
+  </div>
 </app-payment-outstanding-section>

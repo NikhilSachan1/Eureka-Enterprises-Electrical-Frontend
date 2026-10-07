@@ -33,4 +33,14 @@
       (selectionChange)="onVendorSelectionChange($event)"
     />
   </div>
+
+  <div
+    class="outstanding-tab-panel"
+    [class.outstanding-tab-panel--active]="activeTabIndex() === 3"
+  >
+    <app-get-wallet-outstanding
+      [excludedRechargeIds]="excludedRechargeIds()"
+      (selectionChange)="onWalletSelectionChange($event)"
+    />
+  </div>
 </app-payment-outstanding-section>
