@@ -3,12 +3,14 @@ import { EUserRole } from '@shared/constants';
 export enum EPaymentSheetBeneficiaryType {
   USER = 'USER',
   VENDOR = 'VENDOR',
+  WALLET = 'WALLET',
 }
 
 export enum EPaymentSheetSourceType {
   EXPENSE = 'EXPENSE',
   FUEL_EXPENSE = 'FUEL_EXPENSE',
   VENDOR_PAYMENT = 'VENDOR_PAYMENT',
+  PETRO_CARD_WALLET = 'PETRO_CARD_WALLET',
 }
 
 export enum EPaymentSheetStatus {

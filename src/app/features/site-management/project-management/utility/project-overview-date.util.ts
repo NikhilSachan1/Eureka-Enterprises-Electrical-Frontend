@@ -26,12 +26,7 @@ function toDateOnly(value: Date | string): Date | undefined {
 }
 
 export function resolveProjectMaxDate(endDate: Date): Date {
-  const today = toDateOnly(new Date());
-  const end = toDateOnly(endDate);
-  if (!today || !end) {
-    return new Date();
-  }
-  return end.getTime() <= today.getTime() ? end : today;
+  return toDateOnly(endDate) ?? endDate;
 }
 
 export function setProjectDateFieldLoading(
@@ -65,7 +60,9 @@ function applyProjectDateRangeBounds(
     return false;
   }
 
-  if (!startDate || !endDate) {
+  const minDate = startDate ? toDateOnly(startDate) : undefined;
+  const parsedEndDate = endDate ? toDateOnly(endDate) : undefined;
+  if (!minDate && !parsedEndDate) {
     form.fieldConfigs[dateFieldName] = {
       ...base,
       dateConfig: {
@@ -76,20 +73,9 @@ function applyProjectDateRangeBounds(
     return false;
   }
 
-  const minDate = toDateOnly(startDate);
-  const parsedEndDate = toDateOnly(endDate);
-  if (!minDate || !parsedEndDate) {
-    form.fieldConfigs[dateFieldName] = {
-      ...base,
-      dateConfig: {
-        ...base.dateConfig,
-        loading: false,
-      },
-    } as IInputFieldsConfig;
-    return false;
-  }
-
-  const maxDate = resolveProjectMaxDate(parsedEndDate);
+  const maxDate = parsedEndDate
+    ? resolveProjectMaxDate(parsedEndDate)
+    : undefined;
 
   form.fieldConfigs[dateFieldName] = {
     ...base,
@@ -152,7 +138,7 @@ export function resetProjectDateField(
     dateConfig: {
       ...base.dateConfig,
       minDate: undefined,
-      maxDate: defaultDateConfig?.maxDate ?? new Date(),
+      maxDate: defaultDateConfig?.maxDate,
       loading: false,
     },
   } as IInputFieldsConfig;

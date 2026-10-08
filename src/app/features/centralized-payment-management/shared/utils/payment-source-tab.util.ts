@@ -6,6 +6,7 @@ const PAYMENT_SOURCE_TAB_LABELS: Record<EPaymentOutstandingSourceType, string> =
     [EPaymentOutstandingSourceType.EXPENSE]: 'Expense',
     [EPaymentOutstandingSourceType.FUEL_EXPENSE]: 'Fuel expense',
     [EPaymentOutstandingSourceType.VENDOR_PAYMENT]: 'Vendors',
+    [EPaymentOutstandingSourceType.PETRO_CARD_WALLET]: 'Wallet',
   };
 
 export function getPaymentSourceTabLabel(
@@ -25,6 +26,10 @@ export function getPaymentSourceTabIcon(
     return ICONS.FUEL.MENU;
   }
 
+  if (sourceType === EPaymentOutstandingSourceType.PETRO_CARD_WALLET) {
+    return ICONS.PAYROLL.WALLET;
+  }
+
   return ICONS.SITE.BUILDING;
 }
 
@@ -40,6 +45,10 @@ export function getPaymentSourceTabAccent(
 
   if (sourceType === EPaymentOutstandingSourceType.FUEL_EXPENSE) {
     return { light: '#d97706', dark: '#b45309' };
+  }
+
+  if (sourceType === EPaymentOutstandingSourceType.PETRO_CARD_WALLET) {
+    return { light: '#0d9488', dark: '#0f766e' };
   }
 
   return { light: '#2563eb', dark: '#1d4ed8' };

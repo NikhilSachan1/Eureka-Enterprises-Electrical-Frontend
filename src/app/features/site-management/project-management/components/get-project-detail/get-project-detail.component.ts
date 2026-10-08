@@ -109,7 +109,7 @@ export class GetProjectDetailComponent extends DrawerDetailBase {
         },
         {
           label: 'Work Types',
-          value: record.workTypes.join(', '),
+          value: (record.workTypes ?? []).join(', '),
         },
         {
           label: 'Address',

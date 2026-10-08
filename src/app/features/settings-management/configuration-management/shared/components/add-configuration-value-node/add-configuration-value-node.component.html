@@ -1,6 +1,9 @@
 <div
   class="add-config-value"
-  [class.add-config-value--nested]="depth() > 0"
+  [class.add-config-value--nested]="
+    depth() > 0 && !compact() && !isPrimitiveKind(node().kind)
+  "
+  [class.add-config-value--compact]="compact()"
 >
   @if (showKindSelector()) {
     <div class="add-config-value__kind">
@@ -37,6 +40,7 @@
     @case ('boolean') {
       <app-input-field
         [inputFieldConfig]="booleanFieldConfig()"
+        [fieldValue]="node().boolValue"
         (onFieldChange)="onBoolChange($event)"
       />
     }
@@ -53,41 +57,12 @@
     @case ('object') {
       <div class="add-config-value__collection">
         @if ((node().objectEntries ?? []).length === 0) {
-          <p class="add-config-value__hint text-sm text-text-secondary">
-            {{ hints.emptyObject }}
-          </p>
-        }
-        @if ((node().objectEntries ?? []).length > 0) {
-          <div class="add-config-value__collection-toolbar">
-            <button
-              type="button"
-              class="add-config-value__collection-action"
-              (click)="expandAllObjectRows()"
-            >
-              {{ collectionActions.expandAll }}
-            </button>
-            <button
-              type="button"
-              class="add-config-value__collection-action"
-              (click)="collapseAllObjectRows()"
-            >
-              {{ collectionActions.collapseAll }}
-            </button>
-          </div>
+          <p class="add-config-value__hint">{{ hints.emptyObject }}</p>
         }
         @for (entry of node().objectEntries ?? []; track $index) {
-          <div class="add-config-value__row-wrap">
-            <div class="add-config-value__row-line add-config-value__row-line--object">
-              <button
-                type="button"
-                class="add-config-value__toggle-btn"
-                (click)="toggleObjectRow($index)"
-                [attr.aria-expanded]="isObjectRowExpanded($index)"
-                [attr.aria-label]="isObjectRowExpanded($index) ? 'Collapse property' : 'Expand property'"
-              >
-                <i [class]="objectRowChevronClass($index)"></i>
-              </button>
-              <div class="add-config-value__key add-config-value__key--inline">
+          <div class="add-config-value__prop">
+            <div class="add-config-value__prop-row">
+              <div class="add-config-value__prop-key">
                 <app-input-field
                   [inputFieldConfig]="objectKeyFieldConfig($index)"
                   [fieldValue]="entry.key"
@@ -97,23 +72,43 @@
                   (onFieldChange)="onObjectKeyChange($index, $event)"
                 />
               </div>
-              <div class="add-config-value__row-header-actions">
+              <div class="add-config-value__prop-type">
+                <app-input-field
+                  [inputFieldConfig]="childKindFieldConfig($index, 'oe')"
+                  [fieldValue]="entry.value.kind"
+                  [externalValidationTrigger]="valueValidationAttempt()"
+                  (onFieldChange)="onObjectValueKindChange($index, $event)"
+                />
+              </div>
+              <div class="add-config-value__prop-value">
+                @if (isPrimitiveKind(entry.value.kind)) {
+                  <app-add-configuration-value-node
+                    [node]="entry.value"
+                    [depth]="depth() + 1"
+                    [maxDepth]="maxDepth()"
+                    [showKindSelector]="false"
+                    [rowKey]="rowKey() + '-oe-' + $index"
+                    [valueValidationAttempt]="valueValidationAttempt()"
+                    (nodeChange)="onObjectValueChange($index, $event)"
+                  />
+                }
+              </div>
+              <div class="add-config-value__prop-remove">
                 <app-button
                   [buttonConfig]="removeRowButtonConfig"
                   (onButtonClick)="removeObjectEntry($index)"
                 />
               </div>
             </div>
-            @if (isObjectRowExpanded($index)) {
-              <div class="add-config-value__nested-expanded">
+            @if (!isPrimitiveKind(entry.value.kind)) {
+              <div class="add-config-value__prop-nested">
                 <app-add-configuration-value-node
                   [node]="entry.value"
                   [depth]="depth() + 1"
                   [maxDepth]="maxDepth()"
-                  [showKindSelector]="true"
+                  [showKindSelector]="false"
                   [rowKey]="rowKey() + '-oe-' + $index"
                   [valueValidationAttempt]="valueValidationAttempt()"
-                  [collapseChildrenByDefault]="collapseChildrenByDefault()"
                   (nodeChange)="onObjectValueChange($index, $event)"
                 />
               </div>
@@ -129,31 +124,53 @@
     @case ('array') {
       <div class="add-config-value__collection">
         @if ((node().arrayItems ?? []).length === 0) {
-          <p class="add-config-value__hint text-sm text-text-secondary">
-            {{ hints.emptyArray }}
-          </p>
+          <p class="add-config-value__hint">{{ hints.emptyArray }}</p>
         }
         @for (item of node().arrayItems ?? []; track $index) {
-          <div class="add-config-value__row add-config-value__row--array">
-            <span class="add-config-value__index">{{ $index + 1 }}</span>
-            <div class="add-config-value__nested add-config-value__nested--grow">
-              <app-add-configuration-value-node
-                [node]="item"
-                [depth]="depth() + 1"
-                [maxDepth]="maxDepth()"
-                [showKindSelector]="true"
-                [rowKey]="rowKey() + '-ai-' + $index"
-                [valueValidationAttempt]="valueValidationAttempt()"
-                [collapseChildrenByDefault]="collapseChildrenByDefault()"
-                (nodeChange)="onArrayItemChange($index, $event)"
-              />
+          <div class="add-config-value__prop">
+            <div class="add-config-value__prop-row add-config-value__prop-row--array">
+              <span class="add-config-value__index">{{ $index + 1 }}</span>
+              <div class="add-config-value__prop-type">
+                <app-input-field
+                  [inputFieldConfig]="childKindFieldConfig($index, 'ai')"
+                  [fieldValue]="item.kind"
+                  [externalValidationTrigger]="valueValidationAttempt()"
+                  (onFieldChange)="onArrayItemKindChange($index, $event)"
+                />
+              </div>
+              <div class="add-config-value__prop-value">
+                @if (isPrimitiveKind(item.kind)) {
+                  <app-add-configuration-value-node
+                    [node]="item"
+                    [depth]="depth() + 1"
+                    [maxDepth]="maxDepth()"
+                    [showKindSelector]="false"
+                    [rowKey]="rowKey() + '-ai-' + $index"
+                    [valueValidationAttempt]="valueValidationAttempt()"
+                    (nodeChange)="onArrayItemChange($index, $event)"
+                  />
+                }
+              </div>
+              <div class="add-config-value__prop-remove">
+                <app-button
+                  [buttonConfig]="removeRowButtonConfig"
+                  (onButtonClick)="removeArrayItem($index)"
+                />
+              </div>
             </div>
-            <div class="add-config-value__row-actions">
-              <app-button
-                [buttonConfig]="removeRowButtonConfig"
-                (onButtonClick)="removeArrayItem($index)"
-              />
-            </div>
+            @if (!isPrimitiveKind(item.kind)) {
+              <div class="add-config-value__prop-nested">
+                <app-add-configuration-value-node
+                  [node]="item"
+                  [depth]="depth() + 1"
+                  [maxDepth]="maxDepth()"
+                  [showKindSelector]="false"
+                  [rowKey]="rowKey() + '-ai-' + $index"
+                  [valueValidationAttempt]="valueValidationAttempt()"
+                  (nodeChange)="onArrayItemChange($index, $event)"
+                />
+              </div>
+            }
           </div>
         }
         <app-button

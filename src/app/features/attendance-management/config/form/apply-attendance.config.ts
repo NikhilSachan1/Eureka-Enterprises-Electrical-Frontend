@@ -1,4 +1,3 @@
-import { Validators } from '@angular/forms';
 import { IAttendanceApplyUIFormDto } from '@features/attendance-management/types/attendance.dto';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { CONFIGURATION_KEYS, EUserRole, MODULE_NAMES } from '@shared/constants';
@@ -13,44 +12,6 @@ import {
 
 const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApplyUIFormDto> =
   {
-    company: {
-      fieldType: EDataType.SELECT,
-      id: 'company',
-      fieldName: 'company',
-      label: 'Company',
-      selectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.COMPANY,
-          dropdownName: CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
-        },
-      },
-      conditionalValidators: [
-        {
-          shouldApply: (context): boolean => context.isEmployee === true,
-          validators: [Validators.required],
-          resetOnFalse: true,
-        },
-      ],
-    },
-    contractor: {
-      fieldType: EDataType.SELECT,
-      id: 'contractor',
-      fieldName: 'contractor',
-      label: 'Contractor',
-      selectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.CONTRACTOR,
-          dropdownName: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
-        },
-      },
-      conditionalValidators: [
-        {
-          shouldApply: (context): boolean => context.isEmployee === true,
-          validators: [Validators.required],
-          resetOnFalse: true,
-        },
-      ],
-    },
     assignedDriver: {
       fieldType: EDataType.SELECT,
       id: 'assignedDriver',
@@ -62,18 +23,6 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
           filterByRole: [EUserRole.DRIVER],
           employeeStatusFilter: ['ACTIVE'],
-        },
-      },
-    },
-    vehicle: {
-      fieldType: EDataType.SELECT,
-      id: 'vehicle',
-      fieldName: 'vehicle',
-      label: 'Vehicle',
-      selectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.VEHICLE,
-          dropdownName: CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
         },
       },
     },

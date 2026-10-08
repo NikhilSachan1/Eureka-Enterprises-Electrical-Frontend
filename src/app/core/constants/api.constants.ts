@@ -128,6 +128,15 @@ export const API_ROUTES = {
     EDIT: (petroCardId: string) => `cards/${petroCardId}`,
     LINK: 'cards/action',
   },
+  PETRO_CARD_WALLET: {
+    BALANCE: 'petro-card-wallet/balance',
+    LIST: 'petro-card-wallet/recharges',
+    ADD: 'petro-card-wallet/recharges',
+    EDIT: (rechargeId: string) =>
+      `petro-card-wallet/recharges/${rechargeId}`,
+    DELETE: (rechargeId: string) =>
+      `petro-card-wallet/recharges/${rechargeId}`,
+  },
   COMPANY_BANK_ACCOUNT: {
     LIST: 'company-bank-accounts',
     ADD: 'company-bank-accounts',
@@ -232,6 +241,10 @@ export const API_ROUTES = {
       CHANGE_STATUS: (projectId: string) => `sites/${projectId}/status`,
       ALLOCATE_DEALLOCATE_EMPLOYEES: 'site-allocations/manage',
       ALLOCATION_HISTORY: 'site-allocations',
+      UPDATE_ALLOCATION: (allocationId: string) =>
+        `site-allocations/${allocationId}`,
+      DELETE_ALLOCATION: (allocationId: string, confirm = false) =>
+        `site-allocations/${allocationId}${confirm ? '?confirm=true' : ''}`,
       WORKFORCE_ALLOCATION_EMPLOYEES: 'site-allocations/employees',
     },
     DSR: {
@@ -399,6 +412,7 @@ export const API_ROUTES = {
     EXPENSE_PENDING_SETTLEMENT: 'expenses/pending-settlement',
     FUEL_EXPENSE_PENDING_SETTLEMENT: 'fuel-expenses/pending-settlement',
     VENDOR_PENDING_SETTLEMENT: 'book-payments/vendor-list',
+    WALLET_OUTSTANDING: 'petro-card-wallet/outstanding',
     PAYMENT_SHEETS: 'payment-sheets',
     PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
       `payment-sheets/${paymentSheetId}`,

@@ -23,10 +23,11 @@ import {
   IWorkforceAllocationGetStatsDto,
 } from '../../types/project.dto';
 import { IWorkforceAllocation } from '../../types/workforce-allocation.interface';
-import { ICONS } from '@shared/constants';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
+  RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
@@ -74,6 +75,7 @@ export class GetWorkforceAllocationComponent implements OnInit {
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly tableServerSideParamsBuilderService = inject(
     TableServerSideParamsBuilderService
   );
@@ -204,6 +206,11 @@ export class GetWorkforceAllocationComponent implements OnInit {
       return;
     }
 
+    if (actionType === EButtonActionType.EVENT_HISTORY) {
+      this.openAllocationHistory(selectedFirstRow);
+      return;
+    }
+
     if (
       actionType !== EButtonActionType.ALLOCATE &&
       actionType !== EButtonActionType.TRANSFER &&
@@ -243,6 +250,26 @@ export class GetWorkforceAllocationComponent implements OnInit {
       isBulk,
       !isBulk,
       dynamicComponentInputs
+    );
+  }
+
+  private openAllocationHistory(
+    record: IWorkforceAllocationGetBaseResponseDto
+  ): void {
+    const siteId = record.currentProject?.siteId;
+
+    void this.routerNavigationService.navigateWithQueryParams(
+      [
+        ROUTE_BASE_PATHS.SITE.BASE,
+        ROUTE_BASE_PATHS.SITE.PROJECT,
+        ROUTES.SITE.PROJECT.WORKSPACE,
+        ROUTES.SITE.PROJECT.ALLOCATION_HISTORY,
+      ],
+      {
+        projectId: siteId ?? null,
+        employeeName: record.userId,
+      },
+      { queryParamsHandling: '' }
     );
   }
 

@@ -236,6 +236,12 @@ export const appMenu: ApplicationMenu = {
                   routerLink: ROUTES.CARD.ADD,
                   permission: [APP_PERMISSION.PETRO_CARD.ADD],
                 },
+                {
+                  label: 'Wallet',
+                  icon: ICONS.PAYROLL.WALLET,
+                  routerLink: `../${ROUTE_BASE_PATHS.PETRO_CARD_WALLET}/${ROUTES.PETRO_CARD_WALLET.LIST}`,
+                  permission: [APP_PERMISSION.PETRO_CARD.WALLET_VIEW],
+                },
               ],
             },
             {

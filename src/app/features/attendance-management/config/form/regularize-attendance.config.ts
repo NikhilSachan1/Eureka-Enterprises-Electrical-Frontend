@@ -8,13 +8,7 @@ import { FORCE_ATTENDANCE_FORM_CONFIG } from './force-attendance.config';
 import { IAttendanceRegularizedUIFormDto } from '@features/attendance-management/types/attendance.dto';
 
 const {
-  fields: {
-    attendanceStatus,
-    company,
-    contractor,
-    assignedDriver,
-    vehicle,
-  },
+  fields: { attendanceStatus, assignedDriver },
 } = FORCE_ATTENDANCE_FORM_CONFIG;
 
 function getAssignedDriverFieldConfig(
@@ -40,10 +34,7 @@ export function getRegularizeAttendanceFormConfig(
 ): IFormConfig<IAttendanceRegularizedUIFormDto> {
   const fields: IFormInputFieldsConfig<IAttendanceRegularizedUIFormDto> = {
     attendanceStatus,
-    company,
-    contractor,
     assignedDriver: getAssignedDriverFieldConfig(assignedDriverMultiple),
-    vehicle,
   };
 
   return { fields };

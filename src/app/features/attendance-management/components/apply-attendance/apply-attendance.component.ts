@@ -19,19 +19,15 @@ import {
 import { IAttendanceAssignmentSubmitPayload } from '@features/attendance-management/types/attendance.interface';
 import { APPLY_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/apply-attendance.config';
 import {
-  getAssignmentFormValues,
+  formatProjectLocation,
+  formatVehicleBrandModel,
+  getAssignedDriverDisplayName,
   NULL_ASSIGNMENT_FORM_VALUES,
 } from '@features/attendance-management/utility/attendance-assignment.util';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { EUserRole, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { ICONS } from '@shared/constants/icon.constants';
-import {
-  EButtonActionType,
-  EButtonSeverity,
-  EButtonVariant,
-  IButtonConfig,
-  IPageHeaderConfig,
-} from '@shared/types';
+import { IPageHeaderConfig } from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 import {
@@ -78,20 +74,27 @@ export class ApplyAttendanceComponent
   };
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected assignmentHeaderButtonConfig = computed(() =>
-    this.getAssignmentHeaderButtonConfig()
-  );
 
   protected readonly initialAttendanceData =
     signal<IAttendanceApplyUIFormDto | null>(null);
   protected readonly currentStatusData =
     signal<IAttendanceCurrentStatusGetResponseDto | null>(null);
-  protected readonly isEditingAssignment = signal(false);
   protected readonly assignmentSubmitPayload =
     signal<IAttendanceAssignmentSubmitPayload>(NULL_ASSIGNMENT_FORM_VALUES);
 
   protected readonly todayDate = new Date();
   protected readonly APP_CONFIG = APP_CONFIG;
+  protected readonly ALL_ICONS = ICONS;
+  protected readonly formatProjectLocation = formatProjectLocation;
+  protected readonly formatVehicleBrandModel = formatVehicleBrandModel;
+  protected readonly assignedDriverName = computed(() =>
+    getAssignedDriverDisplayName(this.currentStatusData())
+  );
+  protected readonly assignedDriverLabel = computed(() =>
+    this.assignedDriverName()?.includes(',')
+      ? 'Assigned Drivers'
+      : 'Assigned Driver'
+  );
   protected isEmployeeUser = false;
   protected isDriverUser = false;
 
@@ -130,10 +133,7 @@ export class ApplyAttendanceComponent
     }
     this.currentStatusData.set(currentStatusFromResolver);
     this.initialAttendanceData.set({
-      ...getAssignmentFormValues(currentStatusFromResolver, {
-        includeSiteFields: this.isEmployeeUser,
-        includeAssignedDriver: false,
-      }),
+      ...NULL_ASSIGNMENT_FORM_VALUES,
       remark: null,
     });
   }
@@ -182,31 +182,6 @@ export class ApplyAttendanceComponent
           this.notificationService.error('Failed to apply attendance');
         },
       });
-  }
-
-  private getAssignmentHeaderButtonConfig(): Partial<IButtonConfig> {
-    if (this.isEditingAssignment()) {
-      return {
-        id: EButtonActionType.SUBMIT,
-        icon: ICONS.ACTIONS.CHECK,
-        variant: EButtonVariant.TEXT,
-        severity: EButtonSeverity.SUCCESS,
-      };
-    }
-
-    return {
-      id: EButtonActionType.EDIT,
-      icon: ICONS.ACTIONS.EDIT,
-      variant: EButtonVariant.TEXT,
-    };
-  }
-
-  protected toggleAssignmentEditing(): void {
-    this.isEditingAssignment.update(isEditing => !isEditing);
-  }
-
-  protected onResetAssignmentForm(): void {
-    this.onResetSingleForm(this.initialAttendanceData() ?? undefined);
   }
 
   protected getAttendanceStatusLabel(

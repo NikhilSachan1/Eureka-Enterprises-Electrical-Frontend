@@ -1,0 +1,77 @@
+import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants';
+import { COMMON_ROW_ACTIONS } from '@shared/config';
+import {
+  EDataType,
+  IDataTableConfig,
+  IDataTableHeaderConfig,
+  IEnhancedTableConfig,
+  ITableActionConfig,
+} from '@shared/types';
+import { IWalletRechargeGetBaseResponseDto } from '../../types/petro-card-wallet.dto';
+import { isWalletRechargeEditable } from '../../utils/wallet-recharge-payment.util';
+
+export const WALLET_RECHARGE_TABLE_CONFIG: Partial<IDataTableConfig> = {
+  emptyMessage: 'No recharges recorded.',
+  emptyMessageDescription: 'Record a recharge to put money into the wallet.',
+};
+
+const rechargeHeaders: Partial<IDataTableHeaderConfig>[] = [
+  {
+    field: 'rechargeDate',
+    header: 'Date',
+    bodyTemplate: EDataType.DATE,
+    dataType: EDataType.DATE,
+    showSort: false,
+  },
+  {
+    field: 'amount',
+    header: 'Amount',
+    bodyTemplate: EDataType.CURRENCY,
+    dataType: EDataType.NUMBER,
+    currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+    showSort: false,
+  },
+  {
+    field: 'statusLabel',
+    header: 'Status',
+    bodyTemplate: EDataType.STATUS,
+    showSort: false,
+  },
+  {
+    field: 'paymentDetails',
+    header: 'Payment',
+    bodyTemplate: EDataType.TEXT,
+    customTemplateKey: 'walletPaymentCell',
+    columnStyleClass: 'cell-allow-wrap',
+    showSort: false,
+  },
+];
+
+const rechargeRowActions: Partial<
+  ITableActionConfig<IWalletRechargeGetBaseResponseDto>
+>[] = [
+  {
+    ...COMMON_ROW_ACTIONS.EDIT,
+    tooltip: 'Edit recharge',
+    permission: [APP_PERMISSION.PETRO_CARD.WALLET_MANAGE],
+    disableWhen: row => !isWalletRechargeEditable(row),
+    disableReason: () =>
+      'This recharge has already been paid and cannot be edited.',
+  },
+  {
+    ...COMMON_ROW_ACTIONS.DELETE,
+    tooltip: 'Delete recharge',
+    permission: [APP_PERMISSION.PETRO_CARD.WALLET_MANAGE],
+    disableWhen: row => !isWalletRechargeEditable(row),
+    disableReason: () =>
+      'This recharge has already been paid and cannot be deleted.',
+  },
+];
+
+export const WALLET_RECHARGE_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IWalletRechargeGetBaseResponseDto> =
+  {
+    tableConfig: WALLET_RECHARGE_TABLE_CONFIG,
+    headers: rechargeHeaders,
+    rowActions: rechargeRowActions,
+  };

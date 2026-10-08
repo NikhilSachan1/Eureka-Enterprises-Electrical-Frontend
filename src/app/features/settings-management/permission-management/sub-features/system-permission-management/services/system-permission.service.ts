@@ -23,9 +23,12 @@ import {
   SystemPermissionGetRequestSchema,
   SystemPermissionGetResponseSchema,
 } from '../schemas';
-import { replaceTextWithSeparator } from '@shared/utility';
+import { replaceTextWithSeparator, toTitleCase } from '@shared/utility';
 import { IModulePermission } from '../types/system-permission.interface';
 import { AppConfigurationService } from '@shared/services';
+
+/** Only Financials uses `module.submodule.permission` names in the matrix UI. */
+const FINANCIALS_MODULE_KEY = 'financials';
 
 @Injectable({
   providedIn: 'root',
@@ -203,22 +206,78 @@ export class SystemPermissionService {
           return acc;
         }, new Map<string, IModulePermission>());
 
+        const financialSubmodules = new Map<string, IModulePermission>();
+
         response.records.forEach(
           (permission: ISystemPermissionGetBaseResponseDto) => {
             const moduleKey = normalizeModuleKey(permission.module);
+            const permissionEntry = {
+              id: permission.id,
+              name: permission.name,
+              label: permission.label,
+              description: permission.description,
+            };
+
+            if (moduleKey === FINANCIALS_MODULE_KEY) {
+              const submoduleKey = this.extractFinancialSubmoduleKey(
+                permission.name,
+                normalizeModuleKey
+              );
+
+              if (submoduleKey) {
+                const submoduleMapKey = `${FINANCIALS_MODULE_KEY}_${normalizeModuleKey(submoduleKey)}`;
+
+                if (!financialSubmodules.has(submoduleMapKey)) {
+                  financialSubmodules.set(submoduleMapKey, {
+                    id: `module-${submoduleMapKey}`,
+                    moduleName: this.formatFinancialSubmoduleLabel(submoduleKey),
+                    permissions: [],
+                  });
+                }
+
+                financialSubmodules
+                  .get(submoduleMapKey)
+                  ?.permissions.push(permissionEntry);
+                return;
+              }
+            }
 
             if (moduleMap.has(moduleKey)) {
-              moduleMap.get(moduleKey)?.permissions.push({
-                id: permission.id,
-                name: permission.name,
-                label: permission.label,
-                description: permission.description,
-              });
+              moduleMap.get(moduleKey)?.permissions.push(permissionEntry);
             }
           }
         );
 
-        return Array.from(moduleMap.values());
+        const modules: IModulePermission[] = [];
+
+        moduleMap.forEach((module, key) => {
+          if (key === FINANCIALS_MODULE_KEY) {
+            const sortedSubmodules = Array.from(financialSubmodules.values()).sort(
+              (a, b) => a.moduleName.localeCompare(b.moduleName)
+            );
+            modules.push(...sortedSubmodules);
+
+            if (module.permissions.length > 0) {
+              modules.push(module);
+            }
+            return;
+          }
+
+          modules.push(module);
+        });
+
+        if (
+          !moduleMap.has(FINANCIALS_MODULE_KEY) &&
+          financialSubmodules.size > 0
+        ) {
+          modules.push(
+            ...Array.from(financialSubmodules.values()).sort((a, b) =>
+              a.moduleName.localeCompare(b.moduleName)
+            )
+          );
+        }
+
+        return modules;
       }),
       tap(() => {
         this.logger.logUserAction('Get System Permission Module Wise Success');
@@ -230,6 +289,47 @@ export class SystemPermissionService {
         );
         return throwError(() => error);
       })
+    );
+  }
+
+  /**
+   * Parses `financials.advance-payments.settle` (or `advance-payments.settle`)
+   * into the submodule key `advance-payments`.
+   */
+  private extractFinancialSubmoduleKey(
+    permissionName: string,
+    normalizeModuleKey: (value: string) => string
+  ): string | null {
+    const parts = permissionName
+      .toLowerCase()
+      .split('.')
+      .map(part => part.trim())
+      .filter(Boolean);
+
+    if (
+      parts.length >= 3 &&
+      normalizeModuleKey(parts[0] ?? '') === FINANCIALS_MODULE_KEY
+    ) {
+      return parts[1] ?? null;
+    }
+
+    if (
+      parts.length >= 2 &&
+      normalizeModuleKey(parts[0] ?? '') !== FINANCIALS_MODULE_KEY
+    ) {
+      return parts[0] ?? null;
+    }
+
+    return null;
+  }
+
+  private formatFinancialSubmoduleLabel(submoduleKey: string): string {
+    return toTitleCase(
+      replaceTextWithSeparator(
+        replaceTextWithSeparator(submoduleKey, '-', ' '),
+        '_',
+        ' '
+      )
     );
   }
 }

@@ -206,43 +206,124 @@
 
 .content-card__main {
   min-width: 0;
-}
-
-// Assignment section — compact
-.assignment-section {
   padding: 1rem 1.25rem 1rem;
 }
 
-// Note — card ke bahar
-.assignment-note {
-  margin-bottom: 0.75rem;
-  padding: 0.625rem 0.875rem;
-  font-size: 0.6875rem;
-  font-weight: 500;
-  line-height: 1.45;
-  border-radius: 0.5rem;
-  border: 1px solid var(--border-main-color);
-  background-color: var(--surface-200);
-  color: var(--text-primary-color);
-}
+.apply-context {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 
-.assignment-note__list {
-  list-style: disc;
-  padding-left: 1rem;
-  margin-top: 0.375rem;
-  margin-bottom: 0;
+  @media (min-width: 48rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
-  li {
-    margin-bottom: 0.25rem;
+    &:has(> :only-child) {
+      grid-template-columns: 1fr;
+    }
 
-    b {
-      font-weight: 600;
-      color: var(--text-primary-color);
+    &.apply-context--checked-in:has(> :nth-child(3)) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 }
 
-// Action row: one app-button = full width; two app-buttons = equal halves (no reliance on extra class)
+.apply-project {
+  display: flex;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 0.9rem;
+  border: 1px solid color-mix(in srgb, #2563eb 16%, var(--border-light-color));
+  background: var(--background-paper-color);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.apply-project--vehicle {
+  border-color: color-mix(in srgb, #0f766e 16%, var(--border-light-color));
+
+  .apply-project__icon {
+    color: #0f766e;
+    background: color-mix(in srgb, #14b8a6 14%, var(--background-paper-color));
+  }
+}
+
+.apply-project--driver {
+  border-color: color-mix(in srgb, #6d28d9 16%, var(--border-light-color));
+
+  .apply-project__icon {
+    color: #6d28d9;
+    background: color-mix(in srgb, #8b5cf6 14%, var(--background-paper-color));
+  }
+}
+
+.apply-project__content {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  min-width: 0;
+  padding: 1rem 1.05rem;
+}
+
+.apply-project__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  color: #1d4ed8;
+  font-size: 1rem;
+  background: color-mix(in srgb, #3b82f6 14%, var(--background-paper-color));
+}
+
+.apply-project__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.apply-project__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary-color);
+}
+
+.apply-project__name {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-primary-color);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.apply-project__meta {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.3rem;
+  margin: 0.1rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 550;
+  color: var(--text-secondary-color);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+
+  i {
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+    font-size: 0.7rem;
+  }
+}
+
 .action-button {
   margin-top: 0.75rem;
   width: 100%;

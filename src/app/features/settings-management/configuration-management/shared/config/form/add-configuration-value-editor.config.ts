@@ -50,17 +50,14 @@ export const ADD_CONFIGURATION_VALUE_EDITOR_LABELS = {
   dateValue: 'Date value',
   booleanCheckbox: 'Yes / true',
   objectKey: 'Property name',
+  compactName: 'Name',
+  compactType: 'Type',
+  compactValue: 'Value',
 } as const;
 
 export const ADD_CONFIGURATION_VALUE_EDITOR_HINTS = {
-  emptyObject:
-    'No properties yet. Add a property name and choose a type for each value.',
-  emptyArray: 'Empty list. Add items and pick a type for each.',
-} as const;
-
-export const ADD_CONFIGURATION_VALUE_EDITOR_COLLECTION_ACTIONS = {
-  expandAll: 'Expand all',
-  collapseAll: 'Collapse all',
+  emptyObject: 'No properties yet. Add a name, type and value for each one.',
+  emptyArray: 'No items yet. Add a type and value for each item.',
 } as const;
 
 export const ADD_CONFIGURATION_VALUE_EDITOR_BUTTONS: {
@@ -98,7 +95,8 @@ export const ADD_CONFIGURATION_VALUE_EDITOR_BUTTONS: {
     icon: ICONS.ACTIONS.TRASH,
     iconPosition: EButtonIconPosition.LEFT,
     severity: EButtonSeverity.SECONDARY,
-    variant: EButtonVariant.OUTLINED,
+    variant: EButtonVariant.TEXT,
+    rounded: true,
     actionName: 'removeRow',
   },
 };
@@ -120,16 +118,25 @@ export function buildAddConfigurationKindSelectFieldConfig(ctx: {
   rowKey: string;
   depth: number;
   options: IOptionDropdown[];
+  compact?: boolean;
 }): IInputFieldsConfig {
   return {
     ...DEFAULT_SELECT_INPUT_FIELD_CONFIG,
     fieldType: EDataType.SELECT,
     id: `cfg-kind-${ctx.rowKey}-${ctx.depth}`,
     fieldName: 'kind',
-    label: ADD_CONFIGURATION_VALUE_EDITOR_LABELS.kindSelect,
+    label: ctx.compact
+      ? ADD_CONFIGURATION_VALUE_EDITOR_LABELS.compactType
+      : ADD_CONFIGURATION_VALUE_EDITOR_LABELS.kindSelect,
+    placeholder: ctx.compact
+      ? ADD_CONFIGURATION_VALUE_EDITOR_LABELS.compactType
+      : ADD_CONFIGURATION_VALUE_EDITOR_LABELS.kindSelect,
+    fieldSize: ctx.compact ? EFieldSize.Small : EFieldSize.Large,
     selectConfig: {
       ...DEFAULT_SELECT_INPUT_FIELD_CONFIG.selectConfig,
       optionsDropdown: ctx.options,
+      haveFilter: !ctx.compact,
+      showClearButton: false,
     },
     validators: [Validators.required],
   } as IInputFieldsConfig;
@@ -138,13 +145,19 @@ export function buildAddConfigurationKindSelectFieldConfig(ctx: {
 export function buildAddConfigurationStringValueFieldConfig(ctx: {
   rowKey: string;
   depth: number;
+  compact?: boolean;
 }): IInputFieldsConfig {
+  const label = ctx.compact
+    ? ADD_CONFIGURATION_VALUE_EDITOR_LABELS.compactValue
+    : ADD_CONFIGURATION_VALUE_EDITOR_LABELS.stringValue;
   return {
     ...DEFAULT_INPUT_FIELD_CONFIG,
     fieldType: EDataType.TEXT,
     id: `cfg-str-${ctx.rowKey}-${ctx.depth}`,
     fieldName: 'stringValue',
-    label: ADD_CONFIGURATION_VALUE_EDITOR_LABELS.stringValue,
+    label,
+    placeholder: label,
+    fieldSize: ctx.compact ? EFieldSize.Small : EFieldSize.Large,
     validators: [Validators.required],
   } as IInputFieldsConfig;
 }
@@ -152,13 +165,19 @@ export function buildAddConfigurationStringValueFieldConfig(ctx: {
 export function buildAddConfigurationNumberValueFieldConfig(ctx: {
   rowKey: string;
   depth: number;
+  compact?: boolean;
 }): IInputFieldsConfig {
+  const label = ctx.compact
+    ? ADD_CONFIGURATION_VALUE_EDITOR_LABELS.compactValue
+    : ADD_CONFIGURATION_VALUE_EDITOR_LABELS.numberValue;
   return {
     ...DEFAULT_NUMBER_INPUT_FIELD_CONFIG,
     fieldType: EDataType.NUMBER,
     id: `cfg-num-${ctx.rowKey}-${ctx.depth}`,
     fieldName: 'numberValue',
-    label: ADD_CONFIGURATION_VALUE_EDITOR_LABELS.numberValue,
+    label,
+    placeholder: label,
+    fieldSize: ctx.compact ? EFieldSize.Small : EFieldSize.Large,
     validators: [Validators.required],
   } as IInputFieldsConfig;
 }
@@ -166,13 +185,19 @@ export function buildAddConfigurationNumberValueFieldConfig(ctx: {
 export function buildAddConfigurationDateValueFieldConfig(ctx: {
   rowKey: string;
   depth: number;
+  compact?: boolean;
 }): IInputFieldsConfig {
+  const label = ctx.compact
+    ? ADD_CONFIGURATION_VALUE_EDITOR_LABELS.compactValue
+    : ADD_CONFIGURATION_VALUE_EDITOR_LABELS.dateValue;
   return {
     ...DEFAULT_DATE_INPUT_FIELD_CONFIG,
     fieldType: EDataType.DATE,
     id: `cfg-date-${ctx.rowKey}-${ctx.depth}`,
     fieldName: 'dateValue',
-    label: ADD_CONFIGURATION_VALUE_EDITOR_LABELS.dateValue,
+    label,
+    placeholder: label,
+    fieldSize: ctx.compact ? EFieldSize.Small : EFieldSize.Large,
     readonlyInput: false,
     validators: [Validators.required],
   } as IInputFieldsConfig;
@@ -181,13 +206,14 @@ export function buildAddConfigurationDateValueFieldConfig(ctx: {
 export function buildAddConfigurationBooleanValueFieldConfig(ctx: {
   rowKey: string;
   depth: number;
+  compact?: boolean;
 }): IInputFieldsConfig {
   return {
     ...DEFAULT_INPUT_FIELD_CONFIG,
     fieldType: EDataType.CHECKBOX,
     id: `cfg-bool-${ctx.rowKey}-${ctx.depth}`,
     fieldName: 'boolValue',
-    fieldSize: EFieldSize.Large,
+    fieldSize: ctx.compact ? EFieldSize.Small : EFieldSize.Large,
     checkboxConfig: {
       options: [
         {
@@ -205,13 +231,19 @@ export function buildAddConfigurationObjectKeyFieldConfig(ctx: {
   rowKey: string;
   depth: number;
   index: number;
+  compact?: boolean;
 }): IInputFieldsConfig {
+  const label = ctx.compact
+    ? ADD_CONFIGURATION_VALUE_EDITOR_LABELS.compactName
+    : ADD_CONFIGURATION_VALUE_EDITOR_LABELS.objectKey;
   return {
     ...DEFAULT_INPUT_FIELD_CONFIG,
     fieldType: EDataType.TEXT,
     id: `cfg-obj-key-${ctx.rowKey}-${ctx.depth}-${ctx.index}`,
     fieldName: 'objectKey',
-    label: ADD_CONFIGURATION_VALUE_EDITOR_LABELS.objectKey,
+    label,
+    placeholder: label,
+    fieldSize: ctx.compact ? EFieldSize.Small : EFieldSize.Large,
     validators: [Validators.required],
   } as IInputFieldsConfig;
 }

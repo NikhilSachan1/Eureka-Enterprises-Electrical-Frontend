@@ -1,6 +1,8 @@
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import type { IAttendanceGetBaseResponseDto } from '@features/attendance-management/types/attendance.dto';
 import {
+  formatProjectLocation,
+  formatVehicleBrandModel,
   getAssignedDriverDisplayName,
   getAssignedEmployeeDisplayName,
 } from '@features/attendance-management/utility/attendance-assignment.util';
@@ -15,11 +17,12 @@ import { StatusUtil } from '@shared/utility';
 export function buildAssignmentTrail(
   record: IAttendanceGetBaseResponseDto
 ): IDashboardAttendanceTrailStop[] {
-  const snapshot = record.assignmentSnapshot;
   const stops: IDashboardAttendanceTrailStop[] = [];
-  const companyName = snapshot?.company?.name?.trim();
-  const contractorName = snapshot?.contractors?.[0]?.name?.trim();
-  const vehicleNo = snapshot?.vehicle?.registrationNo?.trim();
+  const projectName = record.site?.name?.trim();
+  const projectLocation = formatProjectLocation(record.site);
+  const vehicle = record.vehicle ?? null;
+  const vehicleNo = vehicle?.registrationNo?.trim();
+  const vehicleBrandModel = formatVehicleBrandModel(vehicle);
   const driverName = getAssignedDriverDisplayName(record);
   const employeeName = getAssignedEmployeeDisplayName(record);
   const personName = driverName ?? employeeName;
@@ -29,21 +32,25 @@ export function buildAssignmentTrail(
       : 'Assigned Driver'
     : 'Assigned Engineer';
 
-  if (companyName) {
+  if (projectName) {
     stops.push({
-      kind: 'company',
-      label: 'Company',
-      value: companyName,
+      kind: 'project',
+      label: 'Project',
+      value: projectLocation
+        ? `${projectName} · ${projectLocation}`
+        : projectName,
       icon: ICONS.COMMON.MAP_MARKER,
     });
   }
 
-  if (contractorName) {
+  if (vehicleNo) {
     stops.push({
-      kind: 'contractor',
-      label: 'Contractor',
-      value: contractorName,
-      icon: ICONS.SITE.BUILDING,
+      kind: 'vehicle',
+      label: 'Vehicle',
+      value: vehicleBrandModel
+        ? `${vehicleNo} · ${vehicleBrandModel}`
+        : vehicleNo,
+      icon: ICONS.COMMON.CAR,
     });
   }
 
@@ -53,15 +60,6 @@ export function buildAssignmentTrail(
       label: personLabel,
       value: personName,
       icon: ICONS.COMMON.USER,
-    });
-  }
-
-  if (vehicleNo) {
-    stops.push({
-      kind: 'vehicle',
-      label: 'Vehicle',
-      value: vehicleNo,
-      icon: ICONS.COMMON.CAR,
     });
   }
 

@@ -32,27 +32,6 @@ export const AttendanceRegularizedRequestSchema =
       ...(isAttendanceAssignmentApplicable(data.attendanceStatus)
         ? {
             assignmentSnapshot: {
-              company: data.company
-                ? {
-                    id: data.company.id,
-                    name: data.company.name,
-                    fullAddress: data.company.fullAddress,
-                  }
-                : null,
-              contractors: (data.contractor ? [data.contractor] : []).map(
-                c => ({
-                  id: c?.id,
-                  name: c?.name,
-                  city: c?.city,
-                  state: c?.state,
-                })
-              ),
-              vehicle: data.vehicle
-                ? {
-                    id: data.vehicle.id,
-                    registrationNo: data.vehicle.registrationNo,
-                  }
-                : null,
               assignedDrivers: toAssignedDriverIds(data.assignedDriver),
             },
           }

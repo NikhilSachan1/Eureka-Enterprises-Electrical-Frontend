@@ -86,8 +86,6 @@ import { EAssetScope } from '@features/asset-management/types/asset.enum';
 })
 export class GetAssetComponent implements OnInit {
   protected readonly ICONS = ICONS;
-  protected readonly ASSET_SCOPE = EAssetScope;
-
   private readonly allowedLatestEventTypes = new Set<string>([
     ETableActionTypeValue.HANDOVER_ACCEPTED,
     ETableActionTypeValue.HANDOVER_CANCELLED,
@@ -156,7 +154,7 @@ export class GetAssetComponent implements OnInit {
     this.assetScopeTabs().some(tab => tab.visible !== false)
   );
 
-  /** Active tab. Switching it rebuilds the filter and table, so nothing carries over. */
+  /** Active tab. Filter values stay; the list reloads for the new scope. */
   protected readonly assetScope = signal<EAssetScope>(
     this.resolveDefaultAssetScope()
   );
@@ -215,19 +213,24 @@ export class GetAssetComponent implements OnInit {
     }
 
     this.assetScope.set(scope);
-    this.clearTableFilters();
+    this.reloadForScopeChange();
   }
 
-  /** Drops the applied column filters so the new tab starts fresh, then reloads. */
-  private clearTableFilters(): void {
-    const table = this.dataTable()?.dt();
-    if (!table) {
+  private reloadForScopeChange(): void {
+    if (!this.tableFilterData) {
       return;
     }
 
-    table.filters = {};
-    table.first = 0;
-    table.reset();
+    const table = this.dataTable()?.dt();
+    if (table) {
+      table.first = 0;
+    }
+
+    this.tableFilterData = {
+      ...this.tableFilterData,
+      first: 0,
+    };
+    this.loadAssetList();
   }
 
   ngOnInit(): void {
@@ -444,7 +447,7 @@ export class GetAssetComponent implements OnInit {
           {
             label: 'Initiated',
             icon: ICONS.ACTIONS.SEND,
-            value: stats?.handover.initiated ?? 0,
+            value: stats?.handover?.initiated ?? 0,
           },
         ],
       },

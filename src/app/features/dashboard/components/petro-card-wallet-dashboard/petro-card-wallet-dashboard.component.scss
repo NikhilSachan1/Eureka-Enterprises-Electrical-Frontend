@@ -1,0 +1,164 @@
+:host {
+  display: block;
+}
+
+:host:not(:empty) {
+  margin-bottom: 1.5rem;
+}
+
+.petro-wallet-dash {
+  --pw-accent: #0f766e;
+  --pw-accent-dark: #115e59;
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid var(--border-light-color);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 8px 28px -12px rgb(0 0 0 / 0.12);
+  background: var(--background-default-color);
+
+  &--healthy {
+    --pw-accent: #0f766e;
+    --pw-accent-dark: #115e59;
+  }
+
+  &--low {
+    --pw-accent: #b45309;
+    --pw-accent-dark: #92400e;
+  }
+}
+
+:host ::ng-deep .petro-wallet-dash > .p-card-body {
+  padding: 0;
+}
+
+.petro-wallet-dash__shell {
+  min-height: 8.5rem;
+}
+
+.petro-wallet-dash__spotlight {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.1rem;
+  padding: 1.25rem 1.4rem 1.35rem;
+  color: #fff;
+  background:
+    radial-gradient(
+      120% 90% at 100% 0%,
+      rgb(255 255 255 / 0.16),
+      transparent 55%
+    ),
+    linear-gradient(145deg, var(--pw-accent) 0%, var(--pw-accent-dark) 100%);
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: auto -20% -45% 35%;
+    height: 9rem;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.08);
+    pointer-events: none;
+  }
+}
+
+.petro-wallet-dash__spotlight-top {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.petro-wallet-dash__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 0.16);
+  border: 1px solid rgb(255 255 255 / 0.22);
+  backdrop-filter: blur(4px);
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+.petro-wallet-dash__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.petro-wallet-dash__eyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.92;
+}
+
+.petro-wallet-dash__label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.petro-wallet-dash__action {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.petro-wallet-dash__hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.petro-wallet-dash__amount {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.08);
+}
+
+.petro-wallet-dash__amount-note {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  opacity: 0.88;
+  max-width: 22rem;
+}
+
+.petro-wallet-dash__loading,
+.petro-wallet-dash__error {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.petro-wallet-dash__error {
+  opacity: 0.95;
+}
+
+:host ::ng-deep .petro-wallet-dash__action .p-button {
+  color: #fff;
+  border-color: rgb(255 255 255 / 0.45);
+  background: rgb(255 255 255 / 0.12);
+}
+
+:host ::ng-deep .petro-wallet-dash__action .p-button:hover {
+  background: rgb(255 255 255 / 0.2);
+  border-color: rgb(255 255 255 / 0.65);
+}

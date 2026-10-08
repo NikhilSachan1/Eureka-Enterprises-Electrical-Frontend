@@ -5,6 +5,7 @@ import {
   inject,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import {
@@ -22,6 +23,7 @@ import { IPageHeaderConfig } from '@shared/types';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { LinkedVehiclePetroCardComponent } from '@features/transport-management/fuel-expense-management/shared/linked-vehicle-petro-card/linked-vehicle-petro-card.component';
+import { FuelExpenseAmountFieldComponent } from '@features/transport-management/fuel-expense-management/shared/fuel-expense-amount-field/fuel-expense-amount-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ButtonComponent } from '@shared/components/button/button.component';
 
@@ -31,6 +33,7 @@ import { ButtonComponent } from '@shared/components/button/button.component';
     PageHeaderComponent,
     InputFieldComponent,
     LinkedVehiclePetroCardComponent,
+    FuelExpenseAmountFieldComponent,
     ReactiveFormsModule,
     ButtonComponent,
   ],
@@ -44,6 +47,7 @@ export class AddFuelExpenseComponent
 {
   private readonly fuelExpenseService = inject(FuelExpenseService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly fuelAmountField = viewChild(FuelExpenseAmountFieldComponent);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly linkedUserVehicleDetail =
@@ -65,6 +69,10 @@ export class AddFuelExpenseComponent
   }
 
   protected override handleSubmit(): void {
+    if (!this.fuelAmountField()?.ensureCanSubmit()) {
+      this.isSubmitting.set(false);
+      return;
+    }
     const formData = this.prepareFormData();
     this.executeAddExpense(formData);
   }

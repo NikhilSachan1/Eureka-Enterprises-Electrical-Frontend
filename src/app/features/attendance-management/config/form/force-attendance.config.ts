@@ -16,25 +16,8 @@ import { EAttendanceStatus } from '@features/attendance-management/types/attenda
 import { IAttendanceForceUIFormDto } from '@features/attendance-management/types/attendance.dto';
 
 const {
-  fields: {
-    company: baseCompany,
-    contractor: baseContractor,
-    assignedDriver: baseAssignedDriver,
-    vehicle: baseVehicle,
-    remark,
-  },
+  fields: { assignedDriver: baseAssignedDriver, remark },
 } = APPLY_ATTENDANCE_FORM_CONFIG;
-
-const requiredWhenPresentForEmployee = [
-  {
-    shouldApply: (context: Record<string, unknown>): boolean => {
-      const { isAssignmentApplicable, isEmployee } = context;
-      return isAssignmentApplicable === true && isEmployee === true;
-    },
-    validators: [Validators.required],
-    resetOnFalse: true,
-  },
-];
 
 const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceForceUIFormDto> =
   {
@@ -84,16 +67,7 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceFor
       },
       validators: [Validators.required],
     },
-    company: {
-      ...baseCompany,
-      conditionalValidators: requiredWhenPresentForEmployee,
-    },
-    contractor: {
-      ...baseContractor,
-      conditionalValidators: requiredWhenPresentForEmployee,
-    },
     assignedDriver: baseAssignedDriver,
-    vehicle: baseVehicle,
     remark: {
       ...remark,
       label: 'Reason for force attendance',

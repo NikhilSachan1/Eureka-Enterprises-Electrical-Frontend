@@ -13,7 +13,7 @@ export interface IDashboardEmployeeLeaveBalanceRow {
 }
 
 export interface IDashboardAttendanceTrailStop {
-  readonly kind: 'company' | 'contractor' | 'vehicle' | 'person';
+  readonly kind: 'project' | 'vehicle' | 'person';
   readonly label: string;
   readonly value: string;
   readonly icon: string;

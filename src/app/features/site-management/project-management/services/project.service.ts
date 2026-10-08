@@ -18,6 +18,9 @@ import {
   ProjectOverviewGetResponseSchema,
   SiteAllocationGetRequestSchema,
   SiteAllocationGetResponseSchema,
+  SiteAllocationEditRequestSchema,
+  SiteAllocationEditResponseSchema,
+  SiteAllocationDeleteResponseSchema,
   WorkforceAllocationGetRequestSchema,
   WorkforceAllocationGetResponseSchema,
   WorkforceAllocationActionRequestSchema,
@@ -40,6 +43,9 @@ import {
   IProjectOverviewGetResponseDto,
   ISiteAllocationGetFormDto,
   ISiteAllocationGetResponseDto,
+  ISiteAllocationEditFormDto,
+  ISiteAllocationEditResponseDto,
+  ISiteAllocationDeleteResponseDto,
   IWorkforceAllocationGetFormDto,
   IWorkforceAllocationGetResponseDto,
   IWorkforceAllocationManageFormDto,
@@ -311,6 +317,78 @@ export class ProjectService {
               'Get site allocation history error',
               error
             );
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  updateSiteAllocation(
+    formData: ISiteAllocationEditFormDto,
+    allocationId: string
+  ): Observable<ISiteAllocationEditResponseDto> {
+    this.logger.logUserAction('Update site allocation dates request');
+
+    return this.apiService
+      .patchValidated(
+        API_ROUTES.SITE.PROJECT.UPDATE_ALLOCATION(allocationId),
+        {
+          response: SiteAllocationEditResponseSchema,
+          request: SiteAllocationEditRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: ISiteAllocationEditResponseDto) => {
+          this.logger.logUserAction(
+            'Update site allocation dates response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Update site allocation dates error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Update site allocation dates error',
+              error
+            );
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  deleteSiteAllocation(
+    allocationId: string,
+    confirm = false
+  ): Observable<ISiteAllocationDeleteResponseDto> {
+    this.logger.logUserAction('Delete site allocation request', { confirm });
+
+    return this.apiService
+      .deleteValidated(
+        API_ROUTES.SITE.PROJECT.DELETE_ALLOCATION(allocationId, confirm),
+        {
+          response: SiteAllocationDeleteResponseSchema,
+        },
+        undefined,
+        { silent: true }
+      )
+      .pipe(
+        tap((response: ISiteAllocationDeleteResponseDto) => {
+          this.logger.logUserAction('Delete site allocation response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Delete site allocation error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Delete site allocation error', error);
           }
           return throwError(() => error);
         })

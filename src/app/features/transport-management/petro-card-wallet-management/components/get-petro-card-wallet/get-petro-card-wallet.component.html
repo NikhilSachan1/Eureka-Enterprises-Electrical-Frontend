@@ -1,0 +1,69 @@
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+/>
+
+<app-petro-card-wallet-dashboard [showWalletLink]="false" />
+
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="rechargeTableRef.dt()"
+    [searchFilterConfig]="rechargeSearchFilterConfig"
+  />
+</div>
+
+<ng-template
+  #walletPaymentCell
+  let-row
+>
+  @if (row.isPaymentRecorded) {
+    <div class="wallet-payment-cell">
+      @if (row.referenceNumber) {
+        <div class="wallet-payment-cell__row">
+          <span class="wallet-payment-cell__label">UTR</span>
+          <span class="wallet-payment-cell__value">{{
+            row.referenceNumber
+          }}</span>
+        </div>
+      }
+      @if (row.paymentModeLabel) {
+        <div class="wallet-payment-cell__row">
+          <span class="wallet-payment-cell__label">Mode</span>
+          <span class="wallet-payment-cell__value">{{
+            row.paymentModeLabel
+          }}</span>
+        </div>
+      }
+      @if (row.paidFromAccount) {
+        <div class="wallet-payment-cell__bank">
+          <span class="wallet-payment-cell__label">Paid from</span>
+          <app-bank-details-cell
+            [bankDetails]="row.paidFromAccount"
+            [displayMode]="EBankDetailsDisplayMode.COMPACT"
+          />
+        </div>
+      }
+      @if (
+        !row.referenceNumber &&
+        !row.paymentModeLabel &&
+        !row.paidFromAccount
+      ) {
+        <span>-</span>
+      }
+    </div>
+  } @else {
+    <span class="text-content-secondary text-sm">Awaiting payment</span>
+  }
+</ng-template>
+
+<app-data-table
+  #rechargeTableRef
+  [tableConfig]="rechargeTable.tableConfig()"
+  [tableHeader]="rechargeTable.headers()"
+  [tableData]="rechargeTable.data()"
+  [loading]="rechargeTable.loading()"
+  [rowActions]="rechargeTable.rowActions()"
+  [customBodyTemplates]="{ walletPaymentCell: walletPaymentCell }"
+  (rowActionClick)="handleRechargeAction($any($event))"
+  (filterData)="onRechargeTableStateChange($event)"
+/>

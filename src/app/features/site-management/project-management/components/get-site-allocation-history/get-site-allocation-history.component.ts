@@ -8,12 +8,15 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { APP_CONFIG } from '@core/config';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import {
   SITE_ALLOCATION_EMPLOYEE_FILTER_FIELD_CONFIG,
+  SITE_ALLOCATION_HISTORY_ACTION_CONFIG_MAP,
   SITE_ALLOCATION_HISTORY_TABLE_ENHANCED_CONFIG,
 } from '../../config';
 import { ProjectService } from '../../services/project.service';
@@ -25,11 +28,22 @@ import {
   ISiteAllocationGetResponseDto,
 } from '../../types/project.dto';
 import { ISiteAllocationHistory } from '../../types/site-allocation.interface';
+import { parseProjectDateOnly } from '../../utility/project-overview-date.util';
 import {
+  ConfirmationDialogService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
-import { IEnhancedTable, IPageHeaderConfig } from '@shared/types';
+import {
+  EButtonActionType,
+  EDataType,
+  IDataViewDetails,
+  IDataViewDetailsWithEntity,
+  IEnhancedTable,
+  IPageHeaderConfig,
+  ITableActionClickEvent,
+} from '@shared/types';
+import { toTitleCase } from '@shared/utility';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
@@ -58,8 +72,14 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
   );
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
   private readonly appPermissionService = inject(AppPermissionService);
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService
+  );
 
-  private lastProjectIdForEmployeeFilter: string | undefined;
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly routeQuery = toSignal(this.activatedRoute.queryParamMap);
+  private appliedRouteEmployee: string | null = null;
+  private appliedProjectId: string | undefined;
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
@@ -88,12 +108,19 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      const projectId = this.workspaceContext.selectedProjectId();
+      const employeeId = this.routeQuery()?.get('employeeName') ?? null;
+      const projectId =
+        this.workspaceContext.selectedProjectId() ??
+        this.workspaceContext.activeProjectId();
       this.workspaceContext.filterSubmitVersion();
 
-      if (projectId !== this.lastProjectIdForEmployeeFilter) {
-        this.selectedEmployeeName.set(null);
-        this.lastProjectIdForEmployeeFilter = projectId;
+      if (
+        employeeId !== this.appliedRouteEmployee ||
+        projectId !== this.appliedProjectId
+      ) {
+        this.selectedEmployeeName.set(employeeId);
+        this.appliedRouteEmployee = employeeId;
+        this.appliedProjectId = projectId;
       }
 
       if (this.tableFilterData) {
@@ -140,6 +167,10 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
   }
 
   private loadAllocationHistory(): void {
+    if (!this.tableFilterData) {
+      return;
+    }
+
     this.loadTrigger$.next();
   }
 
@@ -151,9 +182,11 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
       );
 
     const employeeName = this.selectedEmployeeName();
+    const { projectName, ...filters } = this.workspaceContext.filters();
 
     return {
-      ...this.workspaceContext.filters(),
+      ...filters,
+      ...(projectName ? { projectName } : {}),
       ...(employeeName ? { employeeName } : {}),
       ...base,
     };
@@ -205,6 +238,95 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
     this.tableFilterData = tableFilterData;
     this.loadAllocationHistory();
+  }
+
+  protected handleAllocationHistoryActionClick(
+    event: ITableActionClickEvent
+  ): void {
+    const record = event.selectedRows[0] as unknown as
+      | ISiteAllocationGetBaseResponseDto
+      | undefined;
+    if (!record?.id) {
+      return;
+    }
+
+    if (event.actionType === EButtonActionType.EDIT) {
+      this.openAllocationDialog(EButtonActionType.EDIT, record);
+      return;
+    }
+
+    if (event.actionType === EButtonActionType.DELETE) {
+      this.openAllocationDialog(EButtonActionType.DELETE, record);
+    }
+  }
+
+  private openAllocationDialog(
+    actionType: EButtonActionType.EDIT | EButtonActionType.DELETE,
+    record: ISiteAllocationGetBaseResponseDto
+  ): void {
+    const actionConfig = SITE_ALLOCATION_HISTORY_ACTION_CONFIG_MAP[actionType];
+    if (!actionConfig) {
+      return;
+    }
+
+    this.confirmationDialogService.showConfirmationDialog(
+      actionType,
+      actionConfig,
+      this.prepareRecordDetail(record),
+      false,
+      true,
+      {
+        selectedRecord: [record],
+        onSuccess: () => {
+          this.loadAllocationHistory();
+        },
+      }
+    );
+  }
+
+  private prepareRecordDetail(
+    record: ISiteAllocationGetBaseResponseDto
+  ): IDataViewDetailsWithEntity {
+    const fullName = `${record.user.firstName} ${record.user.lastName}`.trim();
+    const allocatedAt = parseProjectDateOnly(record.allocatedAt);
+    const deallocatedAt = parseProjectDateOnly(record.deallocatedAt);
+    const period =
+      allocatedAt && deallocatedAt
+        ? [allocatedAt, deallocatedAt]
+        : allocatedAt
+          ? [allocatedAt]
+          : [];
+
+    const entryData: IDataViewDetails['entryData'] = [
+      {
+        label: 'Role',
+        value: record.role?.trim() || '—',
+      },
+      {
+        label: 'Period',
+        value: period,
+        type: EDataType.RANGE,
+        dataType: EDataType.DATE,
+        format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+      },
+    ];
+
+    return {
+      details: [
+        {
+          status: {
+            approvalStatus: record.isCurrentlyAllocated
+              ? 'Allocated'
+              : 'Deallocated',
+          },
+          entryData,
+        },
+      ],
+      entity: {
+        name: toTitleCase(fullName),
+        subtitle: record.user.employeeId,
+      },
+    };
   }
 
   protected onEmployeeFilterChange(value: unknown): void {

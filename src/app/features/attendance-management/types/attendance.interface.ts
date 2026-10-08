@@ -1,9 +1,5 @@
 import { IAttendanceGetBaseResponseDto } from './attendance.dto';
 import { EAttendanceStatus } from './attendance.enum';
-import { ICompanyGetBaseResponseDto } from '@features/site-management/company-management/types/company.dto';
-import { IContractorGetBaseResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
-import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
-import type { z } from 'zod';
 
 export interface IAttendance
   extends Omit<
@@ -20,6 +16,8 @@ export interface IAttendance
   attendanceStatus: string;
   employeeName: string;
   employeeCode: string;
+  projectName: string | null;
+  projectLocation: string | null;
   originalRawData: IAttendanceGetBaseResponseDto;
 }
 
@@ -41,23 +39,19 @@ export interface IAttendanceAssignmentPerson {
 }
 
 export interface IAttendanceAssignmentPayload {
-  company?: {
+  site?: {
     id?: string | null;
     name?: string | null;
     city?: string | null;
     state?: string | null;
     fullAddress?: string | null;
   } | null;
-  contractors?: (| {
-        id?: string | null;
-        name?: string | null;
-        city?: string | null;
-        state?: string | null;
-        gstNumber?: string | null;
-      }
-    | null
-    | undefined)[] | null;
-  vehicle?: { id?: string | null; registrationNo?: string | null } | null;
+  vehicle?: {
+    id?: string | null;
+    registrationNo?: string | null;
+    brand?: string | null;
+    model?: string | null;
+  } | null;
   assignedDrivers?: IAttendanceAssignmentPerson[] | null;
   assignedEngineer?: IAttendanceAssignmentPerson | null;
   user?: IAttendanceAssignmentPerson | null;
@@ -65,15 +59,9 @@ export interface IAttendanceAssignmentPayload {
 }
 
 export interface IAttendanceAssignmentFormValues {
-  company: string | null;
-  contractor: string | null;
-  vehicle: string | null;
   assignedDriver: string | string[] | null;
 }
 
 export interface IAttendanceAssignmentSubmitPayload {
-  company: ICompanyGetBaseResponseDto | null;
-  contractor: IContractorGetBaseResponseDto | null;
-  vehicle: z.infer<typeof VehicleBaseSchema> | null;
   assignedDriver: string | string[] | null;
 }

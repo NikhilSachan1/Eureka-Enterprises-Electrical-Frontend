@@ -58,6 +58,7 @@ export class ActionWorkforceAllocationComponent
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   private trackedReleaseDate?: Signal<Date | null | undefined>;
+  private trackedAllocateDate?: Signal<Date | null | undefined>;
   private trackedProjectName?: Signal<string | null | undefined>;
 
   protected readonly selectedRecord =
@@ -80,6 +81,19 @@ export class ActionWorkforceAllocationComponent
 
       this.applyTransferAllocateReleaseMin(releaseDate);
       this.clearDateIfBeforeMin('allocateDate', releaseDate);
+      queueMicrotask(() => this.changeDetectorRef.detectChanges());
+    });
+
+    effect(() => {
+      const allocateDate = this.trackedAllocateDate?.();
+      if (
+        this.dialogActionType() !== EButtonActionType.ALLOCATE ||
+        !this.form
+      ) {
+        return;
+      }
+
+      this.applyClosedRangeReleaseMin(allocateDate);
       queueMicrotask(() => this.changeDetectorRef.detectChanges());
     });
 
@@ -149,6 +163,17 @@ export class ActionWorkforceAllocationComponent
         ...this.form.fieldConfigs.projectName,
         label: 'New Project',
       };
+    }
+
+    if (actionType === EButtonActionType.ALLOCATE) {
+      this.form.fieldConfigs.releaseDate = {
+        ...this.form.fieldConfigs.releaseDate,
+        label: 'End date',
+        hint: 'Optional. Set this to record a finished past or future period. Leave it empty to keep the allocation open. The current project is not closed.',
+      };
+      this.trackedAllocateDate = this.formService.trackFieldChanges<
+        Date | null | undefined
+      >(this.form.formGroup, 'allocateDate', this.destroyRef);
     }
   }
 
@@ -275,6 +300,16 @@ export class ActionWorkforceAllocationComponent
               .dateConfig,
             overview
           );
+          if (this.dialogActionType() === EButtonActionType.ALLOCATE) {
+            applyProjectDateRangeFromOverview(
+              this.form,
+              'releaseDate',
+              WORKFORCE_ALLOCATION_ACTION_FORM_CONFIG.fields.releaseDate
+                .dateConfig,
+              overview
+            );
+            this.applyClosedRangeReleaseMin(this.trackedAllocateDate?.());
+          }
           this.applyTransferAllocateReleaseMin(this.trackedReleaseDate?.());
           queueMicrotask(() => this.changeDetectorRef.detectChanges());
         },
@@ -307,7 +342,44 @@ export class ActionWorkforceAllocationComponent
       'allocateDate',
       WORKFORCE_ALLOCATION_ACTION_FORM_CONFIG.fields.allocateDate.dateConfig
     );
+    if (this.dialogActionType() === EButtonActionType.ALLOCATE) {
+      resetProjectDateField(
+        this.form,
+        'releaseDate',
+        WORKFORCE_ALLOCATION_ACTION_FORM_CONFIG.fields.releaseDate.dateConfig
+      );
+    }
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
+  }
+
+  private applyClosedRangeReleaseMin(
+    allocateDate: Date | null | undefined
+  ): void {
+    if (this.dialogActionType() !== EButtonActionType.ALLOCATE) {
+      return;
+    }
+
+    const release = this.form.fieldConfigs.releaseDate;
+    const allocateField = this.form.fieldConfigs.allocateDate;
+    if (!release) {
+      return;
+    }
+
+    const minDate = this.resolveMinDate(
+      allocateField?.dateConfig?.minDate,
+      parseProjectDateOnly(allocateDate)
+    );
+
+    this.form.fieldConfigs.releaseDate = {
+      ...release,
+      dateConfig: {
+        ...release.dateConfig,
+        minDate,
+        maxDate: allocateField?.dateConfig?.maxDate,
+      },
+    } as IInputFieldsConfig;
+
+    this.clearDateIfBeforeMin('releaseDate', minDate);
   }
 
   private applyTransferAllocateReleaseMin(

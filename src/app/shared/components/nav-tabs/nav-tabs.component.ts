@@ -17,7 +17,7 @@ import {
   ActivatedRoute,
   NavigationEnd,
 } from '@angular/router';
-import { Location, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { TabsModule } from 'primeng/tabs';
 import { BadgeModule } from 'primeng/badge';
@@ -80,7 +80,6 @@ export class NavTabsComponent implements OnInit {
   private router = inject(Router);
   /** Host route for relative `routerLink` when using `ROUTER_OUTLET` mode. */
   protected readonly route = inject(ActivatedRoute);
-  private location = inject(Location);
   private destroyRef = inject(DestroyRef);
 
   protected readonly visibleTabs = computed(() =>
@@ -162,7 +161,20 @@ export class NavTabsComponent implements OnInit {
         this.updateUrlWithoutNavigation(index);
       }
       this.tabChanged.emit({ tab, index });
+      return;
     }
+
+    if (
+      this.layout() === ETabLayout.VERTICAL ||
+      this.currentActiveTab() === tab.route
+    ) {
+      return;
+    }
+
+    void this.router.navigate([tab.route], {
+      relativeTo: this.route,
+      queryParamsHandling: 'preserve',
+    });
   }
 
   private initializeContentTab(): void {
@@ -196,13 +208,17 @@ export class NavTabsComponent implements OnInit {
   }
 
   private updateUrlWithoutNavigation(tabIndex: number): void {
-    const tree = this.router.parseUrl(this.router.url);
-    tree.queryParams = {
-      ...tree.queryParams,
-      tab: tabIndex.toString(),
-    };
+    const currentTab = this.route.snapshot.queryParamMap.get('tab');
+    if (currentTab === String(tabIndex)) {
+      return;
+    }
 
-    this.location.replaceState(tree.toString());
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: String(tabIndex) },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   private setActiveTabByIndex(index: number): void {

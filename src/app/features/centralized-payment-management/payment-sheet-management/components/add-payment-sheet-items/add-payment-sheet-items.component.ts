@@ -17,6 +17,8 @@ import { GetFuelExpenseOutstandingComponent } from '@features/centralized-paymen
 import { IFuelExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/fuel-expense-payment-management/types/fuel-expense-outstanding.dto';
 import { GetVendorOutstandingComponent } from '@features/centralized-payment-management/vendor-payment-management/components/get-vendor-outstanding/get-vendor-outstanding.component';
 import { IVendorBookPaymentTableRow } from '@features/centralized-payment-management/vendor-payment-management/types/vendor-outstanding.interface';
+import { GetWalletOutstandingComponent } from '@features/centralized-payment-management/wallet-payment-management/components/get-wallet-outstanding/get-wallet-outstanding.component';
+import { IWalletOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/wallet-payment-management/types/wallet-outstanding.dto';
 import { PaymentOutstandingSectionComponent } from '@features/centralized-payment-management/shared/components/payment-outstanding-section/payment-outstanding-section.component';
 import { EPaymentOutstandingSourceType } from '@features/centralized-payment-management/shared/config/payment-outstanding-source-section.config';
 import { getPaymentSourceTabLabel } from '@features/centralized-payment-management/shared/utils/payment-source-tab.util';
@@ -43,6 +45,7 @@ import { buildPaymentSheetItemsFromOutstanding } from '../../utils/build-payment
     GetExpenseOutstandingComponent,
     GetFuelExpenseOutstandingComponent,
     GetVendorOutstandingComponent,
+    GetWalletOutstandingComponent,
   ],
   templateUrl: './add-payment-sheet-items.component.html',
   styleUrl: './add-payment-sheet-items.component.scss',
@@ -73,6 +76,9 @@ export class AddPaymentSheetItemsComponent
   protected readonly selectedVendorBookPayments = signal<
     IVendorBookPaymentTableRow[]
   >([]);
+  protected readonly selectedWalletRecords = signal<
+    IWalletOutstandingGetBaseResponseDto[]
+  >([]);
 
   protected readonly activeTabIndex = model(0);
 
@@ -95,6 +101,13 @@ export class AddPaymentSheetItemsComponent
         EPaymentOutstandingSourceType.VENDOR_PAYMENT
       ),
       badgeCount: this.selectedVendorBookPayments().length,
+    },
+    {
+      value: EPaymentOutstandingSourceType.PETRO_CARD_WALLET,
+      label: getPaymentSourceTabLabel(
+        EPaymentOutstandingSourceType.PETRO_CARD_WALLET
+      ),
+      badgeCount: this.selectedWalletRecords().length,
     },
   ]);
 
@@ -138,6 +151,19 @@ export class AddPaymentSheetItemsComponent
       )
   );
 
+  protected readonly excludedRechargeIds = computed(
+    () =>
+      new Set(
+        this.existingItems()
+          .filter(
+            item =>
+              item.sourceType === EPaymentSheetSourceType.PETRO_CARD_WALLET &&
+              item.rechargeId
+          )
+          .map(item => item.rechargeId as string)
+      )
+  );
+
   ngOnInit(): void {
     if (!this.paymentSheetId()) {
       this.confirmationDialogService.closeDialog();
@@ -148,11 +174,13 @@ export class AddPaymentSheetItemsComponent
     const expenseRecords = this.selectedExpenseRecords();
     const fuelRecords = this.selectedFuelRecords();
     const vendorBookPayments = this.selectedVendorBookPayments();
+    const walletRecords = this.selectedWalletRecords();
 
     if (
       !expenseRecords.length &&
       !fuelRecords.length &&
-      !vendorBookPayments.length
+      !vendorBookPayments.length &&
+      !walletRecords.length
     ) {
       return;
     }
@@ -161,7 +189,8 @@ export class AddPaymentSheetItemsComponent
       items: buildPaymentSheetItemsFromOutstanding(
         expenseRecords,
         fuelRecords,
-        vendorBookPayments
+        vendorBookPayments,
+        walletRecords
       ),
     });
   }
@@ -182,6 +211,12 @@ export class AddPaymentSheetItemsComponent
     records: IVendorBookPaymentTableRow[]
   ): void {
     this.selectedVendorBookPayments.set(records);
+  }
+
+  protected onWalletSelectionChange(
+    records: IWalletOutstandingGetBaseResponseDto[]
+  ): void {
+    this.selectedWalletRecords.set(records);
   }
 
   private executeAddPaymentSheetItemsAction(

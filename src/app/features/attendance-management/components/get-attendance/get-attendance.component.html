@@ -16,53 +16,58 @@
 </div>
 
 <ng-template
+  #attendanceProjectDetails
+  let-row
+>
+  @if (row.projectName) {
+    <div class="attendance-project">
+      <span
+        class="attendance-project__icon"
+        aria-hidden="true"
+      >
+        <i [class]="ALL_ICONS.SITE.BUILDING"></i>
+      </span>
+      <div class="attendance-project__text">
+        <span class="attendance-project__name">{{ row.projectName }}</span>
+        @if (row.projectLocation) {
+          <span class="attendance-project__location">
+            <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
+            {{ row.projectLocation }}
+          </span>
+        }
+      </div>
+    </div>
+  } @else {
+    <span class="attendance-project__empty">No project</span>
+  }
+</ng-template>
+
+<ng-template
   #attendanceAssignmentDetails
   let-row
 >
   @let snap = row.assignmentSnapshot;
   @let hasAssignment =
-    !!snap?.company?.name ||
-    !!snap?.contractorDisplay ||
     !!snap?.assignedDriverDisplay ||
     !!snap?.assignedEmployeeDisplay ||
     !!snap?.vehicleDisplay;
 
   @if (hasAssignment) {
   <div class="attendance-assignment-details">
-    @if (snap?.company?.name) {
+    @if (snap.vehicleDisplay) {
       <div class="attendance-assignment-details__row">
         <span
-          class="attendance-assignment-details__icon attendance-assignment-details__icon--company"
+          class="attendance-assignment-details__icon attendance-assignment-details__icon--vehicle"
           aria-hidden="true"
         >
-          <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
+          <i [class]="ALL_ICONS.COMMON.CAR"></i>
         </span>
         <div class="attendance-assignment-details__text">
-          <span class="attendance-assignment-details__label">Company</span>
-          <span class="attendance-assignment-details__value">{{ snap.company.name }}</span>
-          @if (snap.companyAddressDisplay) {
+          <span class="attendance-assignment-details__label">Vehicle</span>
+          <span class="attendance-assignment-details__value">{{ snap.vehicleDisplay }}</span>
+          @if (snap.vehicleBrandModel) {
             <span class="attendance-assignment-details__meta">
-              {{ snap.companyAddressDisplay }}
-            </span>
-          }
-        </div>
-      </div>
-    }
-
-    @if (snap?.contractorDisplay) {
-      <div class="attendance-assignment-details__row">
-        <span
-          class="attendance-assignment-details__icon attendance-assignment-details__icon--contractor"
-          aria-hidden="true"
-        >
-          <i [class]="ALL_ICONS.SITE.BUILDING"></i>
-        </span>
-        <div class="attendance-assignment-details__text">
-          <span class="attendance-assignment-details__label">Contractor</span>
-          <span class="attendance-assignment-details__value">{{ snap.contractorDisplay }}</span>
-          @if (snap.contractorAddressDisplay) {
-            <span class="attendance-assignment-details__meta">
-              {{ snap.contractorAddressDisplay }}
+              {{ snap.vehicleBrandModel | textCase: 'title' }}
             </span>
           }
         </div>
@@ -95,24 +100,9 @@
         </div>
       </div>
     }
-
-    @if (snap.vehicleDisplay) {
-      <div class="attendance-assignment-details__row">
-        <span
-          class="attendance-assignment-details__icon attendance-assignment-details__icon--vehicle"
-          aria-hidden="true"
-        >
-          <i [class]="ALL_ICONS.COMMON.CAR"></i>
-        </span>
-        <div class="attendance-assignment-details__text">
-          <span class="attendance-assignment-details__label">Vehicle</span>
-          <span class="attendance-assignment-details__value">{{ snap.vehicleDisplay }}</span>
-        </div>
-      </div>
-    }
   </div>
   } @else {
-    <span class="attendance-assignment-details__empty">No assignment</span>
+    <span class="attendance-assignment-details__empty">No vehicle or driver</span>
   }
 </ng-template>
 
@@ -124,7 +114,10 @@
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
-  [customBodyTemplates]="{ attendanceAssignmentDetails: attendanceAssignmentDetails }"
+  [customBodyTemplates]="{
+    attendanceProjectDetails: attendanceProjectDetails,
+    attendanceAssignmentDetails: attendanceAssignmentDetails
+  }"
   (rowActionClick)="handleAttendanceTableActionClick($any($event), false)"
   (bulkActionClick)="handleAttendanceTableActionClick($any($event), true)"
   (filterData)="onTableStateChange($event)"

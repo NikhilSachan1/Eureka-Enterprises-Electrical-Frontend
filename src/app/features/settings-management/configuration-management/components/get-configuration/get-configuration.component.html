@@ -1,24 +1,159 @@
 <app-page-header
-  [pageHeaderConfig]="pageHeaderConfig()"
+  [pageHeaderConfig]="pageHeaderConfig"
   (headerButtonClick)="onHeaderButtonClick($event)"
 />
 
-<div class="search-filter-wrapper">
-  <app-search-filter
-    [tableRef]="dataTable.dt()"
-    [searchFilterConfig]="searchFilterConfig"
+@if (isLoaded() && !configurations().length) {
+  <app-empty-messages
+    [icon]="icons.SETTINGS.COG"
+    [title]="'No configuration record found.'"
+    [description]="'You don\'t have any configuration record yet. Please add a configuration record first.'"
   />
-</div>
+} @else if (configurations().length) {
+  <section class="config-workbench">
+    <header class="config-toolbar">
+      <p-iconfield class="config-toolbar__search">
+        <p-inputicon [styleClass]="icons.COMMON.SEARCH" />
+        <input
+          pInputText
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event)"
+          placeholder="Search a module, configuration or key"
+        />
+      </p-iconfield>
+      <span class="config-toolbar__count">{{ configurations().length }} configurations</span>
+    </header>
 
-<app-data-table
-  #dataTable
-  [tableConfig]="table.tableConfig()"
-  [tableHeader]="table.headers()"
-  [tableData]="table.data()"
-  [loading]="table.loading()"
-  [bulkActionButtons]="table.bulkActions()"
-  [rowActions]="table.rowActions()"
-  (rowActionClick)="handleConfigurationTableActionClick($any($event), false)"
-  (bulkActionClick)="handleConfigurationTableActionClick($any($event), true)"
-  (filterData)="onTableStateChange($event)"
-/>
+    @if (!moduleTabs().length) {
+      <div class="config-detail--empty">
+        <app-empty-messages
+          [icon]="icons.COMMON.SEARCH"
+          [title]="'No matching configurations'"
+          [description]="'Try a different module name, label or key.'"
+        />
+      </div>
+    } @else {
+      <app-nav-tabs
+        [tabs]="moduleTabs()"
+        [tabMode]="contentTabMode"
+        [layout]="isCompactViewport() ? horizontalTabLayout : verticalTabLayout"
+        [syncUrl]="false"
+        [activeRoute]="activeGroup()?.route"
+        (tabChanged)="onModuleTabChange($event)"
+      >
+        @let group = activeGroup();
+        @let selected = selectedConfiguration();
+
+        @if (group && selected) {
+          @if (isCompactViewport()) {
+            <div class="config-detail">
+              <div class="config-detail__header">
+                <h2 class="config-detail__title">{{ group.label }}</h2>
+                <p class="config-detail__meta">
+                  {{ group.configurations.length }}
+                  {{ group.configurations.length === 1 ? 'configuration' : 'configurations' }}
+                </p>
+              </div>
+
+              @if (configurationTabs().length > 1) {
+                <app-nav-tabs
+                  [tabs]="configurationTabs()"
+                  [tabMode]="contentTabMode"
+                  [layout]="horizontalTabLayout"
+                  [tier]="secondaryTabTier"
+                  [syncUrl]="false"
+                  [activeRoute]="selected.id"
+                  (tabChanged)="selectConfiguration($event.tab.route)"
+                >
+                  <ng-container
+                    [ngTemplateOutlet]="inspector"
+                    [ngTemplateOutletContext]="{ $implicit: selected }"
+                  />
+                </app-nav-tabs>
+              } @else {
+                <ng-container
+                  [ngTemplateOutlet]="inspector"
+                  [ngTemplateOutletContext]="{ $implicit: selected }"
+                />
+              }
+            </div>
+          } @else {
+            <div class="config-split">
+              @if (group.configurations.length > 1) {
+                <nav
+                  class="config-nav"
+                  aria-label="Configurations in this module"
+                >
+                  @for (configuration of group.configurations; track configuration.id) {
+                    <button
+                      type="button"
+                      class="config-nav__item"
+                      [class.config-nav__item--active]="configuration.id === selected.id"
+                      [attr.aria-current]="configuration.id === selected.id ? 'true' : null"
+                      (click)="selectConfiguration(configuration.id)"
+                    >
+                      <span class="config-nav__label">{{ configuration.label }}</span>
+                      <span class="config-nav__preview">{{ summarizeConfiguration(configuration) }}</span>
+                    </button>
+                  }
+                </nav>
+              }
+
+              <ng-container
+                [ngTemplateOutlet]="inspector"
+                [ngTemplateOutletContext]="{ $implicit: selected }"
+              />
+            </div>
+          }
+
+          <ng-template
+            #inspector
+            let-selected
+          >
+            <article class="config-inspector">
+              <header class="config-inspector__header">
+                <div class="config-inspector__heading">
+                  <div class="config-inspector__title-row">
+                    <h2 class="config-inspector__title">{{ selected.label }}</h2>
+                    <span class="config-inspector__type">{{ selected.valueType }}</span>
+                    @if (!selected.isEditable) {
+                      <span class="config-inspector__lock">Locked</span>
+                    }
+                  </div>
+                  <p class="config-inspector__path">
+                    <span>{{ selected.module }}</span>
+                    <span class="config-inspector__path-sep">·</span>
+                    <span>{{ selected.key }}</span>
+                  </p>
+                  @if (selected.description) {
+                    <p class="config-inspector__description">{{ selected.description }}</p>
+                  }
+                </div>
+
+                <div class="config-inspector__actions">
+                  @if (canEdit() && selected.isEditable) {
+                    <app-button
+                      [buttonConfig]="editButtonConfig"
+                      (onButtonClick)="onConfigurationAction($event, selected)"
+                    />
+                  }
+                  @if (canDelete()) {
+                    <app-button
+                      [buttonConfig]="deleteButtonConfig"
+                      (onButtonClick)="onConfigurationAction($event, selected)"
+                    />
+                  }
+                </div>
+              </header>
+
+              <div class="config-inspector__body">
+                <app-configuration-settings-view [settings]="selected.configSettings" />
+              </div>
+            </article>
+          </ng-template>
+        }
+      </app-nav-tabs>
+    }
+  </section>
+}

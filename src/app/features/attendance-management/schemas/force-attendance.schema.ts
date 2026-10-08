@@ -30,28 +30,7 @@ export const AttendanceForceRequestSchema = AttendanceUpsertShapeSchema.extend({
     checkInTime: SHIFT_DATA.START_TIME,
     checkOutTime: SHIFT_DATA.END_TIME,
     assignmentSnapshot: isAttendanceAssignmentApplicable(data.attendanceStatus)
-      ? {
-          company: data.company
-            ? {
-                id: data.company.id,
-                name: data.company.name,
-                fullAddress: data.company.fullAddress,
-              }
-            : null,
-          contractors: (data.contractor ? [data.contractor] : []).map(c => ({
-            id: c?.id,
-            name: c?.name,
-            city: c?.city,
-            state: c?.state,
-          })),
-          vehicle: data.vehicle
-            ? {
-                id: data.vehicle.id,
-                registrationNo: data.vehicle.registrationNo,
-              }
-            : null,
-          assignedDrivers: toAssignedDriverIds(data.assignedDriver),
-        }
+      ? { assignedDrivers: toAssignedDriverIds(data.assignedDriver) }
       : null,
     leaveCategory:
       data.attendanceStatus === EAttendanceStatus.LEAVE

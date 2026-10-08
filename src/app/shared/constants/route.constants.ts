@@ -21,6 +21,7 @@ export const ROUTE_BASE_PATHS = {
   PAYMENT_HUB: 'payment-hub',
   DASHBOARD: 'dashboard',
   PETRO_CARD: 'petro-card',
+  PETRO_CARD_WALLET: 'petro-card-wallet',
   TRANSPORT: 'transport',
   ANNOUNCEMENT: 'announcement',
   MY_FILES: 'my-files',
@@ -213,6 +214,10 @@ export const ROUTES = {
     LIST: `list`,
     ADD: `add`,
     EDIT: `edit`,
+  },
+
+  PETRO_CARD_WALLET: {
+    LIST: `list`,
   },
 
   COMPANY_BANK_ACCOUNT: {

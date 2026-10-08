@@ -15,8 +15,6 @@ import {
 import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
 import { FORCE_ATTENDANCE_FORM_CONFIG } from '../../config';
 import {
-  IAttendanceCurrentStatusGetFormDto,
-  IAttendanceCurrentStatusGetResponseDto,
   IAttendanceForceFormDto,
   IAttendanceForceUIFormDto,
 } from '@features/attendance-management/types/attendance.dto';
@@ -33,7 +31,6 @@ import { getSelectedEmployeeRole } from '@shared/utility';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { IAttendanceAssignmentSubmitPayload } from '@features/attendance-management/types/attendance.interface';
 import {
-  getAssignmentSiteFormValues,
   isAttendanceAssignmentApplicable,
   NULL_ASSIGNMENT_FORM_VALUES,
 } from '@features/attendance-management/utility/attendance-assignment.util';
@@ -60,9 +57,6 @@ export class ForceAttendanceComponent
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   private trackedAttendanceFields!: ITrackedFields<IAttendanceForceUIFormDto>;
-  private lastLoadedStatusUserId: string | null = null;
-  private cachedAssignmentResponse: IAttendanceCurrentStatusGetResponseDto | null =
-    null;
 
   private readonly formContext = {
     isEmployee: false,
@@ -101,41 +95,6 @@ export class ForceAttendanceComponent
         this.assignmentSubmitPayload.set(NULL_ASSIGNMENT_FORM_VALUES);
       }
     });
-    effect(() => {
-      if (!this.trackedAttendanceFields?.employeeName) {
-        return;
-      }
-
-      const employeeName = this.trackedAttendanceFields.employeeName();
-      const roles = this.employeeRoles();
-
-      if (typeof employeeName !== 'string') {
-        this.lastLoadedStatusUserId = null;
-        this.cachedAssignmentResponse = null;
-        return;
-      }
-
-      if (
-        roles.includes(EUserRole.EMPLOYEE) &&
-        employeeName !== this.lastLoadedStatusUserId
-      ) {
-        this.lastLoadedStatusUserId = employeeName;
-        this.loadCurrentStatusDetail(employeeName);
-        return;
-      }
-
-      if (
-        !roles.includes(EUserRole.EMPLOYEE) &&
-        this.lastLoadedStatusUserId !== null
-      ) {
-        this.lastLoadedStatusUserId = null;
-        this.cachedAssignmentResponse = null;
-
-        if (this.form) {
-          this.form.patch({ ...NULL_ASSIGNMENT_FORM_VALUES });
-        }
-      }
-    });
 
     effect(() => {
       if (!this.trackedAttendanceFields) {
@@ -158,13 +117,7 @@ export class ForceAttendanceComponent
         );
       }
 
-      if (
-        this.showAssignmentFields() &&
-        this.formContext.isEmployee &&
-        this.cachedAssignmentResponse
-      ) {
-        this.applyPrefilledAssignmentData(this.cachedAssignmentResponse);
-      } else if (!this.showRoleAssignmentFields()) {
+      if (!this.showRoleAssignmentFields()) {
         this.clearAssignmentFields();
       }
     });
@@ -183,9 +136,6 @@ export class ForceAttendanceComponent
       'employeeName',
       'attendanceStatus',
       'assignedDriver',
-      'company',
-      'contractor',
-      'vehicle',
     ];
     this.trackedAttendanceFields =
       this.formService.trackMultipleFieldChanges<IAttendanceForceUIFormDto>(
@@ -193,62 +143,6 @@ export class ForceAttendanceComponent
         trackedFields,
         this.destroyRef
       );
-  }
-
-  private loadCurrentStatusDetail(userId: string): void {
-    this.loadingService.show({
-      title: 'Loading employee assignment',
-      message:
-        "We're loading the employee assignment. This will just take a moment.",
-    });
-
-    const paramData = this.prepareParamDataForCurrentStatusDetail(userId);
-
-    this.attendanceService
-      .getAttendanceCurrentStatus(paramData)
-      .pipe(
-        finalize(() => {
-          this.loadingService.hide();
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: (response: IAttendanceCurrentStatusGetResponseDto) => {
-          this.cachedAssignmentResponse = response;
-
-          if (!this.showAssignmentFields()) {
-            return;
-          }
-
-          this.form.patch({
-            ...this.preparePrefilledFormData(response),
-            assignedDriver: null,
-          });
-        },
-        error: error => {
-          this.logger.error('Error loading current status detail', error);
-        },
-      });
-  }
-
-  private prepareParamDataForCurrentStatusDetail(
-    userId: string
-  ): IAttendanceCurrentStatusGetFormDto {
-    return {
-      employeeName: userId,
-    };
-  }
-
-  private preparePrefilledFormData(
-    response: IAttendanceCurrentStatusGetResponseDto
-  ): Partial<IAttendanceForceUIFormDto> {
-    return getAssignmentSiteFormValues(response);
-  }
-
-  private applyPrefilledAssignmentData(
-    response: IAttendanceCurrentStatusGetResponseDto
-  ): void {
-    this.form.patch(this.preparePrefilledFormData(response));
   }
 
   private clearAssignmentFields(): void {

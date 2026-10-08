@@ -26,7 +26,11 @@ import { EAttendanceStatus } from '../../types/attendance.enum';
 import { APP_CONFIG } from '@core/config';
 import { ICONS } from '@shared/constants/icon.constants';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
-import { formatAssignmentAddress, getAssignedDriverDisplayName } from '../../utility/attendance-assignment.util';
+import {
+  formatProjectLocation,
+  formatVehicleBrandModel,
+  getAssignedDriverDisplayName,
+} from '../../utility/attendance-assignment.util';
 
 @Component({
   selector: 'app-get-attendance-detail',
@@ -48,8 +52,9 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
 
   protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly ICONS = ICONS;
-  protected readonly formatAddress = formatAssignmentAddress;
   protected readonly formatDrivers = getAssignedDriverDisplayName;
+  protected readonly formatLocation = formatProjectLocation;
+  protected readonly formatVehicleBrandModel = formatVehicleBrandModel;
 
   override onDrawerShow(): void {
     this.loadAttendanceDetails();
@@ -89,7 +94,11 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   private mapDetailData(
     response: IAttendanceHistoryGetResponseDto
   ): IDataViewDetailsWithEntity {
+    const fallbackSite = this.drawerData.attendance.site ?? null;
+
     const mappedDetails = response.map(record => {
+      const site = record.site ?? fallbackSite;
+
       const entryData: IDataViewDetails['entryData'] = [
         {
           label: 'Date',
@@ -126,10 +135,19 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
           type: EDataType.STATUS,
         },
         {
-          label: 'Assignment Detail',
+          label: 'Project',
+          value: site,
+          customTemplateKey: 'projectDetails',
+        },
+        {
+          label: 'Vehicle & Driver',
           value: {
-            ...record.assignmentSnapshot,
-            assignedDrivers: record.assignedDrivers ?? [],
+            assignedEngineer: record.assignmentSnapshot?.assignedEngineer ?? null,
+            assignedDrivers:
+              record.assignedDrivers ??
+              record.assignmentSnapshot?.assignedDrivers ??
+              [],
+            vehicle: record.vehicle ?? null,
           },
           customTemplateKey: 'assignmentSnapshot',
         },

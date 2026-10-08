@@ -161,12 +161,17 @@ export class EditProjectComponent
         siteContractors?.map(contractor => contractor.contractorId) ?? [],
       siteManagerName: managerName,
       siteManagerContact: managerContact,
-      timeline: [new Date(startDate), new Date(endDate)],
-      baseDistanceKm: Number(baseDistanceKm),
+      timeline: endDate
+        ? [new Date(startDate), new Date(endDate)]
+        : [new Date(startDate)],
+      baseDistanceKm:
+        baseDistanceKm == null
+          ? (null as unknown as number)
+          : Number(baseDistanceKm),
       city,
       state,
       pincode,
-      workTypes,
+      workTypes: workTypes ?? [],
       remarks: notes,
     };
   }

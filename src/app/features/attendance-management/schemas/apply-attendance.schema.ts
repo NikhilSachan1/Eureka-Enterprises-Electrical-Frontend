@@ -12,34 +12,9 @@ export const AttendanceApplyRequestSchema =
   AttendanceUpsertShapeSchema.strict().transform(data => ({
     notes: data.remark,
     action: EApplyAttendanceAction.CHECK_IN,
-    assignmentSnapshot:
-      data.company ||
-      data.contractor ||
-      data.vehicle ||
-      toAssignedDriverIds(data.assignedDriver).length
-        ? {
-            company: data.company
-              ? {
-                  id: data.company.id,
-                  name: data.company.name,
-                  fullAddress: data.company.fullAddress,
-                }
-              : null,
-            contractors: (data.contractor ? [data.contractor] : []).map(c => ({
-              id: c?.id,
-              name: c?.name,
-              city: c?.city,
-              state: c?.state,
-            })),
-            vehicle: data.vehicle
-              ? {
-                  id: data.vehicle.id,
-                  registrationNo: data.vehicle.registrationNo,
-                }
-              : null,
-            assignedDrivers: toAssignedDriverIds(data.assignedDriver),
-          }
-        : null,
+    assignmentSnapshot: toAssignedDriverIds(data.assignedDriver).length
+      ? { assignedDrivers: toAssignedDriverIds(data.assignedDriver) }
+      : null,
   }));
 
 export const AttendanceApplyResponseSchema = z.looseObject({

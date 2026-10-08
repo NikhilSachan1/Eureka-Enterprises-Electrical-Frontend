@@ -35,38 +35,59 @@
 
 .outstanding-section__tabs {
   &--with-overview {
-    margin-top: 1rem;
+    margin-top: 0.75rem;
   }
 }
 
 .outstanding-section__overview {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
 }
 
 .outstanding-section__card {
   --os-accent: var(--primary-color);
   --os-accent-dark: color-mix(in srgb, var(--primary-color) 68%, #0f172a);
 
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: 1rem;
+  min-width: 0;
+  border-radius: 0.7rem;
   border: 1px solid var(--os-border);
+  border-left: 3px solid var(--os-accent);
   background: var(--background-paper-color);
-  box-shadow:
-    0 2px 8px -2px rgb(0 0 0 / 0.1),
-    0 1px 3px -1px rgb(0 0 0 / 0.06);
 }
 
-.outstanding-section__card-header {
+.outstanding-section__card-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.55rem;
+  padding: 0.55rem 0.65rem;
+  min-width: 0;
+}
+
+.outstanding-section__card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.outstanding-section__card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  flex-shrink: 0;
+  max-width: 55%;
+  text-align: right;
+}
+
+.outstanding-section__card-title-row {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  min-height: 3rem;
-  padding: 0.85rem 1rem;
-  background: linear-gradient(135deg, var(--os-accent) 0%, var(--os-accent-dark) 100%);
+  gap: 0.35rem;
+  min-width: 0;
 }
 
 .outstanding-section__card-icon {
@@ -74,70 +95,62 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 1.05rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 0.35rem;
+  font-size: 0.7rem;
   line-height: 1;
-  color: rgba(255 255 255 / 0.92);
+  color: var(--os-accent);
+  background: color-mix(in srgb, var(--os-accent) 12%, transparent);
 }
 
 .outstanding-section__card-title {
   margin: 0;
-  font-size: 0.9375rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  line-height: 1.25;
-  color: #fff;
+  line-height: 1.2;
+  color: var(--text-primary-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.outstanding-section__card-body {
-  padding: 0.55rem 0.65rem 0.65rem;
-  background: color-mix(in srgb, var(--os-border) 12%, var(--background-paper-color));
-}
-
-.outstanding-section__stats {
-  display: flex;
-  align-items: stretch;
-  width: 100%;
-  border-radius: 0.6rem;
-  border: 1px solid color-mix(in srgb, var(--primary-color) 14%, var(--os-border));
-  background: var(--background-paper-color);
-  overflow: hidden;
-}
-
-.outstanding-section__stat-divider {
-  align-self: stretch;
-  width: 1px;
-  background: color-mix(in srgb, var(--os-border) 78%, transparent);
-  flex-shrink: 0;
-}
-
-.outstanding-section__stat {
+.outstanding-section__meta {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.15rem;
-  flex: 1;
+  gap: 0.1rem;
   min-width: 0;
-  padding: 0.4rem 0.5rem;
+}
 
-  &:not(:last-child) {
-    border-right: 1px solid color-mix(in srgb, var(--os-border) 78%, transparent);
-  }
+.outstanding-section__meta-item {
+  font-size: 0.65rem;
+  line-height: 1.25;
+  color: var(--text-secondary-color);
+  overflow-wrap: anywhere;
 
-  &--amount {
-    min-width: 5.5rem;
+  strong {
+    font-weight: 700;
+    color: var(--text-primary-color);
+    font-variant-numeric: tabular-nums;
   }
 }
 
-.outstanding-section__stat-value {
-  font-size: 0.875rem;
+.outstanding-section__meta-amount--debit {
+  color: #dc2626 !important;
+}
+
+.outstanding-section__meta-amount--to-book {
+  color: #d97706 !important;
+}
+
+.outstanding-section__hero-value {
+  font-size: 0.95rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
   color: var(--text-primary-color);
+  overflow-wrap: anywhere;
 
   &--debit {
     color: #dc2626;
@@ -145,17 +158,33 @@
 
   &--to-book {
     color: #d97706;
-    font-weight: 700;
   }
 }
 
-.outstanding-section__stat-label {
-  font-size: 0.625rem;
-  font-weight: 600;
-  line-height: 1.2;
+.outstanding-section__hero-label {
+  font-size: 0.58rem;
+  font-weight: 650;
+  line-height: 1.1;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: var(--text-secondary-color);
+}
+
+.outstanding-section__selection-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  max-width: 100%;
+  margin-top: 0.1rem;
+  padding: 0.12rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.6rem;
+  font-weight: 650;
+  line-height: 1.15;
+  color: var(--os-accent-dark);
+  background: color-mix(in srgb, var(--os-accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--os-accent) 20%, transparent);
+  overflow-wrap: anywhere;
 }
 
 .outstanding-section__content {
@@ -163,7 +192,7 @@
   min-width: 0;
 
   &--tabs {
-    margin-top: 1rem;
+    margin-top: 0.75rem;
   }
 }
 
@@ -171,39 +200,24 @@
   display: none;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1280px) {
   .outstanding-section__overview {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 640px) {
-  .outstanding-section__stats {
-    flex-wrap: wrap;
+@media (max-width: 700px) {
+  .outstanding-section__overview {
+    grid-template-columns: 1fr;
   }
 
-  .outstanding-section__stat-divider {
-    width: 100%;
-    height: 1px;
-  }
-
-  .outstanding-section__stat {
-    flex: 1 1 40%;
-    min-width: 4.5rem;
-    border-right: 0 !important;
-
-    &:nth-child(odd):not(.outstanding-section__stat-divider) {
-      border-right: 1px solid color-mix(in srgb, var(--os-border) 78%, transparent);
-    }
+  .outstanding-section__card-right {
+    max-width: 60%;
   }
 }
 
 :host-context(.dark-theme) {
-  .outstanding-section__card {
-    box-shadow: none;
-  }
-
-  .outstanding-section__stat-value {
+  .outstanding-section__hero-value {
     &--debit {
       color: #f87171;
     }
@@ -211,5 +225,13 @@
     &--to-book {
       color: #fbbf24;
     }
+  }
+
+  .outstanding-section__meta-amount--debit {
+    color: #f87171 !important;
+  }
+
+  .outstanding-section__meta-amount--to-book {
+    color: #fbbf24 !important;
   }
 }

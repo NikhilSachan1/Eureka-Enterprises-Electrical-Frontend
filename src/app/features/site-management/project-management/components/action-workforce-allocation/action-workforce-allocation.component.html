@@ -15,6 +15,10 @@
       [formGroup]="form.formGroup"
       [inputFieldConfig]="form.fieldConfigs.allocateDate"
     />
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.releaseDate"
+    />
   }
 
   @if (dialogActionType() === EButtonActionTypeEnum.DEALLOCATE) {

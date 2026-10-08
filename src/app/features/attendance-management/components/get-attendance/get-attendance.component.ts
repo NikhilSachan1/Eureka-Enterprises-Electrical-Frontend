@@ -55,11 +55,13 @@ import {
 import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
 import { APP_CONFIG } from '@core/config';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
+import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
-  formatAssignmentAddress,
+  formatProjectLocation,
+  formatVehicleBrandModel,
   getAssignedDriverDisplayName,
   getAssignedEmployeeDisplayName,
 } from '@features/attendance-management/utility/attendance-assignment.util';
@@ -71,6 +73,7 @@ import {
     PageHeaderComponent,
     MetricsCardComponent,
     SearchFilterComponent,
+    TextCasePipe,
   ],
   providers: [],
   templateUrl: './get-attendance.component.html',
@@ -170,18 +173,12 @@ export class GetAttendanceComponent implements OnInit {
         employeeCode: record.user.employeeId,
         attendanceType: record.attendanceType,
         assignedDrivers: record.assignedDrivers ?? [],
+        projectName: record.site?.name?.trim() || null,
+        projectLocation: formatProjectLocation(record.site),
+        site: record.site ?? null,
         assignmentSnapshot: {
-          ...record.assignmentSnapshot,
-          companyAddressDisplay: formatAssignmentAddress(
-            record.assignmentSnapshot?.company
-          ),
-          contractorDisplay:
-            record.assignmentSnapshot?.contractors?.[0]?.name?.trim() ?? null,
-          contractorAddressDisplay: formatAssignmentAddress(
-            record.assignmentSnapshot?.contractors?.[0]
-          ),
-          vehicleDisplay:
-            record.assignmentSnapshot?.vehicle?.registrationNo ?? null,
+          vehicleDisplay: record.vehicle?.registrationNo ?? null,
+          vehicleBrandModel: formatVehicleBrandModel(record.vehicle),
           assignedDriverDisplay:
             getAssignedDriverDisplayName(record) ?? null,
           assignedEmployeeDisplay:
@@ -317,12 +314,15 @@ export class GetAttendanceComponent implements OnInit {
         type: EDataType.STATUS,
       },
       {
-        label: 'Company',
-        value: selectedRow.assignmentSnapshot?.company?.name ?? 'N/A',
-      },
-      {
-        label: 'Contractor',
-        value: selectedRow.assignmentSnapshot?.contractors?.[0]?.name ?? 'N/A',
+        label: 'Project',
+        value: (() => {
+          const name = selectedRow.site?.name?.trim();
+          if (!name) {
+            return 'N/A';
+          }
+          const location = formatProjectLocation(selectedRow.site);
+          return location ? `${name} · ${location}` : name;
+        })(),
       },
       {
         label: assignedDriverName
@@ -333,10 +333,6 @@ export class GetAttendanceComponent implements OnInit {
             ? 'Assigned Engineer'
             : 'Assigned Driver',
         value: assignedDriverName ?? assignedEmployeeName ?? 'N/A',
-      },
-      {
-        label: 'Associated Vehicle',
-        value: selectedRow.assignmentSnapshot?.vehicle?.registrationNo ?? 'N/A',
       },
     ];
 

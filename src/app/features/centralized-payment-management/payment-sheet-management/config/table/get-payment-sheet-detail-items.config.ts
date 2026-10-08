@@ -39,6 +39,7 @@ export const createPaymentSheetDetailItemsTableHeadersConfig = (
   sourceType: EPaymentSheetSourceType
 ): Partial<IDataTableHeaderConfig>[] => {
   const isVendor = sourceType === EPaymentSheetSourceType.VENDOR_PAYMENT;
+  const isWallet = sourceType === EPaymentSheetSourceType.PETRO_CARD_WALLET;
 
   return [
     {
@@ -58,6 +59,7 @@ export const createPaymentSheetDetailItemsTableHeadersConfig = (
       customTemplateKey: 'bankDetailsCell',
       columnStyleClass: 'cell-allow-wrap',
       showSort: false,
+      showColumn: !isWallet,
     },
     {
       field: 'companyProject',
@@ -100,6 +102,7 @@ export const createPaymentSheetDetailItemsTableRowActionsConfig = (
   activeRole: string | null | undefined
 ): Partial<ITableActionConfig<IPaymentSheetDetailItemRow>>[] => {
   const isVendor = sourceType === EPaymentSheetSourceType.VENDOR_PAYMENT;
+  const isWallet = sourceType === EPaymentSheetSourceType.PETRO_CARD_WALLET;
 
   return [
     {
@@ -110,7 +113,7 @@ export const createPaymentSheetDetailItemsTableRowActionsConfig = (
     {
       ...COMMON_ROW_ACTIONS.EDIT,
       permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_EDIT],
-      hideWhen: () => isVendor,
+      hideWhen: () => isVendor || isWallet,
       disableWhen: (row: IPaymentSheetDetailItemRow) =>
         disablePaymentSheetEdit(row, activeRole),
       disableReason: (row: IPaymentSheetDetailItemRow) =>

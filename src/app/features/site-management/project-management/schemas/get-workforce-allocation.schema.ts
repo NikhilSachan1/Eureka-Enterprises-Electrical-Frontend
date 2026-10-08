@@ -37,7 +37,7 @@ export const WorkforceAllocationCurrentProjectSchema = z.looseObject({
   city: z.string(),
   state: z.string(),
   startDate: isoDateTimeField,
-  endDate: isoDateTimeField,
+  endDate: isoDateTimeField.nullable(),
   company: WorkforceCompanyRefSchema,
   since: isoDateTimeField,
   allocationId: uuidField,

@@ -444,9 +444,17 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
       },
     },
     {
+      field: 'projectName',
+      header: 'Project',
+      customTemplateKey: 'attendanceProjectDetails',
+      columnStyleClass: 'cell-allow-wrap',
+      showSort: false,
+    },
+    {
       field: 'assignmentSnapshot',
-      header: 'Assignment Details',
+      header: 'Vehicle & Driver',
       customTemplateKey: 'attendanceAssignmentDetails',
+      columnStyleClass: 'cell-allow-wrap',
       showSort: false,
     },
     {

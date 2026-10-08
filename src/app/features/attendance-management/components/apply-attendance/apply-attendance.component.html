@@ -57,68 +57,106 @@
         </div>
       </section>
 
-      <!-- Assignment Details -->
       @if (!isDriverUser || !currentStatusData()?.checkInTime) {
-      <section class="content-card__main assignment-section">
+      <section class="content-card__main">
         <form
           class="form"
           [formGroup]="form.formGroup"
           (ngSubmit)="onSubmit()"
         >
           @if (isEmployeeUser) {
-            <div class="assignment-note">
-              <p>Before applying attendance, please review your assignment details.</p>
-              <p>If any information is incorrect, you may edit it here or contact your Admin / HR.</p>
-              <ul class="assignment-note__list">
-                <li>
-                  <b>Company</b>
-                  - The company (and location) where you are required to report for this assignment.
-                </li>
-                <li>
-                  <b>Contractor</b>
-                  - The contractor you are working for on this assignment.
-                </li>
-                <li>
-                  <b>Vehicle</b>
-                  - The vehicle you select remains your responsibility for this assignment.
-                </li>
-                <li>
-                  <b>Assigned Driver</b>
-                  - Fooding for the selected driver will be credited to your account after attendance approval.
-                </li>
-              </ul>
-            </div>
+            @if (
+              currentStatusData()?.site?.name ||
+              currentStatusData()?.vehicle?.registrationNo ||
+              (currentStatusData()?.checkInTime && assignedDriverName())
+            ) {
+              <div
+                class="apply-context"
+                [class.apply-context--checked-in]="!!currentStatusData()?.checkInTime"
+              >
+                @if (currentStatusData()?.site; as site) {
+                  @if (site.name) {
+                    <div class="apply-project">
+                      <div class="apply-project__content">
+                        <span class="apply-project__icon" aria-hidden="true">
+                          <i [class]="ALL_ICONS.SITE.BUILDING"></i>
+                        </span>
+                        <div class="apply-project__text">
+                          <span class="apply-project__label">Project</span>
+                          <p class="apply-project__name">
+                            {{ site.name | textCase: 'title' }}
+                          </p>
+                          @if (formatProjectLocation(site); as location) {
+                            <p class="apply-project__meta">
+                              <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
+                              <span>{{ location }}</span>
+                            </p>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                }
+                @if (currentStatusData()?.vehicle; as vehicle) {
+                  @if (vehicle.registrationNo) {
+                    <div class="apply-project apply-project--vehicle">
+                      <div class="apply-project__content">
+                        <span class="apply-project__icon" aria-hidden="true">
+                          <i [class]="ALL_ICONS.COMMON.CAR"></i>
+                        </span>
+                        <div class="apply-project__text">
+                          <span class="apply-project__label">Vehicle</span>
+                          <p class="apply-project__name">
+                            {{ vehicle.registrationNo }}
+                          </p>
+                          @if (formatVehicleBrandModel(vehicle); as brandModel) {
+                            <p class="apply-project__meta">
+                              {{ brandModel | textCase: 'title' }}
+                            </p>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                }
+                @if (currentStatusData()?.checkInTime && assignedDriverName(); as driver) {
+                  <div class="apply-project apply-project--driver">
+                    <div class="apply-project__content">
+                      <span class="apply-project__icon" aria-hidden="true">
+                        <i [class]="ALL_ICONS.COMMON.USER"></i>
+                      </span>
+                      <div class="apply-project__text">
+                        <span class="apply-project__label">{{ assignedDriverLabel() }}</span>
+                        <p class="apply-project__name">
+                          {{ driver | textCase: 'title' }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+            @if (!currentStatusData()?.checkInTime) {
             <app-attendance-assignment-fields
               [formGroup]="form.formGroup"
               [fieldConfigs]="form.fieldConfigs"
-              [viewOnly]="!isEditingAssignment()"
               [assignmentPayload]="currentStatusData()"
               [(submitPayload)]="assignmentSubmitPayload"
-            >
-              <app-button
-                [buttonConfig]="assignmentHeaderButtonConfig()"
-                (onButtonClick)="toggleAssignmentEditing()"
-              />
-            </app-attendance-assignment-fields>
-            <app-input-field
-              [formGroup]="form.formGroup"
-              [inputFieldConfig]="form.fieldConfigs.remark"
             />
+            }
+            @if (!currentStatusData()?.checkInTime) {
+              <app-input-field
+                [formGroup]="form.formGroup"
+                [inputFieldConfig]="form.fieldConfigs.remark"
+              />
+            }
           }
-          @if (!currentStatusData()?.checkInTime || (isEmployeeUser && isEditingAssignment())) {
+          @if (!currentStatusData()?.checkInTime) {
             <div class="action-button">
-              @if (!currentStatusData()?.checkInTime) {
-                <app-button
-                  [buttonConfig]="form.buttonConfigs['checkIn']"
-                  [showButtonLoader]="isSubmitting()"
-                />
-              }
-              @if (isEmployeeUser && isEditingAssignment()) {
-                <app-button
-                  [buttonConfig]="form.buttonConfigs['reset']"
-                  (onButtonClick)="onResetAssignmentForm()"
-                />
-              }
+              <app-button
+                [buttonConfig]="form.buttonConfigs['checkIn']"
+                [showButtonLoader]="isSubmitting()"
+              />
             </div>
           }
         </form>

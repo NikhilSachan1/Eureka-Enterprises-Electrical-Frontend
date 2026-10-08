@@ -1,0 +1,62 @@
+@if (canView) {
+  <p-card
+    class="status-dashboard__card petro-wallet-dash"
+    [class.petro-wallet-dash--healthy]="!loading() && !loadError() && isHealthyBalance()"
+    [class.petro-wallet-dash--low]="!loading() && !loadError() && !isHealthyBalance()"
+  >
+    <div class="petro-wallet-dash__shell">
+      <div class="petro-wallet-dash__spotlight">
+        <div class="petro-wallet-dash__spotlight-top">
+          <span
+            class="petro-wallet-dash__badge"
+            aria-hidden="true"
+          >
+            <span [class]="ICONS.COMMON.CREDIT_CARD"></span>
+          </span>
+          <div class="petro-wallet-dash__titles">
+            <span class="petro-wallet-dash__eyebrow">PetroCard wallet</span>
+            <span class="petro-wallet-dash__label">Available balance</span>
+          </div>
+          @if (showWalletLink()) {
+            <app-button
+              class="petro-wallet-dash__action"
+              [buttonConfig]="openWalletButton"
+              (onButtonClick)="openWallet()"
+            />
+          }
+        </div>
+
+        <div
+          class="petro-wallet-dash__hero"
+          aria-live="polite"
+        >
+          @if (loading()) {
+            <span
+              class="petro-wallet-dash__loading"
+              role="status"
+              aria-busy="true"
+            >
+              <span
+                [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+                aria-hidden="true"
+              ></span>
+              Loading balance…
+            </span>
+          } @else if (loadError()) {
+            <span class="petro-wallet-dash__error">Could not load balance</span>
+          } @else {
+            <span class="petro-wallet-dash__amount">
+              {{
+                availableAmount()
+                  | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+              }}
+            </span>
+            <span class="petro-wallet-dash__amount-note">
+              Shared balance for every PetroCard
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+  </p-card>
+}
