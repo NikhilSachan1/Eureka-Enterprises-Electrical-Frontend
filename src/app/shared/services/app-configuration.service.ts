@@ -35,22 +35,31 @@ import {
   SITE_ALLOCATION_STATUS_DATA,
 } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, EUserRole, MODULE_NAMES } from '@shared/constants';
-import { IOptionDropdown } from '@shared/types';
-import type { IEmployeeGetResponseDto } from '@features/employee-management/types/employee.dto';
+import {
+  IOptionDropdown,
+  type IDynamicDropdownConfig,
+  type IReferenceDropdownPage,
+} from '@shared/types';
 import type {
   IRoleGetBaseResponseDto,
   IRoleGetResponseDto,
 } from '@features/settings-management/permission-management/sub-features/role-management/types/role.dto';
 import { RoleService } from '@features/settings-management/permission-management/sub-features/role-management/services/role.service';
-import type { IAssetGetResponseDto } from '@features/asset-management/types/asset.dto';
-import type { IVehicleGetResponseDto } from '@features/transport-management/vehicle-management/types/vehicle.dto';
-import type { ICompanyGetResponseDto } from '@features/site-management/company-management/types/company.dto';
-import type { IContractorGetResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
-import type { IVendorGetResponseDto } from '@features/site-management/vendor-management/types/vendor.dto';
-import type { IProjectGetResponseDto } from '@features/site-management/project-management/types/project.dto';
-import type { IPetroCardGetResponseDto } from '@features/transport-management/petro-card-management/types/petro-card.dto';
-import type { ICompanyBankAccountGetResponseDto } from '@features/company-bank-account-management/types/company-bank-account.dto';
 import type { ILinkedUserVehicleDetailGetResponseDto } from '@features/transport-management/fuel-expense-management/types/fuel-expense.dto';
+
+type ReferenceListPayload = {
+  page: number;
+  pageSize: number;
+  search: string | null;
+};
+
+type ReferenceDropdownFilters = Pick<
+  IDynamicDropdownConfig,
+  | 'filterByRole'
+  | 'employeeStatusFilter'
+  | 'archivedHandling'
+  | 'includeLoggedInUser'
+>;
 import { replaceTextWithSeparator, toTitleCase } from '@shared/utility';
 import { ConfigurationService } from '@features/settings-management/configuration-management/services/configuration.service';
 import type {
@@ -67,7 +76,12 @@ export class AppConfigurationService {
   private static readonly APP_CONFIGURATION_PAGE_SIZE = 50;
   private static readonly APP_CONFIGURATION_PAGE_COUNT = 4;
   private readonly REFERENCE_PREFETCH_START_DELAY_MS = 3000;
-  private readonly referenceDropdownListPayload = { page: 1, pageSize: 50 };
+  /** Warm-cache payload for non-scrollable / prefetch consumers. */
+  private readonly referenceDropdownListPayload = {
+    page: 1,
+    pageSize: 50,
+    search: null as string | null,
+  };
   private readonly injector = inject(Injector);
   private readonly logger = inject(LoggerService);
   private readonly authService = inject(AuthService);
@@ -79,6 +93,26 @@ export class AppConfigurationService {
   /** Loads a feature service only when its dropdown/list is first requested. */
   private injectAfterLoad<T>(loadToken: () => Promise<Type<T>>): Observable<T> {
     return from(loadToken().then(token => this.injector.get(token)));
+  }
+
+  /** One dynamic import per reference service; each page call still hits the API. */
+  private readonly referenceServiceCache = new Map<string, Observable<unknown>>();
+
+  private cachedReferenceService<T>(
+    cacheKey: string,
+    loadToken: () => Promise<Type<T>>
+  ): Observable<T> {
+    const existing = this.referenceServiceCache.get(cacheKey) as
+      | Observable<T>
+      | undefined;
+    if (existing) {
+      return existing;
+    }
+    const created = this.injectAfterLoad(loadToken).pipe(
+      this.shareAppDataCache()
+    );
+    this.referenceServiceCache.set(cacheKey, created);
+    return created;
   }
 
   /**
@@ -94,15 +128,15 @@ export class AppConfigurationService {
 
   private roleListCache$?: Observable<IRoleGetResponseDto>;
   private appConfigurationCache$?: Observable<IConfigurationGetResponseDto>;
-  private employeeListCache$?: Observable<IEmployeeGetResponseDto>;
-  private assetListCache$?: Observable<IAssetGetResponseDto>;
-  private vehicleListCache$?: Observable<IVehicleGetResponseDto>;
-  private petroCardListCache$?: Observable<IPetroCardGetResponseDto>;
-  private companyBankAccountListCache$?: Observable<ICompanyBankAccountGetResponseDto>;
-  private companyListCache$?: Observable<ICompanyGetResponseDto>;
-  private contractorListCache$?: Observable<IContractorGetResponseDto>;
-  private vendorListCache$?: Observable<IVendorGetResponseDto>;
-  private projectListCache$?: Observable<IProjectGetResponseDto>;
+  private employeeListCache$?: Observable<void>;
+  private assetListCache$?: Observable<void>;
+  private vehicleListCache$?: Observable<void>;
+  private petroCardListCache$?: Observable<void>;
+  private companyBankAccountListCache$?: Observable<void>;
+  private companyListCache$?: Observable<void>;
+  private contractorListCache$?: Observable<void>;
+  private vendorListCache$?: Observable<void>;
+  private projectListCache$?: Observable<void>;
   private linkedUserVehicleDetailCache$?: Observable<ILinkedUserVehicleDetailGetResponseDto | null>;
   private readonly _dropdownLoadingState = signal<Record<string, boolean>>({});
   private readonly _isAppConfigurationDataReady = signal<boolean>(false);
@@ -801,91 +835,146 @@ export class AppConfigurationService {
     };
   }
 
-  loadEmployeeList(): Observable<IEmployeeGetResponseDto> {
+  loadEmployeeList(): Observable<void> {
     return (this.employeeListCache$ ??= this.fetchEmployeeList().pipe(
       this.shareAppDataCache()
     ));
   }
 
-  private fetchEmployeeList(): Observable<IEmployeeGetResponseDto> {
+  private fetchEmployeeList(): Observable<void> {
     this.logger.logUserAction('Loading app data - Employee List');
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
-      this.injectAfterLoad(() =>
-        import(
-          '@features/employee-management/services/employee.service'
-        ).then(m => m.EmployeeService)
-      ).pipe(
-        switchMap(employeeService =>
-          employeeService.getEmployeeList(this.referenceDropdownListPayload)
-        ),
-        tap(response => {
-            this.logger.logUserAction('Employee List loaded successfully', {
-              count: response.totalRecords,
+      this.loadEmployeeListPage(this.referenceDropdownListPayload).pipe(
+        tap(page => {
+          this.logger.logUserAction('Employee List loaded successfully', {
+            count: page.totalRecords,
+          });
+
+          const employeeListByRole: Record<string, IOptionDropdown[]> = {};
+          page.records.forEach(dropdownItem => {
+            const employee = dropdownItem.data as {
+              roles?: { name?: string | null }[];
+            };
+            const roles = (employee.roles ?? [])
+              .map(role => role.name?.trim() ?? '')
+              .filter(role => role.length > 0);
+            roles.forEach(role => {
+              if (!employeeListByRole[role]) {
+                employeeListByRole[role] = [];
+              }
+              employeeListByRole[role].push(dropdownItem);
             });
+          });
+          Object.keys(employeeListByRole).forEach(role => {
+            employeeListByRole[role].sort(this.sortByLabel);
+          });
 
-            const employeeListByRole: Record<string, IOptionDropdown[]> = {};
-
-            const employeeList: IOptionDropdown[] = response.records
-              .map(employee => {
-                const first = employee.firstName?.trim() ?? '';
-                const last = employee.lastName?.trim() ?? '';
-                const employeeStatus = employee.status?.trim() ?? '';
-                const formattedEmployeeStatus = employeeStatus
-                  ? toTitleCase(employeeStatus)
-                  : '';
-                const employeeCode = employee.employeeId?.trim() ?? '';
-                const subtitleParts = [
-                  employeeCode,
-                  formattedEmployeeStatus,
-                ].filter(Boolean);
-                const initialChar =
-                  first.charAt(0) ||
-                  last.charAt(0) ||
-                  (employee.employeeId?.trim()?.charAt(0) ?? '');
-                const dropdownItem: IOptionDropdown = {
-                  label: toTitleCase(`${first} ${last}`.trim()),
-                  subtitle:
-                    subtitleParts.length > 0
-                      ? subtitleParts.join(' • ')
-                      : undefined,
-                  initial: initialChar ? initialChar.toUpperCase() : undefined,
-                  value: employee.id,
-                  disabled: employeeStatus.toLowerCase() === 'archived',
-                  data: employee,
-                };
-
-                // Parse roles and add to role-based lists
-                const roles = employee.roles
-                  .map(role => role.name.trim())
-                  .filter(role => role.length > 0);
-
-                roles.forEach(role => {
-                  if (!employeeListByRole[role]) {
-                    employeeListByRole[role] = [];
-                  }
-                  employeeListByRole[role].push(dropdownItem);
-                });
-
-                return dropdownItem;
-              })
-              .sort(this.sortByLabel);
-
-            // Sort role-based lists as well
-            Object.keys(employeeListByRole).forEach(role => {
-              employeeListByRole[role].sort(this.sortByLabel);
-            });
-
-            this._employeeList.set(employeeList);
-            this._employeeListByRole.set(employeeListByRole);
-          }),
+          this._employeeList.set(this.sortedDropdownOptions(page.records));
+          this._employeeListByRole.set(employeeListByRole);
+        }),
+        map(() => undefined),
         catchError(error => {
           this.employeeListCache$ = undefined;
           this.logger.logUserAction('Failed to load Employee List', error);
           return throwError(() => error);
         })
       )
+    );
+  }
+
+  private loadEmployeeListPage(
+    payload: ReferenceListPayload,
+    filters?: ReferenceDropdownFilters
+  ): Observable<IReferenceDropdownPage> {
+    const statusFilter = (filters?.employeeStatusFilter ?? [])
+      .map(status => status.trim())
+      .filter(Boolean);
+
+    return this.cachedReferenceService('employee', () =>
+      import('@features/employee-management/services/employee.service').then(
+        m => m.EmployeeService
+      )
+    ).pipe(
+      switchMap(employeeService =>
+        employeeService.getEmployeeList({
+          ...payload,
+          employeeRole: filters?.filterByRole,
+          employeeStatus:
+            statusFilter.length === 1 ? statusFilter[0] : undefined,
+        })
+      ),
+      map(response => {
+        let records = response.records
+          .map(employee => {
+            const first = employee.firstName?.trim() ?? '';
+            const last = employee.lastName?.trim() ?? '';
+            const employeeStatus = employee.status?.trim() ?? '';
+            const formattedEmployeeStatus = employeeStatus
+              ? toTitleCase(employeeStatus)
+              : '';
+            const employeeCode = employee.employeeId?.trim() ?? '';
+            const subtitleParts = [
+              employeeCode,
+              formattedEmployeeStatus,
+            ].filter(Boolean);
+            const initialChar =
+              first.charAt(0) ||
+              last.charAt(0) ||
+              (employee.employeeId?.trim()?.charAt(0) ?? '');
+            return {
+              label: toTitleCase(`${first} ${last}`.trim()),
+              subtitle:
+                subtitleParts.length > 0
+                  ? subtitleParts.join(' • ')
+                  : undefined,
+              initial: initialChar ? initialChar.toUpperCase() : undefined,
+              value: employee.id,
+              disabled: employeeStatus.toLowerCase() === 'archived',
+              data: employee,
+            };
+          });
+
+        if (statusFilter.length > 1) {
+          const allowed = new Set(
+            statusFilter.map(status => status.toLowerCase())
+          );
+          records = records.filter(option => {
+            const status =
+              (option.data as { status?: string } | undefined)?.status
+                ?.trim()
+                .toLowerCase() ?? '';
+            return allowed.has(status);
+          });
+        }
+
+        const archivedHandling = filters?.archivedHandling ?? 'disabled';
+        if (archivedHandling === 'hidden') {
+          records = records.filter(option => {
+            const status =
+              (option.data as { status?: string } | undefined)?.status
+                ?.trim()
+                .toLowerCase() ?? '';
+            return status !== 'archived';
+          });
+        } else if (archivedHandling === 'enabled') {
+          records = records.map(option => {
+            const status =
+              (option.data as { status?: string } | undefined)?.status
+                ?.trim()
+                .toLowerCase() ?? '';
+            return status === 'archived'
+              ? { ...option, disabled: false }
+              : option;
+          });
+        }
+
+        return {
+          totalRecords: response.totalRecords,
+          records,
+        };
+      })
     );
   }
 
@@ -932,6 +1021,18 @@ export class AppConfigurationService {
       this.MODULE_DROPDOWN_REGISTRY[module]
         ?.find(dropdown => dropdown.key === key)
         ?.signal.asReadonly() ?? this.EMPTY_DROPDOWN
+    );
+  }
+
+  /**
+   * Reads cached dropdown options without scheduling a network fetch.
+   * Used by scrollable dropdowns to pin a pre-selected value for display.
+   */
+  peekDropdown(module: string, key: string): IOptionDropdown[] {
+    return (
+      this.MODULE_DROPDOWN_REGISTRY[module]?.find(
+        dropdown => dropdown.key === key
+      )?.signal() ?? []
     );
   }
 
@@ -1201,46 +1302,25 @@ export class AppConfigurationService {
     }
   }
 
-  loadAssetList(): Observable<IAssetGetResponseDto> {
+  loadAssetList(): Observable<void> {
     return (this.assetListCache$ ??= this.fetchAssetList().pipe(
       this.shareAppDataCache()
     ));
   }
 
-  private fetchAssetList(): Observable<IAssetGetResponseDto> {
+  private fetchAssetList(): Observable<void> {
     this.logger.logUserAction('Loading app data - Asset List');
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.ASSET.ASSET_LIST,
-      this.injectAfterLoad(() =>
-        import('@features/asset-management/services/asset.service').then(
-          m => m.AssetService
-        )
-      ).pipe(
-        switchMap(assetService =>
-          assetService.getAssetList(this.referenceDropdownListPayload)
-        ),
-        tap(response => {
+      this.loadAssetListPage(this.referenceDropdownListPayload).pipe(
+        tap(page => {
           this.logger.logUserAction('Asset List loaded successfully', {
-            count: response.totalRecords,
+            count: page.totalRecords,
           });
-
-          const assetList: IOptionDropdown[] = response.records
-            .map(asset => {
-              const rawName = asset.name?.trim() ?? '';
-              const aid = asset.assetId?.trim();
-              return {
-                label: toTitleCase(rawName),
-                subtitle: aid || undefined,
-                initial: this.initialsForDropdownLabel(rawName),
-                value: asset.id,
-                data: asset,
-              };
-            })
-            .sort(this.sortByLabel);
-
-          this._assetList.set(assetList);
+          this._assetList.set(this.sortedDropdownOptions(page.records));
         }),
+        map(() => undefined),
         catchError(error => {
           this.assetListCache$ = undefined;
           this.logger.logUserAction('Failed to load Asset List', error);
@@ -1250,52 +1330,53 @@ export class AppConfigurationService {
     );
   }
 
-  loadVehicleList(): Observable<IVehicleGetResponseDto> {
+  /** Same API + mapping as cache warm-up; pagination/search are dynamic. */
+  private loadAssetListPage(
+    payload: ReferenceListPayload
+  ): Observable<IReferenceDropdownPage> {
+    return this.cachedReferenceService('asset', () =>
+      import('@features/asset-management/services/asset.service').then(
+        m => m.AssetService
+      )
+    ).pipe(
+      switchMap(assetService => assetService.getAssetList(payload)),
+      map(response => ({
+        totalRecords: response.totalRecords,
+        records: response.records
+          .map(asset => {
+            const rawName = asset.name?.trim() ?? '';
+            const aid = asset.assetId?.trim();
+            return {
+              label: toTitleCase(rawName),
+              subtitle: aid || undefined,
+              initial: this.initialsForDropdownLabel(rawName),
+              value: asset.id,
+              data: asset,
+            };
+          }),
+      }))
+    );
+  }
+
+  loadVehicleList(): Observable<void> {
     return (this.vehicleListCache$ ??= this.fetchVehicleList().pipe(
       this.shareAppDataCache()
     ));
   }
 
-  private fetchVehicleList(): Observable<IVehicleGetResponseDto> {
+  private fetchVehicleList(): Observable<void> {
     this.logger.logUserAction('Loading app data - Vehicle List');
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
-      this.injectAfterLoad(() =>
-        import(
-          '@features/transport-management/vehicle-management/services/vehicle.service'
-        ).then(m => m.VehicleService)
-      ).pipe(
-        switchMap(vehicleService =>
-          vehicleService.getVehicleList(this.referenceDropdownListPayload)
-        ),
-          tap(response => {
-            this.logger.logUserAction('Vehicle List loaded successfully', {
-              count: response.totalRecords,
-            });
-
-            const vehicleList: IOptionDropdown[] = response.records
-              .map(vehicle => {
-                const reg = vehicle.registrationNo?.trim() ?? '';
-                const brandModel = [vehicle.brand, vehicle.model]
-                  .filter(Boolean)
-                  .join(' ')
-                  .trim();
-                const initialMatch = reg.match(/[A-Za-z0-9]/);
-                return {
-                  label: reg,
-                  subtitle: brandModel ? toTitleCase(brandModel) : undefined,
-                  initial: initialMatch
-                    ? initialMatch[0].toUpperCase()
-                    : undefined,
-                  value: vehicle.id,
-                  data: vehicle,
-                };
-              })
-              .sort(this.sortByLabel);
-
-            this._vehicleList.set(vehicleList);
-          }),
+      this.loadVehicleListPage(this.referenceDropdownListPayload).pipe(
+        tap(page => {
+          this.logger.logUserAction('Vehicle List loaded successfully', {
+            count: page.totalRecords,
+          });
+          this._vehicleList.set(this.sortedDropdownOptions(page.records));
+        }),
+        map(() => undefined),
         catchError(error => {
           this.vehicleListCache$ = undefined;
           this.logger.logUserAction('Failed to load Vehicle List', error);
@@ -1305,41 +1386,58 @@ export class AppConfigurationService {
     );
   }
 
-  loadPetroCardList(): Observable<IPetroCardGetResponseDto> {
+  private loadVehicleListPage(
+    payload: ReferenceListPayload
+  ): Observable<IReferenceDropdownPage> {
+    return this.cachedReferenceService('vehicle', () =>
+      import(
+        '@features/transport-management/vehicle-management/services/vehicle.service'
+      ).then(m => m.VehicleService)
+    ).pipe(
+      switchMap(vehicleService => vehicleService.getVehicleList(payload)),
+      map(response => ({
+        totalRecords: response.totalRecords,
+        records: response.records
+          .map(vehicle => {
+            const reg = vehicle.registrationNo?.trim() ?? '';
+            const brandModel = [vehicle.brand, vehicle.model]
+              .filter(Boolean)
+              .join(' ')
+              .trim();
+            const initialMatch = reg.match(/[A-Za-z0-9]/);
+            return {
+              label: reg,
+              subtitle: brandModel ? toTitleCase(brandModel) : undefined,
+              initial: initialMatch
+                ? initialMatch[0].toUpperCase()
+                : undefined,
+              value: vehicle.id,
+              data: vehicle,
+            };
+          }),
+      }))
+    );
+  }
+
+  loadPetroCardList(): Observable<void> {
     return (this.petroCardListCache$ ??= this.fetchPetroCardList().pipe(
       this.shareAppDataCache()
     ));
   }
 
-  private fetchPetroCardList(): Observable<IPetroCardGetResponseDto> {
+  private fetchPetroCardList(): Observable<void> {
     this.logger.logUserAction('Loading app data - Petro Card List');
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
-      this.injectAfterLoad(() =>
-        import(
-          '@features/transport-management/petro-card-management/services/petro-card.service'
-        ).then(m => m.PetroCardService)
-      ).pipe(
-        switchMap(petroCardService =>
-          petroCardService.getPetroCardList(this.referenceDropdownListPayload)
-        ),
-          tap(response => {
-            this.logger.logUserAction('Petro Card List loaded successfully', {
-              count: response.totalRecords,
-            });
-
-            const petroCardList: IOptionDropdown[] = response.records
-              .map(petroCard => ({
-                label: toTitleCase(
-                  `${petroCard.cardName} (${petroCard.cardNumber})`.trim()
-                ),
-                value: petroCard.id,
-              }))
-              .sort(this.sortByLabel);
-
-            this._petroCardList.set(petroCardList);
-          }),
+      this.loadPetroCardListPage(this.referenceDropdownListPayload).pipe(
+        tap(page => {
+          this.logger.logUserAction('Petro Card List loaded successfully', {
+            count: page.totalRecords,
+          });
+          this._petroCardList.set(this.sortedDropdownOptions(page.records));
+        }),
+        map(() => undefined),
         catchError(error => {
           this.petroCardListCache$ = undefined;
           this.logger.logUserAction('Failed to load Petro Card List', error);
@@ -1349,52 +1447,53 @@ export class AppConfigurationService {
     );
   }
 
-  loadCompanyBankAccountList(): Observable<ICompanyBankAccountGetResponseDto> {
+  private loadPetroCardListPage(
+    payload: ReferenceListPayload
+  ): Observable<IReferenceDropdownPage> {
+    return this.cachedReferenceService('petro-card', () =>
+      import(
+        '@features/transport-management/petro-card-management/services/petro-card.service'
+      ).then(m => m.PetroCardService)
+    ).pipe(
+      switchMap(petroCardService => petroCardService.getPetroCardList(payload)),
+      map(response => ({
+        totalRecords: response.totalRecords,
+        records: response.records
+          .map(petroCard => ({
+            label: toTitleCase(
+              `${petroCard.cardName} (${petroCard.cardNumber})`.trim()
+            ),
+            value: petroCard.id,
+          })),
+      }))
+    );
+  }
+
+  loadCompanyBankAccountList(): Observable<void> {
     return (this.companyBankAccountListCache$ ??=
       this.fetchCompanyBankAccountList().pipe(this.shareAppDataCache()));
   }
 
-  private fetchCompanyBankAccountList(): Observable<ICompanyBankAccountGetResponseDto> {
+  private fetchCompanyBankAccountList(): Observable<void> {
     this.logger.logUserAction('Loading app data - Company Bank Account List');
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
-      this.injectAfterLoad(() =>
-        import(
-          '@features/company-bank-account-management/services/company-bank-account.service'
-        ).then(m => m.CompanyBankAccountService)
+      this.loadCompanyBankAccountListPage(
+        this.referenceDropdownListPayload
       ).pipe(
-        switchMap(companyBankAccountService =>
-          companyBankAccountService.getCompanyBankAccountList(
-            this.referenceDropdownListPayload
-          )
-        ),
-          tap(response => {
-            this.logger.logUserAction(
-              'Company Bank Account List loaded successfully',
-              {
-                count: response.totalRecords,
-              }
-            );
-
-            const companyBankAccountList: IOptionDropdown[] = response.records
-              .filter(account => account.isActive)
-              .map(account => {
-                const bankName = account.bankName?.trim() ?? '';
-                const accountNumber = account.accountNumber?.trim() ?? '';
-                const accountHolderName =
-                  account.accountHolderName?.trim() ?? '';
-                return {
-                  label: toTitleCase(`${bankName} (${accountNumber})`.trim()),
-                  subtitle: accountHolderName || undefined,
-                  value: account.id,
-                  data: account,
-                };
-              })
-              .sort(this.sortByLabel);
-
-            this._companyBankAccountList.set(companyBankAccountList);
-          }),
+        tap(page => {
+          this.logger.logUserAction(
+            'Company Bank Account List loaded successfully',
+            {
+              count: page.totalRecords,
+            }
+          );
+          this._companyBankAccountList.set(
+            this.sortedDropdownOptions(page.records)
+          );
+        }),
+        map(() => undefined),
         catchError(error => {
           this.companyBankAccountListCache$ = undefined;
           this.logger.logUserAction(
@@ -1407,48 +1506,55 @@ export class AppConfigurationService {
     );
   }
 
-  loadCompanyList(): Observable<ICompanyGetResponseDto> {
+  private loadCompanyBankAccountListPage(
+    payload: ReferenceListPayload
+  ): Observable<IReferenceDropdownPage> {
+    return this.cachedReferenceService('company-bank-account', () =>
+      import(
+        '@features/company-bank-account-management/services/company-bank-account.service'
+      ).then(m => m.CompanyBankAccountService)
+    ).pipe(
+      switchMap(companyBankAccountService =>
+        companyBankAccountService.getCompanyBankAccountList(payload)
+      ),
+      map(response => ({
+        totalRecords: response.totalRecords,
+        records: response.records
+          .filter(account => account.isActive)
+          .map(account => {
+            const bankName = account.bankName?.trim() ?? '';
+            const accountNumber = account.accountNumber?.trim() ?? '';
+            const accountHolderName = account.accountHolderName?.trim() ?? '';
+            return {
+              label: toTitleCase(`${bankName} (${accountNumber})`.trim()),
+              subtitle: accountHolderName || undefined,
+              value: account.id,
+              data: account,
+            };
+          }),
+      }))
+    );
+  }
+
+  loadCompanyList(): Observable<void> {
     return (this.companyListCache$ ??= this.fetchCompanyList().pipe(
       this.shareAppDataCache()
     ));
   }
 
-  private fetchCompanyList(): Observable<ICompanyGetResponseDto> {
+  private fetchCompanyList(): Observable<void> {
     this.logger.logUserAction('Loading app data - Company List');
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
-      this.injectAfterLoad(() =>
-        import(
-          '@features/site-management/company-management/services/company.service'
-        ).then(m => m.CompanyService)
-      ).pipe(
-        switchMap(companyService =>
-          companyService.getCompanyList(this.referenceDropdownListPayload)
-        ),
-          tap(response => {
-            this.logger.logUserAction('Company List loaded successfully', {
-              count: response.totalRecords,
-            });
-
-            const companyList: IOptionDropdown[] = response.records
-              .map(company => {
-                const rawName = company.name?.trim() ?? '';
-                const subtitle =
-                  [company.city, company.state].filter(Boolean).join(', ') ||
-                  `ID ${company.id.slice(0, 8)}`;
-                return {
-                  label: toTitleCase(rawName),
-                  subtitle,
-                  initial: this.initialsForDropdownLabel(rawName),
-                  value: company.id,
-                  data: company,
-                };
-              })
-              .sort(this.sortByLabel);
-
-            this._companyList.set(companyList);
-          }),
+      this.loadCompanyListPage(this.referenceDropdownListPayload).pipe(
+        tap(page => {
+          this.logger.logUserAction('Company List loaded successfully', {
+            count: page.totalRecords,
+          });
+          this._companyList.set(this.sortedDropdownOptions(page.records));
+        }),
+        map(() => undefined),
         catchError(error => {
           this.companyListCache$ = undefined;
           this.logger.logUserAction('Failed to load Company List', error);
@@ -1458,58 +1564,95 @@ export class AppConfigurationService {
     );
   }
 
-  loadContractorList(): Observable<IContractorGetResponseDto> {
+  private loadCompanyListPage(
+    payload: ReferenceListPayload
+  ): Observable<IReferenceDropdownPage> {
+    return this.cachedReferenceService('company', () =>
+      import(
+        '@features/site-management/company-management/services/company.service'
+      ).then(m => m.CompanyService)
+    ).pipe(
+      switchMap(companyService => companyService.getCompanyList(payload)),
+      map(response => ({
+        totalRecords: response.totalRecords,
+        records: response.records
+          .map(company => {
+            const rawName = company.name?.trim() ?? '';
+            const subtitle =
+              [company.city, company.state].filter(Boolean).join(', ') ||
+              `ID ${company.id.slice(0, 8)}`;
+            return {
+              label: toTitleCase(rawName),
+              subtitle,
+              initial: this.initialsForDropdownLabel(rawName),
+              value: company.id,
+              data: company,
+            };
+          }),
+      }))
+    );
+  }
+
+  loadContractorList(): Observable<void> {
     return (this.contractorListCache$ ??= this.fetchContractorList().pipe(
       this.shareAppDataCache()
     ));
   }
 
-  private fetchContractorList(): Observable<IContractorGetResponseDto> {
+  private fetchContractorList(): Observable<void> {
     this.logger.logUserAction('Loading app data - Contractor List');
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
-      this.injectAfterLoad(() =>
-        import(
-          '@features/site-management/contractor-management/services/contractor.service'
-        ).then(m => m.ContractorService)
-      ).pipe(
-        switchMap(contractorService =>
-          contractorService.getContractorList(this.referenceDropdownListPayload)
-        ),
-          tap(response => {
-            this.logger.logUserAction('Contractor List loaded successfully', {
-              count: response.totalRecords,
-            });
-
-            const contractorList: IOptionDropdown[] = response.records
-              .map(contractor => {
-                const rawName = contractor.name?.trim() ?? '';
-                const subtitle = this.buildContractorVendorDropdownSubtitle({
-                  gstNumber: contractor.gstNumber,
-                  city: contractor.city,
-                  state: contractor.state,
-                  email: contractor.email,
-                  id: contractor.id,
-                });
-                return {
-                  label: toTitleCase(rawName),
-                  subtitle,
-                  initial: this.initialsForDropdownLabel(rawName),
-                  value: contractor.id,
-                  data: contractor,
-                };
-              })
-              .sort(this.sortByLabel);
-
-            this._contractorList.set(contractorList);
-          }),
+      this.loadContractorListPage(this.referenceDropdownListPayload).pipe(
+        tap(page => {
+          this.logger.logUserAction('Contractor List loaded successfully', {
+            count: page.totalRecords,
+          });
+          this._contractorList.set(this.sortedDropdownOptions(page.records));
+        }),
+        map(() => undefined),
         catchError(error => {
           this.contractorListCache$ = undefined;
           this.logger.logUserAction('Failed to load Contractor List', error);
           return throwError(() => error);
         })
       )
+    );
+  }
+
+  private loadContractorListPage(
+    payload: ReferenceListPayload
+  ): Observable<IReferenceDropdownPage> {
+    return this.cachedReferenceService('contractor', () =>
+      import(
+        '@features/site-management/contractor-management/services/contractor.service'
+      ).then(m => m.ContractorService)
+    ).pipe(
+      switchMap(contractorService =>
+        contractorService.getContractorList(payload)
+      ),
+      map(response => ({
+        totalRecords: response.totalRecords,
+        records: response.records
+          .map(contractor => {
+            const rawName = contractor.name?.trim() ?? '';
+            const subtitle = this.buildContractorVendorDropdownSubtitle({
+              gstNumber: contractor.gstNumber,
+              city: contractor.city,
+              state: contractor.state,
+              email: contractor.email,
+              id: contractor.id,
+            });
+            return {
+              label: toTitleCase(rawName),
+              subtitle,
+              initial: this.initialsForDropdownLabel(rawName),
+              value: contractor.id,
+              data: contractor,
+            };
+          }),
+      }))
     );
   }
 
@@ -1556,53 +1699,25 @@ export class AppConfigurationService {
     );
   }
 
-  loadVendorList(): Observable<IVendorGetResponseDto> {
+  loadVendorList(): Observable<void> {
     return (this.vendorListCache$ ??= this.fetchVendorList().pipe(
       this.shareAppDataCache()
     ));
   }
 
-  private fetchVendorList(): Observable<IVendorGetResponseDto> {
+  private fetchVendorList(): Observable<void> {
     this.logger.logUserAction('Loading app data - Vendor List');
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
-      this.injectAfterLoad(() =>
-        import(
-          '@features/site-management/vendor-management/services/vendor.service'
-        ).then(m => m.VendorService)
-      ).pipe(
-        switchMap(vendorService =>
-          vendorService.getVendorList(this.referenceDropdownListPayload)
-        ),
-        tap(response => {
+      this.loadVendorListPage(this.referenceDropdownListPayload).pipe(
+        tap(page => {
           this.logger.logUserAction('Vendor List loaded successfully', {
-            count: response.totalRecords,
+            count: page.totalRecords,
           });
-
-          const vendorList: IOptionDropdown[] = response.records
-            .map(vendor => {
-              const rawName = vendor.name?.trim() ?? '';
-              const subtitle = this.buildContractorVendorDropdownSubtitle({
-                code: vendor.vendorCode,
-                gstNumber: vendor.gstNumber,
-                city: vendor.city,
-                state: vendor.state,
-                email: vendor.email,
-                id: vendor.id,
-              });
-              return {
-                label: toTitleCase(rawName),
-                subtitle,
-                initial: this.initialsForDropdownLabel(rawName),
-                value: vendor.id,
-                data: vendor,
-              };
-            })
-            .sort(this.sortByLabel);
-
-          this._vendorList.set(vendorList);
+          this._vendorList.set(this.sortedDropdownOptions(page.records));
         }),
+        map(() => undefined),
         catchError(error => {
           this.vendorListCache$ = undefined;
           this.logger.logUserAction('Failed to load Vendor List', error);
@@ -1612,74 +1727,59 @@ export class AppConfigurationService {
     );
   }
 
-  loadProjectList(): Observable<IProjectGetResponseDto> {
+  private loadVendorListPage(
+    payload: ReferenceListPayload
+  ): Observable<IReferenceDropdownPage> {
+    return this.cachedReferenceService('vendor', () =>
+      import(
+        '@features/site-management/vendor-management/services/vendor.service'
+      ).then(m => m.VendorService)
+    ).pipe(
+      switchMap(vendorService => vendorService.getVendorList(payload)),
+      map(response => ({
+        totalRecords: response.totalRecords,
+        records: response.records
+          .map(vendor => {
+            const rawName = vendor.name?.trim() ?? '';
+            const subtitle = this.buildContractorVendorDropdownSubtitle({
+              code: vendor.vendorCode,
+              gstNumber: vendor.gstNumber,
+              city: vendor.city,
+              state: vendor.state,
+              email: vendor.email,
+              id: vendor.id,
+            });
+            return {
+              label: toTitleCase(rawName),
+              subtitle,
+              initial: this.initialsForDropdownLabel(rawName),
+              value: vendor.id,
+              data: vendor,
+            };
+          }),
+      }))
+    );
+  }
+
+  loadProjectList(): Observable<void> {
     return (this.projectListCache$ ??= this.fetchProjectList().pipe(
       this.shareAppDataCache()
     ));
   }
 
-  private fetchProjectList(): Observable<IProjectGetResponseDto> {
+  private fetchProjectList(): Observable<void> {
     this.logger.logUserAction('Loading app data - Project List');
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
-      this.injectAfterLoad(() =>
-        import(
-          '@features/site-management/project-management/services/project.service'
-        ).then(m => m.ProjectService)
-      ).pipe(
-        switchMap(projectService =>
-          from(
-            import(
-              '@features/site-management/project-management/utility/project-site-type.util'
-            )
-          ).pipe(
-            switchMap(({ mapProjectSiteTypeDisplays }) =>
-              projectService
-                .getProjectList(this.referenceDropdownListPayload)
-                .pipe(
-                  tap(response => {
-                    this.logger.logUserAction(
-                      'Project List loaded successfully',
-                      {
-                        count: response.totalRecords,
-                      }
-                    );
-
-                    const projectOptions: IOptionDropdown[] = response.records
-                      .map(project => {
-                        const rawName = project.name?.trim() ?? '';
-                        const siteTypeLabels = mapProjectSiteTypeDisplays(
-                          project.siteTypes,
-                          this._projectSiteTypes()
-                        )
-                          .map(item => item.label)
-                          .join(' · ');
-                        const location =
-                          [project.city, project.state]
-                            .filter(Boolean)
-                            .join(', ') || undefined;
-                        const label = toTitleCase(rawName);
-                        const subtitle =
-                          [siteTypeLabels, location]
-                            .filter(Boolean)
-                            .join(' · ') || undefined;
-                        return {
-                          label,
-                          subtitle,
-                          initial: this.initialsForDropdownLabel(rawName),
-                          value: project.id,
-                          data: project,
-                        };
-                      })
-                      .sort(this.sortByLabel);
-
-                    this._projectList.set(projectOptions);
-                  })
-                )
-            )
-          )
-        ),
+      this.loadProjectListPage(this.referenceDropdownListPayload).pipe(
+        tap(page => {
+          this.logger.logUserAction('Project List loaded successfully', {
+            count: page.totalRecords,
+          });
+          this._projectList.set(this.sortedDropdownOptions(page.records));
+        }),
+        map(() => undefined),
         catchError(error => {
           this.projectListCache$ = undefined;
           this.logger.logUserAction('Failed to load Project List', error);
@@ -1687,6 +1787,102 @@ export class AppConfigurationService {
         })
       )
     );
+  }
+
+  private loadProjectListPage(
+    payload: ReferenceListPayload
+  ): Observable<IReferenceDropdownPage> {
+    return this.cachedReferenceService('project', () =>
+      import(
+        '@features/site-management/project-management/services/project.service'
+      ).then(m => m.ProjectService)
+    ).pipe(
+      switchMap(projectService =>
+        from(
+          import(
+            '@features/site-management/project-management/utility/project-site-type.util'
+          )
+        ).pipe(
+          switchMap(({ mapProjectSiteTypeDisplays }) =>
+            projectService.getProjectList(payload).pipe(
+              map(response => ({
+                totalRecords: response.totalRecords,
+                records: response.records
+                  .map(project => {
+                    const rawName = project.name?.trim() ?? '';
+                    const siteTypeLabels = mapProjectSiteTypeDisplays(
+                      project.siteTypes,
+                      this._projectSiteTypes()
+                    )
+                      .map(item => item.label)
+                      .join(' · ');
+                    const location =
+                      [project.city, project.state]
+                        .filter(Boolean)
+                        .join(', ') || undefined;
+                    return {
+                      label: toTitleCase(rawName),
+                      subtitle:
+                        [siteTypeLabels, location]
+                          .filter(Boolean)
+                          .join(' · ') || undefined,
+                      initial: this.initialsForDropdownLabel(rawName),
+                      value: project.id,
+                      data: project,
+                    };
+                  }),
+              }))
+            )
+          )
+        )
+      )
+    );
+  }
+
+  /**
+   * Scrollable dropdowns reuse the same list API + mapping as cache warm-up;
+   * only page / pageSize / search change.
+   */
+  getScrollableReferenceLoader(
+    dropdownName: string,
+    filters?: ReferenceDropdownFilters
+  ): ((params: {
+    page: number;
+    pageSize: number;
+    search: string;
+  }) => Observable<IReferenceDropdownPage>) | null {
+    const toPayload = (params: {
+      page: number;
+      pageSize: number;
+      search: string;
+    }): ReferenceListPayload => ({
+      page: params.page,
+      pageSize: params.pageSize,
+      search: params.search || null,
+    });
+
+    switch (dropdownName) {
+      case CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST:
+        return params => this.loadEmployeeListPage(toPayload(params), filters);
+      case CONFIGURATION_KEYS.ASSET.ASSET_LIST:
+        return params => this.loadAssetListPage(toPayload(params));
+      case CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST:
+        return params => this.loadVehicleListPage(toPayload(params));
+      case CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST:
+        return params => this.loadPetroCardListPage(toPayload(params));
+      case CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST:
+        return params => this.loadCompanyBankAccountListPage(toPayload(params));
+      case CONFIGURATION_KEYS.COMPANY.COMPANY_LIST:
+        return params => this.loadCompanyListPage(toPayload(params));
+      case CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST:
+        return params => this.loadContractorListPage(toPayload(params));
+      case CONFIGURATION_KEYS.VENDOR.VENDOR_LIST:
+        return params => this.loadVendorListPage(toPayload(params));
+      case CONFIGURATION_KEYS.PROJECT.PROJECT_LIST:
+        return params => this.loadProjectListPage(toPayload(params));
+      default:
+        return null;
+    }
   }
 
   /** Rich dropdown subtitle: GST (if any) + city/state for contractor & vendor lists. */
@@ -1849,6 +2045,11 @@ export class AppConfigurationService {
     return a.label.localeCompare(b.label);
   };
 
+  /** Warm-cache lists stay alphabetical. Scrollable pages keep server order. */
+  private sortedDropdownOptions(records: IOptionDropdown[]): IOptionDropdown[] {
+    return [...records].sort(this.sortByLabel);
+  };
+
   private buildModuleConfigMap(
     response: IConfigurationGetResponseDto
   ): Record<string, Record<string, unknown>> {
@@ -1884,14 +2085,14 @@ export class AppConfigurationService {
 
   /** All heavy dropdown lists in one round-trip (used by {@link refreshAllReferenceDropdowns}). */
   loadReferenceLists(): Observable<{
-    employeeList: IEmployeeGetResponseDto;
-    assetList: IAssetGetResponseDto;
-    vehicleList: IVehicleGetResponseDto;
-    petroCardList: IPetroCardGetResponseDto;
-    companyBankAccountList: ICompanyBankAccountGetResponseDto;
-    companyList: ICompanyGetResponseDto;
-    contractorList: IContractorGetResponseDto;
-    vendorList: IVendorGetResponseDto;
+    employeeList: void;
+    assetList: void;
+    vehicleList: void;
+    petroCardList: void;
+    companyBankAccountList: void;
+    companyList: void;
+    contractorList: void;
+    vendorList: void;
     linkedUserVehicleForCurrentUser: ILinkedUserVehicleDetailGetResponseDto | null;
   }> {
     return forkJoin({
@@ -1912,14 +2113,14 @@ export class AppConfigurationService {
     roles: IRoleGetResponseDto;
     permissions: unknown;
     appConfiguration: IConfigurationGetResponseDto;
-    employeeList: IEmployeeGetResponseDto;
-    assetList: IAssetGetResponseDto;
-    vehicleList: IVehicleGetResponseDto;
-    petroCardList: IPetroCardGetResponseDto;
-    companyBankAccountList: ICompanyBankAccountGetResponseDto;
-    companyList: ICompanyGetResponseDto;
-    contractorList: IContractorGetResponseDto;
-    vendorList: IVendorGetResponseDto;
+    employeeList: void;
+    assetList: void;
+    vehicleList: void;
+    petroCardList: void;
+    companyBankAccountList: void;
+    companyList: void;
+    contractorList: void;
+    vendorList: void;
     linkedUserVehicleForCurrentUser: ILinkedUserVehicleDetailGetResponseDto | null;
   }> {
     this.logger.info('Loading all app data...');

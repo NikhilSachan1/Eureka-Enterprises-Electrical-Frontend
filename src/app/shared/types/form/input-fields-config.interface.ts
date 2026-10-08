@@ -95,6 +95,28 @@ export interface IInputNumberFieldConfig {
   maximumInputLength?: number;
 }
 
+/** Shared API-bound dropdown options config (select / multi-select / autocomplete). */
+export interface IDynamicDropdownConfig {
+  moduleName: string;
+  dropdownName: string;
+  filterByRole?: string[];
+  /** Employee-list only: include only these statuses (case-insensitive). */
+  employeeStatusFilter?: string[];
+  /** Employee-list only: how archived employees are presented. Default: `disabled`. */
+  archivedHandling?: 'disabled' | 'enabled' | 'hidden';
+  /**
+   * When `false`, the logged-in user is removed from options (`value` must match user id).
+   * Default / omitted: no removal.
+   */
+  includeLoggedInUser?: boolean;
+}
+
+/** One page of server-paginated reference-dropdown options. */
+export interface IReferenceDropdownPage {
+  records: IOptionDropdown[];
+  totalRecords: number;
+}
+
 export interface ISelectFieldConfig {
   optionsDropdown?: IOptionDropdown[];
   optionLabel: string;
@@ -110,20 +132,7 @@ export interface ISelectFieldConfig {
   optionDisabled?: string;
   /** Shown in the panel when options are empty (after parent is selected for dependent dropdowns). */
   emptyMessage?: string;
-  dynamicDropdown?: {
-    moduleName: string;
-    dropdownName: string;
-    filterByRole?: string[]; // Filter employees by roles (e.g., ['TECHNICIAN', 'ADMIN'])
-    /** Employee-list only: include only these statuses (case-insensitive). */
-    employeeStatusFilter?: string[];
-    /** Employee-list only: how archived employees are presented. Default: `disabled`. */
-    archivedHandling?: 'disabled' | 'enabled' | 'hidden';
-    /**
-     * When `false`, the logged-in user is removed from options (`value` must match user id).
-     * Default / omitted: no removal.
-     */
-    includeLoggedInUser?: boolean;
-  };
+  dynamicDropdown?: IDynamicDropdownConfig;
   dependentDropdown?: {
     /** The field name this dropdown depends on (e.g., 'state') */
     dependsOnField: string;
@@ -155,14 +164,7 @@ export interface IAutocompleteFieldConfig {
   addOnBlur?: boolean;
   addOnTab?: boolean;
   separator?: string;
-  dynamicDropdown?: {
-    moduleName: string;
-    dropdownName: string;
-    filterByRole?: string[];
-    employeeStatusFilter?: string[];
-    archivedHandling?: 'disabled' | 'enabled' | 'hidden';
-    includeLoggedInUser?: boolean;
-  };
+  dynamicDropdown?: IDynamicDropdownConfig;
   dependentDropdown?: {
     dependsOnField: string;
     dependsOnFieldLabel?: string;
@@ -193,14 +195,7 @@ export interface IMultiSelectFieldConfig {
   emptyMessage?: string;
   virtualScroll?: boolean;
   virtualScrollItemSize?: number;
-  dynamicDropdown?: {
-    moduleName: string;
-    dropdownName: string;
-    filterByRole?: string[]; // Filter employees by roles (e.g., ['TECHNICIAN', 'ADMIN'])
-    employeeStatusFilter?: string[];
-    archivedHandling?: 'disabled' | 'enabled' | 'hidden';
-    includeLoggedInUser?: boolean;
-  };
+  dynamicDropdown?: IDynamicDropdownConfig;
   /**
    * Dependent dropdown configuration - options depend on another field's value
    * Example: City dropdown depends on State selection

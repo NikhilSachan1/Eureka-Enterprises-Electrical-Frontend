@@ -114,6 +114,8 @@
       @let selectConfig = config.selectConfig;
       @let selectOpts = selectConfig?.optionsDropdown ?? [];
       @let optionsDropdownLength = selectOpts.length;
+      @let scrollableSelect = isScrollableDropdownEnabled();
+      @let scrollableSelectHasResults = hasScrollableDropdownResults(selectOpts);
       <p-select
         #selectRef
         [id]="config.id"
@@ -126,21 +128,30 @@
         [optionValue]="selectConfig?.optionValue ?? 'value'"
         [optionDisabled]="selectConfig?.optionDisabled"
         [checkmark]="selectConfig?.showCheckmark"
-        [filter]="selectConfig?.haveFilter && (optionsDropdownLength ?? 0) > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH"
+        [filter]="
+          scrollableSelect ||
+          (!!selectConfig?.haveFilter && (optionsDropdownLength ?? 0) > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH)
+        "
         [filterBy]="effectiveDropdownFilterBy(selectConfig, selectOpts)"
+        [filterMatchMode]="$any(scrollableSelect ? serverDropdownFilterMatchMode : 'contains')"
         [loading]="selectConfig?.loading ?? false"
+        [emptyFilterMessage]="getScrollableEmptyFilterMessage()"
         [showClear]="selectConfig?.showClearButton"
         [editable]="selectConfig?.isEditable"
         [virtualScroll]="
           selectConfig?.virtualScroll ?? (optionsDropdownLength ?? 0) > ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD
         "
         [virtualScrollItemSize]="effectiveDropdownVirtualScrollItemSize(selectConfig, selectOpts)"
+        [scrollHeight]="scrollableSelect && !scrollableSelectHasResults ? 'auto' : '200px'"
         [disabled]="config.disabledInput || false"
         [ngModel]="effectiveValue()"
         [ngModelOptions]="{ standalone: true }"
         [class]="invalidClass"
         (onChange)="onValueChange($event.value)"
         (onBlur)="onBlur()"
+        (onShow)="onScrollableDropdownShow()"
+        (onHide)="onScrollableDropdownHide()"
+        (onFilter)="onScrollableDropdownFilter($event)"
       >
         <ng-template
           pTemplate="item"
@@ -282,6 +293,8 @@
       @let multiOpts = multiSelectConfig?.optionsDropdown ?? [];
       @let optionsDropdownLengthMs = multiOpts.length;
       @let maxVisibleLabels = getMultiSelectMaxVisibleLabels(multiSelectConfig);
+      @let scrollableMulti = isScrollableDropdownEnabled();
+      @let scrollableMultiHasResults = hasScrollableDropdownResults(multiOpts);
       <p-multiselect
         #multiSelectRef
         [id]="config.id"
@@ -296,13 +309,20 @@
         [maxSelectedLabels]="maxVisibleLabels"
         [selectedItemsLabel]="multiSelectConfig?.selectedItemsLabel ?? '+{0}'"
         [filter]="
-          multiSelectConfig?.haveFilter && (optionsDropdownLengthMs ?? 0) > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH
+          scrollableMulti ||
+          (!!multiSelectConfig?.haveFilter &&
+            (optionsDropdownLengthMs ?? 0) > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH)
         "
         [filterBy]="effectiveDropdownFilterBy(multiSelectConfig, multiOpts)"
+        [filterMatchMode]="$any(scrollableMulti ? serverDropdownFilterMatchMode : 'contains')"
         [loading]="multiSelectConfig?.loading ?? false"
         [emptyMessage]="getMultiSelectEmptyMessage(multiSelectConfig)"
-        [emptyFilterMessage]="getMultiSelectEmptyMessage(multiSelectConfig)"
-        [showToggleAll]="shouldShowMultiSelectToggleAll(multiSelectConfig, multiOpts)"
+        [emptyFilterMessage]="
+          scrollableMulti ? getScrollableEmptyFilterMessage() : getMultiSelectEmptyMessage(multiSelectConfig)
+        "
+        [showToggleAll]="
+          scrollableMulti ? false : shouldShowMultiSelectToggleAll(multiSelectConfig, multiOpts)
+        "
         [display]="multiSelectConfig?.display || ALL_MULTI_SELECT_DISPLAY_TYPES.Chip"
         [showClear]="multiSelectConfig?.showClearButton"
         [virtualScroll]="
@@ -310,12 +330,16 @@
           (optionsDropdownLengthMs ?? 0) > ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD
         "
         [virtualScrollItemSize]="effectiveDropdownVirtualScrollItemSize(multiSelectConfig, multiOpts)"
+        [scrollHeight]="scrollableMulti && !scrollableMultiHasResults ? 'auto' : '200px'"
         [disabled]="config.disabledInput || false"
         [ngModel]="effectiveValue()"
         [ngModelOptions]="{ standalone: true }"
         [class]="invalidClass"
         (onChange)="onValueChange($event.value)"
         (onBlur)="onBlur()"
+        (onPanelShow)="onScrollableDropdownShow()"
+        (onPanelHide)="onScrollableDropdownHide()"
+        (onFilter)="onScrollableDropdownFilter($event)"
       >
         <ng-template
           pTemplate="item"
