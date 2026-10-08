@@ -11,14 +11,7 @@
     [tabMode]="assetTabMode"
     (tabChanged)="onAssetScopeTabChanged($event)"
   >
-    <!-- Switching tabs rebuilds the filter empty. -->
-    @if (assetScope() === ASSET_SCOPE.MY) {
-      <ng-container [ngTemplateOutlet]="assetSearchFilter" />
-    } @else if (assetScope() === ASSET_SCOPE.ALL) {
-      <ng-container [ngTemplateOutlet]="assetSearchFilter" />
-    } @else {
-      <ng-container [ngTemplateOutlet]="assetSearchFilter" />
-    }
+    <ng-container [ngTemplateOutlet]="assetSearchFilter" />
   </app-nav-tabs>
 } @else {
   <ng-container [ngTemplateOutlet]="assetSearchFilter" />
@@ -30,7 +23,6 @@
       [tableRef]="dataTable.dt()"
       [searchFilterConfig]="searchFilterConfig"
       [visibleFieldNames]="assetFilterVisibleFields()"
-      [syncToUrl]="false"
     />
   </div>
 </ng-template>

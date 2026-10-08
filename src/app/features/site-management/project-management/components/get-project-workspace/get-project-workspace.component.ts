@@ -579,6 +579,25 @@ export class GetProjectWorkspaceComponent {
     return filters;
   }
 
+  private pickHiddenAppliedFilters(
+    appliedFilters: IProjectWorkspaceSearchFilterFormDto,
+    visibleFieldNames: string[]
+  ): IProjectWorkspaceSearchFilterFormDto {
+    const hiddenFilters: IProjectWorkspaceSearchFilterFormDto = {};
+    const visible = new Set(visibleFieldNames);
+
+    Object.entries(appliedFilters).forEach(([fieldName, value]) => {
+      if (visible.has(fieldName) || !this.hasFilterValue(value)) {
+        return;
+      }
+
+      hiddenFilters[fieldName as keyof IProjectWorkspaceSearchFilterFormDto] =
+        value as never;
+    });
+
+    return hiddenFilters;
+  }
+
   private hasFilterValue(value: unknown): boolean {
     if (value === null || value === undefined || value === '') {
       return false;
@@ -610,16 +629,21 @@ export class GetProjectWorkspaceComponent {
       return;
     }
 
+    const visibleFieldNames = this.getVisibleFilterFieldNames(tab, docContext);
     const visibleFilters = this.pickVisibleFilterValues(
       source,
-      this.getVisibleFilterFieldNames(tab, docContext)
+      visibleFieldNames
     );
+    const nextFilters: IProjectWorkspaceSearchFilterFormDto = {
+      ...this.pickHiddenAppliedFilters(appliedFilters, visibleFieldNames),
+      ...visibleFilters,
+    };
 
-    if (this.areWorkspaceFiltersEqual(appliedFilters, visibleFilters)) {
+    if (this.areWorkspaceFiltersEqual(appliedFilters, nextFilters)) {
       return;
     }
 
-    this.workspaceContext.applyFilters(visibleFilters, { notifyTabs: false });
+    this.workspaceContext.applyFilters(nextFilters, { notifyTabs: false });
   }
 
   private areWorkspaceFiltersEqual(

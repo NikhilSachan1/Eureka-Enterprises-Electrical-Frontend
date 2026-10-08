@@ -11,14 +11,7 @@
     [tabMode]="vehicleTabMode"
     (tabChanged)="onVehicleScopeTabChanged($event)"
   >
-    <!-- Switching tabs rebuilds the filter empty. -->
-    @if (vehicleScope() === VEHICLE_SCOPE.MY) {
-      <ng-container [ngTemplateOutlet]="vehicleSearchFilter" />
-    } @else if (vehicleScope() === VEHICLE_SCOPE.ALL) {
-      <ng-container [ngTemplateOutlet]="vehicleSearchFilter" />
-    } @else {
-      <ng-container [ngTemplateOutlet]="vehicleSearchFilter" />
-    }
+    <ng-container [ngTemplateOutlet]="vehicleSearchFilter" />
   </app-nav-tabs>
 } @else {
   <ng-container [ngTemplateOutlet]="vehicleSearchFilter" />
@@ -30,7 +23,6 @@
       [tableRef]="dataTable.dt()"
       [searchFilterConfig]="searchFilterConfig"
       [visibleFieldNames]="vehicleFilterVisibleFields()"
-      [syncToUrl]="false"
     />
   </div>
 </ng-template>

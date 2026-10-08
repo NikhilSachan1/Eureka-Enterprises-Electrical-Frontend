@@ -48,9 +48,6 @@
             @for (tab of visibleTabs(); track tab.route; let i = $index) {
               <p-tab
                 [value]="tab.route"
-                [routerLink]="isRouterOutletMode() ? [tab.route] : null"
-                [relativeTo]="isRouterOutletMode() ? route : undefined"
-                queryParamsHandling="preserve"
                 [disabled]="tab.disabled"
                 [pTooltip]="tab.tooltip"
                 tooltipPosition="top"

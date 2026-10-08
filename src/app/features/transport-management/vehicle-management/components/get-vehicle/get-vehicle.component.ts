@@ -96,8 +96,6 @@ export class GetVehicleComponent implements OnInit {
 
   protected readonly HANDOVER_EVENT_TYPES = ETableActionTypeValue;
   protected readonly ICONS = ICONS;
-  protected readonly VEHICLE_SCOPE = EVehicleScope;
-
   private static readonly HANDOVER_DIALOG_ACTIONS = new Set<EButtonActionType>([
     EButtonActionType.HANDOVER_INITIATE,
     EButtonActionType.HANDOVER_ACCEPTED,
@@ -167,7 +165,7 @@ export class GetVehicleComponent implements OnInit {
     this.vehicleScopeTabs().some(tab => tab.visible !== false)
   );
 
-  /** Active tab. Switching it rebuilds the filter and reloads, so nothing carries over. */
+  /** Active tab. Filter values stay; the list reloads for the new scope. */
   protected readonly vehicleScope = signal<EVehicleScope>(
     this.resolveDefaultVehicleScope()
   );
@@ -223,19 +221,24 @@ export class GetVehicleComponent implements OnInit {
     }
 
     this.vehicleScope.set(scope);
-    this.clearTableFilters();
+    this.reloadForScopeChange();
   }
 
-  /** Drops the applied column filters so the new tab starts fresh, then reloads. */
-  private clearTableFilters(): void {
-    const table = this.dataTable()?.dt();
-    if (!table) {
+  private reloadForScopeChange(): void {
+    if (!this.tableFilterData) {
       return;
     }
 
-    table.filters = {};
-    table.first = 0;
-    table.reset();
+    const table = this.dataTable()?.dt();
+    if (table) {
+      table.first = 0;
+    }
+
+    this.tableFilterData = {
+      ...this.tableFilterData,
+      first: 0,
+    };
+    this.loadVehicleList();
   }
 
   ngOnInit(): void {
