@@ -188,7 +188,10 @@ export class GetPoComponent implements OnInit {
       .subscribe({
         next: (response: IPoGetResponseDto) => {
           const { records, totalRecords } = response;
-          this.table.setData(this.mapTableData(records));
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           ensureWorkspaceTableBreakdown(
             this.workspaceDocumentStatus,

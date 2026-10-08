@@ -60,8 +60,10 @@ export class GetCompanyDetailComponent extends DrawerDetailBase {
       )
       .subscribe({
         next: (response: ICompanyDetailGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
-          this._companyDetails.set(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapDetailData(response),
+            mappedData => this._companyDetails.set(mappedData)
+          );
           this.logger.logUserAction('Company details loaded successfully');
         },
         error: error => {

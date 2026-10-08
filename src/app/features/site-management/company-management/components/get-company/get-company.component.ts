@@ -115,8 +115,10 @@ export class GetCompanyComponent implements OnInit {
         next: (response: ICompanyGetResponseDto) => {
           const { records, overallStats: stats, totalRecords } = response;
 
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.companyStats.set(stats);
           this.logger.logUserAction('Company records loaded successfully');

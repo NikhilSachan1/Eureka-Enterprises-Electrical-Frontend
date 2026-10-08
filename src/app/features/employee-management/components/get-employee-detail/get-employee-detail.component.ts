@@ -137,8 +137,12 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
 
     getEmployeeDetail$
       .pipe(
-        switchMap((response: IEmployeeDetailGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
+        switchMap((response: IEmployeeDetailGetResponseDto) =>
+          this.appConfigurationService.afterTouchedConfiguration(() =>
+            this.mapDetailData(response)
+          )
+        ),
+        switchMap(mappedData => {
           const { employeeName, employeeProfilePicture } = mappedData.quickInfo;
 
           // Set avatar URL immediately

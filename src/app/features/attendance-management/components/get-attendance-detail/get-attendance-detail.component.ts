@@ -74,8 +74,10 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
       )
       .subscribe({
         next: (response: IAttendanceHistoryGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
-          this._attendanceDetails.set(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapDetailData(response),
+            mappedData => this._attendanceDetails.set(mappedData)
+          );
           this.logger.logUserAction('Attendance history loaded successfully');
         },
         error: error => {

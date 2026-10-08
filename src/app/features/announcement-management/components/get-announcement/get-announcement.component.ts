@@ -116,8 +116,10 @@ export class GetAnnouncementComponent implements OnInit {
         next: (response: IAnnouncementGetResponseDto) => {
           const { records, stats, totalRecords } = response;
 
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.announcementStats.set(stats ?? null); //TODO: Remove null when backend is updated
 

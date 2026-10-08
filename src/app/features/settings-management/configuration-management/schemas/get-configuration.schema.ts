@@ -7,6 +7,7 @@ const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 export const ConfigurationGetRequestSchema = z
   .object({
     moduleName: z.array(z.string()).optional(),
+    key: z.union([z.string(), z.array(z.string())]).optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -14,10 +15,11 @@ export const ConfigurationGetRequestSchema = z
     search,
   })
   .strict()
-  .transform(({ moduleName, ...rest }) => {
+  .transform(({ moduleName, key, ...rest }) => {
     return {
       ...rest,
-      module: moduleName,
+      ...(moduleName ? { module: moduleName } : {}),
+      ...(key !== undefined ? { key } : {}),
     };
   });
 

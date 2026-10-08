@@ -168,8 +168,10 @@ export class GetFuelExpenseComponent implements OnInit {
         next: (response: IFuelExpenseGetResponseDto) => {
           const { records, stats, totalRecords } = response;
 
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.fuelExpenseStats.set(stats);
           const employeeId = paramData.employeeName;

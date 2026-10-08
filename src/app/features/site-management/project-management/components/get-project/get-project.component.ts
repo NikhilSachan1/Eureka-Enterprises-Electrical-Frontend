@@ -174,8 +174,10 @@ export class GetProjectComponent implements OnInit {
         next: (response: IProjectGetResponseDto) => {
           const { records, stats, totalRecords } = response;
 
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.projectStats.set(stats ?? null);
           this.logger.logUserAction('Project records loaded successfully');

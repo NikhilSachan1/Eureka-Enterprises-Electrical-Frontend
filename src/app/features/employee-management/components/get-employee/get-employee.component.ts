@@ -122,8 +122,10 @@ export class GetEmployeeComponent implements OnInit {
         next: (response: IEmployeeGetResponseDto) => {
           const { records, metrics: stats, totalRecords } = response;
 
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.employeeStats.set(stats);
           this.logger.logUserAction('Employee records loaded successfully');

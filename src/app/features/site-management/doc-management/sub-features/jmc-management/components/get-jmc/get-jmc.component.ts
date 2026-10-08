@@ -148,7 +148,10 @@ export class GetJmcComponent implements OnInit {
       .subscribe({
         next: (response: IJmcGetResponseDto) => {
           const { records, totalRecords } = response;
-          this.table.setData(this.mapTableData(records));
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           ensureWorkspaceTableBreakdown(
             this.workspaceDocumentStatus,

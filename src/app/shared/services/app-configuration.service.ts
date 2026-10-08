@@ -1,4 +1,5 @@
 import {
+  computed,
   inject,
   Injectable,
   Injector,
@@ -9,6 +10,7 @@ import {
 } from '@angular/core';
 import {
   catchError,
+  defer,
   finalize,
   forkJoin,
   from,
@@ -62,10 +64,7 @@ import type {
   providedIn: 'root',
 })
 export class AppConfigurationService {
-  private static readonly APP_CONFIGURATION_LOADING_KEY =
-    '__app_configuration__';
-  private static readonly APP_CONFIGURATION_PAGE_SIZE = 50;
-  private static readonly APP_CONFIGURATION_PAGE_COUNT = 4;
+  private static readonly CONFIGURATION_KEY_PAGE_SIZE = 20;
   private readonly REFERENCE_PREFETCH_START_DELAY_MS = 3000;
   private readonly referenceDropdownListPayload = { page: 1, pageSize: 50 };
   private readonly injector = inject(Injector);
@@ -93,7 +92,15 @@ export class AppConfigurationService {
     });
 
   private roleListCache$?: Observable<IRoleGetResponseDto>;
-  private appConfigurationCache$?: Observable<IConfigurationGetResponseDto>;
+  private readonly configurationKeyCaches = new Map<
+    string,
+    Observable<IConfigurationGetResponseDto>
+  >();
+  private readonly loadedConfigurationKeys = new Set<string>();
+  private readonly failedConfigurationKeys = new Set<string>();
+  private readonly configurationKeyLoadScheduled = new Set<string>();
+  /** Configuration keys touched while probing a one-shot table/detail mapper. */
+  private configurationKeyCapture: Set<string> | null = null;
   private employeeListCache$?: Observable<IEmployeeGetResponseDto>;
   private assetListCache$?: Observable<IAssetGetResponseDto>;
   private vehicleListCache$?: Observable<IVehicleGetResponseDto>;
@@ -105,7 +112,6 @@ export class AppConfigurationService {
   private projectListCache$?: Observable<IProjectGetResponseDto>;
   private linkedUserVehicleDetailCache$?: Observable<ILinkedUserVehicleDetailGetResponseDto | null>;
   private readonly _dropdownLoadingState = signal<Record<string, boolean>>({});
-  private readonly _isAppConfigurationDataReady = signal<boolean>(false);
   private readonly pendingLazyLoads = new Set<string>();
   /**
    * Lazy loads from {@link getDropdown} run once per key until caches are invalidated or a refresh* method runs.
@@ -197,71 +203,276 @@ export class AppConfigurationService {
   private readonly _companyBankAccountList = signal<IOptionDropdown[]>([]);
   private readonly _linkedUserVehicleDetail =
     signal<ILinkedUserVehicleDetailGetResponseDto | null>(null);
-  // Public readonly signals for common use
-  readonly genders = this._genders.asReadonly();
-  readonly employmentTypes = this._employmentTypes.asReadonly();
-  readonly degrees = this._degrees.asReadonly();
-  readonly branches = this._branches.asReadonly();
-  readonly designations = this._designations.asReadonly();
-  readonly bloodGroups = this._bloodGroups.asReadonly();
+  // Configuration-backed signals load their module on first read, then stay cached.
+  readonly genders = this.lazyConfigSignal(
+    MODULE_NAMES.EMPLOYEE,
+    CONFIGURATION_KEYS.EMPLOYEE.GENDERS,
+    this._genders
+  );
+  readonly employmentTypes = this.lazyConfigSignal(
+    MODULE_NAMES.EMPLOYEE,
+    CONFIGURATION_KEYS.EMPLOYEE.EMPLOYMENT_TYPES,
+    this._employmentTypes
+  );
+  readonly degrees = this.lazyConfigSignal(
+    MODULE_NAMES.EMPLOYEE,
+    CONFIGURATION_KEYS.EMPLOYEE.DEGREES,
+    this._degrees
+  );
+  readonly branches = this.lazyConfigSignal(
+    MODULE_NAMES.EMPLOYEE,
+    CONFIGURATION_KEYS.EMPLOYEE.BRANCHES,
+    this._branches
+  );
+  readonly designations = this.lazyConfigSignal(
+    MODULE_NAMES.EMPLOYEE,
+    CONFIGURATION_KEYS.EMPLOYEE.DESIGNATIONS,
+    this._designations
+  );
+  readonly bloodGroups = this.lazyConfigSignal(
+    MODULE_NAMES.EMPLOYEE,
+    CONFIGURATION_KEYS.EMPLOYEE.BLOOD_GROUPS,
+    this._bloodGroups
+  );
   readonly passingYears = this._passingYears.asReadonly();
-  readonly bankNames = this._bankNames.asReadonly();
-  readonly states = this._states.asReadonly();
-  readonly cities = this._cities.asReadonly();
-  readonly employeeStatus = this._employeeStatus.asReadonly();
-  readonly expenseCategories = this._expenseCategories.asReadonly();
-  readonly expensePaymentMethods = this._expensePaymentMethods.asReadonly();
-  readonly fuelExpensePaymentMethods =
-    this._fuelExpensePaymentMethods.asReadonly();
-  readonly attendanceStatus = this._attendanceStatus.asReadonly();
-  readonly approvalStatus = this._approvalStatus.asReadonly();
-  readonly projectDocumentApprovalStatuses =
-    this._projectDocumentApprovalStatuses.asReadonly();
-  readonly partyTypes = this._partyTypes.asReadonly();
-  readonly assetCategories = this._assetCategories.asReadonly();
-  readonly assetTypes = this._assetTypes.asReadonly();
-  readonly assetStatuses = this._assetStatuses.asReadonly();
-  readonly assetCalibrationSources = this._assetCalibrationSources.asReadonly();
-  readonly assetCalibrationStatuses =
-    this._assetCalibrationStatuses.asReadonly();
-  readonly assetWarrantyStatuses = this._assetWarrantyStatuses.asReadonly();
-  readonly assetCalibrationFrequencies =
-    this._assetCalibrationFrequencies.asReadonly();
-  readonly assetEventStatuses = this._assetEventStatuses.asReadonly();
-  readonly petroCardStatus = this._petroCardStatus.asReadonly();
-  readonly vehicleFuelTypes = this._vehicleFuelTypes.asReadonly();
-  readonly vehicleStatuses = this._vehicleStatuses.asReadonly();
-  readonly vehicleDocumentStatuses = this._vehicleDocumentStatuses.asReadonly();
-  readonly vehicleServiceStatuses = this._vehicleServiceStatuses.asReadonly();
-  readonly vehicleEventStatuses = this._vehicleEventStatuses.asReadonly();
-  readonly vehicleServiceTypes = this._vehicleServiceTypes.asReadonly();
-  readonly vehicleServiceStatus = this._vehicleServiceStatus.asReadonly();
-  readonly payrollStatus = this._payrollStatus.asReadonly();
+  readonly bankNames = this.lazyConfigSignal(
+    MODULE_NAMES.EMPLOYEE,
+    CONFIGURATION_KEYS.EMPLOYEE.BANK_NAMES,
+    this._bankNames
+  );
+  readonly states = this.lazyConfigSignal(
+    MODULE_NAMES.COMMON,
+    CONFIGURATION_KEYS.COMMON.STATES,
+    this._states
+  );
+  readonly cities = this.lazyConfigSignal(
+    MODULE_NAMES.COMMON,
+    CONFIGURATION_KEYS.COMMON.CITIES,
+    this._cities
+  );
+  readonly employeeStatus = this.lazyConfigSignal(
+    MODULE_NAMES.EMPLOYEE,
+    CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_STATUS,
+    this._employeeStatus
+  );
+  readonly expenseCategories = this.lazyConfigSignal(
+    MODULE_NAMES.EXPENSE,
+    CONFIGURATION_KEYS.EXPENSE.CATEGORIES,
+    this._expenseCategories
+  );
+  readonly expensePaymentMethods = this.lazyConfigSignal(
+    MODULE_NAMES.EXPENSE,
+    CONFIGURATION_KEYS.EXPENSE.PAYMENT_METHODS,
+    this._expensePaymentMethods
+  );
+  readonly fuelExpensePaymentMethods = this.lazyConfigSignal(
+    MODULE_NAMES.FUEL_EXPENSE,
+    CONFIGURATION_KEYS.FUEL_EXPENSE.PAYMENT_METHODS,
+    this._fuelExpensePaymentMethods
+  );
+  readonly attendanceStatus = this.lazyConfigSignal(
+    MODULE_NAMES.ATTENDANCE,
+    CONFIGURATION_KEYS.ATTENDANCE.STATUS,
+    this._attendanceStatus
+  );
+  readonly approvalStatus = this.lazyConfigSignal(
+    MODULE_NAMES.COMMON,
+    CONFIGURATION_KEYS.COMMON.APPROVAL_STATUS,
+    this._approvalStatus
+  );
+  readonly projectDocumentApprovalStatuses = this.lazyConfigSignal(
+    MODULE_NAMES.FINANCIAL,
+    CONFIGURATION_KEYS.PROJECT.PROJECT_DOCUMENT_APPROVAL_STATUSES,
+    this._projectDocumentApprovalStatuses
+  );
+  readonly partyTypes = this.lazyConfigSignal(
+    MODULE_NAMES.FINANCIAL,
+    CONFIGURATION_KEYS.PROJECT.PARTY_TYPES,
+    this._partyTypes
+  );
+  readonly assetCategories = this.lazyConfigSignal(
+    MODULE_NAMES.ASSET,
+    CONFIGURATION_KEYS.ASSET.CATEGORY_LIST,
+    this._assetCategories
+  );
+  readonly assetTypes = this.lazyConfigSignal(
+    MODULE_NAMES.ASSET,
+    CONFIGURATION_KEYS.ASSET.TYPE_LIST,
+    this._assetTypes
+  );
+  readonly assetStatuses = this.lazyConfigSignal(
+    MODULE_NAMES.ASSET,
+    CONFIGURATION_KEYS.ASSET.STATUS_LIST,
+    this._assetStatuses
+  );
+  readonly assetCalibrationSources = this.lazyConfigSignal(
+    MODULE_NAMES.ASSET,
+    CONFIGURATION_KEYS.ASSET.CALIBRATION_SOURCE_LIST,
+    this._assetCalibrationSources
+  );
+  readonly assetCalibrationStatuses = this.lazyConfigSignal(
+    MODULE_NAMES.ASSET,
+    CONFIGURATION_KEYS.ASSET.CALIBRATION_STATUS_LIST,
+    this._assetCalibrationStatuses
+  );
+  readonly assetWarrantyStatuses = this.lazyConfigSignal(
+    MODULE_NAMES.ASSET,
+    CONFIGURATION_KEYS.ASSET.WARRANTY_STATUS_LIST,
+    this._assetWarrantyStatuses
+  );
+  readonly assetCalibrationFrequencies = this.lazyConfigSignal(
+    MODULE_NAMES.ASSET,
+    CONFIGURATION_KEYS.ASSET.CALIBRATION_FREQUENCY_LIST,
+    this._assetCalibrationFrequencies
+  );
+  readonly assetEventStatuses = this.lazyConfigSignal(
+    MODULE_NAMES.ASSET,
+    CONFIGURATION_KEYS.ASSET.EVENT_STATUS_LIST,
+    this._assetEventStatuses
+  );
+  readonly petroCardStatus = this.lazyConfigSignal(
+    MODULE_NAMES.PETRO_CARD,
+    CONFIGURATION_KEYS.PETRO_CARD.STATUS,
+    this._petroCardStatus
+  );
+  readonly vehicleFuelTypes = this.lazyConfigSignal(
+    MODULE_NAMES.VEHICLE,
+    CONFIGURATION_KEYS.VEHICLE.FUEL_TYPE_LIST,
+    this._vehicleFuelTypes
+  );
+  readonly vehicleStatuses = this.lazyConfigSignal(
+    MODULE_NAMES.VEHICLE,
+    CONFIGURATION_KEYS.VEHICLE.STATUS_LIST,
+    this._vehicleStatuses
+  );
+  readonly vehicleDocumentStatuses = this.lazyConfigSignal(
+    MODULE_NAMES.VEHICLE,
+    CONFIGURATION_KEYS.VEHICLE.DOCUMENT_STATUS_LIST,
+    this._vehicleDocumentStatuses
+  );
+  readonly vehicleServiceStatuses = this.lazyConfigSignal(
+    MODULE_NAMES.VEHICLE,
+    CONFIGURATION_KEYS.VEHICLE.SERVICE_ALERT_STATUS_LIST,
+    this._vehicleServiceStatuses
+  );
+  readonly vehicleEventStatuses = this.lazyConfigSignal(
+    MODULE_NAMES.VEHICLE,
+    CONFIGURATION_KEYS.VEHICLE.EVENT_STATUS_LIST,
+    this._vehicleEventStatuses
+  );
+  readonly vehicleServiceTypes = this.lazyConfigSignal(
+    MODULE_NAMES.VEHICLE,
+    CONFIGURATION_KEYS.VEHICLE.SERVICE_TYPE_LIST,
+    this._vehicleServiceTypes
+  );
+  readonly vehicleServiceStatus = this.lazyConfigSignal(
+    MODULE_NAMES.VEHICLE,
+    CONFIGURATION_KEYS.VEHICLE.SERVICE_STATUS,
+    this._vehicleServiceStatus
+  );
+  readonly payrollStatus = this.lazyConfigSignal(
+    MODULE_NAMES.PAYROLL,
+    CONFIGURATION_KEYS.PAYROLL.STATUS,
+    this._payrollStatus
+  );
   readonly companyList = this._companyList.asReadonly();
-  readonly companyStatus = this._companyStatus.asReadonly();
+  readonly companyStatus = this.lazyConfigSignal(
+    MODULE_NAMES.COMPANY,
+    CONFIGURATION_KEYS.COMPANY.COMPANY_STATUS,
+    this._companyStatus
+  );
   readonly contractorList = this._contractorList.asReadonly();
-  readonly contractorStatus = this._contractorStatus.asReadonly();
+  readonly contractorStatus = this.lazyConfigSignal(
+    MODULE_NAMES.CONTRACTOR,
+    CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_STATUS,
+    this._contractorStatus
+  );
   readonly vendorList = this._vendorList.asReadonly();
-  readonly vendorTypes = this._vendorTypes.asReadonly();
-  readonly projectSiteTypes = this._projectSiteTypes.asReadonly();
-  readonly projectStatus = this._projectStatus.asReadonly();
+  readonly vendorTypes = this.lazyConfigSignal(
+    MODULE_NAMES.VENDOR,
+    CONFIGURATION_KEYS.VENDOR.VENDOR_TYPES,
+    this._vendorTypes
+  );
+  readonly projectSiteTypes = this.lazyConfigSignal(
+    MODULE_NAMES.PROJECT,
+    CONFIGURATION_KEYS.PROJECT.PROJECT_TYPES,
+    this._projectSiteTypes
+  );
+  readonly projectStatus = this.lazyConfigSignal(
+    MODULE_NAMES.PROJECT,
+    CONFIGURATION_KEYS.PROJECT.PROJECT_STATUS,
+    this._projectStatus
+  );
   readonly projectAllocationStatuses =
     this._projectAllocationStatuses.asReadonly();
-  readonly siteRoles = this._siteRoles.asReadonly();
-  readonly poGstTypes = this._poGstTypes.asReadonly();
-  readonly poTypes = this._poTypes.asReadonly();
-  readonly units = this._units.asReadonly();
-  readonly projectWorkTypes = this._projectWorkTypes.asReadonly();
-  readonly projectDocumentTypes = this._projectDocumentTypes.asReadonly();
+  readonly siteRoles = this.lazyConfigSignal(
+    MODULE_NAMES.PROJECT,
+    CONFIGURATION_KEYS.PROJECT.SITE_ROLES,
+    this._siteRoles
+  );
+  readonly poGstTypes = this.lazyConfigSignal(
+    MODULE_NAMES.PURCHASE_ORDER,
+    CONFIGURATION_KEYS.PURCHASE_ORDER.GST_TYPES,
+    this._poGstTypes
+  );
+  readonly poTypes = this.lazyConfigSignal(
+    MODULE_NAMES.PURCHASE_ORDER,
+    CONFIGURATION_KEYS.PURCHASE_ORDER.PO_TYPES,
+    this._poTypes
+  );
+  readonly units = this.lazyConfigSignal(
+    MODULE_NAMES.PURCHASE_ORDER,
+    CONFIGURATION_KEYS.PURCHASE_ORDER.UNITS,
+    this._units
+  );
+  readonly projectWorkTypes = this.lazyConfigSignal(
+    MODULE_NAMES.PROJECT,
+    CONFIGURATION_KEYS.PROJECT.PROJECT_WORK_TYPES,
+    this._projectWorkTypes
+  );
+  readonly projectDocumentTypes = this.lazyConfigSignal(
+    MODULE_NAMES.PROJECT,
+    CONFIGURATION_KEYS.PROJECT.PROJECT_DOCUMENT_TYPES,
+    this._projectDocumentTypes
+  );
   readonly projectList = this._projectList.asReadonly();
-  readonly moduleNames = this._moduleNames.asReadonly();
-  readonly modulesConfig = this._modulesConfig.asReadonly();
-  readonly announcementStatuses = this._announcementStatuses.asReadonly();
-  readonly paymentSheetStatuses = this._paymentSheetStatuses.asReadonly();
-  readonly paymentSheetStages = this._paymentSheetStages.asReadonly();
-  readonly paymentSheetItemStatuses =
-    this._paymentSheetItemStatuses.asReadonly();
-  readonly configurationTypes = this._configurationTypes.asReadonly();
+  readonly moduleNames = this.lazyConfigSignal(
+    MODULE_NAMES.PERMISSION,
+    CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN,
+    this._moduleNames
+  );
+  readonly modulesConfig = computed(() => {
+    this.ensureConfigurationForKey(
+      MODULE_NAMES.PERMISSION,
+      CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN
+    );
+    return this._modulesConfig();
+  });
+  readonly announcementStatuses = this.lazyConfigSignal(
+    MODULE_NAMES.ANNOUNCEMENT,
+    CONFIGURATION_KEYS.ANNOUNCEMENT.ANNOUNCEMENT_STATUS,
+    this._announcementStatuses
+  );
+  readonly paymentSheetStatuses = this.lazyConfigSignal(
+    MODULE_NAMES.PAYMENTS,
+    CONFIGURATION_KEYS.PAYMENTS.SHEET_STATUSES,
+    this._paymentSheetStatuses
+  );
+  readonly paymentSheetStages = this.lazyConfigSignal(
+    MODULE_NAMES.PAYMENTS,
+    CONFIGURATION_KEYS.PAYMENTS.SHEET_STAGES,
+    this._paymentSheetStages
+  );
+  readonly paymentSheetItemStatuses = this.lazyConfigSignal(
+    MODULE_NAMES.PAYMENTS,
+    CONFIGURATION_KEYS.PAYMENTS.ITEM_STATUSES,
+    this._paymentSheetItemStatuses
+  );
+  readonly configurationTypes = this.lazyConfigSignal(
+    MODULE_NAMES.CONFIGURATION,
+    CONFIGURATION_KEYS.CONFIGURATION.CONFIGURATION_TYPE_DROPDOWN,
+    this._configurationTypes
+  );
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
   readonly employeeListByRole = this._employeeListByRole.asReadonly();
@@ -278,307 +489,307 @@ export class AppConfigurationService {
     string,
     Record<string, IOptionDropdown[]>
   > = {
-    [MODULE_NAMES.CONFIGURATION]: {
-      [CONFIGURATION_KEYS.CONFIGURATION.CONFIGURATION_TYPE_DROPDOWN]:
-        CONFIGURATION_TYPE_DATA,
-    },
-    [MODULE_NAMES.PROJECT]: {
-      [CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS]:
-        SITE_ALLOCATION_STATUS_DATA,
-    },
-  };
+      [MODULE_NAMES.CONFIGURATION]: {
+        [CONFIGURATION_KEYS.CONFIGURATION.CONFIGURATION_TYPE_DROPDOWN]:
+          CONFIGURATION_TYPE_DATA,
+      },
+      [MODULE_NAMES.PROJECT]: {
+        [CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS]:
+          SITE_ALLOCATION_STATUS_DATA,
+      },
+    };
 
   private readonly MODULE_DROPDOWN_REGISTRY: Record<
     string,
     readonly { key: string; signal: WritableSignal<IOptionDropdown[]> }[]
   > = {
-    [MODULE_NAMES.EMPLOYEE]: [
-      {
-        key: CONFIGURATION_KEYS.EMPLOYEE.GENDERS,
-        signal: this._genders,
-      },
-      {
-        key: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYMENT_TYPES,
-        signal: this._employmentTypes,
-      },
-      { key: CONFIGURATION_KEYS.EMPLOYEE.DEGREES, signal: this._degrees },
-      { key: CONFIGURATION_KEYS.EMPLOYEE.BRANCHES, signal: this._branches },
-      {
-        key: CONFIGURATION_KEYS.EMPLOYEE.DESIGNATIONS,
-        signal: this._designations,
-      },
-      {
-        key: CONFIGURATION_KEYS.EMPLOYEE.BLOOD_GROUPS,
-        signal: this._bloodGroups,
-      },
-      {
-        key: CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
-        signal: this._passingYears,
-      },
-      {
-        key: CONFIGURATION_KEYS.EMPLOYEE.BANK_NAMES,
-        signal: this._bankNames,
-      },
-      {
-        key: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_STATUS,
-        signal: this._employeeStatus,
-      },
-      {
-        key: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
-        signal: this._employeeList,
-      },
-    ],
-    [MODULE_NAMES.EXPENSE]: [
-      {
-        key: CONFIGURATION_KEYS.EXPENSE.CATEGORIES,
-        signal: this._expenseCategories,
-      },
-      {
-        key: CONFIGURATION_KEYS.EXPENSE.PAYMENT_METHODS,
-        signal: this._expensePaymentMethods,
-      },
-    ],
-    [MODULE_NAMES.FUEL_EXPENSE]: [
-      {
-        key: CONFIGURATION_KEYS.FUEL_EXPENSE.PAYMENT_METHODS,
-        signal: this._fuelExpensePaymentMethods,
-      },
-    ],
-    [MODULE_NAMES.ATTENDANCE]: [
-      {
-        key: CONFIGURATION_KEYS.ATTENDANCE.STATUS,
-        signal: this._attendanceStatus,
-      },
-    ],
-    [MODULE_NAMES.COMMON]: [
-      {
-        key: CONFIGURATION_KEYS.COMMON.APPROVAL_STATUS,
-        signal: this._approvalStatus,
-      },
-      {
-        key: CONFIGURATION_KEYS.COMMON.ROLE_LIST,
-        signal: this._roleList,
-      },
-      {
-        key: CONFIGURATION_KEYS.COMMON.STATES,
-        signal: this._states,
-      },
-      {
-        key: CONFIGURATION_KEYS.COMMON.CITIES,
-        signal: this._cities,
-      },
-    ],
-    [MODULE_NAMES.VEHICLE]: [
-      {
-        key: CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
-        signal: this._vehicleList,
-      },
-      {
-        key: CONFIGURATION_KEYS.VEHICLE.FUEL_TYPE_LIST,
-        signal: this._vehicleFuelTypes,
-      },
-      {
-        key: CONFIGURATION_KEYS.VEHICLE.STATUS_LIST,
-        signal: this._vehicleStatuses,
-      },
-      {
-        key: CONFIGURATION_KEYS.VEHICLE.DOCUMENT_STATUS_LIST,
-        signal: this._vehicleDocumentStatuses,
-      },
-      {
-        key: CONFIGURATION_KEYS.VEHICLE.SERVICE_ALERT_STATUS_LIST,
-        signal: this._vehicleServiceStatuses,
-      },
-      {
-        key: CONFIGURATION_KEYS.VEHICLE.EVENT_STATUS_LIST,
-        signal: this._vehicleEventStatuses,
-      },
-      {
-        key: CONFIGURATION_KEYS.VEHICLE.SERVICE_TYPE_LIST,
-        signal: this._vehicleServiceTypes,
-      },
-      {
-        key: CONFIGURATION_KEYS.VEHICLE.SERVICE_STATUS,
-        signal: this._vehicleServiceStatus,
-      },
-    ],
-    [MODULE_NAMES.ASSET]: [
-      {
-        key: CONFIGURATION_KEYS.ASSET.CATEGORY_LIST,
-        signal: this._assetCategories,
-      },
-      {
-        key: CONFIGURATION_KEYS.ASSET.TYPE_LIST,
-        signal: this._assetTypes,
-      },
-      {
-        key: CONFIGURATION_KEYS.ASSET.STATUS_LIST,
-        signal: this._assetStatuses,
-      },
-      {
-        key: CONFIGURATION_KEYS.ASSET.CALIBRATION_SOURCE_LIST,
-        signal: this._assetCalibrationSources,
-      },
-      {
-        key: CONFIGURATION_KEYS.ASSET.CALIBRATION_STATUS_LIST,
-        signal: this._assetCalibrationStatuses,
-      },
-      {
-        key: CONFIGURATION_KEYS.ASSET.WARRANTY_STATUS_LIST,
-        signal: this._assetWarrantyStatuses,
-      },
-      {
-        key: CONFIGURATION_KEYS.ASSET.CALIBRATION_FREQUENCY_LIST,
-        signal: this._assetCalibrationFrequencies,
-      },
-      {
-        key: CONFIGURATION_KEYS.ASSET.EVENT_STATUS_LIST,
-        signal: this._assetEventStatuses,
-      },
-      {
-        key: CONFIGURATION_KEYS.ASSET.ASSET_LIST,
-        signal: this._assetList,
-      },
-    ],
-    [MODULE_NAMES.PETRO_CARD]: [
-      {
-        key: CONFIGURATION_KEYS.PETRO_CARD.STATUS,
-        signal: this._petroCardStatus,
-      },
-      {
-        key: CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
-        signal: this._petroCardList,
-      },
-    ],
-    [MODULE_NAMES.COMPANY_BANK_ACCOUNT]: [
-      {
-        key: CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
-        signal: this._companyBankAccountList,
-      },
-    ],
-    [MODULE_NAMES.PAYROLL]: [
-      {
-        key: CONFIGURATION_KEYS.PAYROLL.STATUS,
-        signal: this._payrollStatus,
-      },
-    ],
-    [MODULE_NAMES.COMPANY]: [
-      {
-        key: CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
-        signal: this._companyList,
-      },
-      {
-        key: CONFIGURATION_KEYS.COMPANY.COMPANY_STATUS,
-        signal: this._companyStatus,
-      },
-    ],
-    [MODULE_NAMES.CONTRACTOR]: [
-      {
-        key: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
-        signal: this._contractorList,
-      },
-      {
-        key: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_STATUS,
-        signal: this._contractorStatus,
-      },
-    ],
-    [MODULE_NAMES.VENDOR]: [
-      {
-        key: CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
-        signal: this._vendorList,
-      },
-      {
-        key: CONFIGURATION_KEYS.VENDOR.VENDOR_TYPES,
-        signal: this._vendorTypes,
-      },
-    ],
-    [MODULE_NAMES.PROJECT]: [
-      {
-        key: CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
-        signal: this._projectList,
-      },
-      {
-        key: CONFIGURATION_KEYS.PROJECT.PROJECT_TYPES,
-        signal: this._projectSiteTypes,
-      },
-      {
-        key: CONFIGURATION_KEYS.PROJECT.PROJECT_STATUS,
-        signal: this._projectStatus,
-      },
-      {
-        key: CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS,
-        signal: this._projectAllocationStatuses,
-      },
-      {
-        key: CONFIGURATION_KEYS.PROJECT.SITE_ROLES,
-        signal: this._siteRoles,
-      },
-      {
-        key: CONFIGURATION_KEYS.PROJECT.PROJECT_WORK_TYPES,
-        signal: this._projectWorkTypes,
-      },
-      {
-        key: CONFIGURATION_KEYS.PROJECT.PROJECT_DOCUMENT_TYPES,
-        signal: this._projectDocumentTypes,
-      },
-    ],
-    [MODULE_NAMES.FINANCIAL]: [
-      {
-        key: CONFIGURATION_KEYS.PROJECT.PROJECT_DOCUMENT_APPROVAL_STATUSES,
-        signal: this._projectDocumentApprovalStatuses,
-      },
-      {
-        key: CONFIGURATION_KEYS.PROJECT.PARTY_TYPES,
-        signal: this._partyTypes,
-      },
-    ],
-    [MODULE_NAMES.PURCHASE_ORDER]: [
-      {
-        key: CONFIGURATION_KEYS.PURCHASE_ORDER.GST_TYPES,
-        signal: this._poGstTypes,
-      },
-      {
-        key: CONFIGURATION_KEYS.PURCHASE_ORDER.PO_TYPES,
-        signal: this._poTypes,
-      },
-      {
-        key: CONFIGURATION_KEYS.PURCHASE_ORDER.UNITS,
-        signal: this._units,
-      },
-    ],
-    [MODULE_NAMES.PERMISSION]: [
-      {
-        key: CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN,
-        signal: this._moduleNames,
-      },
-    ],
-    [MODULE_NAMES.ANNOUNCEMENT]: [
-      {
-        key: CONFIGURATION_KEYS.ANNOUNCEMENT.ANNOUNCEMENT_STATUS,
-        signal: this._announcementStatuses,
-      },
-    ],
-    [MODULE_NAMES.PAYMENTS]: [
-      {
-        key: CONFIGURATION_KEYS.PAYMENTS.SHEET_STATUSES,
-        signal: this._paymentSheetStatuses,
-      },
-      {
-        key: CONFIGURATION_KEYS.PAYMENTS.SHEET_STAGES,
-        signal: this._paymentSheetStages,
-      },
-      {
-        key: CONFIGURATION_KEYS.PAYMENTS.ITEM_STATUSES,
-        signal: this._paymentSheetItemStatuses,
-      },
-    ],
-    [MODULE_NAMES.CONFIGURATION]: [
-      {
-        key: CONFIGURATION_KEYS.CONFIGURATION.CONFIGURATION_TYPE_DROPDOWN,
-        signal: this._configurationTypes,
-      },
-    ],
-  };
+      [MODULE_NAMES.EMPLOYEE]: [
+        {
+          key: CONFIGURATION_KEYS.EMPLOYEE.GENDERS,
+          signal: this._genders,
+        },
+        {
+          key: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYMENT_TYPES,
+          signal: this._employmentTypes,
+        },
+        { key: CONFIGURATION_KEYS.EMPLOYEE.DEGREES, signal: this._degrees },
+        { key: CONFIGURATION_KEYS.EMPLOYEE.BRANCHES, signal: this._branches },
+        {
+          key: CONFIGURATION_KEYS.EMPLOYEE.DESIGNATIONS,
+          signal: this._designations,
+        },
+        {
+          key: CONFIGURATION_KEYS.EMPLOYEE.BLOOD_GROUPS,
+          signal: this._bloodGroups,
+        },
+        {
+          key: CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
+          signal: this._passingYears,
+        },
+        {
+          key: CONFIGURATION_KEYS.EMPLOYEE.BANK_NAMES,
+          signal: this._bankNames,
+        },
+        {
+          key: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_STATUS,
+          signal: this._employeeStatus,
+        },
+        {
+          key: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+          signal: this._employeeList,
+        },
+      ],
+      [MODULE_NAMES.EXPENSE]: [
+        {
+          key: CONFIGURATION_KEYS.EXPENSE.CATEGORIES,
+          signal: this._expenseCategories,
+        },
+        {
+          key: CONFIGURATION_KEYS.EXPENSE.PAYMENT_METHODS,
+          signal: this._expensePaymentMethods,
+        },
+      ],
+      [MODULE_NAMES.FUEL_EXPENSE]: [
+        {
+          key: CONFIGURATION_KEYS.FUEL_EXPENSE.PAYMENT_METHODS,
+          signal: this._fuelExpensePaymentMethods,
+        },
+      ],
+      [MODULE_NAMES.ATTENDANCE]: [
+        {
+          key: CONFIGURATION_KEYS.ATTENDANCE.STATUS,
+          signal: this._attendanceStatus,
+        },
+      ],
+      [MODULE_NAMES.COMMON]: [
+        {
+          key: CONFIGURATION_KEYS.COMMON.APPROVAL_STATUS,
+          signal: this._approvalStatus,
+        },
+        {
+          key: CONFIGURATION_KEYS.COMMON.ROLE_LIST,
+          signal: this._roleList,
+        },
+        {
+          key: CONFIGURATION_KEYS.COMMON.STATES,
+          signal: this._states,
+        },
+        {
+          key: CONFIGURATION_KEYS.COMMON.CITIES,
+          signal: this._cities,
+        },
+      ],
+      [MODULE_NAMES.VEHICLE]: [
+        {
+          key: CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
+          signal: this._vehicleList,
+        },
+        {
+          key: CONFIGURATION_KEYS.VEHICLE.FUEL_TYPE_LIST,
+          signal: this._vehicleFuelTypes,
+        },
+        {
+          key: CONFIGURATION_KEYS.VEHICLE.STATUS_LIST,
+          signal: this._vehicleStatuses,
+        },
+        {
+          key: CONFIGURATION_KEYS.VEHICLE.DOCUMENT_STATUS_LIST,
+          signal: this._vehicleDocumentStatuses,
+        },
+        {
+          key: CONFIGURATION_KEYS.VEHICLE.SERVICE_ALERT_STATUS_LIST,
+          signal: this._vehicleServiceStatuses,
+        },
+        {
+          key: CONFIGURATION_KEYS.VEHICLE.EVENT_STATUS_LIST,
+          signal: this._vehicleEventStatuses,
+        },
+        {
+          key: CONFIGURATION_KEYS.VEHICLE.SERVICE_TYPE_LIST,
+          signal: this._vehicleServiceTypes,
+        },
+        {
+          key: CONFIGURATION_KEYS.VEHICLE.SERVICE_STATUS,
+          signal: this._vehicleServiceStatus,
+        },
+      ],
+      [MODULE_NAMES.ASSET]: [
+        {
+          key: CONFIGURATION_KEYS.ASSET.CATEGORY_LIST,
+          signal: this._assetCategories,
+        },
+        {
+          key: CONFIGURATION_KEYS.ASSET.TYPE_LIST,
+          signal: this._assetTypes,
+        },
+        {
+          key: CONFIGURATION_KEYS.ASSET.STATUS_LIST,
+          signal: this._assetStatuses,
+        },
+        {
+          key: CONFIGURATION_KEYS.ASSET.CALIBRATION_SOURCE_LIST,
+          signal: this._assetCalibrationSources,
+        },
+        {
+          key: CONFIGURATION_KEYS.ASSET.CALIBRATION_STATUS_LIST,
+          signal: this._assetCalibrationStatuses,
+        },
+        {
+          key: CONFIGURATION_KEYS.ASSET.WARRANTY_STATUS_LIST,
+          signal: this._assetWarrantyStatuses,
+        },
+        {
+          key: CONFIGURATION_KEYS.ASSET.CALIBRATION_FREQUENCY_LIST,
+          signal: this._assetCalibrationFrequencies,
+        },
+        {
+          key: CONFIGURATION_KEYS.ASSET.EVENT_STATUS_LIST,
+          signal: this._assetEventStatuses,
+        },
+        {
+          key: CONFIGURATION_KEYS.ASSET.ASSET_LIST,
+          signal: this._assetList,
+        },
+      ],
+      [MODULE_NAMES.PETRO_CARD]: [
+        {
+          key: CONFIGURATION_KEYS.PETRO_CARD.STATUS,
+          signal: this._petroCardStatus,
+        },
+        {
+          key: CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
+          signal: this._petroCardList,
+        },
+      ],
+      [MODULE_NAMES.COMPANY_BANK_ACCOUNT]: [
+        {
+          key: CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
+          signal: this._companyBankAccountList,
+        },
+      ],
+      [MODULE_NAMES.PAYROLL]: [
+        {
+          key: CONFIGURATION_KEYS.PAYROLL.STATUS,
+          signal: this._payrollStatus,
+        },
+      ],
+      [MODULE_NAMES.COMPANY]: [
+        {
+          key: CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
+          signal: this._companyList,
+        },
+        {
+          key: CONFIGURATION_KEYS.COMPANY.COMPANY_STATUS,
+          signal: this._companyStatus,
+        },
+      ],
+      [MODULE_NAMES.CONTRACTOR]: [
+        {
+          key: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
+          signal: this._contractorList,
+        },
+        {
+          key: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_STATUS,
+          signal: this._contractorStatus,
+        },
+      ],
+      [MODULE_NAMES.VENDOR]: [
+        {
+          key: CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
+          signal: this._vendorList,
+        },
+        {
+          key: CONFIGURATION_KEYS.VENDOR.VENDOR_TYPES,
+          signal: this._vendorTypes,
+        },
+      ],
+      [MODULE_NAMES.PROJECT]: [
+        {
+          key: CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
+          signal: this._projectList,
+        },
+        {
+          key: CONFIGURATION_KEYS.PROJECT.PROJECT_TYPES,
+          signal: this._projectSiteTypes,
+        },
+        {
+          key: CONFIGURATION_KEYS.PROJECT.PROJECT_STATUS,
+          signal: this._projectStatus,
+        },
+        {
+          key: CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS,
+          signal: this._projectAllocationStatuses,
+        },
+        {
+          key: CONFIGURATION_KEYS.PROJECT.SITE_ROLES,
+          signal: this._siteRoles,
+        },
+        {
+          key: CONFIGURATION_KEYS.PROJECT.PROJECT_WORK_TYPES,
+          signal: this._projectWorkTypes,
+        },
+        {
+          key: CONFIGURATION_KEYS.PROJECT.PROJECT_DOCUMENT_TYPES,
+          signal: this._projectDocumentTypes,
+        },
+      ],
+      [MODULE_NAMES.FINANCIAL]: [
+        {
+          key: CONFIGURATION_KEYS.PROJECT.PROJECT_DOCUMENT_APPROVAL_STATUSES,
+          signal: this._projectDocumentApprovalStatuses,
+        },
+        {
+          key: CONFIGURATION_KEYS.PROJECT.PARTY_TYPES,
+          signal: this._partyTypes,
+        },
+      ],
+      [MODULE_NAMES.PURCHASE_ORDER]: [
+        {
+          key: CONFIGURATION_KEYS.PURCHASE_ORDER.GST_TYPES,
+          signal: this._poGstTypes,
+        },
+        {
+          key: CONFIGURATION_KEYS.PURCHASE_ORDER.PO_TYPES,
+          signal: this._poTypes,
+        },
+        {
+          key: CONFIGURATION_KEYS.PURCHASE_ORDER.UNITS,
+          signal: this._units,
+        },
+      ],
+      [MODULE_NAMES.PERMISSION]: [
+        {
+          key: CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN,
+          signal: this._moduleNames,
+        },
+      ],
+      [MODULE_NAMES.ANNOUNCEMENT]: [
+        {
+          key: CONFIGURATION_KEYS.ANNOUNCEMENT.ANNOUNCEMENT_STATUS,
+          signal: this._announcementStatuses,
+        },
+      ],
+      [MODULE_NAMES.PAYMENTS]: [
+        {
+          key: CONFIGURATION_KEYS.PAYMENTS.SHEET_STATUSES,
+          signal: this._paymentSheetStatuses,
+        },
+        {
+          key: CONFIGURATION_KEYS.PAYMENTS.SHEET_STAGES,
+          signal: this._paymentSheetStages,
+        },
+        {
+          key: CONFIGURATION_KEYS.PAYMENTS.ITEM_STATUSES,
+          signal: this._paymentSheetItemStatuses,
+        },
+      ],
+      [MODULE_NAMES.CONFIGURATION]: [
+        {
+          key: CONFIGURATION_KEYS.CONFIGURATION.CONFIGURATION_TYPE_DROPDOWN,
+          signal: this._configurationTypes,
+        },
+      ],
+    };
 
   /**
    * Drops cached HTTP streams so the next load hits the network (login, tests, manual refresh).
@@ -586,8 +797,10 @@ export class AppConfigurationService {
    */
   invalidateAppConfigurationCaches(): void {
     this.roleListCache$ = undefined;
-    this.appConfigurationCache$ = undefined;
-    this._isAppConfigurationDataReady.set(false);
+    this.configurationKeyCaches.clear();
+    this.loadedConfigurationKeys.clear();
+    this.failedConfigurationKeys.clear();
+    this.configurationKeyLoadScheduled.clear();
     this.invalidateReferenceListCaches();
   }
 
@@ -744,50 +957,41 @@ export class AppConfigurationService {
       });
   }
 
-  loadAppConfiguration(): Observable<IConfigurationGetResponseDto> {
-    return (this.appConfigurationCache$ ??= this.fetchAppConfiguration().pipe(
-      this.shareAppDataCache()
-    ));
+  /**
+   * Runs a one-shot mapper (table row or detail view) after the configuration
+   * keys it reads have loaded. Already-cached keys resolve immediately.
+   */
+  runAfterTouchedConfiguration<T>(work: () => T, apply: (value: T) => void): void {
+    this.afterTouchedConfiguration(work).pipe(take(1)).subscribe(apply);
   }
 
-  private fetchAppConfiguration(): Observable<IConfigurationGetResponseDto> {
-    this.logger.logUserAction('Load App Configuration Request');
+  afterTouchedConfiguration<T>(work: () => T): Observable<T> {
+    return defer(() => {
+      const touched = new Set<string>();
+      const previousCapture = this.configurationKeyCapture;
+      this.configurationKeyCapture = touched;
 
-    const pages = Array.from(
-      { length: AppConfigurationService.APP_CONFIGURATION_PAGE_COUNT },
-      (_, index) => {
-        const payload: IConfigurationGetFormDto = {
-          page: index + 1,
-          pageSize: AppConfigurationService.APP_CONFIGURATION_PAGE_SIZE,
-          sortField: 'createdAt',
-          sortOrder: 'DESC',
-        };
-
-        return this.configurationService.getConfigurationList(payload);
+      let preview: T;
+      try {
+        preview = work();
+      } finally {
+        this.configurationKeyCapture = previousCapture;
       }
-    );
 
-    return this.withDropdownLoading(
-      AppConfigurationService.APP_CONFIGURATION_LOADING_KEY,
-      forkJoin(pages).pipe(
-        map(responses => this.mergeConfigurationListPages(responses)),
-        tap(response => {
-          this.logger.logUserAction(
-            'Load App Configuration Response',
-            response
-          );
-          const moduleConfigMap = this.buildModuleConfigMap(response);
-          this.populateAllModuleDropdowns(moduleConfigMap);
-          this._isAppConfigurationDataReady.set(true);
-        }),
-        catchError(error => {
-          this.appConfigurationCache$ = undefined;
-          this._isAppConfigurationDataReady.set(false);
-          this.logger.logUserAction('Failed to load App Configuration', error);
-          return throwError(() => error);
-        })
-      )
-    );
+      const pending = [...touched].filter(
+        configurationKey =>
+          !this.loadedConfigurationKeys.has(configurationKey) &&
+          !this.failedConfigurationKeys.has(configurationKey)
+      );
+
+      if (pending.length === 0) {
+        return of(preview);
+      }
+
+      return this.whenConfigurationKeysSettled(pending).pipe(
+        map(() => work())
+      );
+    });
   }
 
   private mergeConfigurationListPages(
@@ -821,65 +1025,65 @@ export class AppConfigurationService {
           employeeService.getEmployeeList(this.referenceDropdownListPayload)
         ),
         tap(response => {
-            this.logger.logUserAction('Employee List loaded successfully', {
-              count: response.totalRecords,
-            });
+          this.logger.logUserAction('Employee List loaded successfully', {
+            count: response.totalRecords,
+          });
 
-            const employeeListByRole: Record<string, IOptionDropdown[]> = {};
+          const employeeListByRole: Record<string, IOptionDropdown[]> = {};
 
-            const employeeList: IOptionDropdown[] = response.records
-              .map(employee => {
-                const first = employee.firstName?.trim() ?? '';
-                const last = employee.lastName?.trim() ?? '';
-                const employeeStatus = employee.status?.trim() ?? '';
-                const formattedEmployeeStatus = employeeStatus
-                  ? toTitleCase(employeeStatus)
-                  : '';
-                const employeeCode = employee.employeeId?.trim() ?? '';
-                const subtitleParts = [
-                  employeeCode,
-                  formattedEmployeeStatus,
-                ].filter(Boolean);
-                const initialChar =
-                  first.charAt(0) ||
-                  last.charAt(0) ||
-                  (employee.employeeId?.trim()?.charAt(0) ?? '');
-                const dropdownItem: IOptionDropdown = {
-                  label: toTitleCase(`${first} ${last}`.trim()),
-                  subtitle:
-                    subtitleParts.length > 0
-                      ? subtitleParts.join(' • ')
-                      : undefined,
-                  initial: initialChar ? initialChar.toUpperCase() : undefined,
-                  value: employee.id,
-                  disabled: employeeStatus.toLowerCase() === 'archived',
-                  data: employee,
-                };
+          const employeeList: IOptionDropdown[] = response.records
+            .map(employee => {
+              const first = employee.firstName?.trim() ?? '';
+              const last = employee.lastName?.trim() ?? '';
+              const employeeStatus = employee.status?.trim() ?? '';
+              const formattedEmployeeStatus = employeeStatus
+                ? toTitleCase(employeeStatus)
+                : '';
+              const employeeCode = employee.employeeId?.trim() ?? '';
+              const subtitleParts = [
+                employeeCode,
+                formattedEmployeeStatus,
+              ].filter(Boolean);
+              const initialChar =
+                first.charAt(0) ||
+                last.charAt(0) ||
+                (employee.employeeId?.trim()?.charAt(0) ?? '');
+              const dropdownItem: IOptionDropdown = {
+                label: toTitleCase(`${first} ${last}`.trim()),
+                subtitle:
+                  subtitleParts.length > 0
+                    ? subtitleParts.join(' • ')
+                    : undefined,
+                initial: initialChar ? initialChar.toUpperCase() : undefined,
+                value: employee.id,
+                disabled: employeeStatus.toLowerCase() === 'archived',
+                data: employee,
+              };
 
-                // Parse roles and add to role-based lists
-                const roles = employee.roles
-                  .map(role => role.name.trim())
-                  .filter(role => role.length > 0);
+              // Parse roles and add to role-based lists
+              const roles = employee.roles
+                .map(role => role.name.trim())
+                .filter(role => role.length > 0);
 
-                roles.forEach(role => {
-                  if (!employeeListByRole[role]) {
-                    employeeListByRole[role] = [];
-                  }
-                  employeeListByRole[role].push(dropdownItem);
-                });
+              roles.forEach(role => {
+                if (!employeeListByRole[role]) {
+                  employeeListByRole[role] = [];
+                }
+                employeeListByRole[role].push(dropdownItem);
+              });
 
-                return dropdownItem;
-              })
-              .sort(this.sortByLabel);
+              return dropdownItem;
+            })
+            .sort(this.sortByLabel);
 
-            // Sort role-based lists as well
-            Object.keys(employeeListByRole).forEach(role => {
-              employeeListByRole[role].sort(this.sortByLabel);
-            });
+          // Sort role-based lists as well
+          Object.keys(employeeListByRole).forEach(role => {
+            employeeListByRole[role].sort(this.sortByLabel);
+          });
 
-            this._employeeList.set(employeeList);
-            this._employeeListByRole.set(employeeListByRole);
-          }),
+          this._employeeList.set(employeeList);
+          this._employeeListByRole.set(employeeListByRole);
+        }),
         catchError(error => {
           this.employeeListCache$ = undefined;
           this.logger.logUserAction('Failed to load Employee List', error);
@@ -926,7 +1130,7 @@ export class AppConfigurationService {
   }
 
   getDropdown(module: string, key: string): Signal<IOptionDropdown[]> {
-    this.triggerLazyAppConfigurationLoadForDropdownKey(key);
+    this.ensureConfigurationForKey(module, key);
     this.triggerLazyReferenceLoadForDropdownKey(key);
     return (
       this.MODULE_DROPDOWN_REGISTRY[module]
@@ -935,49 +1139,23 @@ export class AppConfigurationService {
     );
   }
 
-  private triggerLazyAppConfigurationLoadForDropdownKey(key: string): void {
-    const excludedKeys = new Set<string>([
-      CONFIGURATION_KEYS.COMMON.ROLE_LIST,
-      CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
-      CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS,
-      CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
-      CONFIGURATION_KEYS.ASSET.ASSET_LIST,
-      CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
-      CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
-      CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
-      CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
-      CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
-      CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
-      CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
-    ]);
-
-    if (
-      excludedKeys.has(key) ||
-      this.appConfigurationCache$ ||
-      this.pendingLazyLoads.has(`config:${key}`)
-    ) {
-      return;
+  isConfigurationKeyLoading(moduleName: string, key: string): boolean {
+    const configurationKey = this.resolveConfigurationKey(moduleName, key);
+    if (!configurationKey) {
+      return false;
     }
 
-    const taskKey = `config:${key}`;
-    this.pendingLazyLoads.add(taskKey);
+    if (
+      this.loadedConfigurationKeys.has(configurationKey) ||
+      this.failedConfigurationKeys.has(configurationKey)
+    ) {
+      return false;
+    }
 
-    queueMicrotask(() => {
-      this.loadAppConfiguration()
-        .pipe(
-          take(1),
-          finalize(() => {
-            this.pendingLazyLoads.delete(taskKey);
-          })
-        )
-        .subscribe({
-          error: error =>
-            this.logger.warn(
-              `Lazy app configuration load failed for key: ${key}`,
-              error
-            ),
-        });
-    });
+    return (
+      this.configurationKeyLoadScheduled.has(configurationKey) ||
+      this.isDropdownLoading(this.configurationLoadingKey(configurationKey))
+    );
   }
 
   private triggerLazyReferenceLoadForDropdownKey(key: string): void {
@@ -1038,6 +1216,11 @@ export class AppConfigurationService {
    * @returns Array of city options for the given state
    */
   getCitiesByState(stateValue: string): IOptionDropdown[] {
+    this.ensureConfigurationForKey(
+      MODULE_NAMES.GEOGRAPHY,
+      CONFIGURATION_KEYS.GEOGRAPHY.LOCATION
+    );
+
     if (!stateValue) {
       return [];
     }
@@ -1057,6 +1240,10 @@ export class AppConfigurationService {
   }
 
   getModuleActionsByModuleName(moduleName: string): IOptionDropdown[] {
+    this.ensureConfigurationForKey(
+      MODULE_NAMES.PERMISSION,
+      CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN
+    );
     const config = this._modulesConfig();
     const moduleConfig = config[moduleName];
 
@@ -1067,46 +1254,216 @@ export class AppConfigurationService {
     return this.normalizeDropdownData(moduleConfig.actions);
   }
 
-  private populateAllModuleDropdowns(
-    moduleConfigMap: Record<string, Record<string, unknown>>
+  private lazyConfigSignal(
+    moduleName: string,
+    key: string,
+    source: WritableSignal<IOptionDropdown[]>
+  ): Signal<IOptionDropdown[]> {
+    const read = source.asReadonly();
+    return computed(() => {
+      this.ensureConfigurationForKey(moduleName, key);
+      return read();
+    });
+  }
+
+  private configurationLoadingKey(configurationKey: string): string {
+    return `config-key:${configurationKey}`;
+  }
+
+  private configurationExcludedKeys(): Set<string> {
+    return new Set<string>([
+      CONFIGURATION_KEYS.COMMON.ROLE_LIST,
+      CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
+      CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS,
+      CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+      CONFIGURATION_KEYS.ASSET.ASSET_LIST,
+      CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
+      CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
+      CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
+      CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
+      CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
+      CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
+      CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
+    ]);
+  }
+
+  /**
+   * States and cities come from the geography `location` key.
+   * Entity lists and locally built options are not configuration records.
+   */
+  private resolveConfigurationKey(
+    _moduleName: string,
+    key: string
+  ): string | null {
+    if (this.configurationExcludedKeys().has(key)) {
+      return null;
+    }
+
+    if (
+      key === CONFIGURATION_KEYS.COMMON.STATES ||
+      key === CONFIGURATION_KEYS.COMMON.CITIES
+    ) {
+      return CONFIGURATION_KEYS.GEOGRAPHY.LOCATION;
+    }
+
+    return key;
+  }
+
+  private ensureConfigurationForKey(moduleName: string, key: string): void {
+    const configurationKey = this.resolveConfigurationKey(moduleName, key);
+    if (!configurationKey) {
+      return;
+    }
+
+    this.configurationKeyCapture?.add(configurationKey);
+
+    if (
+      this.loadedConfigurationKeys.has(configurationKey) ||
+      this.failedConfigurationKeys.has(configurationKey) ||
+      this.configurationKeyLoadScheduled.has(configurationKey)
+    ) {
+      return;
+    }
+
+    this.configurationKeyLoadScheduled.add(configurationKey);
+
+    queueMicrotask(() => {
+      this.loadConfigurationKey(configurationKey)
+        .pipe(take(1))
+        .subscribe({
+          error: error =>
+            this.logger.warn(
+              `Configuration key load failed: ${configurationKey}`,
+              error
+            ),
+        });
+    });
+  }
+
+  private whenConfigurationKeysSettled(
+    configurationKeys: string[]
+  ): Observable<void> {
+    if (configurationKeys.length === 0) {
+      return of(undefined);
+    }
+
+    return forkJoin(
+      configurationKeys.map(configurationKey =>
+        this.loadConfigurationKey(configurationKey).pipe(
+          take(1),
+          catchError(() => of(null))
+        )
+      )
+    ).pipe(map(() => undefined));
+  }
+
+  private loadConfigurationKey(
+    configurationKey: string
+  ): Observable<IConfigurationGetResponseDto> {
+    const existing = this.configurationKeyCaches.get(configurationKey);
+    if (existing) {
+      return existing;
+    }
+
+    const request$ = this.fetchConfigurationKey(configurationKey).pipe(
+      tap(response => {
+        this.applyConfigurationKey(configurationKey, response);
+        this.loadedConfigurationKeys.add(configurationKey);
+      }),
+      catchError(error => {
+        this.configurationKeyCaches.delete(configurationKey);
+        this.failedConfigurationKeys.add(configurationKey);
+        this.applyConfigurationKey(configurationKey, {
+          records: [],
+          totalRecords: 0,
+        });
+        this.logger.logUserAction(
+          `Failed to load configuration key: ${configurationKey}`,
+          error
+        );
+        return throwError(() => error);
+      }),
+      this.shareAppDataCache()
+    );
+
+    this.configurationKeyCaches.set(configurationKey, request$);
+    return request$;
+  }
+
+  private fetchConfigurationKey(
+    configurationKey: string
+  ): Observable<IConfigurationGetResponseDto> {
+    this.logger.logUserAction('Load configuration key', { configurationKey });
+
+    const pageSize = AppConfigurationService.CONFIGURATION_KEY_PAGE_SIZE;
+    const listPayload = {
+      pageSize,
+      key: configurationKey,
+      sortField: 'createdAt' as const,
+      sortOrder: 'DESC' as const,
+    };
+
+    return this.withDropdownLoading(
+      this.configurationLoadingKey(configurationKey),
+      this.configurationService
+        .getConfigurationList({
+          ...listPayload,
+          page: 1,
+        })
+        .pipe(
+          switchMap(firstPage => {
+            if (firstPage.totalRecords <= firstPage.records.length) {
+              return of(firstPage);
+            }
+
+            const pageCount = Math.ceil(firstPage.totalRecords / pageSize);
+            const remainingPages = Array.from(
+              { length: pageCount - 1 },
+              (_, index) =>
+                this.configurationService.getConfigurationList({
+                  ...listPayload,
+                  page: index + 2,
+                })
+            );
+
+            return forkJoin(remainingPages).pipe(
+              map(pages =>
+                this.mergeConfigurationListPages([firstPage, ...pages])
+              )
+            );
+          })
+        )
+    );
+  }
+
+  private applyConfigurationKey(
+    configurationKey: string,
+    response: IConfigurationGetResponseDto
   ): void {
-    // Handle modules config specially
-    this.handleModulesConfigDropdown(moduleConfigMap);
+    const moduleConfigMap = this.buildModuleConfigMap(response);
 
-    // Handle geography/location config for states and cities
-    this.handleGeographyLocationConfig(moduleConfigMap);
+    if (configurationKey === CONFIGURATION_KEYS.GEOGRAPHY.LOCATION) {
+      this.handleGeographyLocationConfig(moduleConfigMap);
+      return;
+    }
 
-    // Populate all other dropdowns from API config or static fallback
+    if (
+      configurationKey === CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN
+    ) {
+      this.handleModulesConfigDropdown(moduleConfigMap);
+      return;
+    }
+
     Object.entries(this.MODULE_DROPDOWN_REGISTRY).forEach(
       ([moduleName, dropdowns]) => {
         dropdowns.forEach(dropdown => {
-          // Skip dropdowns that are handled separately
-          if (
-            dropdown.key ===
-              CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN ||
-            dropdown.key === CONFIGURATION_KEYS.COMMON.STATES ||
-            dropdown.key === CONFIGURATION_KEYS.COMMON.CITIES ||
-            dropdown.key === CONFIGURATION_KEYS.COMMON.ROLE_LIST ||
-            dropdown.key === CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST ||
-            dropdown.key === CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST ||
-            dropdown.key === CONFIGURATION_KEYS.ASSET.ASSET_LIST ||
-            dropdown.key === CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST ||
-            dropdown.key ===
-              CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT
-                .COMPANY_BANK_ACCOUNT_LIST ||
-            dropdown.key === CONFIGURATION_KEYS.COMPANY.COMPANY_LIST ||
-            dropdown.key === CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST ||
-            dropdown.key === CONFIGURATION_KEYS.VENDOR.VENDOR_LIST ||
-            dropdown.key === CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS ||
-            dropdown.key === CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS
-          ) {
+          if (dropdown.key !== configurationKey) {
             return;
           }
+
           const apiValue = moduleConfigMap[moduleName]?.[dropdown.key];
           const staticFallback =
             this.STATIC_FALLBACK_DATA[moduleName]?.[dropdown.key];
-
-          // Priority: API data > Static fallback > Empty array
           let nextValue: IOptionDropdown[] = [];
 
           if (Array.isArray(apiValue)) {
@@ -1115,6 +1472,8 @@ export class AppConfigurationService {
               : this.normalizeDropdownData(apiValue);
           } else if (staticFallback) {
             nextValue = staticFallback;
+          } else if (apiValue === undefined) {
+            return;
           }
 
           nextValue = applyIconsToDropdownOptions(dropdown.key, nextValue);
@@ -1132,7 +1491,7 @@ export class AppConfigurationService {
   ): void {
     const modulesValue =
       moduleConfigMap[MODULE_NAMES.PERMISSION]?.[
-        CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN
+      CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN
       ];
 
     if (Array.isArray(modulesValue)) {
@@ -1269,33 +1628,33 @@ export class AppConfigurationService {
         switchMap(vehicleService =>
           vehicleService.getVehicleList(this.referenceDropdownListPayload)
         ),
-          tap(response => {
-            this.logger.logUserAction('Vehicle List loaded successfully', {
-              count: response.totalRecords,
-            });
+        tap(response => {
+          this.logger.logUserAction('Vehicle List loaded successfully', {
+            count: response.totalRecords,
+          });
 
-            const vehicleList: IOptionDropdown[] = response.records
-              .map(vehicle => {
-                const reg = vehicle.registrationNo?.trim() ?? '';
-                const brandModel = [vehicle.brand, vehicle.model]
-                  .filter(Boolean)
-                  .join(' ')
-                  .trim();
-                const initialMatch = reg.match(/[A-Za-z0-9]/);
-                return {
-                  label: reg,
-                  subtitle: brandModel ? toTitleCase(brandModel) : undefined,
-                  initial: initialMatch
-                    ? initialMatch[0].toUpperCase()
-                    : undefined,
-                  value: vehicle.id,
-                  data: vehicle,
-                };
-              })
-              .sort(this.sortByLabel);
+          const vehicleList: IOptionDropdown[] = response.records
+            .map(vehicle => {
+              const reg = vehicle.registrationNo?.trim() ?? '';
+              const brandModel = [vehicle.brand, vehicle.model]
+                .filter(Boolean)
+                .join(' ')
+                .trim();
+              const initialMatch = reg.match(/[A-Za-z0-9]/);
+              return {
+                label: reg,
+                subtitle: brandModel ? toTitleCase(brandModel) : undefined,
+                initial: initialMatch
+                  ? initialMatch[0].toUpperCase()
+                  : undefined,
+                value: vehicle.id,
+                data: vehicle,
+              };
+            })
+            .sort(this.sortByLabel);
 
-            this._vehicleList.set(vehicleList);
-          }),
+          this._vehicleList.set(vehicleList);
+        }),
         catchError(error => {
           this.vehicleListCache$ = undefined;
           this.logger.logUserAction('Failed to load Vehicle List', error);
@@ -1324,22 +1683,22 @@ export class AppConfigurationService {
         switchMap(petroCardService =>
           petroCardService.getPetroCardList(this.referenceDropdownListPayload)
         ),
-          tap(response => {
-            this.logger.logUserAction('Petro Card List loaded successfully', {
-              count: response.totalRecords,
-            });
+        tap(response => {
+          this.logger.logUserAction('Petro Card List loaded successfully', {
+            count: response.totalRecords,
+          });
 
-            const petroCardList: IOptionDropdown[] = response.records
-              .map(petroCard => ({
-                label: toTitleCase(
-                  `${petroCard.cardName} (${petroCard.cardNumber})`.trim()
-                ),
-                value: petroCard.id,
-              }))
-              .sort(this.sortByLabel);
+          const petroCardList: IOptionDropdown[] = response.records
+            .map(petroCard => ({
+              label: toTitleCase(
+                `${petroCard.cardName} (${petroCard.cardNumber})`.trim()
+              ),
+              value: petroCard.id,
+            }))
+            .sort(this.sortByLabel);
 
-            this._petroCardList.set(petroCardList);
-          }),
+          this._petroCardList.set(petroCardList);
+        }),
         catchError(error => {
           this.petroCardListCache$ = undefined;
           this.logger.logUserAction('Failed to load Petro Card List', error);
@@ -1369,32 +1728,32 @@ export class AppConfigurationService {
             this.referenceDropdownListPayload
           )
         ),
-          tap(response => {
-            this.logger.logUserAction(
-              'Company Bank Account List loaded successfully',
-              {
-                count: response.totalRecords,
-              }
-            );
+        tap(response => {
+          this.logger.logUserAction(
+            'Company Bank Account List loaded successfully',
+            {
+              count: response.totalRecords,
+            }
+          );
 
-            const companyBankAccountList: IOptionDropdown[] = response.records
-              .filter(account => account.isActive)
-              .map(account => {
-                const bankName = account.bankName?.trim() ?? '';
-                const accountNumber = account.accountNumber?.trim() ?? '';
-                const accountHolderName =
-                  account.accountHolderName?.trim() ?? '';
-                return {
-                  label: toTitleCase(`${bankName} (${accountNumber})`.trim()),
-                  subtitle: accountHolderName || undefined,
-                  value: account.id,
-                  data: account,
-                };
-              })
-              .sort(this.sortByLabel);
+          const companyBankAccountList: IOptionDropdown[] = response.records
+            .filter(account => account.isActive)
+            .map(account => {
+              const bankName = account.bankName?.trim() ?? '';
+              const accountNumber = account.accountNumber?.trim() ?? '';
+              const accountHolderName =
+                account.accountHolderName?.trim() ?? '';
+              return {
+                label: toTitleCase(`${bankName} (${accountNumber})`.trim()),
+                subtitle: accountHolderName || undefined,
+                value: account.id,
+                data: account,
+              };
+            })
+            .sort(this.sortByLabel);
 
-            this._companyBankAccountList.set(companyBankAccountList);
-          }),
+          this._companyBankAccountList.set(companyBankAccountList);
+        }),
         catchError(error => {
           this.companyBankAccountListCache$ = undefined;
           this.logger.logUserAction(
@@ -1426,29 +1785,29 @@ export class AppConfigurationService {
         switchMap(companyService =>
           companyService.getCompanyList(this.referenceDropdownListPayload)
         ),
-          tap(response => {
-            this.logger.logUserAction('Company List loaded successfully', {
-              count: response.totalRecords,
-            });
+        tap(response => {
+          this.logger.logUserAction('Company List loaded successfully', {
+            count: response.totalRecords,
+          });
 
-            const companyList: IOptionDropdown[] = response.records
-              .map(company => {
-                const rawName = company.name?.trim() ?? '';
-                const subtitle =
-                  [company.city, company.state].filter(Boolean).join(', ') ||
-                  `ID ${company.id.slice(0, 8)}`;
-                return {
-                  label: toTitleCase(rawName),
-                  subtitle,
-                  initial: this.initialsForDropdownLabel(rawName),
-                  value: company.id,
-                  data: company,
-                };
-              })
-              .sort(this.sortByLabel);
+          const companyList: IOptionDropdown[] = response.records
+            .map(company => {
+              const rawName = company.name?.trim() ?? '';
+              const subtitle =
+                [company.city, company.state].filter(Boolean).join(', ') ||
+                `ID ${company.id.slice(0, 8)}`;
+              return {
+                label: toTitleCase(rawName),
+                subtitle,
+                initial: this.initialsForDropdownLabel(rawName),
+                value: company.id,
+                data: company,
+              };
+            })
+            .sort(this.sortByLabel);
 
-            this._companyList.set(companyList);
-          }),
+          this._companyList.set(companyList);
+        }),
         catchError(error => {
           this.companyListCache$ = undefined;
           this.logger.logUserAction('Failed to load Company List', error);
@@ -1477,33 +1836,33 @@ export class AppConfigurationService {
         switchMap(contractorService =>
           contractorService.getContractorList(this.referenceDropdownListPayload)
         ),
-          tap(response => {
-            this.logger.logUserAction('Contractor List loaded successfully', {
-              count: response.totalRecords,
-            });
+        tap(response => {
+          this.logger.logUserAction('Contractor List loaded successfully', {
+            count: response.totalRecords,
+          });
 
-            const contractorList: IOptionDropdown[] = response.records
-              .map(contractor => {
-                const rawName = contractor.name?.trim() ?? '';
-                const subtitle = this.buildContractorVendorDropdownSubtitle({
-                  gstNumber: contractor.gstNumber,
-                  city: contractor.city,
-                  state: contractor.state,
-                  email: contractor.email,
-                  id: contractor.id,
-                });
-                return {
-                  label: toTitleCase(rawName),
-                  subtitle,
-                  initial: this.initialsForDropdownLabel(rawName),
-                  value: contractor.id,
-                  data: contractor,
-                };
-              })
-              .sort(this.sortByLabel);
+          const contractorList: IOptionDropdown[] = response.records
+            .map(contractor => {
+              const rawName = contractor.name?.trim() ?? '';
+              const subtitle = this.buildContractorVendorDropdownSubtitle({
+                gstNumber: contractor.gstNumber,
+                city: contractor.city,
+                state: contractor.state,
+                email: contractor.email,
+                id: contractor.id,
+              });
+              return {
+                label: toTitleCase(rawName),
+                subtitle,
+                initial: this.initialsForDropdownLabel(rawName),
+                value: contractor.id,
+                data: contractor,
+              };
+            })
+            .sort(this.sortByLabel);
 
-            this._contractorList.set(contractorList);
-          }),
+          this._contractorList.set(contractorList);
+        }),
         catchError(error => {
           this.contractorListCache$ = undefined;
           this.logger.logUserAction('Failed to load Contractor List', error);
@@ -1638,44 +1997,49 @@ export class AppConfigurationService {
               projectService
                 .getProjectList(this.referenceDropdownListPayload)
                 .pipe(
-                  tap(response => {
-                    this.logger.logUserAction(
-                      'Project List loaded successfully',
-                      {
-                        count: response.totalRecords,
-                      }
-                    );
+                  switchMap(response =>
+                    this.afterTouchedConfiguration(() => {
+                      this.logger.logUserAction(
+                        'Project List loaded successfully',
+                        {
+                          count: response.totalRecords,
+                        }
+                      );
 
-                    const projectOptions: IOptionDropdown[] = response.records
-                      .map(project => {
-                        const rawName = project.name?.trim() ?? '';
-                        const siteTypeLabels = mapProjectSiteTypeDisplays(
-                          project.siteTypes,
-                          this._projectSiteTypes()
-                        )
-                          .map(item => item.label)
-                          .join(' · ');
-                        const location =
-                          [project.city, project.state]
-                            .filter(Boolean)
-                            .join(', ') || undefined;
-                        const label = toTitleCase(rawName);
-                        const subtitle =
-                          [siteTypeLabels, location]
-                            .filter(Boolean)
-                            .join(' · ') || undefined;
-                        return {
-                          label,
-                          subtitle,
-                          initial: this.initialsForDropdownLabel(rawName),
-                          value: project.id,
-                          data: project,
-                        };
-                      })
-                      .sort(this.sortByLabel);
-
-                    this._projectList.set(projectOptions);
-                  })
+                      return response.records
+                        .map(project => {
+                          const rawName = project.name?.trim() ?? '';
+                          const siteTypeLabels = mapProjectSiteTypeDisplays(
+                            project.siteTypes,
+                            this.projectSiteTypes()
+                          )
+                            .map(item => item.label)
+                            .join(' · ');
+                          const location =
+                            [project.city, project.state]
+                              .filter(Boolean)
+                              .join(', ') || undefined;
+                          const label = toTitleCase(rawName);
+                          const subtitle =
+                            [siteTypeLabels, location]
+                              .filter(Boolean)
+                              .join(' · ') || undefined;
+                          return {
+                            label,
+                            subtitle,
+                            initial: this.initialsForDropdownLabel(rawName),
+                            value: project.id,
+                            data: project,
+                          };
+                        })
+                        .sort(this.sortByLabel);
+                    }).pipe(
+                      tap(projectOptions => {
+                        this._projectList.set(projectOptions);
+                      }),
+                      map(() => response)
+                    )
+                  )
                 )
             )
           )
@@ -1757,12 +2121,12 @@ export class AppConfigurationService {
           fuelExpenseService.getLinkedUserVehicleDetail({ employeeName: null })
         ),
         tap(response => {
-            this.logger.logUserAction(
-              'Linked User Vehicle Detail loaded successfully',
-              response
-            );
-            this._linkedUserVehicleDetail.set(response);
-          }),
+          this.logger.logUserAction(
+            'Linked User Vehicle Detail loaded successfully',
+            response
+          );
+          this._linkedUserVehicleDetail.set(response);
+        }),
         catchError(error => {
           this.linkedUserVehicleDetailCache$ = undefined;
           this.logger.logUserAction(
@@ -1778,16 +2142,6 @@ export class AppConfigurationService {
 
   isDropdownLoading(dropdownKey: string): boolean {
     return !!this._dropdownLoadingState()[dropdownKey];
-  }
-
-  isAppConfigurationLoading(): boolean {
-    return this.isDropdownLoading(
-      AppConfigurationService.APP_CONFIGURATION_LOADING_KEY
-    );
-  }
-
-  isAppConfigurationDataReady(): boolean {
-    return this._isAppConfigurationDataReady();
   }
 
   private withDropdownLoading<T>(
@@ -1911,7 +2265,6 @@ export class AppConfigurationService {
   loadAllAppData(): Observable<{
     roles: IRoleGetResponseDto;
     permissions: unknown;
-    appConfiguration: IConfigurationGetResponseDto;
     employeeList: IEmployeeGetResponseDto;
     assetList: IAssetGetResponseDto;
     vehicleList: IVehicleGetResponseDto;
@@ -1938,7 +2291,6 @@ export class AppConfigurationService {
               roleId: currentRoleId,
             }),
           vendorMenuAccess: this.loadVendorMenuAccessForActiveRole(),
-          appConfiguration: this.loadAppConfiguration(),
           employeeList: this.loadEmployeeList(),
           assetList: this.loadAssetList(),
           vehicleList: this.loadVehicleList(),
@@ -1966,12 +2318,11 @@ export class AppConfigurationService {
 
   /**
    * Startup-safe loader: fetches only data required globally at app bootstrap/login.
-   * Heavy entity lists are loaded lazily when their dropdown is first requested.
+   * Configuration modules and entity lists load when a page first needs them.
    */
   loadCriticalAppData(): Observable<{
     roles: IRoleGetResponseDto;
     permissions: unknown;
-    appConfiguration: IConfigurationGetResponseDto;
   }> {
     this.logger.info('Loading critical app data...');
 
@@ -1989,7 +2340,6 @@ export class AppConfigurationService {
               roleId: currentRoleId,
             }),
           vendorMenuAccess: this.loadVendorMenuAccessForActiveRole(),
-          appConfiguration: this.loadAppConfiguration(),
         }).pipe(
           map(parallelResults => ({
             roles: rolesResponse,

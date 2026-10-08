@@ -81,8 +81,10 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
       )
       .subscribe({
         next: (response: IJmcDetailGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
-          this._jmcDetails.set(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapDetailData(response),
+            mappedData => this._jmcDetails.set(mappedData)
+          );
           this.logger.logUserAction('JMC details loaded successfully');
         },
         error: error => {

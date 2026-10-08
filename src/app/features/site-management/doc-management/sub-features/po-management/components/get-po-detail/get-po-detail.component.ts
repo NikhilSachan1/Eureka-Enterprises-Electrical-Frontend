@@ -83,8 +83,10 @@ export class GetPoDetailComponent extends DrawerDetailBase {
       )
       .subscribe({
         next: (response: IPoDetailGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
-          this._poDetails.set(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapDetailData(response),
+            mappedData => this._poDetails.set(mappedData)
+          );
           this.logger.logUserAction('PO details loaded successfully');
         },
         error: error => {

@@ -44,27 +44,27 @@ export const ROLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
 export const ROLE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IRoleGetResponseDto['records'][number]>
 >[] = [
-  {
-    ...COMMON_ROW_ACTIONS.EDIT,
-    tooltip: 'Edit Role',
-    permission: [APP_PERMISSION.ROLE_PERMISSION.EDIT],
-  },
-  {
-    ...COMMON_ROW_ACTIONS.DELETE,
-    tooltip: 'Delete Role',
-    permission: [APP_PERMISSION.ROLE_PERMISSION.DELETE],
-  },
-];
+    {
+      ...COMMON_ROW_ACTIONS.EDIT,
+      tooltip: 'Edit Role',
+      permission: [APP_PERMISSION.ROLE_PERMISSION.EDIT],
+    },
+    {
+      ...COMMON_ROW_ACTIONS.DELETE,
+      tooltip: 'Delete Role',
+      permission: [APP_PERMISSION.ROLE_PERMISSION.DELETE],
+    },
+  ];
 
 export const ROLE_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IRoleGetResponseDto['records'][number]>
 >[] = [
-  {
-    ...COMMON_BULK_ACTIONS.DELETE,
-    tooltip: 'Delete selected Role',
-    permission: [APP_PERMISSION.ROLE_PERMISSION.DELETE],
-  },
-];
+    {
+      ...COMMON_BULK_ACTIONS.DELETE,
+      tooltip: 'Delete selected Role',
+      permission: [APP_PERMISSION.ROLE_PERMISSION.DELETE],
+    },
+  ];
 
 export const ROLE_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
   IRoleGetResponseDto['records'][number]

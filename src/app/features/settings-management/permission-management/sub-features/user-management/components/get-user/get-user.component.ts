@@ -95,8 +95,10 @@ export class GetUserComponent implements OnInit {
       .subscribe({
         next: (response: IUserGetResponseDto) => {
           const { records, totalRecords, systemTotalPermissions } = response;
-          const mappedData = this.mapTableData(records, systemTotalPermissions);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records, systemTotalPermissions),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.logger.logUserAction('Users loaded successfully');
         },
