@@ -26,8 +26,10 @@
   [tableHeader]="table.headers()"
   [tableData]="table.data()"
   [loading]="table.loading()"
+  [rowActions]="table.rowActions()"
   [customBodyTemplates]="{
     docWorkspaceContext: docWorkspaceContext,
   }"
   (filterData)="onTableStateChange($event)"
+  (rowActionClick)="handleAllocationHistoryActionClick($event)"
 />

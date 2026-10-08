@@ -1,9 +1,12 @@
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
+  ITableActionConfig,
 } from '@shared/types';
 import { ISiteAllocationHistory } from '../../types/site-allocation.interface';
 
@@ -61,8 +64,19 @@ export const SITE_ALLOCATION_HISTORY_TABLE_HEADER_CONFIG: Partial<IDataTableHead
     },
   ];
 
+const SITE_ALLOCATION_HISTORY_ROW_ACTIONS: Partial<
+  ITableActionConfig<ISiteAllocationHistory>
+>[] = [
+  {
+    ...COMMON_ROW_ACTIONS.EDIT,
+    tooltip: 'Edit allocation',
+    permission: [APP_PERMISSION.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEE],
+  },
+];
+
 export const SITE_ALLOCATION_HISTORY_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<ISiteAllocationHistory> =
   {
     tableConfig: SITE_ALLOCATION_HISTORY_TABLE_CONFIG,
     headers: SITE_ALLOCATION_HISTORY_TABLE_HEADER_CONFIG,
+    rowActions: SITE_ALLOCATION_HISTORY_ROW_ACTIONS,
   };

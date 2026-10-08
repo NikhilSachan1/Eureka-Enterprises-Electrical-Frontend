@@ -40,6 +40,10 @@ export {
   SiteAllocationGetResponseSchema,
 } from './get-site-allocation.schema';
 export {
+  SiteAllocationEditRequestSchema,
+  SiteAllocationEditResponseSchema,
+} from './edit-site-allocation.schema';
+export {
   WorkforceAllocationGetRequestSchema,
   WorkforceAllocationGetBaseResponseSchema,
   WorkforceAllocationGetStatsSchema,
