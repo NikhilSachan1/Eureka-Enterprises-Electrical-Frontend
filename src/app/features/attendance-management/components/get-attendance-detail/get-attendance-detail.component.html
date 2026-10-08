@@ -50,6 +50,11 @@
             <div class="assignment-snapshot__body">
               <span class="assignment-snapshot__kicker">Vehicle</span>
               <span class="assignment-snapshot__title">{{ snap.vehicle.registrationNo }}</span>
+              @if (formatVehicleBrandModel(snap.vehicle); as brandModel) {
+                <span class="assignment-snapshot__meta">
+                  {{ brandModel | textCase: 'title' }}
+                </span>
+              }
             </div>
           </div>
         }

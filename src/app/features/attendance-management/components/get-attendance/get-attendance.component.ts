@@ -55,11 +55,13 @@ import {
 import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
 import { APP_CONFIG } from '@core/config';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
+import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   formatProjectLocation,
+  formatVehicleBrandModel,
   getAssignedDriverDisplayName,
   getAssignedEmployeeDisplayName,
 } from '@features/attendance-management/utility/attendance-assignment.util';
@@ -71,6 +73,7 @@ import {
     PageHeaderComponent,
     MetricsCardComponent,
     SearchFilterComponent,
+    TextCasePipe,
   ],
   providers: [],
   templateUrl: './get-attendance.component.html',
@@ -174,9 +177,8 @@ export class GetAttendanceComponent implements OnInit {
         projectLocation: formatProjectLocation(record.site),
         site: record.site ?? null,
         assignmentSnapshot: {
-          ...record.assignmentSnapshot,
-          vehicleDisplay:
-            record.assignmentSnapshot?.vehicle?.registrationNo ?? null,
+          vehicleDisplay: record.vehicle?.registrationNo ?? null,
+          vehicleBrandModel: formatVehicleBrandModel(record.vehicle),
           assignedDriverDisplay:
             getAssignedDriverDisplayName(record) ?? null,
           assignedEmployeeDisplay:
@@ -331,10 +333,6 @@ export class GetAttendanceComponent implements OnInit {
             ? 'Assigned Engineer'
             : 'Assigned Driver',
         value: assignedDriverName ?? assignedEmployeeName ?? 'N/A',
-      },
-      {
-        label: 'Vehicle',
-        value: selectedRow.assignmentSnapshot?.vehicle?.registrationNo ?? 'N/A',
       },
     ];
 

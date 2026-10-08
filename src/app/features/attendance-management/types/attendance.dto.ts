@@ -78,11 +78,8 @@ export type IAttendanceApplyFormDto = z.input<
 >;
 export type IAttendanceApplyUIFormDto = Pick<
   IAttendanceApplyFormDto,
-  'remark'
-> & {
-  vehicle: NonNullable<IAttendanceApplyFormDto['vehicle']>['id'] | null;
-  assignedDriver: IAttendanceApplyFormDto['assignedDriver'];
-};
+  'remark' | 'assignedDriver'
+>;
 
 /*
   Attendance Regularized
@@ -97,11 +94,8 @@ export type IAttendanceRegularizedFormDto = z.input<
 >;
 export type IAttendanceRegularizedUIFormDto = Pick<
   IAttendanceRegularizedFormDto,
-  'attendanceStatus'
-> & {
-  vehicle: NonNullable<IAttendanceRegularizedFormDto['vehicle']>['id'] | null;
-  assignedDriver: IAttendanceRegularizedFormDto['assignedDriver'];
-};
+  'attendanceStatus' | 'assignedDriver'
+>;
 export type IAttendanceRegularizedResponseDto = z.infer<
   typeof AttendanceRegularizedResponseSchema
 >;
@@ -120,11 +114,12 @@ export type IAttendanceForceResponseDto = z.infer<
 >;
 export type IAttendanceForceUIFormDto = Pick<
   IAttendanceForceFormDto,
-  'employeeName' | 'attendanceDate' | 'attendanceStatus' | 'remark'
-> & {
-  vehicle: NonNullable<IAttendanceForceFormDto['vehicle']>['id'] | null;
-  assignedDriver: IAttendanceForceFormDto['assignedDriver'];
-};
+  | 'employeeName'
+  | 'attendanceDate'
+  | 'attendanceStatus'
+  | 'remark'
+  | 'assignedDriver'
+>;
 
 /**
  * Attendance Action

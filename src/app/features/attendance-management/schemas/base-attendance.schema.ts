@@ -6,13 +6,19 @@ import {
 } from '@shared/schemas';
 import { z } from 'zod';
 import { EEntrySourceType, EEntryType } from '@shared/types';
-import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
 
 export const AttendanceAssignedDriverSchema = z.looseObject({
   id: uuidField,
   firstName: z.string(),
   lastName: z.string(),
   employeeId: z.string(),
+});
+
+export const AttendanceVehicleSchema = z.looseObject({
+  id: uuidField,
+  registrationNo: z.string(),
+  brand: z.string(),
+  model: z.string(),
 });
 
 export const AttendanceSiteSchema = z.looseObject({
@@ -53,13 +59,6 @@ export const AttendanceBaseSchema = z.looseObject({
   workDuration: z.number().int().nonnegative(),
   assignmentSnapshot: z
     .looseObject({
-      vehicle: z
-        .looseObject({
-          id: uuidField,
-          registrationNo: z.string(),
-        })
-        .optional()
-        .nullable(),
       assignedEngineer: AttendanceAssignedDriverSchema.optional().nullable(),
       assignedDrivers: z
         .array(AttendanceAssignedDriverSchema)
@@ -69,12 +68,12 @@ export const AttendanceBaseSchema = z.looseObject({
     .nullable(),
   assignedDrivers: z.array(AttendanceAssignedDriverSchema).optional(),
   site: AttendanceSiteSchema.optional().nullable(),
+  vehicle: AttendanceVehicleSchema.optional().nullable(),
   ...auditSchema,
 });
 
 export const AttendanceUpsertShapeSchema = z
   .object({
-    vehicle: VehicleBaseSchema.nullable(),
     assignedDriver: z.union([z.string(), z.array(z.string())]).nullable(),
     remark: z.string().nullable(),
   })

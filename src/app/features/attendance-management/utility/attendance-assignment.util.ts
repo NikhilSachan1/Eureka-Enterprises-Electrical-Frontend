@@ -8,10 +8,6 @@ import {
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { IEmployeeGetBaseResponseDto } from '@features/employee-management/types/employee.dto';
 
-type AssignmentVehicle = NonNullable<
-  IAttendanceAssignmentSubmitPayload['vehicle']
->;
-
 export function isAttendanceAssignmentApplicable(
   status: string | null | undefined
 ): boolean {
@@ -19,7 +15,6 @@ export function isAttendanceAssignmentApplicable(
 }
 
 export const NULL_ASSIGNMENT_FORM_VALUES = {
-  vehicle: null,
   assignedDriver: null,
 } as const;
 
@@ -117,6 +112,17 @@ export function getAssignedEmployee(
   return employee?.id ? employee : null;
 }
 
+export function formatVehicleBrandModel(
+  vehicle?: { brand?: string | null; model?: string | null } | null
+): string | null {
+  const label = [vehicle?.brand, vehicle?.model]
+    .map(part => part?.trim())
+    .filter((part): part is string => !!part)
+    .join(' ');
+
+  return label || null;
+}
+
 export function getAssignedEmployeeDisplayName(
   payload: unknown
 ): string | null {
@@ -131,45 +137,33 @@ export function getAssignmentSource(
   }
 
   const record = payload as IAttendanceAssignmentPayload;
-  const snapshot = record.assignmentSnapshot;
 
   return {
-    site: record.site ?? snapshot?.site ?? null,
-    vehicle: record.vehicle ?? snapshot?.vehicle ?? null,
+    site: record.site ?? null,
+    vehicle: record.vehicle ?? null,
     assignedDrivers: getAssignedDrivers(payload),
     assignedEngineer: getAssignedEmployee(payload),
-    user: record.user ?? snapshot?.user ?? null,
+    user: record.user ?? null,
   };
 }
 
 export function getAssignmentFormValues(
   payload: unknown,
   options?: {
-    includeSiteFields?: boolean;
     includeAssignedDriver?: boolean;
     assignedDriverMultiple?: boolean;
   }
 ): IAttendanceAssignmentFormValues {
-  const source = getAssignmentSource(payload);
-  const includeSiteFields = options?.includeSiteFields !== false;
   const includeAssignedDriver = options?.includeAssignedDriver === true;
   const assignedDriverMultiple = options?.assignedDriverMultiple === true;
 
   return {
-    vehicle: includeSiteFields ? (source?.vehicle?.id ?? null) : null,
     assignedDriver: includeAssignedDriver
       ? assignedDriverMultiple
         ? getAssignedDriverIds(payload)
         : getAssignedDriverId(payload)
       : null,
   };
-}
-
-export function getAssignmentSiteFormValues(
-  payload: unknown
-): Pick<IAttendanceAssignmentFormValues, 'vehicle'> {
-  const { vehicle } = getAssignmentFormValues(payload);
-  return { vehicle };
 }
 
 export function getDropdownRecord<T extends object>(
@@ -244,24 +238,9 @@ export function formatProjectLocation(
 }
 
 export function buildAssignmentSubmitPayload(params: {
-  vehicleId: string | null;
   assignedDriverId: string | string[] | null;
-  vehicleList: { value?: string; data?: unknown }[];
-  source: IAttendanceAssignmentPayload | null;
 }): IAttendanceAssignmentSubmitPayload {
-  const vehicleFromList = getDropdownRecord<AssignmentVehicle>(
-    params.vehicleList,
-    params.vehicleId
-  );
-
-  const sourceVehicle = params.source?.vehicle;
-
   return {
-    vehicle:
-      vehicleFromList ??
-      (sourceVehicle?.id === params.vehicleId
-        ? (sourceVehicle as AssignmentVehicle)
-        : null),
     assignedDriver: params.assignedDriverId,
   };
 }

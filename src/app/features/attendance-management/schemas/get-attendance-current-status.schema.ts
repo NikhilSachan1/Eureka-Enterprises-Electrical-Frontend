@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { AttendanceBaseSchema } from './base-attendance.schema';
+import {
+  AttendanceBaseSchema,
+  AttendanceVehicleSchema,
+} from './base-attendance.schema';
 import { UserSchema, uuidField } from '@shared/schemas';
 
 const {
@@ -13,8 +16,6 @@ const {
   site,
   assignedDrivers,
 } = AttendanceBaseSchema.shape;
-
-const { vehicle: vehicleSchema } = assignmentSnapshot.unwrap().shape;
 
 export const AttendanceCurrentStatusGetFormSchema = z
   .object({
@@ -35,7 +36,7 @@ export const AttendanceCurrentStatusGetResponseSchema = z.looseObject({
   workDuration,
   user: UserSchema.nullable(),
   site: site.optional().nullable(),
-  vehicle: vehicleSchema.optional().nullable(),
+  vehicle: AttendanceVehicleSchema.optional().nullable(),
   assignedDrivers,
   assignmentSnapshot: assignmentSnapshot.optional().nullable(),
 });

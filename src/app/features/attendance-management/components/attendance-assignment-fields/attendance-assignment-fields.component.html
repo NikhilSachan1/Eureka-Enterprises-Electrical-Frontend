@@ -1,56 +1,30 @@
 @if (!viewOnly()) {
-  <div class="grid grid-cols-1 md:grid-cols-2">
-    <app-input-field
-      [formGroup]="formGroup()"
-      [inputFieldConfig]="fieldConfigs().vehicle"
-    />
-    <app-input-field
-      [formGroup]="formGroup()"
-      [inputFieldConfig]="fieldConfigs().assignedDriver"
-    />
-  </div>
+  <app-input-field
+    [formGroup]="formGroup()"
+    [inputFieldConfig]="fieldConfigs().assignedDriver"
+  />
 } @else {
   @let labels = displayLabels();
-  @let hasVehicle = labels.vehicle !== '-';
   @let hasDriver = labels.driver !== '-';
 
-  @if (hasVehicle || hasDriver) {
+  @if (hasDriver) {
     <div class="assignment-readonly">
-      @if (hasVehicle) {
-        <div class="assignment-readonly__tile">
-          <span
-            class="assignment-readonly__icon assignment-readonly__icon--vehicle"
-            aria-hidden="true"
-          >
-            <i [class]="ALL_ICONS.COMMON.CAR"></i>
+      <div class="assignment-readonly__tile">
+        <span
+          class="assignment-readonly__icon assignment-readonly__icon--person"
+          aria-hidden="true"
+        >
+          <i [class]="ALL_ICONS.COMMON.USER"></i>
+        </span>
+        <div class="assignment-readonly__text">
+          <span class="assignment-readonly__label">{{ labels.driverLabel }}</span>
+          <span class="assignment-readonly__value">
+            {{ labels.driver | textCase: 'title' }}
           </span>
-          <div class="assignment-readonly__text">
-            <span class="assignment-readonly__label">Vehicle</span>
-            <span class="assignment-readonly__value">
-              {{ labels.vehicle | textCase: 'title' }}
-            </span>
-          </div>
         </div>
-      }
-
-      @if (hasDriver) {
-        <div class="assignment-readonly__tile">
-          <span
-            class="assignment-readonly__icon assignment-readonly__icon--person"
-            aria-hidden="true"
-          >
-            <i [class]="ALL_ICONS.COMMON.USER"></i>
-          </span>
-          <div class="assignment-readonly__text">
-            <span class="assignment-readonly__label">{{ labels.driverLabel }}</span>
-            <span class="assignment-readonly__value">
-              {{ labels.driver | textCase: 'title' }}
-            </span>
-          </div>
-        </div>
-      }
+      </div>
     </div>
   } @else {
-    <span class="assignment-readonly__empty">No vehicle or driver</span>
+    <span class="assignment-readonly__empty">No assigned driver</span>
   }
 }

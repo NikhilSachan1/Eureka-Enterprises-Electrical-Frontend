@@ -65,6 +65,11 @@
         <div class="attendance-assignment-details__text">
           <span class="attendance-assignment-details__label">Vehicle</span>
           <span class="attendance-assignment-details__value">{{ snap.vehicleDisplay }}</span>
+          @if (snap.vehicleBrandModel) {
+            <span class="attendance-assignment-details__meta">
+              {{ snap.vehicleBrandModel | textCase: 'title' }}
+            </span>
+          }
         </div>
       </div>
     }

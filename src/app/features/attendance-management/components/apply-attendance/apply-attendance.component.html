@@ -65,39 +65,85 @@
           (ngSubmit)="onSubmit()"
         >
           @if (isEmployeeUser) {
-            @if (currentStatusData()?.site; as site) {
-              @if (site.name) {
-                <div class="apply-project">
-                  <div class="apply-project__accent" aria-hidden="true"></div>
-                  <div class="apply-project__content">
-                    <span
-                      class="apply-project__icon"
-                      aria-hidden="true"
-                    >
-                      <i [class]="ALL_ICONS.SITE.BUILDING"></i>
-                    </span>
-                    <div class="apply-project__text">
-                      <p class="apply-project__name">
-                        {{ site.name | textCase: 'title' }}
-                      </p>
-                      @if (formatProjectLocation(site); as location) {
-                        <div class="apply-project__location">
-                          <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
-                          <span>{{ location }}</span>
+            @if (
+              currentStatusData()?.site?.name ||
+              currentStatusData()?.vehicle?.registrationNo ||
+              (currentStatusData()?.checkInTime && assignedDriverName())
+            ) {
+              <div
+                class="apply-context"
+                [class.apply-context--checked-in]="!!currentStatusData()?.checkInTime"
+              >
+                @if (currentStatusData()?.site; as site) {
+                  @if (site.name) {
+                    <div class="apply-project">
+                      <div class="apply-project__content">
+                        <span class="apply-project__icon" aria-hidden="true">
+                          <i [class]="ALL_ICONS.SITE.BUILDING"></i>
+                        </span>
+                        <div class="apply-project__text">
+                          <span class="apply-project__label">Project</span>
+                          <p class="apply-project__name">
+                            {{ site.name | textCase: 'title' }}
+                          </p>
+                          @if (formatProjectLocation(site); as location) {
+                            <p class="apply-project__meta">
+                              <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
+                              <span>{{ location }}</span>
+                            </p>
+                          }
                         </div>
-                      }
+                      </div>
+                    </div>
+                  }
+                }
+                @if (currentStatusData()?.vehicle; as vehicle) {
+                  @if (vehicle.registrationNo) {
+                    <div class="apply-project apply-project--vehicle">
+                      <div class="apply-project__content">
+                        <span class="apply-project__icon" aria-hidden="true">
+                          <i [class]="ALL_ICONS.COMMON.CAR"></i>
+                        </span>
+                        <div class="apply-project__text">
+                          <span class="apply-project__label">Vehicle</span>
+                          <p class="apply-project__name">
+                            {{ vehicle.registrationNo }}
+                          </p>
+                          @if (formatVehicleBrandModel(vehicle); as brandModel) {
+                            <p class="apply-project__meta">
+                              {{ brandModel | textCase: 'title' }}
+                            </p>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                }
+                @if (currentStatusData()?.checkInTime && assignedDriverName(); as driver) {
+                  <div class="apply-project apply-project--driver">
+                    <div class="apply-project__content">
+                      <span class="apply-project__icon" aria-hidden="true">
+                        <i [class]="ALL_ICONS.COMMON.USER"></i>
+                      </span>
+                      <div class="apply-project__text">
+                        <span class="apply-project__label">{{ assignedDriverLabel() }}</span>
+                        <p class="apply-project__name">
+                          {{ driver | textCase: 'title' }}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              }
+                }
+              </div>
             }
+            @if (!currentStatusData()?.checkInTime) {
             <app-attendance-assignment-fields
               [formGroup]="form.formGroup"
               [fieldConfigs]="form.fieldConfigs"
-              [viewOnly]="!!currentStatusData()?.checkInTime"
               [assignmentPayload]="currentStatusData()"
               [(submitPayload)]="assignmentSubmitPayload"
             />
+            }
             @if (!currentStatusData()?.checkInTime) {
               <app-input-field
                 [formGroup]="form.formGroup"

@@ -18,7 +18,6 @@ import {
   getAssignedDriverId,
   getAssignedDrivers,
   toAssignedDriverIds,
-  getAssignmentSource,
   getDropdownRecord,
   NULL_ASSIGNMENT_FORM_VALUES,
   toDisplayName,
@@ -29,7 +28,6 @@ import {
   IAttendanceAssignmentSubmitPayload,
 } from '@features/attendance-management/types/attendance.interface';
 import { IEmployeeGetBaseResponseDto } from '@features/employee-management/types/employee.dto';
-import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ICONS } from '@shared/constants/icon.constants';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
@@ -38,9 +36,6 @@ import {
   FormService,
 } from '@shared/services';
 import { IInputFieldsConfig, ITrackedFields } from '@shared/types';
-import type { z } from 'zod';
-
-type VehicleValue = z.infer<typeof VehicleBaseSchema>;
 
 @Component({
   selector: 'app-attendance-assignment-fields',
@@ -56,7 +51,6 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
 
   readonly formGroup = input.required<FormGroup>();
   readonly fieldConfigs = input.required<{
-    vehicle: IInputFieldsConfig;
     assignedDriver: IInputFieldsConfig;
   }>();
   readonly viewOnly = input(false);
@@ -73,7 +67,6 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
   protected readonly displayLabels = computed(() => {
     this.readTrackedAssignmentFields();
     this.assignmentPayload();
-    this.appConfigurationService.vehicleList();
     this.appConfigurationService.employeeList();
     return this.buildLabels();
   });
@@ -83,7 +76,6 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
       this.readTrackedAssignmentFields();
       this.formGroup();
       this.assignmentPayload();
-      this.appConfigurationService.vehicleList();
       this.appConfigurationService.employeeList();
       untracked(() => this.submitPayload.set(this.buildSubmitPayload()));
     });
@@ -94,7 +86,7 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
     this.trackedAssignmentFields.set(
       this.formService.trackMultipleFieldChanges<IAttendanceAssignmentFormValues>(
         this.formGroup(),
-        ['vehicle', 'assignedDriver'],
+        ['assignedDriver'],
         this.destroyRef
       )
     );
@@ -102,7 +94,6 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
 
   private readTrackedAssignmentFields(): void {
     const tracked = this.trackedAssignmentFields();
-    tracked?.vehicle?.();
     tracked?.assignedDriver?.();
   }
 
@@ -123,12 +114,8 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
   private buildLabels(): {
     driver: string;
     driverLabel: string;
-    vehicle: string;
   } {
     const payload = this.assignmentPayload();
-    const site = getAssignmentSource(payload);
-
-    const vehicleId = this.getControlId('vehicle') ?? site?.vehicle?.id ?? null;
     const driverIds = this.getAssignedDriverControlIds();
     const driverId = driverIds[0] ?? getAssignedDriverId(payload);
 
@@ -141,11 +128,6 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
       this.appConfigurationService.employeeList(),
       driverId
     );
-    const vehicleFromList = getDropdownRecord<VehicleValue>(
-      this.appConfigurationService.vehicleList(),
-      vehicleId
-    );
-
     const listDriverName = toPersonName(driverFromList);
 
     return {
@@ -162,18 +144,7 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
         payloadDrivers.length > 1 || driverIds.length > 1
           ? 'Assigned Drivers'
           : 'Assigned Driver',
-      vehicle: toDisplayName(
-        site?.vehicle?.registrationNo,
-        site?.vehicle?.id,
-        vehicleId,
-        vehicleFromList?.registrationNo
-      ),
     };
-  }
-
-  private getControlId(fieldName: 'vehicle'): string | null {
-    const value = this.formGroup().get(fieldName)?.value;
-    return typeof value === 'string' && value.trim() ? value : null;
   }
 
   private getAssignedDriverControlIds(): string[] {
@@ -185,13 +156,10 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
   private buildSubmitPayload(): IAttendanceAssignmentSubmitPayload {
     const assignedDriverIds = this.getAssignedDriverControlIds();
     return buildAssignmentSubmitPayload({
-      vehicleId: this.getControlId('vehicle'),
       assignedDriverId:
         assignedDriverIds.length > 1
           ? assignedDriverIds
           : (assignedDriverIds[0] ?? null),
-      vehicleList: this.appConfigurationService.vehicleList(),
-      source: getAssignmentSource(this.assignmentPayload()),
     });
   }
 }

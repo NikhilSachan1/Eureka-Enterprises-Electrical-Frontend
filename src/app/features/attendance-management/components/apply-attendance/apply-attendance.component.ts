@@ -20,6 +20,8 @@ import { IAttendanceAssignmentSubmitPayload } from '@features/attendance-managem
 import { APPLY_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/apply-attendance.config';
 import {
   formatProjectLocation,
+  formatVehicleBrandModel,
+  getAssignedDriverDisplayName,
   NULL_ASSIGNMENT_FORM_VALUES,
 } from '@features/attendance-management/utility/attendance-assignment.util';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -84,6 +86,15 @@ export class ApplyAttendanceComponent
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ALL_ICONS = ICONS;
   protected readonly formatProjectLocation = formatProjectLocation;
+  protected readonly formatVehicleBrandModel = formatVehicleBrandModel;
+  protected readonly assignedDriverName = computed(() =>
+    getAssignedDriverDisplayName(this.currentStatusData())
+  );
+  protected readonly assignedDriverLabel = computed(() =>
+    this.assignedDriverName()?.includes(',')
+      ? 'Assigned Drivers'
+      : 'Assigned Driver'
+  );
   protected isEmployeeUser = false;
   protected isDriverUser = false;
 

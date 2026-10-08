@@ -132,6 +132,14 @@
   word-break: break-word;
 }
 
+.attendance-assignment-details__meta {
+  font-size: 0.75rem;
+  font-weight: 550;
+  color: var(--text-secondary-color);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
 .attendance-assignment-details__empty {
   display: block;
   font-size: 0.8125rem;

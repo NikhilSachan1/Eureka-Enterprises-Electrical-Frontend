@@ -1,7 +1,5 @@
 import { IAttendanceGetBaseResponseDto } from './attendance.dto';
 import { EAttendanceStatus } from './attendance.enum';
-import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
-import type { z } from 'zod';
 
 export interface IAttendance
   extends Omit<
@@ -48,7 +46,12 @@ export interface IAttendanceAssignmentPayload {
     state?: string | null;
     fullAddress?: string | null;
   } | null;
-  vehicle?: { id?: string | null; registrationNo?: string | null } | null;
+  vehicle?: {
+    id?: string | null;
+    registrationNo?: string | null;
+    brand?: string | null;
+    model?: string | null;
+  } | null;
   assignedDrivers?: IAttendanceAssignmentPerson[] | null;
   assignedEngineer?: IAttendanceAssignmentPerson | null;
   user?: IAttendanceAssignmentPerson | null;
@@ -56,11 +59,9 @@ export interface IAttendanceAssignmentPayload {
 }
 
 export interface IAttendanceAssignmentFormValues {
-  vehicle: string | null;
   assignedDriver: string | string[] | null;
 }
 
 export interface IAttendanceAssignmentSubmitPayload {
-  vehicle: z.infer<typeof VehicleBaseSchema> | null;
   assignedDriver: string | string[] | null;
 }

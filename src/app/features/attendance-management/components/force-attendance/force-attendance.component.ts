@@ -136,7 +136,6 @@ export class ForceAttendanceComponent
       'employeeName',
       'attendanceStatus',
       'assignedDriver',
-      'vehicle',
     ];
     this.trackedAttendanceFields =
       this.formService.trackMultipleFieldChanges<IAttendanceForceUIFormDto>(

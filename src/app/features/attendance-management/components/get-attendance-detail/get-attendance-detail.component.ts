@@ -28,6 +28,7 @@ import { ICONS } from '@shared/constants/icon.constants';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 import {
   formatProjectLocation,
+  formatVehicleBrandModel,
   getAssignedDriverDisplayName,
 } from '../../utility/attendance-assignment.util';
 
@@ -53,6 +54,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   protected readonly ICONS = ICONS;
   protected readonly formatDrivers = getAssignedDriverDisplayName;
   protected readonly formatLocation = formatProjectLocation;
+  protected readonly formatVehicleBrandModel = formatVehicleBrandModel;
 
   override onDrawerShow(): void {
     this.loadAttendanceDetails();
@@ -140,8 +142,12 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         {
           label: 'Vehicle & Driver',
           value: {
-            ...record.assignmentSnapshot,
-            assignedDrivers: record.assignedDrivers ?? [],
+            assignedEngineer: record.assignmentSnapshot?.assignedEngineer ?? null,
+            assignedDrivers:
+              record.assignedDrivers ??
+              record.assignmentSnapshot?.assignedDrivers ??
+              [],
+            vehicle: record.vehicle ?? null,
           },
           customTemplateKey: 'assignmentSnapshot',
         },

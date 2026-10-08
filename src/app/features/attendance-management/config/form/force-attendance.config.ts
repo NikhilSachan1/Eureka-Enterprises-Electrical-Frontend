@@ -16,11 +16,7 @@ import { EAttendanceStatus } from '@features/attendance-management/types/attenda
 import { IAttendanceForceUIFormDto } from '@features/attendance-management/types/attendance.dto';
 
 const {
-  fields: {
-    assignedDriver: baseAssignedDriver,
-    vehicle: baseVehicle,
-    remark,
-  },
+  fields: { assignedDriver: baseAssignedDriver, remark },
 } = APPLY_ATTENDANCE_FORM_CONFIG;
 
 const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceForceUIFormDto> =
@@ -72,7 +68,6 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceFor
       validators: [Validators.required],
     },
     assignedDriver: baseAssignedDriver,
-    vehicle: baseVehicle,
     remark: {
       ...remark,
       label: 'Reason for force attendance',

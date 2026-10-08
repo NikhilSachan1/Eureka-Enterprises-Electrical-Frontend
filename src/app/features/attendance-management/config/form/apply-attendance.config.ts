@@ -26,18 +26,6 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
         },
       },
     },
-    vehicle: {
-      fieldType: EDataType.SELECT,
-      id: 'vehicle',
-      fieldName: 'vehicle',
-      label: 'Vehicle',
-      selectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.VEHICLE,
-          dropdownName: CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
-        },
-      },
-    },
     remark: {
       fieldType: EDataType.TEXT_AREA,
       id: 'remark',

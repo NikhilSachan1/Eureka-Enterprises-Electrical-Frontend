@@ -2,6 +2,7 @@ import { EAttendanceStatus } from '@features/attendance-management/types/attenda
 import type { IAttendanceGetBaseResponseDto } from '@features/attendance-management/types/attendance.dto';
 import {
   formatProjectLocation,
+  formatVehicleBrandModel,
   getAssignedDriverDisplayName,
   getAssignedEmployeeDisplayName,
 } from '@features/attendance-management/utility/attendance-assignment.util';
@@ -16,11 +17,12 @@ import { StatusUtil } from '@shared/utility';
 export function buildAssignmentTrail(
   record: IAttendanceGetBaseResponseDto
 ): IDashboardAttendanceTrailStop[] {
-  const snapshot = record.assignmentSnapshot;
   const stops: IDashboardAttendanceTrailStop[] = [];
   const projectName = record.site?.name?.trim();
   const projectLocation = formatProjectLocation(record.site);
-  const vehicleNo = snapshot?.vehicle?.registrationNo?.trim();
+  const vehicle = record.vehicle ?? null;
+  const vehicleNo = vehicle?.registrationNo?.trim();
+  const vehicleBrandModel = formatVehicleBrandModel(vehicle);
   const driverName = getAssignedDriverDisplayName(record);
   const employeeName = getAssignedEmployeeDisplayName(record);
   const personName = driverName ?? employeeName;
@@ -45,7 +47,9 @@ export function buildAssignmentTrail(
     stops.push({
       kind: 'vehicle',
       label: 'Vehicle',
-      value: vehicleNo,
+      value: vehicleBrandModel
+        ? `${vehicleNo} · ${vehicleBrandModel}`
+        : vehicleNo,
       icon: ICONS.COMMON.CAR,
     });
   }
