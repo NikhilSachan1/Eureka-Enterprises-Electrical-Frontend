@@ -65,6 +65,14 @@ export class GetWalletOutstandingComponent implements OnInit {
     this.loadWalletOutstandingList();
   }
 
+  reload(): void {
+    if (!this.tableFilterData) {
+      return;
+    }
+
+    this.loadWalletOutstandingList();
+  }
+
   protected onSelectionChange(selectedRows: Record<string, unknown>[]): void {
     this.selectionChange.emit(
       selectedRows as IWalletOutstandingGetBaseResponseDto[]

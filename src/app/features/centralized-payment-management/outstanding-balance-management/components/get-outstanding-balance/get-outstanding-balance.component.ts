@@ -5,6 +5,7 @@ import {
   inject,
   model,
   signal,
+  viewChild,
 } from '@angular/core';
 import { LoggerService } from '@core/services';
 import { AppPermissionService } from '@core/services/app-permission.service';
@@ -29,6 +30,7 @@ import { GetVendorOutstandingComponent } from '@features/centralized-payment-man
 import { IVendorBookPaymentTableRow } from '@features/centralized-payment-management/vendor-payment-management/types/vendor-outstanding.interface';
 import { GetWalletOutstandingComponent } from '@features/centralized-payment-management/wallet-payment-management/components/get-wallet-outstanding/get-wallet-outstanding.component';
 import { IWalletOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/wallet-payment-management/types/wallet-outstanding.dto';
+import { WALLET_RECHARGE_ACTION_CONFIG_MAP } from '@features/transport-management/petro-card-wallet-management/config/dialog/get-wallet-recharge.config';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ICONS } from '@shared/constants';
 import { ConfirmationDialogService } from '@shared/services';
@@ -64,8 +66,20 @@ export class GetOutstandingBalanceComponent {
 
   protected readonly activeTabIndex = model(0);
 
+  private readonly walletOutstanding = viewChild(GetWalletOutstandingComponent);
+
   protected readonly canCreatePaymentSheet = computed(() =>
     this.appPermissionService.hasPermission(APP_PERMISSION.PAYMENT_SHEET.CREATE)
+  );
+
+  protected readonly canRecordWalletRecharge = computed(() =>
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.PETRO_CARD.WALLET_MANAGE
+    )
+  );
+
+  protected readonly isWalletTab = computed(
+    () => this.activeTabIndex() === 3
   );
 
   protected readonly selectedExpenseRecords = signal<
@@ -174,6 +188,11 @@ export class GetOutstandingBalanceComponent {
   }
 
   protected onHeaderButtonClick(actionType: string): void {
+    if (actionType === EButtonActionType.ADD) {
+      this.openRecordRechargeDialog();
+      return;
+    }
+
     if (actionType !== EButtonActionType.GENERATE) {
       return;
     }
@@ -360,6 +379,19 @@ export class GetOutstandingBalanceComponent {
     );
   }
 
+  private openRecordRechargeDialog(): void {
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.ADD,
+      WALLET_RECHARGE_ACTION_CONFIG_MAP[EButtonActionType.ADD],
+      null,
+      false,
+      false,
+      {
+        onSuccess: () => this.walletOutstanding()?.reload(),
+      }
+    );
+  }
+
   private openCreatePaymentSheetDialog(): void {
     const expenseRecords = this.selectedExpenseRecords();
     const fuelRecords = this.selectedFuelRecords();
@@ -395,12 +427,26 @@ export class GetOutstandingBalanceComponent {
 
   private getPageHeaderConfig(): IPageHeaderConfig {
     const selectedCount = this.totalSelectedCount();
+    const showRecordRecharge =
+      this.isWalletTab() && this.canRecordWalletRecharge();
 
     return {
       title: 'Outstanding Balance',
       subtitle: 'View outstanding balance records',
-      showHeaderButton: this.canCreatePaymentSheet(),
+      showHeaderButton: this.canCreatePaymentSheet() || showRecordRecharge,
       headerButtonConfig: [
+        ...(showRecordRecharge
+          ? [
+              {
+                id: EButtonActionType.ADD,
+                actionName: EButtonActionType.ADD,
+                label: 'Record Recharge',
+                icon: ICONS.COMMON.PLUS,
+                severity: EButtonSeverity.PRIMARY,
+                permission: [APP_PERMISSION.PETRO_CARD.WALLET_MANAGE],
+              },
+            ]
+          : []),
         {
           id: EButtonActionType.GENERATE,
           actionName: EButtonActionType.GENERATE,
