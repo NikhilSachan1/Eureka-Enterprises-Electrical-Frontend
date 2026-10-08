@@ -243,6 +243,8 @@ export const API_ROUTES = {
       ALLOCATION_HISTORY: 'site-allocations',
       UPDATE_ALLOCATION: (allocationId: string) =>
         `site-allocations/${allocationId}`,
+      DELETE_ALLOCATION: (allocationId: string, confirm = false) =>
+        `site-allocations/${allocationId}${confirm ? '?confirm=true' : ''}`,
       WORKFORCE_ALLOCATION_EMPLOYEES: 'site-allocations/employees',
     },
     DSR: {

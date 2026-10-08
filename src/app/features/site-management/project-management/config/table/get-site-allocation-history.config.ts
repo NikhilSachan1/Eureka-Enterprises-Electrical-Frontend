@@ -72,6 +72,11 @@ const SITE_ALLOCATION_HISTORY_ROW_ACTIONS: Partial<
     tooltip: 'Edit allocation',
     permission: [APP_PERMISSION.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEE],
   },
+  {
+    ...COMMON_ROW_ACTIONS.DELETE,
+    tooltip: 'Delete allocation',
+    permission: [APP_PERMISSION.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEE],
+  },
 ];
 
 export const SITE_ALLOCATION_HISTORY_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<ISiteAllocationHistory> =

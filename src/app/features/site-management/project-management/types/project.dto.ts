@@ -21,6 +21,7 @@ import {
   SiteAllocationGetResponseSchema,
   SiteAllocationEditRequestSchema,
   SiteAllocationEditResponseSchema,
+  SiteAllocationDeleteResponseSchema,
   WorkforceAllocationGetRequestSchema,
   WorkforceAllocationGetBaseResponseSchema,
   WorkforceAllocationGetStatsSchema,
@@ -130,6 +131,9 @@ export type ISiteAllocationEditFormDto = z.input<
 >;
 export type ISiteAllocationEditResponseDto = z.infer<
   typeof SiteAllocationEditResponseSchema
+>;
+export type ISiteAllocationDeleteResponseDto = z.infer<
+  typeof SiteAllocationDeleteResponseSchema
 >;
 
 /*

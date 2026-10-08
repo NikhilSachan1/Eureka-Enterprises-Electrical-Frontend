@@ -43,6 +43,7 @@ export {
   SiteAllocationEditRequestSchema,
   SiteAllocationEditResponseSchema,
 } from './edit-site-allocation.schema';
+export { SiteAllocationDeleteResponseSchema } from './delete-site-allocation.schema';
 export {
   WorkforceAllocationGetRequestSchema,
   WorkforceAllocationGetBaseResponseSchema,

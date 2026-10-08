@@ -20,6 +20,7 @@ import {
   SiteAllocationGetResponseSchema,
   SiteAllocationEditRequestSchema,
   SiteAllocationEditResponseSchema,
+  SiteAllocationDeleteResponseSchema,
   WorkforceAllocationGetRequestSchema,
   WorkforceAllocationGetResponseSchema,
   WorkforceAllocationActionRequestSchema,
@@ -44,6 +45,7 @@ import {
   ISiteAllocationGetResponseDto,
   ISiteAllocationEditFormDto,
   ISiteAllocationEditResponseDto,
+  ISiteAllocationDeleteResponseDto,
   IWorkforceAllocationGetFormDto,
   IWorkforceAllocationGetResponseDto,
   IWorkforceAllocationManageFormDto,
@@ -354,6 +356,39 @@ export class ProjectService {
               'Update site allocation dates error',
               error
             );
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  deleteSiteAllocation(
+    allocationId: string,
+    confirm = false
+  ): Observable<ISiteAllocationDeleteResponseDto> {
+    this.logger.logUserAction('Delete site allocation request', { confirm });
+
+    return this.apiService
+      .deleteValidated(
+        API_ROUTES.SITE.PROJECT.DELETE_ALLOCATION(allocationId, confirm),
+        {
+          response: SiteAllocationDeleteResponseSchema,
+        },
+        undefined,
+        { silent: true }
+      )
+      .pipe(
+        tap((response: ISiteAllocationDeleteResponseDto) => {
+          this.logger.logUserAction('Delete site allocation response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Delete site allocation error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Delete site allocation error', error);
           }
           return throwError(() => error);
         })

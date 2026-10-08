@@ -226,21 +226,34 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
   protected handleAllocationHistoryActionClick(
     event: ITableActionClickEvent
   ): void {
-    if (event.actionType !== EButtonActionType.EDIT) {
-      return;
-    }
-
     const record = event.selectedRows[0] as unknown as
       | ISiteAllocationGetBaseResponseDto
       | undefined;
-    const actionConfig =
-      SITE_ALLOCATION_HISTORY_ACTION_CONFIG_MAP[EButtonActionType.EDIT];
-    if (!record?.id || !actionConfig) {
+    if (!record?.id) {
+      return;
+    }
+
+    if (event.actionType === EButtonActionType.EDIT) {
+      this.openAllocationDialog(EButtonActionType.EDIT, record);
+      return;
+    }
+
+    if (event.actionType === EButtonActionType.DELETE) {
+      this.openAllocationDialog(EButtonActionType.DELETE, record);
+    }
+  }
+
+  private openAllocationDialog(
+    actionType: EButtonActionType.EDIT | EButtonActionType.DELETE,
+    record: ISiteAllocationGetBaseResponseDto
+  ): void {
+    const actionConfig = SITE_ALLOCATION_HISTORY_ACTION_CONFIG_MAP[actionType];
+    if (!actionConfig) {
       return;
     }
 
     this.confirmationDialogService.showConfirmationDialog(
-      EButtonActionType.EDIT,
+      actionType,
       actionConfig,
       this.prepareRecordDetail(record),
       false,
