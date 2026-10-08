@@ -8,7 +8,8 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -75,7 +76,10 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
     ConfirmationDialogService
   );
 
-  private lastProjectIdForEmployeeFilter: string | undefined;
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly routeQuery = toSignal(this.activatedRoute.queryParamMap);
+  private appliedRouteEmployee: string | null = null;
+  private appliedProjectId: string | undefined;
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
@@ -104,12 +108,19 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      const projectId = this.workspaceContext.selectedProjectId();
+      const employeeId = this.routeQuery()?.get('employeeName') ?? null;
+      const projectId =
+        this.workspaceContext.selectedProjectId() ??
+        this.workspaceContext.activeProjectId();
       this.workspaceContext.filterSubmitVersion();
 
-      if (projectId !== this.lastProjectIdForEmployeeFilter) {
-        this.selectedEmployeeName.set(null);
-        this.lastProjectIdForEmployeeFilter = projectId;
+      if (
+        employeeId !== this.appliedRouteEmployee ||
+        projectId !== this.appliedProjectId
+      ) {
+        this.selectedEmployeeName.set(employeeId);
+        this.appliedRouteEmployee = employeeId;
+        this.appliedProjectId = projectId;
       }
 
       if (this.tableFilterData) {
@@ -156,6 +167,10 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
   }
 
   private loadAllocationHistory(): void {
+    if (!this.tableFilterData) {
+      return;
+    }
+
     this.loadTrigger$.next();
   }
 
@@ -167,9 +182,11 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
       );
 
     const employeeName = this.selectedEmployeeName();
+    const { projectName, ...filters } = this.workspaceContext.filters();
 
     return {
-      ...this.workspaceContext.filters(),
+      ...filters,
+      ...(projectName ? { projectName } : {}),
       ...(employeeName ? { employeeName } : {}),
       ...base,
     };

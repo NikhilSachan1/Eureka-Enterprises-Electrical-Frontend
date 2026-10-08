@@ -15,10 +15,6 @@ import { IWorkforceAllocation } from '../../types/workforce-allocation.interface
 const isFreeStatus = (row: IWorkforceAllocationGetBaseResponseDto): boolean =>
   row.status === 'FREE';
 
-const isAllocatedStatus = (
-  row: IWorkforceAllocationGetBaseResponseDto
-): boolean => row.status === 'ALLOCATED';
-
 export const WORKFORCE_ALLOCATION_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No workforce allocation records found.',
 };
@@ -78,7 +74,6 @@ export const WORKFORCE_ALLOCATION_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderC
   ];
 
 const WORKFORCE_ALLOCATION_DISABLED_TOOLTIP = {
-  allocateWhenAllocated: 'Employee is already allocated to a project.',
   deallocateWhenFree: 'Employee is free and has no active allocation.',
   transferWhenFree:
     'Employee must be allocated before they can be transferred.',
@@ -89,9 +84,6 @@ const WORKFORCE_ALLOCATION_ALLOCATE_ACTION_CONFIG: Partial<
 > = {
   id: EButtonActionType.ALLOCATE,
   permission: [APP_PERMISSION.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEE],
-  disableWhen: isAllocatedStatus,
-  disableReason: () =>
-    WORKFORCE_ALLOCATION_DISABLED_TOOLTIP.allocateWhenAllocated,
 };
 
 const WORKFORCE_ALLOCATION_DEALLOCATE_ACTION_CONFIG: Partial<
@@ -120,6 +112,12 @@ export const WORKFORCE_ALLOCATION_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...WORKFORCE_ALLOCATION_DEALLOCATE_ACTION_CONFIG,
     tooltip: 'Deallocate Employee',
+  },
+  {
+    id: EButtonActionType.EVENT_HISTORY,
+    tooltip: 'View allocation history',
+    icon: ICONS.COMMON.HISTORY,
+    permission: [APP_PERMISSION.PROJECT.ALLOCATION_HISTORY_TABLE_VIEW],
   },
 ];
 

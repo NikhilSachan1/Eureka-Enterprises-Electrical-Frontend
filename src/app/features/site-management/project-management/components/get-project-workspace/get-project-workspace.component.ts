@@ -20,11 +20,7 @@ import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { ICONS, ROUTES } from '@shared/constants';
-import {
-  FormService,
-  InputFieldConfigService,
-  RouterNavigationService,
-} from '@shared/services';
+import { FormService, InputFieldConfigService } from '@shared/services';
 import {
   EDataType,
   ETabMode,
@@ -68,7 +64,6 @@ export class GetProjectWorkspaceComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly logger = inject(LoggerService);
-  private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly projectService = inject(ProjectService);
   private readonly formService = inject(FormService);
   private readonly inputFieldConfigService = inject(InputFieldConfigService);
@@ -139,12 +134,13 @@ export class GetProjectWorkspaceComponent {
   );
 
   constructor() {
-    const projectId = this.resolveInitialProjectId();
-    if (projectId) {
-      this.filterPrefillValues.set({ projectName: projectId });
-      this.workspaceContext.setActiveProjectId(projectId);
-      this.pendingAutoSearchProjectId = projectId;
-    }
+    this.activatedRoute.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        this.applyRoutedProject(
+          params.get('projectId') ?? params.get('projectName') ?? undefined
+        );
+      });
 
     effect(() => {
       const trackedProjectId = this.trackedWorkspaceFields()?.projectName?.();
@@ -232,18 +228,54 @@ export class GetProjectWorkspaceComponent {
     this.workspaceContext.resetFilters();
   }
 
-  private resolveInitialProjectId(): string | undefined {
-    const {queryParamMap} = this.activatedRoute.snapshot;
-    const fromQuery =
-      queryParamMap.get('projectId') ?? queryParamMap.get('projectName');
-    if (fromQuery) {
-      return fromQuery;
+  private applyRoutedProject(projectId: string | undefined): void {
+    const formProjectId = this.workspaceFilterForm?.formGroup.get('projectName')
+      ?.value;
+    const currentProjectId =
+      typeof formProjectId === 'string' && formProjectId.length > 0
+        ? formProjectId
+        : undefined;
+
+    if (this.workspaceFilterForm && currentProjectId === projectId) {
+      return;
     }
 
-    return (
-      this.routerNavigationService.getRouterStateData<string>('projectId') ??
-      undefined
-    );
+    if (!projectId) {
+      this.pendingAutoSearchProjectId = undefined;
+      if (
+        !this.workspaceFilterForm &&
+        !this.workspaceContext.filters().projectName &&
+        !this.workspaceContext.activeProjectId()
+      ) {
+        return;
+      }
+
+      this.filterPrefillValues.set({});
+      this.showOverviewPanel.set(false);
+      this.clearProjectOverviewState();
+      this.workspaceContext.setActiveProjectId(undefined);
+      const { projectName: _projectName, ...filtersWithoutProject } =
+        this.workspaceContext.filters();
+
+      if (!this.workspaceFilterForm) {
+        this.workspaceContext.applyFilters(filtersWithoutProject);
+        return;
+      }
+
+      this.workspaceFilterForm.formGroup.patchValue({ projectName: null });
+      this.searchFilterRef()?.submitFilter();
+      return;
+    }
+
+    this.filterPrefillValues.set({ projectName: projectId });
+    this.workspaceContext.setActiveProjectId(projectId);
+    if (!this.workspaceFilterForm) {
+      this.pendingAutoSearchProjectId = projectId;
+      return;
+    }
+
+    this.workspaceFilterForm.formGroup.patchValue({ projectName: projectId });
+    this.searchFilterRef()?.submitFilter();
   }
 
   private onProjectChange(projectId: string | undefined): void {

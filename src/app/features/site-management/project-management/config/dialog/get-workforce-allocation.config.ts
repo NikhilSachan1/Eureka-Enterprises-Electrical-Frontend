@@ -9,7 +9,7 @@ export const WORKFORCE_ALLOCATION_ACTION_CONFIG_MAP: Record<
     dialogConfig: {
       header: 'Allocate employee',
       message:
-        'Assign this employee to a project? Choose the project and allocate date below.',
+        'Choose the project, role, and start date. Leave the end date empty for an ongoing allocation, or set it to record a finished past or future period. Their current project stays unchanged.',
       labels: {
         actionWord: 'allocate',
         singleLabel: 'Allocate Employee',

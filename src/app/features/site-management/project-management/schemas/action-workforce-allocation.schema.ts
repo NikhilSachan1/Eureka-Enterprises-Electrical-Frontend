@@ -36,6 +36,9 @@ export const WorkforceAllocationActionRequestSchema = z
               userId,
               allocatedAt: transformDateFormat(allocateDate as Date),
               role: role as string,
+              ...(releaseDate
+                ? { deallocatedAt: transformDateFormat(releaseDate) }
+                : {}),
             },
           ],
           deallocations: [],
