@@ -3,6 +3,7 @@ import {
   AuditSchema,
   FilterSchema,
   isoDateTimeField,
+  onlyDateStringField,
   uuidField,
 } from '@shared/schemas';
 import { ProjectBaseSchema } from './base-project.schema';
@@ -55,6 +56,11 @@ export const ProjectGetRequestSchema = z
   );
 
 export const ProjectGetBaseResponseSchema = ProjectBaseSchema.extend({
+  siteTypes: z.array(z.string()).nullable(),
+  endDate: onlyDateStringField.nullable(),
+  baseDistanceKm: z.string().nullable(),
+  country: z.string().nullable(),
+  workTypes: z.array(z.string()).nullable(),
   ...AuditSchema.shape,
   company: CompanyGetBaseResponseSchema.pick({
     id: true,
@@ -98,6 +104,7 @@ export const ProjectGetBaseResponseSchema = ProjectBaseSchema.extend({
         email: true,
         profilePicture: true,
       }).extend({
+        profilePicture: z.string().nullable(),
         role: z.string(),
         allocationType: z.string(),
         allocationId: uuidField.optional(),

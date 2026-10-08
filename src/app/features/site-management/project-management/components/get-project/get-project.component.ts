@@ -211,8 +211,10 @@ export class GetProjectComponent implements OnInit {
           this.appConfigurationService.projectStatus(),
           record.status
         ),
-        timeLine: [new Date(record.startDate), new Date(record.endDate)],
-        workTypes: record.workTypes.map(wt =>
+        timeLine: record.endDate
+          ? [new Date(record.startDate), new Date(record.endDate)]
+          : [new Date(record.startDate)],
+        workTypes: (record.workTypes ?? []).map(wt =>
           String(
             getMappedValueFromArrayOfObjects(
               this.appConfigurationService.projectWorkTypes(),
