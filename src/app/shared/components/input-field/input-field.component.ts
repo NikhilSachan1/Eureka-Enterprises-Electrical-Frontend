@@ -29,20 +29,11 @@ import {
   ReactiveFormsModule,
   FormsModule,
 } from '@angular/forms';
-import { FilterService } from 'primeng/api';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import {
-  Select,
-  SelectModule,
-  type SelectFilterEvent,
-} from 'primeng/select';
-import {
-  MultiSelect,
-  MultiSelectModule,
-  type MultiSelectFilterEvent,
-} from 'primeng/multiselect';
+import { Select, SelectModule } from 'primeng/select';
+import { MultiSelect, MultiSelectModule } from 'primeng/multiselect';
 import { DatePickerModule } from 'primeng/datepicker';
 import { PasswordModule } from 'primeng/password';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -120,7 +111,6 @@ import {
 } from '@shared/utility';
 import { ImageModule } from 'primeng/image';
 import { NgClass } from '@angular/common';
-import { ScrollableDropdownPages } from './scrollable-dropdown-pages';
 
 @Component({
   selector: 'app-input-field',
@@ -332,48 +322,20 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   resolvedInputFieldConfig = computed(() => {
     const config = this.inputFieldConfig();
     this.dependentDropdownParentValue(); // ensure recomputation when parent control changes
-
-    const scrollableController = this.scrollableDropdownPages;
-    const isScrollable = !!scrollableController;
-    const scrollableLoading = scrollableController?.loading() ?? false;
-    const scrollableFilterText = this.scrollableFilterInput();
-    const scrollableOpts = scrollableController
-      ? this.applyScrollableClientFilters(
-          this.mergeScrollablePinnedOptions(scrollableController.options())
-        )
-      : [];
-
-    const opts = isScrollable ? scrollableOpts : this.getDropdownOptions();
-    const isDynamicLoading = isScrollable
-      ? scrollableLoading
-      : this.isDynamicDropdownLoading();
-    const displayOptions = isScrollable
-      ? this.buildScrollableDisplayOptions(
-          opts,
-          scrollableLoading,
-          scrollableFilterText
-        )
-      : opts.length > 0
-        ? opts
-        : [this.getEmptyDropdownPlaceholderOption()];
-
+    const opts = this.getDropdownOptions();
+    const isDynamicLoading = this.isDynamicDropdownLoading();
+    const displayOptions =
+      opts.length > 0 ? opts : [this.getEmptyDropdownPlaceholderOption()];
     if (config.fieldType === EDataType.SELECT && config.selectConfig) {
       const isDynamicSelect = !!config.selectConfig.dynamicDropdown;
       return {
         ...config,
         selectConfig: {
           ...config.selectConfig,
-          loading: isScrollable
-            ? scrollableLoading
-            : isDynamicSelect
-              ? isDynamicLoading
-              : (config.selectConfig.loading ?? false),
+          loading: isDynamicSelect
+            ? isDynamicLoading
+            : (config.selectConfig.loading ?? false),
           optionsDropdown: displayOptions,
-          haveFilter: isScrollable ? true : config.selectConfig.haveFilter,
-          // Same as normal dropdowns: grow with items; VS only above threshold.
-          virtualScroll: isScrollable
-            ? opts.length > this.ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD
-            : config.selectConfig.virtualScroll,
         },
       };
     }
@@ -386,46 +348,15 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         ...config,
         multiSelectConfig: {
           ...config.multiSelectConfig,
-          loading: isScrollable
-            ? scrollableLoading
-            : isDynamicMultiSelect
-              ? isDynamicLoading
-              : (config.multiSelectConfig.loading ?? false),
+          loading: isDynamicMultiSelect
+            ? isDynamicLoading
+            : (config.multiSelectConfig.loading ?? false),
           optionsDropdown: displayOptions,
-          haveFilter: isScrollable
-            ? true
-            : config.multiSelectConfig.haveFilter,
-          virtualScroll: isScrollable
-            ? opts.length > this.ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD
-            : config.multiSelectConfig.virtualScroll,
         },
       };
     }
     return config;
   });
-
-  protected isScrollableDropdownEnabled(): boolean {
-    return !!this.scrollableDropdownPages;
-  }
-
-  /** True when the panel has real API rows (not Searching / No results placeholders). */
-  protected hasScrollableDropdownResults(
-    options: IOptionDropdown[] | undefined
-  ): boolean {
-    return (options ?? []).some(
-      option => option.value !== DROPDOWN_DISABLED_PLACEHOLDER_ROW_VALUE
-    );
-  }
-
-  protected getScrollableEmptyFilterMessage(): string {
-    if (!this.scrollableDropdownPages) {
-      return 'No results found';
-    }
-    if (this.scrollableDropdownPages.loading()) {
-      return 'Searching...';
-    }
-    return 'No results found';
-  }
 
   resolvedLineItemsConfig = computed(() => {
     const config = this.inputFieldConfig();
@@ -467,19 +398,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   private readonly autocompleteSearchQuery$ = new Subject<string>();
   private autocompleteRemoteSearchInitialized = false;
 
-  /** Server-paginated select/multi-select (scroll + search). */
-  private scrollableDropdownPages: ScrollableDropdownPages | null = null;
-  private readonly scrollableSearchQuery$ = new Subject<string>();
-  private readonly scrollablePinnedOptions = signal<IOptionDropdown[]>([]);
-  /** Live filter text (before debounce) — drives Searching / No results copy. */
-  private readonly scrollableFilterInput = signal('');
-  private scrollableDropdownInitialized = false;
-  private scrollablePanelOpen = false;
-  private scrollablePanelScrollCleanup?: () => void;
-  /** PrimeNG match mode that skips local filtering; the API already filtered. */
-  protected readonly serverDropdownFilterMatchMode = 'server';
-  private readonly filterService = inject(FilterService);
-
   // Signal for dependent dropdown options (e.g., cities based on state)
   private dependentDropdownOptions = signal<IOptionDropdown[]>([]);
 
@@ -487,8 +405,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   private dependentDropdownParentValue = signal<unknown>(undefined);
 
   constructor() {
-    this.filterService.register(this.serverDropdownFilterMatchMode, () => true);
-
     // Standalone mode: sync file upload when fieldValue (effectiveValue) changes for ATTACHMENTS
     effect(() => {
       if (this.isFormMode()) {
@@ -508,7 +424,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         setTimeout(() => this.updateFileUpload(value), 0);
       }
     });
-
   }
 
   ngOnInit(): void {
@@ -562,7 +477,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     }
 
     this.setupRemoteAutocompleteSearch(config);
-    this.setupScrollableDropdown(config);
 
     if (fg && config.fieldType === EDataType.ATTACHMENTS && control) {
       control.valueChanges
@@ -1261,277 +1175,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       });
   }
 
-  private setupScrollableDropdown(config: IInputFieldsConfig): void {
-    if (this.scrollableDropdownInitialized) {
-      return;
-    }
-
-    const dynamicDropdown =
-      this.getSelectOrMultiSelectConfig(config)?.dynamicDropdown;
-    if (!dynamicDropdown?.dropdownName) {
-      return;
-    }
-
-    const load = this.appConfigurationService.getScrollableReferenceLoader(
-      dynamicDropdown.dropdownName,
-      {
-        filterByRole: dynamicDropdown.filterByRole,
-        employeeStatusFilter: dynamicDropdown.employeeStatusFilter,
-        archivedHandling: dynamicDropdown.archivedHandling,
-        includeLoggedInUser: dynamicDropdown.includeLoggedInUser,
-      }
-    );
-    if (!load) {
-      return;
-    }
-
-    this.scrollableDropdownInitialized = true;
-    this.scrollableDropdownPages = new ScrollableDropdownPages(
-      load,
-      APP_CONFIG.DROPDOWN_CONFIG.SCROLLABLE_PAGE_SIZE
-    );
-    this.syncScrollablePinnedOptions(this.effectiveValue());
-
-    this.destroyRef.onDestroy(() => {
-      this.unbindScrollablePanelScroll();
-      this.scrollableDropdownPages?.destroy();
-      this.scrollableDropdownPages = null;
-    });
-
-    this.scrollableSearchQuery$
-      .pipe(
-        debounceTime(APP_CONFIG.DROPDOWN_CONFIG.SCROLLABLE_SEARCH_DEBOUNCE_MS),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(term => this.scrollableDropdownPages?.search(term));
-
-    this.formGroup()
-      ?.get(config.fieldName)
-      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(value => this.syncScrollablePinnedOptions(value));
-  }
-
-  private getSelectOrMultiSelectConfig(
-    config: IInputFieldsConfig
-  ):
-    | NonNullable<IInputFieldsConfig['selectConfig']>
-    | NonNullable<IInputFieldsConfig['multiSelectConfig']>
-    | undefined {
-    if (config.fieldType === EDataType.SELECT) {
-      return config.selectConfig;
-    }
-    if (config.fieldType === EDataType.MULTI_SELECT) {
-      return config.multiSelectConfig;
-    }
-    return undefined;
-  }
-
-  protected onScrollableDropdownShow(): void {
-    if (!this.scrollableDropdownPages) {
-      return;
-    }
-    this.scrollablePanelOpen = true;
-    this.scrollableDropdownPages.ensureInitialLoad();
-    this.bindScrollablePanelScroll();
-    if (!this.scrollablePanelScrollCleanup) {
-      requestAnimationFrame(() => {
-        if (this.scrollablePanelOpen) {
-          this.bindScrollablePanelScroll();
-        }
-      });
-    }
-  }
-
-  protected onScrollableDropdownHide(): void {
-    this.scrollablePanelOpen = false;
-    this.unbindScrollablePanelScroll();
-  }
-
-  protected onScrollableDropdownFilter(
-    event: SelectFilterEvent | MultiSelectFilterEvent
-  ): void {
-    if (!this.scrollableDropdownPages) {
-      return;
-    }
-
-    const term = String(event.filter ?? '');
-    this.scrollableFilterInput.set(term);
-    if (term.trim()) {
-      this.scrollableDropdownPages.markSearching();
-    }
-    this.scrollableSearchQuery$.next(term);
-  }
-
-  private buildScrollableDisplayOptions(
-    options: IOptionDropdown[],
-    loading: boolean,
-    filterText: string
-  ): IOptionDropdown[] {
-    if (options.length > 0) {
-      return options;
-    }
-
-    const label = loading
-      ? filterText.trim()
-        ? 'Searching...'
-        : this.getDynamicDropdownLoadingLabel()
-      : filterText.trim()
-        ? 'No results found'
-        : 'No data found';
-
-    return [
-      {
-        label,
-        value: DROPDOWN_DISABLED_PLACEHOLDER_ROW_VALUE,
-        disabled: true,
-      },
-    ];
-  }
-
-  private bindScrollablePanelScroll(): void {
-    this.unbindScrollablePanelScroll();
-    const overlay = this.scrollableOverlayElement();
-    if (!overlay) {
-      return;
-    }
-    const onScroll = (event: Event): void => {
-      const container = event.target;
-      if (
-        !(container instanceof HTMLElement) ||
-        !this.isScrollableListContainer(container)
-      ) {
-        return;
-      }
-      const remaining =
-        container.scrollHeight - container.scrollTop - container.clientHeight;
-      if (remaining <= 40) {
-        this.scrollableDropdownPages?.loadMoreFromScroll();
-      }
-    };
-    overlay.addEventListener('scroll', onScroll, {
-      passive: true,
-      capture: true,
-    });
-    this.scrollablePanelScrollCleanup = () =>
-      overlay.removeEventListener('scroll', onScroll, { capture: true });
-  }
-
-  private isScrollableListContainer(element: HTMLElement): boolean {
-    return (
-      element.classList.contains('p-select-list-container') ||
-      element.classList.contains('p-multiselect-list-container') ||
-      element.classList.contains('p-virtualscroller')
-    );
-  }
-
-  private scrollableOverlayElement(): HTMLElement | null {
-    const native =
-      this.selectRef?.overlayViewChild?.overlayViewChild?.nativeElement ??
-      this.multiSelectRef?.overlayViewChild?.overlayViewChild?.nativeElement;
-    return native instanceof HTMLElement ? native : null;
-  }
-
-  private unbindScrollablePanelScroll(): void {
-    this.scrollablePanelScrollCleanup?.();
-    this.scrollablePanelScrollCleanup = undefined;
-  }
-
-  private mergeScrollablePinnedOptions(
-    options: IOptionDropdown[]
-  ): IOptionDropdown[] {
-    const pinned = this.scrollablePinnedOptions();
-    if (pinned.length === 0) {
-      return options;
-    }
-    const existing = new Set(options.map(option => option.value));
-    const missing = pinned.filter(option => !existing.has(option.value));
-    return missing.length > 0 ? [...missing, ...options] : options;
-  }
-
-  private applyScrollableClientFilters(
-    options: IOptionDropdown[]
-  ): IOptionDropdown[] {
-    const dropdownConfig = this.getSelectOrMultiSelectConfig(
-      this.inputFieldConfig()
-    );
-    let next = options;
-
-    if (dropdownConfig?.dynamicDropdown?.includeLoggedInUser === false) {
-      const selfId = this.authService.getCurrentUser()?.userId?.trim();
-      if (selfId) {
-        next = filterOptionsByIncludeExclude(next, [], [selfId]);
-      }
-    }
-
-    if (dropdownConfig?.filterOptions) {
-      next = filterOptionsByIncludeExclude(
-        next,
-        dropdownConfig.filterOptions.include ?? [],
-        dropdownConfig.filterOptions.exclude ?? []
-      );
-    }
-
-    return next;
-  }
-
-  private syncScrollablePinnedOptions(value: unknown): void {
-    if (!this.scrollableDropdownPages) {
-      return;
-    }
-
-    const selectedValues = new Set(
-      (Array.isArray(value)
-        ? value
-        : value !== null && value !== undefined && value !== ''
-          ? [value]
-          : []
-      ).map(item => String(item))
-    );
-
-    if (selectedValues.size === 0) {
-      this.setScrollablePinnedOptionsIfChanged([]);
-      return;
-    }
-
-    const fromLoaded = this.scrollableDropdownPages
-      .options()
-      .filter(option => selectedValues.has(option.value));
-    const fromPinned = this.scrollablePinnedOptions().filter(option =>
-      selectedValues.has(option.value)
-    );
-
-    if (fromLoaded.length === 0 && fromPinned.length === 0) {
-      const dynamicDropdown = this.getSelectOrMultiSelectConfig(
-        this.inputFieldConfig()
-      )?.dynamicDropdown;
-      if (dynamicDropdown) {
-        const cached = this.appConfigurationService
-          .peekDropdown(dynamicDropdown.moduleName, dynamicDropdown.dropdownName)
-          .filter(option => selectedValues.has(option.value));
-        this.setScrollablePinnedOptionsIfChanged(cached);
-        return;
-      }
-    }
-
-    const byValue = new Map<string, IOptionDropdown>();
-    [...fromPinned, ...fromLoaded].forEach(option =>
-      byValue.set(option.value, option)
-    );
-    this.setScrollablePinnedOptionsIfChanged(Array.from(byValue.values()));
-  }
-
-  private setScrollablePinnedOptionsIfChanged(next: IOptionDropdown[]): void {
-    const current = this.scrollablePinnedOptions();
-    if (
-      current.length === next.length &&
-      current.every((option, index) => option.value === next[index]?.value)
-    ) {
-      return;
-    }
-    this.scrollablePinnedOptions.set(next);
-  }
-
   /**
    * When forceSelection is false: sync typed text on blur (form: setValue; standalone: emit).
    */
@@ -1894,8 +1537,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     } else {
       value = eventOrValue;
     }
-
-    this.syncScrollablePinnedOptions(value);
 
     if (this.isFormMode()) {
       const config = this.inputFieldConfig();
