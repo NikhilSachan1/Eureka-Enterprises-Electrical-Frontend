@@ -25,10 +25,12 @@ import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-ac
 import { COMMON_ROW_ACTIONS } from '@shared/config/common-table-actions.config';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
+  AppConfigurationService,
   ConfirmationDialogService,
   LoadingService,
   RouterNavigationService,
 } from '@shared/services';
+import { replaceTextWithSeparator, toTitleCase } from '@shared/utility';
 import {
   EButtonActionType,
   EButtonVariant,
@@ -85,8 +87,18 @@ export class GetConfigurationComponent {
   private readonly configurationService = inject(ConfigurationService);
   private readonly loadingService = inject(LoadingService);
   private readonly appPermissionService = inject(AppPermissionService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
+  );
+
+  private readonly moduleLabelMap = computed(
+    () =>
+      new Map(
+        this.appConfigurationService
+          .moduleNames()
+          .map(({ label, value }) => [normalizeModuleKey(String(value)), label])
+      )
   );
 
   protected readonly icons = ICONS;
@@ -127,7 +139,14 @@ export class GetConfigurationComponent {
     const groups = new Map<string, IConfigurationGetBaseResponseDto[]>();
 
     this.configurations().forEach(configuration => {
-      if (term && !matchesSearch(configuration, term)) {
+      if (
+        term &&
+        !matchesSearch(
+          configuration,
+          this.getModuleLabel(configuration.module),
+          term
+        )
+      ) {
         return;
       }
       const bucket = groups.get(configuration.module) ?? [];
@@ -136,10 +155,15 @@ export class GetConfigurationComponent {
     });
 
     return [...groups.entries()]
-      .sort(([a], [b]) => a.localeCompare(b))
       .map(([module, configurations]) => ({
+        module,
+        label: this.getModuleLabel(module),
+        configurations,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label))
+      .map(({ module, label, configurations }) => ({
         route: module,
-        label: module,
+        label,
         badge: configurations.length,
         tooltip: `${configurations.length} configurations`,
         configurations: configurations.sort((a, b) =>
@@ -235,7 +259,7 @@ export class GetConfigurationComponent {
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Module Name',
-        value: configuration.module,
+        value: this.getModuleLabel(configuration.module),
         type: EDataType.TEXT,
       },
       {
@@ -274,6 +298,13 @@ export class GetConfigurationComponent {
     ]);
   }
 
+  protected getModuleLabel(module: string): string {
+    return (
+      this.moduleLabelMap().get(normalizeModuleKey(module)) ??
+      toTitleCase(replaceTextWithSeparator(module.toLowerCase(), '_', ' '))
+    );
+  }
+
   private loadConfigurationList(): void {
     this.loadingService.show({
       title: 'Loading configurations',
@@ -299,12 +330,22 @@ export class GetConfigurationComponent {
   }
 }
 
+function normalizeModuleKey(value: string): string {
+  return replaceTextWithSeparator(
+    replaceTextWithSeparator(value.toLowerCase(), ' ', '_'),
+    '-',
+    '_'
+  );
+}
+
 function matchesSearch(
   configuration: IConfigurationGetBaseResponseDto,
+  moduleLabel: string,
   term: string
 ): boolean {
   return [
     configuration.module,
+    moduleLabel,
     configuration.label,
     configuration.key,
     configuration.description,
