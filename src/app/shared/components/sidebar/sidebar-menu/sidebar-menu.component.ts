@@ -121,19 +121,9 @@ export class SidebarMenuComponent {
       return '';
     }
 
-    // Use parent's accumulated basePath
-    const effectiveBasePath = parentBasePath ?? '';
-
-    if (effectiveBasePath) {
-      const basePath = effectiveBasePath.endsWith('/')
-        ? effectiveBasePath.slice(0, -1)
-        : effectiveBasePath;
-      const itemPath = item.routerLink.startsWith('/')
-        ? item.routerLink.slice(1)
-        : item.routerLink;
-      return `${basePath}/${itemPath}`;
-    }
-
-    return item.routerLink;
+    return this.menuService.buildMenuRouterLink(
+      item.routerLink,
+      parentBasePath
+    );
   }
 }
