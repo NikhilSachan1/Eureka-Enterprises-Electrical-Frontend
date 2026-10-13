@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { APP_PERMISSION } from '@core/constants';
 import { AppPermissionService } from '@core/services';
@@ -17,6 +23,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { AnniversaryDashboardComponent } from '../anniversary-dashboard/anniversary-dashboard.component';
 import { BirthdaysDashboardComponent } from '../birthdays-dashboard/birthdays-dashboard.component';
 import { HolidayDashboardComponent } from '../holiday-dashboard/holiday-dashboard.component';
+import { HandoverPendingDashboardComponent } from '../handover-pending-dashboard/handover-pending-dashboard.component';
 
 @Component({
   selector: 'app-main-dashboard',
@@ -34,6 +41,7 @@ import { HolidayDashboardComponent } from '../holiday-dashboard/holiday-dashboar
     AnniversaryDashboardComponent,
     BirthdaysDashboardComponent,
     HolidayDashboardComponent,
+    HandoverPendingDashboardComponent,
   ],
   templateUrl: './main-dashboard.component.html',
   styleUrl: './main-dashboard.component.scss',
@@ -41,6 +49,19 @@ import { HolidayDashboardComponent } from '../holiday-dashboard/holiday-dashboar
 })
 export class MainDashboardComponent {
   private readonly appPermissionService = inject(AppPermissionService);
+  private readonly ledgerSpendSection =
+    viewChild<ElementRef<HTMLElement>>('ledgerSpend');
+
+  protected scrollToSection(sectionId: string): void {
+    if (sectionId !== 'ledger-spend') {
+      return;
+    }
+
+    this.ledgerSpendSection()?.nativeElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }
 
   protected readonly ICONS = ICONS;
   protected readonly canViewLedgerSpend = this.appPermissionService.hasPermission(
@@ -49,12 +70,23 @@ export class MainDashboardComponent {
   protected readonly showApplyAttendance = this.appPermissionService.hasPermission(
     APP_PERMISSION.ATTENDANCE.APPLY
   );
-  protected readonly canViewAssets = this.appPermissionService.hasPermission(
-    APP_PERMISSION.DASHBOARD.ASSET_COMPLIANCE
+  protected readonly showPeopleTime = this.appPermissionService.hasPermission(
+    APP_PERMISSION.UI.DASHBOARD.ATTENDANCE_LEAVE
   );
-  protected readonly canViewTransport = this.appPermissionService.hasPermission(
-    APP_PERMISSION.DASHBOARD.VEHICLE_COMPLIANCE
-  );
+  protected readonly canViewAssets =
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.UI.DASHBOARD.ASSETS_TRANSPORT
+    ) &&
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.DASHBOARD.ASSET_COMPLIANCE
+    );
+  protected readonly canViewTransport =
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.UI.DASHBOARD.ASSETS_TRANSPORT
+    ) &&
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.DASHBOARD.VEHICLE_COMPLIANCE
+    );
   protected readonly opsSectionTitle =
     this.canViewAssets && this.canViewTransport
       ? 'Assets & transport'

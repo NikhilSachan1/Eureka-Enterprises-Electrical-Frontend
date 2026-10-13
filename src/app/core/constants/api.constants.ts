@@ -1,6 +1,6 @@
 export const API_ROUTES = {
   DASHBOARD: {
-    APPROVAL_PENDING: 'dashboard/approvals',
+    APPROVAL_PENDING: 'dashboard/pending-approvals',
     LEDGER_BALANCES: 'dashboard/ledger-balances',
     ASSET_FLEET_ALERTS: 'dashboard/alerts',
     VEHICLE_READINGS_ALERTS: 'dashboard/vehicle-readings',

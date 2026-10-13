@@ -1,5 +1,6 @@
 @let config = APP_CONFIG.NUMBER_FORMATS;
 
+@if (showKpmCards) {
 <div
   class="kpm-grid"
   role="region"
@@ -81,6 +82,67 @@
   </div>
   }
 </div>
+}
+
+<ng-content />
+
+<section
+  class="kpm-card kpm-card--site-docs kpm-site-docs"
+  aria-labelledby="kpm-site-docs-title"
+>
+  <div class="kpm-card__header">
+    <div class="kpm-card__header-lead">
+      <span
+        [class]="ICONS.SITE.BUILDING + ' kpm-card__hicon'"
+        aria-hidden="true"
+      ></span>
+      <span class="kpm-card__htitle-stack">
+        <span
+          id="kpm-site-docs-title"
+          class="kpm-card__htitle"
+        >
+          Project Doc approval
+        </span>
+        <span class="kpm-card__hsub">Waiting for approval</span>
+      </span>
+    </div>
+  </div>
+  <div class="kpm-card__body kpm-card__body--docs">
+    @for (row of siteDocumentRows(); track row.label) {
+      <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
+    }
+  </div>
+</section>
+
+@if (showPaymentSheets) {
+<section
+  class="kpm-card kpm-card--payment-sheets kpm-site-docs"
+  aria-labelledby="kpm-payment-sheets-title"
+>
+  <div class="kpm-card__header">
+    <div class="kpm-card__header-lead">
+      <span
+        [class]="ICONS.COMMON.FILE + ' kpm-card__hicon'"
+        aria-hidden="true"
+      ></span>
+      <span class="kpm-card__htitle-stack">
+        <span
+          id="kpm-payment-sheets-title"
+          class="kpm-card__htitle"
+        >
+          Payment sheet approvals
+        </span>
+        <span class="kpm-card__hsub">Waiting for approval</span>
+      </span>
+    </div>
+  </div>
+  <div class="kpm-card__body kpm-card__body--docs kpm-card__body--sheets">
+    @for (row of paymentSheetRows(); track row.label) {
+      <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
+    }
+  </div>
+</section>
+}
 
 <!-- ── Shared row template ──────────────────────────── -->
 <ng-template
@@ -113,21 +175,23 @@
       }
     </span>
 
-    <span
-      class="kpm-card__rvalue"
-      [attr.aria-busy]="row.valueLoading ? 'true' : null"
-    >
-      @if (row.valueLoading) {
-        <span
-          [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN + ' kpm-card__rvalue-loader'"
-          aria-hidden="true"
-        ></span>
-        <span class="kpm-card__sr-only">Loading value</span>
-      } @else if (row.format === 'currency') {
-        {{ row.value | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
-      } @else {
-        {{ row.value | number: config.DEFAULT : config.LOCALE }}
-      }
+    <span class="kpm-card__rvalue-stack">
+      <span
+        class="kpm-card__rvalue"
+        [attr.aria-busy]="row.valueLoading ? 'true' : null"
+      >
+        @if (row.valueLoading) {
+          <span
+            [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN + ' kpm-card__rvalue-loader'"
+            aria-hidden="true"
+          ></span>
+          <span class="kpm-card__sr-only">Loading value</span>
+        } @else if (row.format === 'currency') {
+          {{ row.value | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
+        } @else {
+          {{ row.value | number: config.DEFAULT : config.LOCALE }}
+        }
+      </span>
     </span>
     @if (row.link && !row.valueLoading) {
       <span

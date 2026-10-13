@@ -406,6 +406,9 @@ export const APP_PERMISSION = {
     },
     DASHBOARD: {
       LEDGER_SPEND: 'ui_dashboard_ledger_spend',
+      METRIC_CARDS: 'ui_dashboard_metric_cards',
+      ATTENDANCE_LEAVE: 'ui_dashboard_attendance_leave',
+      ASSETS_TRANSPORT: 'ui_dashboard_assets_transport',
     },
   },
 } as const;
@@ -417,6 +420,7 @@ const UI_TAB_OWN_ROLES = {
   [EUserRole.OPERATION_MANAGER]: false,
   [EUserRole.SUPER_ADMIN]: false,
   [EUserRole.HR]: false,
+  [EUserRole.ACCOUNTS]: false,
 } as const satisfies UIRolePermissionAccess;
 
 export const UI_PERMISSIONS_ROLE_MAP = {
@@ -428,6 +432,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
     CONTACT_ANNEXURE: {
       [EUserRole.ADMIN]: false,
@@ -436,6 +441,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: false,
       [EUserRole.SUPER_ADMIN]: false,
       [EUserRole.HR]: false,
+      [EUserRole.ACCOUNTS]: false,
     },
   },
   COMMON: {
@@ -446,6 +452,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
   },
   ATTENDANCE: {
@@ -456,6 +463,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
     SEARCH_FILTER_EMPLOYEE_NAME: {
       [EUserRole.ADMIN]: true,
@@ -464,6 +472,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
   },
   EXPENSE: {
@@ -474,6 +483,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
     SEARCH_FILTER_EMPLOYEE_NAME: {
       [EUserRole.ADMIN]: true,
@@ -482,6 +492,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
     SEARCH_FILTER_PAID_FROM_ACCOUNT: {
       [EUserRole.ADMIN]: true,
@@ -490,6 +501,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
   },
   FUEL_EXPENSE: {
@@ -500,6 +512,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
     SEARCH_FILTER_EMPLOYEE_NAME: {
       [EUserRole.ADMIN]: true,
@@ -508,6 +521,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
     SEARCH_FILTER_PAID_FROM_ACCOUNT: {
       [EUserRole.ADMIN]: true,
@@ -516,6 +530,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
   },
   LEAVE: {
@@ -526,6 +541,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
     SEARCH_FILTER_EMPLOYEE_NAME: {
       [EUserRole.ADMIN]: true,
@@ -534,6 +550,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
   },
   PAYROLL: {
@@ -544,6 +561,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
     SEARCH_FILTER_EMPLOYEE_NAME: {
       [EUserRole.ADMIN]: true,
@@ -552,6 +570,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
   },
   PROJECT: {
@@ -562,6 +581,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
     SEARCH_FILTER_CONTRACTOR_NAME: {
       [EUserRole.ADMIN]: true,
@@ -570,6 +590,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
     SEARCH_FILTER_VENDOR_NAME: {
       [EUserRole.ADMIN]: true,
@@ -578,6 +599,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
     DOCUMENT_STATUS: {
       [EUserRole.ADMIN]: true,
@@ -586,6 +608,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
   },
   DSR: {
@@ -596,6 +619,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
     SEARCH_FILTER_EMPLOYEE_NAME: {
       [EUserRole.ADMIN]: true,
@@ -604,6 +628,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
   },
   VEHICLE_READING: {
@@ -614,6 +639,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
   },
   ASSET: {
@@ -634,6 +660,34 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
+    },
+    METRIC_CARDS: {
+      [EUserRole.ADMIN]: true,
+      [EUserRole.DRIVER]: true,
+      [EUserRole.EMPLOYEE]: true,
+      [EUserRole.OPERATION_MANAGER]: true,
+      [EUserRole.SUPER_ADMIN]: true,
+      [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
+    },
+    ATTENDANCE_LEAVE: {
+      [EUserRole.ADMIN]: true,
+      [EUserRole.DRIVER]: true,
+      [EUserRole.EMPLOYEE]: true,
+      [EUserRole.OPERATION_MANAGER]: true,
+      [EUserRole.SUPER_ADMIN]: true,
+      [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
+    },
+    ASSETS_TRANSPORT: {
+      [EUserRole.ADMIN]: true,
+      [EUserRole.DRIVER]: true,
+      [EUserRole.EMPLOYEE]: true,
+      [EUserRole.OPERATION_MANAGER]: true,
+      [EUserRole.SUPER_ADMIN]: true,
+      [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
     },
   },
 } as const satisfies Record<string, Record<string, UIRolePermissionAccess>>;

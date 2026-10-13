@@ -7,6 +7,7 @@ export const PaymentSheetGetRequestSchema = z
   .object({
     paymentSheetStatus: z.string().optional(),
     paymentSheetType: z.string().optional(),
+    currentStage: z.string().optional(),
     sortField,
     page,
     pageSize,
