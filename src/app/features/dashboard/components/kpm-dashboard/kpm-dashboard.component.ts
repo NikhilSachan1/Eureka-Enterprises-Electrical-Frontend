@@ -89,6 +89,12 @@ export class KpmDashboardComponent implements OnInit {
         this.approvalPendingLoading()
       )
   );
+  protected readonly siteDocumentRows = computed<IDashboardKpmMetricRow[]>(() =>
+    this.buildSiteDocuments(
+      this.approvalPending(),
+      this.approvalPendingLoading()
+    )
+  );
   protected readonly ledgerBalanceRows = computed<IDashboardKpmMetricRow[]>(
     () =>
       this.buildLedgerBalance(this.ledgerBalance(), this.ledgerBalanceLoading())
@@ -291,59 +297,48 @@ export class KpmDashboardComponent implements OnInit {
     data: IApprovalPendingDashboardGetResponseDto | null,
     valueLoading: boolean
   ): IDashboardKpmMetricRow[] {
-    const pending = (key: string): number =>
-      data?.queues?.find(queue => queue.key === key)?.pending ?? 0;
-    const sev = (value: number): EKpmDashboardSeverity =>
-      value > 0 ? EKpmDashboardSeverity.WARN : EKpmDashboardSeverity.NORMAL;
-
-    return [
+    const rows: {
+      key: string;
+      label: string;
+      hint: string;
+      icon: string;
+      link: IDashboardKpmMetricLink;
+    }[] = [
       {
+        key: 'attendance',
         icon: ICONS.ATTENDANCE.CHECK_IN,
         label: 'Attendance approvals',
         hint: 'Check-ins, regularisation, or corrections awaiting approval',
-        value: pending('attendance'),
-        format: EDataType.NUMBER,
-        state: sev(pending('attendance')),
-        valueLoading,
         link: this.linkTo(
           ['/', ROUTE_BASE_PATHS.ATTENDANCE, ROUTES.ATTENDANCE.LIST],
           this.pendingQuery()
         ),
       },
       {
+        key: 'leave',
         icon: ICONS.LEAVE.CALENDAR_PLUS,
         label: 'Leave approvals',
         hint: 'Leave requests still in the approval workflow',
-        value: pending('leave'),
-        format: EDataType.NUMBER,
-        state: sev(pending('leave')),
-        valueLoading,
         link: this.linkTo(
           ['/', ROUTE_BASE_PATHS.LEAVE, ROUTES.LEAVE.LIST],
           this.pendingQuery()
         ),
       },
       {
+        key: 'expense',
         icon: ICONS.EXPENSE.MONEY,
         label: 'Expense approvals',
         hint: 'Submitted expense claims not yet approved or rejected',
-        value: pending('expense'),
-        format: EDataType.NUMBER,
-        state: sev(pending('expense')),
-        valueLoading,
         link: this.linkTo(
           ['/', ROUTE_BASE_PATHS.EXPENSE, ROUTES.EXPENSE.LEDGER],
           this.pendingQuery()
         ),
       },
       {
+        key: 'fuel',
         icon: ICONS.EXPENSE.CAR,
         label: 'Fuel expense approvals',
         hint: 'Vehicle fuel entries pending approval',
-        value: pending('fuel'),
-        format: EDataType.NUMBER,
-        state: sev(pending('fuel')),
-        valueLoading,
         link: this.linkTo(
           [
             '/',
@@ -355,6 +350,126 @@ export class KpmDashboardComponent implements OnInit {
         ),
       },
     ];
+
+    return rows.map(row => {
+      const value = this.pendingCount(data, row.key);
+
+      return {
+        icon: row.icon,
+        label: row.label,
+        hint: row.hint,
+        value,
+        format: EDataType.NUMBER,
+        state:
+          value > 0
+            ? EKpmDashboardSeverity.WARN
+            : EKpmDashboardSeverity.NORMAL,
+        valueLoading,
+        link: row.link,
+      };
+    });
+  }
+
+  private buildSiteDocuments(
+    data: IApprovalPendingDashboardGetResponseDto | null,
+    valueLoading: boolean
+  ): IDashboardKpmMetricRow[] {
+    const rows: {
+      key: string;
+      label: string;
+      icon: string;
+      contextPath: string;
+      docPath: string;
+      hint: string;
+    }[] = [
+      {
+        key: 'purchase-orders',
+        label: 'Purchase Orders',
+        icon: ICONS.COMMON.FILE,
+        hint: 'Approval pending',
+        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.PO,
+      },
+      {
+        key: 'jmcs',
+        label: 'JMCs',
+        icon: ICONS.COMMON.LIST,
+        hint: 'Approval pending',
+        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.JMC,
+      },
+      {
+        key: 'invoices',
+        label: 'Invoices',
+        icon: ICONS.COMMON.FILE,
+        hint: 'Approval pending',
+        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.INVOICE,
+      },
+      {
+        key: 'advance-payments',
+        label: 'Advance Payments',
+        icon: ICONS.EXPENSE.MONEY,
+        hint: 'Approval pending',
+        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.ADVANCE_PAYMENT,
+      },
+      {
+        key: 'payment-requests',
+        label: 'Payment Requests',
+        icon: ICONS.PAYMENT.RECORD,
+        hint: 'Approval pending',
+        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.PAYMENT_REQUEST,
+      },
+      {
+        key: 'bank-transfers',
+        label: 'Bank Transfers',
+        icon: ICONS.BANK.ACCOUNT,
+        hint: 'Approval pending',
+        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.BANK_TRANSFER,
+      },
+    ];
+
+    return rows.map(row => {
+      const value = this.pendingCount(data, row.key);
+
+      return {
+        icon: row.icon,
+        label: row.label,
+        hint: row.hint,
+        value,
+        format: EDataType.NUMBER,
+        state:
+          value > 0 ? EKpmDashboardSeverity.WARN : EKpmDashboardSeverity.NORMAL,
+        valueLoading,
+        link: this.linkTo(
+          [
+            '/',
+            ROUTE_BASE_PATHS.SITE.BASE,
+            ROUTE_BASE_PATHS.SITE.PROJECT,
+            ROUTES.SITE.PROJECT.WORKSPACE,
+            row.contextPath,
+            row.docPath,
+          ],
+          statusFilterQuery(
+            'approvalStatus',
+            pickDropdownValue(
+              this.appConfigurationService.projectDocumentApprovalStatuses(),
+              'pending'
+            ) ?? EApprovalStatus.PENDING
+          )
+        ),
+      };
+    });
+  }
+
+  private pendingCount(
+    data: IApprovalPendingDashboardGetResponseDto | null,
+    key: string
+  ): number {
+    return data?.queues?.find(queue => queue.key === key)?.pending ?? 0;
   }
 
   private buildLedgerBalance(
