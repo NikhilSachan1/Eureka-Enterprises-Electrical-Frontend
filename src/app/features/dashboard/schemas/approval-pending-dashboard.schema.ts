@@ -1,11 +1,24 @@
 import z from 'zod';
 
+const ApprovalPendingQueueSchema = z.looseObject({
+  key: z.string(),
+  label: z.string(),
+  total: z.number().nonnegative().default(0),
+  pending: z.number().nonnegative().default(0),
+  onMe: z.number().nonnegative().default(0),
+  raisedByMe: z.number().nonnegative().default(0),
+  oldestDays: z.number().nonnegative().default(0),
+  iApprove: z.boolean().default(false),
+});
+
 export const ApprovalPendingDashboardGetResponseSchema = z.looseObject({
-  totals: z.looseObject({
-    leave: z.number().int().nonnegative().default(0),
-    attendance: z.number().int().nonnegative().default(0),
-    expense: z.number().nonnegative().default(0),
-    fuelExpense: z.number().nonnegative().default(0),
-    siteDocuments: z.number().int().nonnegative().default(0),
-  }),
+  scope: z.string().optional(),
+  totals: z
+    .looseObject({
+      pending: z.number().nonnegative().default(0),
+      onMe: z.number().nonnegative().default(0),
+      raisedByMe: z.number().nonnegative().default(0),
+    })
+    .optional(),
+  queues: z.array(ApprovalPendingQueueSchema).default([]),
 });

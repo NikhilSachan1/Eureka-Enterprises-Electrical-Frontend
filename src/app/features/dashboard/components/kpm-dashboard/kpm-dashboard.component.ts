@@ -291,22 +291,19 @@ export class KpmDashboardComponent implements OnInit {
     data: IApprovalPendingDashboardGetResponseDto | null,
     valueLoading: boolean
   ): IDashboardKpmMetricRow[] {
-    const { totals } = data ?? {};
-    const sev = (value: number, alert: boolean): EKpmDashboardSeverity => {
-      if (value <= 0) {
-        return EKpmDashboardSeverity.NORMAL;
-      }
-      return alert ? EKpmDashboardSeverity.ALERT : EKpmDashboardSeverity.WARN;
-    };
+    const pending = (key: string): number =>
+      data?.queues?.find(queue => queue.key === key)?.pending ?? 0;
+    const sev = (value: number): EKpmDashboardSeverity =>
+      value > 0 ? EKpmDashboardSeverity.WARN : EKpmDashboardSeverity.NORMAL;
 
     return [
       {
         icon: ICONS.ATTENDANCE.CHECK_IN,
         label: 'Attendance approvals',
         hint: 'Check-ins, regularisation, or corrections awaiting approval',
-        value: totals?.attendance ?? 0,
+        value: pending('attendance'),
         format: EDataType.NUMBER,
-        state: sev(totals?.attendance ?? 0, false),
+        state: sev(pending('attendance')),
         valueLoading,
         link: this.linkTo(
           ['/', ROUTE_BASE_PATHS.ATTENDANCE, ROUTES.ATTENDANCE.LIST],
@@ -317,9 +314,9 @@ export class KpmDashboardComponent implements OnInit {
         icon: ICONS.LEAVE.CALENDAR_PLUS,
         label: 'Leave approvals',
         hint: 'Leave requests still in the approval workflow',
-        value: totals?.leave ?? 0,
+        value: pending('leave'),
         format: EDataType.NUMBER,
-        state: sev(totals?.leave ?? 0, false),
+        state: sev(pending('leave')),
         valueLoading,
         link: this.linkTo(
           ['/', ROUTE_BASE_PATHS.LEAVE, ROUTES.LEAVE.LIST],
@@ -330,9 +327,9 @@ export class KpmDashboardComponent implements OnInit {
         icon: ICONS.EXPENSE.MONEY,
         label: 'Expense approvals',
         hint: 'Submitted expense claims not yet approved or rejected',
-        value: totals?.expense ?? 0,
+        value: pending('expense'),
         format: EDataType.NUMBER,
-        state: sev(totals?.expense ?? 0, false),
+        state: sev(pending('expense')),
         valueLoading,
         link: this.linkTo(
           ['/', ROUTE_BASE_PATHS.EXPENSE, ROUTES.EXPENSE.LEDGER],
@@ -343,9 +340,9 @@ export class KpmDashboardComponent implements OnInit {
         icon: ICONS.EXPENSE.CAR,
         label: 'Fuel expense approvals',
         hint: 'Vehicle fuel entries pending approval',
-        value: totals?.fuelExpense ?? 0,
+        value: pending('fuel'),
         format: EDataType.NUMBER,
-        state: sev(totals?.fuelExpense ?? 0, false),
+        state: sev(pending('fuel')),
         valueLoading,
         link: this.linkTo(
           [
@@ -355,32 +352,6 @@ export class KpmDashboardComponent implements OnInit {
             ROUTES.FUEL.LEDGER,
           ],
           this.pendingQuery()
-        ),
-      },
-      {
-        icon: ICONS.SITE.BUILDING,
-        label: 'Site document approvals',
-        hint: 'Site or project documents awaiting review',
-        value: totals?.siteDocuments ?? 0,
-        format: EDataType.NUMBER,
-        state: sev(totals?.siteDocuments ?? 0, true),
-        valueLoading,
-        link: this.linkTo(
-          [
-            '/',
-            ROUTE_BASE_PATHS.SITE.BASE,
-            ROUTE_BASE_PATHS.SITE.PROJECT,
-            ROUTES.SITE.PROJECT.WORKSPACE,
-            ROUTES.SITE.PROJECT.CONTRACTOR_DOC,
-            ROUTES.SITE.PROJECT.WORKSPACE_DOC.PO,
-          ],
-          statusFilterQuery(
-            'approvalStatus',
-            pickDropdownValue(
-              this.appConfigurationService.projectDocumentApprovalStatuses(),
-              'pending'
-            ) ?? EApprovalStatus.PENDING
-          )
         ),
       },
     ];
