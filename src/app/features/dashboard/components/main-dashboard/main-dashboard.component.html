@@ -6,9 +6,10 @@
     <div class="status-dashboard__shell">
       <app-page-header [pageHeaderConfig]="dashboardPageHeader" />
 
-      <app-kpm-dashboard (scrollToSection)="scrollToSection($event)" />
+      <app-kpm-dashboard (scrollToSection)="scrollToSection($event)">
+        <app-petro-card-wallet-dashboard />
+      </app-kpm-dashboard>
       <app-handover-pending-dashboard />
-      <app-petro-card-wallet-dashboard />
 
       <section
         class="dash-section"
@@ -47,6 +48,7 @@
         }
       </section>
 
+      @if (showPeopleTime) {
       <section
         class="dash-section"
         aria-labelledby="dash-people-time-title"
@@ -90,6 +92,7 @@
           }
         </div>
       </section>
+      }
 
       @if (canViewAssets || canViewTransport) {
         <section

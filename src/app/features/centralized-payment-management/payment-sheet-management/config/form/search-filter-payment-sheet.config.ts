@@ -29,6 +29,19 @@ const SEARCH_FILTER_PAYMENT_SHEET_FORM_FIELDS_CONFIG: ITableSearchFilterInputFie
     },
     matchmode: ETableFilterMatchMode.EQUALS,
   },
+  currentStage: {
+    fieldType: EDataType.SELECT,
+    id: 'currentStage',
+    fieldName: 'currentStage',
+    label: 'Stage',
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.PAYMENTS,
+        dropdownName: CONFIGURATION_KEYS.PAYMENTS.SHEET_STAGES,
+      },
+    },
+    matchmode: ETableFilterMatchMode.EQUALS,
+  },
   globalSearch: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
     hint: 'Search by sheet number or title',

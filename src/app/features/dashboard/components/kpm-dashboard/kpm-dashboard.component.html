@@ -1,5 +1,6 @@
 @let config = APP_CONFIG.NUMBER_FORMATS;
 
+@if (showKpmCards) {
 <div
   class="kpm-grid"
   role="region"
@@ -81,6 +82,9 @@
   </div>
   }
 </div>
+}
+
+<ng-content />
 
 <section
   class="kpm-card kpm-card--site-docs kpm-site-docs"
@@ -97,7 +101,7 @@
           id="kpm-site-docs-title"
           class="kpm-card__htitle"
         >
-          Site document approvals
+          Project Doc approval
         </span>
         <span class="kpm-card__hsub">Waiting for approval</span>
       </span>
@@ -109,6 +113,36 @@
     }
   </div>
 </section>
+
+@if (showPaymentSheets) {
+<section
+  class="kpm-card kpm-card--payment-sheets kpm-site-docs"
+  aria-labelledby="kpm-payment-sheets-title"
+>
+  <div class="kpm-card__header">
+    <div class="kpm-card__header-lead">
+      <span
+        [class]="ICONS.COMMON.FILE + ' kpm-card__hicon'"
+        aria-hidden="true"
+      ></span>
+      <span class="kpm-card__htitle-stack">
+        <span
+          id="kpm-payment-sheets-title"
+          class="kpm-card__htitle"
+        >
+          Payment sheet approvals
+        </span>
+        <span class="kpm-card__hsub">Waiting for approval</span>
+      </span>
+    </div>
+  </div>
+  <div class="kpm-card__body kpm-card__body--docs kpm-card__body--sheets">
+    @for (row of paymentSheetRows(); track row.label) {
+      <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
+    }
+  </div>
+</section>
+}
 
 <!-- ── Shared row template ──────────────────────────── -->
 <ng-template

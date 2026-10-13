@@ -71,6 +71,11 @@
     --kpm-accent: #0369a1;
     --kpm-accent-dark: #0c4a6e;
   }
+
+  &--payment-sheets {
+    --kpm-accent: #0f766e;
+    --kpm-accent-dark: #134e4a;
+  }
 }
 
 .kpm-site-docs {
@@ -164,6 +169,12 @@
 
     @media (min-width: 1100px) {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  &--sheets {
+    @media (min-width: 1100px) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 }

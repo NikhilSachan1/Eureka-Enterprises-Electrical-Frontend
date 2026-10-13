@@ -21,4 +21,21 @@ export const ApprovalPendingDashboardGetResponseSchema = z.looseObject({
     })
     .optional(),
   queues: z.array(ApprovalPendingQueueSchema).default([]),
+  paymentSheets: z
+    .looseObject({
+      pending: z.number().nonnegative().default(0),
+      onMe: z.number().nonnegative().default(0),
+      byStage: z
+        .array(
+          z.looseObject({
+            stage: z.string(),
+            role: z.string().optional(),
+            count: z.number().nonnegative().default(0),
+            oldestDays: z.number().nonnegative().default(0),
+            onMe: z.boolean().default(false),
+          })
+        )
+        .default([]),
+    })
+    .optional(),
 });

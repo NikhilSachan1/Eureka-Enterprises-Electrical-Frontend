@@ -70,12 +70,23 @@ export class MainDashboardComponent {
   protected readonly showApplyAttendance = this.appPermissionService.hasPermission(
     APP_PERMISSION.ATTENDANCE.APPLY
   );
-  protected readonly canViewAssets = this.appPermissionService.hasPermission(
-    APP_PERMISSION.DASHBOARD.ASSET_COMPLIANCE
+  protected readonly showPeopleTime = this.appPermissionService.hasPermission(
+    APP_PERMISSION.UI.DASHBOARD.ATTENDANCE_LEAVE
   );
-  protected readonly canViewTransport = this.appPermissionService.hasPermission(
-    APP_PERMISSION.DASHBOARD.VEHICLE_COMPLIANCE
-  );
+  protected readonly canViewAssets =
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.UI.DASHBOARD.ASSETS_TRANSPORT
+    ) &&
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.DASHBOARD.ASSET_COMPLIANCE
+    );
+  protected readonly canViewTransport =
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.UI.DASHBOARD.ASSETS_TRANSPORT
+    ) &&
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.DASHBOARD.VEHICLE_COMPLIANCE
+    );
   protected readonly opsSectionTitle =
     this.canViewAssets && this.canViewTransport
       ? 'Assets & transport'
