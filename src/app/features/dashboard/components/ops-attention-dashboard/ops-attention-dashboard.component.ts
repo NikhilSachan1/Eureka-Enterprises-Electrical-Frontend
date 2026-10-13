@@ -50,10 +50,10 @@ export class OpsAttentionDashboardComponent implements OnInit {
   private readonly appPermissionService = inject(AppPermissionService);
 
   protected readonly canViewAssets = this.appPermissionService.hasPermission(
-    APP_PERMISSION.UI.DASHBOARD.ASSETS
+    APP_PERMISSION.DASHBOARD.ASSET_COMPLIANCE
   );
   protected readonly canViewTransport = this.appPermissionService.hasPermission(
-    APP_PERMISSION.UI.DASHBOARD.TRANSPORT
+    APP_PERMISSION.DASHBOARD.VEHICLE_COMPLIANCE
   );
 
   protected readonly APP_CONFIG = APP_CONFIG;

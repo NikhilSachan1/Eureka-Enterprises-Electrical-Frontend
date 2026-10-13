@@ -42,6 +42,7 @@
   </div>
 
   <!-- ── Document & warranty renewals (assets + fleet) ─ -->
+  @if (canViewAssetCompliance) {
   <div class="kpm-card kpm-card--renewals">
     <div class="kpm-card__header">
       <div class="kpm-card__header-lead">
@@ -58,8 +59,10 @@
       }
     </div>
   </div>
+  }
 
   <!-- ── Fleet — service & readings ─────────────────── -->
+  @if (canViewVehicleCompliance) {
   <div class="kpm-card kpm-card--fleet-service">
     <div class="kpm-card__header">
       <div class="kpm-card__header-lead">
@@ -76,6 +79,7 @@
       }
     </div>
   </div>
+  }
 </div>
 
 <!-- ── Shared row template ──────────────────────────── -->

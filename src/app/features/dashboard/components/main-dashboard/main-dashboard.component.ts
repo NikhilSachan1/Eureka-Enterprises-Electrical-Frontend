@@ -8,6 +8,7 @@ import { IPageHeaderConfig } from '@shared/types';
 import { KpmDashboardComponent } from '@features/dashboard/components/kpm-dashboard/kpm-dashboard.component';
 import { OpsAttentionDashboardComponent } from '@features/dashboard/components/ops-attention-dashboard/ops-attention-dashboard.component';
 import { AttendanceDashboardComponent } from '@features/dashboard/components/attendance-dashboard/attendance-dashboard.component';
+import { ApplyAttendanceDashboardComponent } from '@features/dashboard/components/apply-attendance-dashboard/apply-attendance-dashboard.component';
 import { LeaveBalanceDashboardComponent } from '@features/dashboard/components/leave-balance-dashboard/leave-balance-dashboard.component';
 import { ExpenseDashboardComponent } from '@features/dashboard/components/expense-dashboard/expense-dashboard.component';
 import { FuelExpenseDashboardComponent } from '@features/dashboard/components/fuel-expense-dashboard/fuel-expense-dashboard.component';
@@ -26,6 +27,7 @@ import { HolidayDashboardComponent } from '../holiday-dashboard/holiday-dashboar
     PetroCardWalletDashboardComponent,
     OpsAttentionDashboardComponent,
     AttendanceDashboardComponent,
+    ApplyAttendanceDashboardComponent,
     LeaveBalanceDashboardComponent,
     ExpenseDashboardComponent,
     FuelExpenseDashboardComponent,
@@ -44,11 +46,14 @@ export class MainDashboardComponent {
   protected readonly canViewLedgerSpend = this.appPermissionService.hasPermission(
     APP_PERMISSION.UI.DASHBOARD.LEDGER_SPEND
   );
+  protected readonly showApplyAttendance = this.appPermissionService.hasPermission(
+    APP_PERMISSION.ATTENDANCE.APPLY
+  );
   protected readonly canViewAssets = this.appPermissionService.hasPermission(
-    APP_PERMISSION.UI.DASHBOARD.ASSETS
+    APP_PERMISSION.DASHBOARD.ASSET_COMPLIANCE
   );
   protected readonly canViewTransport = this.appPermissionService.hasPermission(
-    APP_PERMISSION.UI.DASHBOARD.TRANSPORT
+    APP_PERMISSION.DASHBOARD.VEHICLE_COMPLIANCE
   );
   protected readonly opsSectionTitle =
     this.canViewAssets && this.canViewTransport

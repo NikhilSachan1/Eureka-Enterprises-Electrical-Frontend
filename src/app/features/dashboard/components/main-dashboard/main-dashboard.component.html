@@ -75,7 +75,11 @@
           aria-label="Attendance and leave balance"
         >
           @defer (on idle) {
-            <app-attendance-dashboard />
+            @if (showApplyAttendance) {
+              <app-apply-attendance-dashboard />
+            } @else {
+              <app-attendance-dashboard />
+            }
             <app-leave-balance-dashboard />
           } @placeholder {
             <div

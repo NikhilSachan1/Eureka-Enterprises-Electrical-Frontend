@@ -183,6 +183,10 @@ export const APP_PERMISSION = {
     EDIT: 'vehicle-service.edit',
     DELETE: 'vehicle-service.delete',
   },
+  DASHBOARD: {
+    ASSET_COMPLIANCE: 'dashboard.asset-compliance',
+    VEHICLE_COMPLIANCE: 'dashboard.vehicle-compliance',
+  },
   CRON: {
     TABLE_VIEW: 'cron.view-list',
     RUN: 'cron.run',
@@ -402,8 +406,6 @@ export const APP_PERMISSION = {
     },
     DASHBOARD: {
       LEDGER_SPEND: 'ui_dashboard_ledger_spend',
-      ASSETS: 'ui_dashboard_assets',
-      TRANSPORT: 'ui_dashboard_transport',
     },
   },
 } as const;
@@ -626,22 +628,6 @@ export const UI_PERMISSIONS_ROLE_MAP = {
   },
   DASHBOARD: {
     LEDGER_SPEND: {
-      [EUserRole.ADMIN]: true,
-      [EUserRole.DRIVER]: false,
-      [EUserRole.EMPLOYEE]: false,
-      [EUserRole.OPERATION_MANAGER]: true,
-      [EUserRole.SUPER_ADMIN]: true,
-      [EUserRole.HR]: true,
-    },
-    ASSETS: {
-      [EUserRole.ADMIN]: true,
-      [EUserRole.DRIVER]: false,
-      [EUserRole.EMPLOYEE]: false,
-      [EUserRole.OPERATION_MANAGER]: true,
-      [EUserRole.SUPER_ADMIN]: true,
-      [EUserRole.HR]: true,
-    },
-    TRANSPORT: {
       [EUserRole.ADMIN]: true,
       [EUserRole.DRIVER]: false,
       [EUserRole.EMPLOYEE]: false,

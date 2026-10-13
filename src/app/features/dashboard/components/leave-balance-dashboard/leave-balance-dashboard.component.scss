@@ -144,6 +144,170 @@
   text-align: center;
 }
 
+.own-leave {
+  display: flex;
+  align-items: flex-start;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.own-leave__panel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 1.5rem;
+  width: 100%;
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 1.25rem;
+  }
+}
+
+.own-leave__ring {
+  --used: 0;
+  width: 10.25rem;
+  height: 10.25rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: conic-gradient(
+    from -90deg,
+    #059669 0% calc((100 - var(--used)) * 1%),
+    #f59e0b calc((100 - var(--used)) * 1%) 100%
+  );
+  box-shadow:
+    0 0 0 0.55rem color-mix(in srgb, #10b981 10%, transparent),
+    0 18px 36px -22px rgb(15 23 42 / 0.45);
+}
+
+.own-leave__ring--spent {
+  box-shadow:
+    0 0 0 0.55rem color-mix(in srgb, #f59e0b 14%, transparent),
+    0 18px 36px -22px rgb(15 23 42 / 0.45);
+}
+
+.own-leave__ring--none {
+  background: color-mix(in srgb, var(--border-light-color) 85%, #fff);
+  box-shadow:
+    0 0 0 0.55rem color-mix(in srgb, var(--border-light-color) 35%, transparent),
+    0 18px 36px -22px rgb(15 23 42 / 0.28);
+}
+
+.own-leave__ring-core {
+  width: 7.55rem;
+  height: 7.55rem;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--background-paper-color);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border-light-color) 75%, transparent);
+}
+
+.own-leave__ring-value {
+  font-size: 2.15rem;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary-color);
+}
+
+.own-leave__ring-label {
+  margin-top: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary-color);
+}
+
+.own-leave__facts {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid var(--border-light-color);
+  border-radius: 1rem;
+  background: var(--background-default-color);
+  overflow: hidden;
+}
+
+.own-leave__fact {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.95rem 1.05rem;
+
+  & + & {
+    border-top: 1px solid var(--border-light-color);
+  }
+}
+
+.own-leave__fact-icon {
+  width: 2.45rem;
+  height: 2.45rem;
+  border-radius: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.own-leave__fact-icon--allocated {
+  background: linear-gradient(145deg, #60a5fa 0%, #2563eb 100%);
+}
+
+.own-leave__fact-icon--consumed {
+  background: linear-gradient(145deg, #fbbf24 0%, #d97706 100%);
+}
+
+.own-leave__fact-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.own-leave__fact-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary-color);
+}
+
+.own-leave__fact-value {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary-color);
+}
+
+.own-leave__fact-unit {
+  margin-left: 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--text-secondary-color);
+}
+
+.own-leave__note {
+  margin: 0;
+  padding: 0.75rem 1.05rem 0.85rem;
+  border-top: 1px solid var(--border-light-color);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary-color);
+  background: color-mix(in srgb, var(--border-light-color) 18%, var(--background-default-color));
+}
+
 .leave-balance-dashboard__loading {
   display: flex;
   flex-direction: column;
