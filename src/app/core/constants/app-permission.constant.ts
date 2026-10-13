@@ -400,6 +400,9 @@ export const APP_PERMISSION = {
       TAB_ALL: 'ui_vehicle_tab_all',
       TAB_PENDING: 'ui_vehicle_tab_pending',
     },
+    DASHBOARD: {
+      LEDGER_SPEND: 'ui_dashboard_ledger_spend',
+    },
   },
 } as const;
 
@@ -618,5 +621,15 @@ export const UI_PERMISSIONS_ROLE_MAP = {
     TAB_MY: UI_TAB_OWN_ROLES,
     TAB_ALL: UI_TAB_OWN_ROLES,
     TAB_PENDING: UI_TAB_OWN_ROLES,
+  },
+  DASHBOARD: {
+    LEDGER_SPEND: {
+      [EUserRole.ADMIN]: true,
+      [EUserRole.DRIVER]: false,
+      [EUserRole.EMPLOYEE]: false,
+      [EUserRole.OPERATION_MANAGER]: true,
+      [EUserRole.SUPER_ADMIN]: true,
+      [EUserRole.HR]: true,
+    },
   },
 } as const satisfies Record<string, Record<string, UIRolePermissionAccess>>;

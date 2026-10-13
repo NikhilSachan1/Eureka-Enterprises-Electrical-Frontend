@@ -127,45 +127,47 @@
         </div>
       </section>
 
-      <section
-        class="dash-section"
-        aria-labelledby="dash-finance-title"
-      >
-        <div class="dash-section__head">
-          <div class="dash-section__lead dash-section__lead--finance">
-            <span
-              class="dash-section__lead-icon dash-section__lead-icon--finance"
-              aria-hidden="true"
-            >
-              <span [class]="ICONS.COMMON.CREDIT_CARD"></span>
-            </span>
-            <div>
-              <h2
-                id="dash-finance-title"
-                class="dash-section__title"
+      @if (canViewLedgerSpend) {
+        <section
+          class="dash-section"
+          aria-labelledby="dash-finance-title"
+        >
+          <div class="dash-section__head">
+            <div class="dash-section__lead dash-section__lead--finance">
+              <span
+                class="dash-section__lead-icon dash-section__lead-icon--finance"
+                aria-hidden="true"
               >
-                Ledger &amp; spend
-              </h2>
-              <p class="dash-section__desc">Expense and fuel ledgers with balances and employee-wise summaries.</p>
+                <span [class]="ICONS.COMMON.CREDIT_CARD"></span>
+              </span>
+              <div>
+                <h2
+                  id="dash-finance-title"
+                  class="dash-section__title"
+                >
+                  Ledger &amp; spend
+                </h2>
+                <p class="dash-section__desc">Expense and fuel ledgers with balances and employee-wise summaries.</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div
-          class="dash-section__grid dash-section__grid--finance"
-          role="region"
-          aria-label="Ledger metrics"
-        >
-          @defer (on idle) {
-            <app-expense-dashboard />
-            <app-fuel-expense-dashboard />
-          } @placeholder {
-            <div
-              class="dash-section__defer"
-              aria-hidden="true"
-            ></div>
-          }
-        </div>
-      </section>
+          <div
+            class="dash-section__grid dash-section__grid--finance"
+            role="region"
+            aria-label="Ledger metrics"
+          >
+            @defer (on idle) {
+              <app-expense-dashboard />
+              <app-fuel-expense-dashboard />
+            } @placeholder {
+              <div
+                class="dash-section__defer"
+                aria-hidden="true"
+              ></div>
+            }
+          </div>
+        </section>
+      }
     </div>
   </div>
 </div>

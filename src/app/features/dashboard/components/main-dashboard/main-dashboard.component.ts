@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NgStyle } from '@angular/common';
+import { APP_PERMISSION } from '@core/constants';
+import { AppPermissionService } from '@core/services';
 import { SEVERITY_STYLES } from '@shared/config';
 import { ICONS } from '@shared/constants';
 import { IPageHeaderConfig } from '@shared/types';
@@ -36,7 +38,12 @@ import { HolidayDashboardComponent } from '../holiday-dashboard/holiday-dashboar
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainDashboardComponent {
+  private readonly appPermissionService = inject(AppPermissionService);
+
   protected readonly ICONS = ICONS;
+  protected readonly canViewLedgerSpend = this.appPermissionService.hasPermission(
+    APP_PERMISSION.UI.DASHBOARD.LEDGER_SPEND
+  );
 
   protected readonly dashboardPageHeader: Partial<IPageHeaderConfig> = {
     title: 'Dashboard',
