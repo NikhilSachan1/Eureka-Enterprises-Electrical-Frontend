@@ -17,20 +17,24 @@
         </div>
       </div>
       <div class="ops-board__links">
-        <app-button
-          [buttonConfig]="openAssetsButton"
-          (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.ASSET, ROUTES.ASSET.LIST])"
-        />
-        <app-button
-          [buttonConfig]="openVehiclesButton"
-          (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.TRANSPORT, ROUTE_BASE_PATHS.VEHICLE, ROUTES.VEHICLE.LIST])"
-        />
-        <app-button
-          [buttonConfig]="openServicesButton"
-          (onButtonClick)="
-            navigateTo(['/', ROUTE_BASE_PATHS.TRANSPORT, ROUTE_BASE_PATHS.VEHICLE_SERVICE, ROUTES.VEHICLE_SERVICE.LIST])
-          "
-        />
+        @if (canViewAssets) {
+          <app-button
+            [buttonConfig]="openAssetsButton"
+            (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.ASSET, ROUTES.ASSET.LIST])"
+          />
+        }
+        @if (canViewTransport) {
+          <app-button
+            [buttonConfig]="openVehiclesButton"
+            (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.TRANSPORT, ROUTE_BASE_PATHS.VEHICLE, ROUTES.VEHICLE.LIST])"
+          />
+          <app-button
+            [buttonConfig]="openServicesButton"
+            (onButtonClick)="
+              navigateTo(['/', ROUTE_BASE_PATHS.TRANSPORT, ROUTE_BASE_PATHS.VEHICLE_SERVICE, ROUTES.VEHICLE_SERVICE.LIST])
+            "
+          />
+        }
       </div>
     </div>
 

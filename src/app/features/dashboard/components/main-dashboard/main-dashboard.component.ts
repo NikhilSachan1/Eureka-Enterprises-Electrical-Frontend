@@ -44,6 +44,18 @@ export class MainDashboardComponent {
   protected readonly canViewLedgerSpend = this.appPermissionService.hasPermission(
     APP_PERMISSION.UI.DASHBOARD.LEDGER_SPEND
   );
+  protected readonly canViewAssets = this.appPermissionService.hasPermission(
+    APP_PERMISSION.UI.DASHBOARD.ASSETS
+  );
+  protected readonly canViewTransport = this.appPermissionService.hasPermission(
+    APP_PERMISSION.UI.DASHBOARD.TRANSPORT
+  );
+  protected readonly opsSectionTitle =
+    this.canViewAssets && this.canViewTransport
+      ? 'Assets & transport'
+      : this.canViewAssets
+        ? 'Assets'
+        : 'Transport';
 
   protected readonly dashboardPageHeader: Partial<IPageHeaderConfig> = {
     title: 'Dashboard',

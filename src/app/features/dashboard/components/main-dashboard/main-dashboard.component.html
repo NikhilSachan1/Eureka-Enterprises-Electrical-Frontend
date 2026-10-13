@@ -86,46 +86,54 @@
         </div>
       </section>
 
-      <section
-        class="dash-section"
-        aria-labelledby="dash-ops-title"
-      >
-        <div class="dash-section__head">
-          <div class="dash-section__lead dash-section__lead--ops">
-            <span
-              class="dash-section__lead-icon dash-section__lead-icon--ops"
-              aria-hidden="true"
-            >
-              <span [class]="ICONS.COMMON.CAR"></span>
-            </span>
-            <div>
-              <h2
-                id="dash-ops-title"
-                class="dash-section__title"
+      @if (canViewAssets || canViewTransport) {
+        <section
+          class="dash-section"
+          aria-labelledby="dash-ops-title"
+        >
+          <div class="dash-section__head">
+            <div class="dash-section__lead dash-section__lead--ops">
+              <span
+                class="dash-section__lead-icon dash-section__lead-icon--ops"
+                aria-hidden="true"
               >
-                Assets &amp; transport
-              </h2>
-              <p class="dash-section__desc">
-                Work queue for calibration, warranty, fleet documents, and service — overdue vs coming due.
-              </p>
+                <span [class]="ICONS.COMMON.CAR"></span>
+              </span>
+              <div>
+                <h2
+                  id="dash-ops-title"
+                  class="dash-section__title"
+                >
+                  {{ opsSectionTitle }}
+                </h2>
+                <p class="dash-section__desc">
+                  @if (canViewAssets && canViewTransport) {
+                    Work queue for calibration, warranty, fleet documents, and service — overdue vs coming due.
+                  } @else if (canViewAssets) {
+                    Work queue for asset calibration and warranty — overdue vs coming due.
+                  } @else {
+                    Work queue for fleet documents and vehicle service — overdue vs coming due.
+                  }
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-        <div
-          class="dash-section__grid dash-section__grid--ops"
-          role="region"
-          aria-label="Operations alerts"
-        >
-          @defer (on idle) {
-            <app-ops-attention-dashboard />
-          } @placeholder {
-            <div
-              class="dash-section__defer"
-              aria-hidden="true"
-            ></div>
-          }
-        </div>
-      </section>
+          <div
+            class="dash-section__grid dash-section__grid--ops"
+            role="region"
+            aria-label="Operations alerts"
+          >
+            @defer (on idle) {
+              <app-ops-attention-dashboard />
+            } @placeholder {
+              <div
+                class="dash-section__defer"
+                aria-hidden="true"
+              ></div>
+            }
+          </div>
+        </section>
+      }
 
       @if (canViewLedgerSpend) {
         <section
