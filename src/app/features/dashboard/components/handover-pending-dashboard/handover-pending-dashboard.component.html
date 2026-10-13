@@ -1,0 +1,66 @@
+@let config = APP_CONFIG.NUMBER_FORMATS;
+
+@if (canViewAssetPending || canViewVehiclePending) {
+  <section
+    class="pending-strip"
+    [attr.aria-label]="title"
+  >
+    <h2 class="pending-strip__title">{{ title }}</h2>
+    <div class="pending-strip__grid">
+      @if (canViewAssetPending) {
+        <button
+          type="button"
+          class="pending-tile"
+          (click)="openAssets()"
+        >
+          <span
+            [class]="ICONS.ASSET.BOX + ' pending-tile__icon'"
+            aria-hidden="true"
+          ></span>
+          <span class="pending-tile__copy">
+            <span class="pending-tile__label">Assets</span>
+            <span class="pending-tile__hint">Handovers waiting on you</span>
+          </span>
+          <span class="pending-tile__count">
+            @if (assetLoading()) {
+              <span
+                [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+                aria-hidden="true"
+              ></span>
+              <span class="pending-tile__sr">Loading</span>
+            } @else {
+              {{ assetCount() ?? 0 | number: config.DEFAULT : config.LOCALE }}
+            }
+          </span>
+        </button>
+      }
+      @if (canViewVehiclePending) {
+        <button
+          type="button"
+          class="pending-tile"
+          (click)="openVehicles()"
+        >
+          <span
+            [class]="ICONS.ASSET.CAR + ' pending-tile__icon'"
+            aria-hidden="true"
+          ></span>
+          <span class="pending-tile__copy">
+            <span class="pending-tile__label">Vehicles</span>
+            <span class="pending-tile__hint">Handovers waiting on you</span>
+          </span>
+          <span class="pending-tile__count">
+            @if (vehicleLoading()) {
+              <span
+                [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+                aria-hidden="true"
+              ></span>
+              <span class="pending-tile__sr">Loading</span>
+            } @else {
+              {{ vehicleCount() ?? 0 | number: config.DEFAULT : config.LOCALE }}
+            }
+          </span>
+        </button>
+      }
+    </div>
+  </section>
+}

@@ -17,6 +17,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { AnniversaryDashboardComponent } from '../anniversary-dashboard/anniversary-dashboard.component';
 import { BirthdaysDashboardComponent } from '../birthdays-dashboard/birthdays-dashboard.component';
 import { HolidayDashboardComponent } from '../holiday-dashboard/holiday-dashboard.component';
+import { HandoverPendingDashboardComponent } from '../handover-pending-dashboard/handover-pending-dashboard.component';
 
 @Component({
   selector: 'app-main-dashboard',
@@ -34,6 +35,7 @@ import { HolidayDashboardComponent } from '../holiday-dashboard/holiday-dashboar
     AnniversaryDashboardComponent,
     BirthdaysDashboardComponent,
     HolidayDashboardComponent,
+    HandoverPendingDashboardComponent,
   ],
   templateUrl: './main-dashboard.component.html',
   styleUrl: './main-dashboard.component.scss',

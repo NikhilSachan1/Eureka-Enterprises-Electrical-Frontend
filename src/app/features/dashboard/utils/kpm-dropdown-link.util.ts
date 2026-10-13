@@ -40,6 +40,32 @@ export function pickDropdownValue(
   })?.value;
 }
 
+/** Tab index for My / All / Pending, matching the visible order on the list page. */
+export function scopeTabQuery(
+  hasPermission: (permission: string) => boolean,
+  permissions: {
+    readonly TAB_MY: string;
+    readonly TAB_ALL: string;
+    readonly TAB_PENDING: string;
+  },
+  scope: 'MY' | 'ALL' | 'PENDING'
+): { tab: string } | undefined {
+  const visible = (
+    [
+      ['MY', permissions.TAB_MY],
+      ['ALL', permissions.TAB_ALL],
+      ['PENDING', permissions.TAB_PENDING],
+    ] as const
+  ).filter(([, permission]) => hasPermission(permission));
+  const index = visible.findIndex(([name]) => name === scope);
+
+  if (index < 0) {
+    return undefined;
+  }
+
+  return { tab: String(index) };
+}
+
 export function statusFilterQuery(
   field: string,
   value: string | undefined

@@ -31,6 +31,7 @@ import {
 } from '@features/dashboard/types/dashboard.interface';
 import {
   pickDropdownValue,
+  scopeTabQuery,
   statusFilterQuery,
 } from '@features/dashboard/utils/kpm-dropdown-link.util';
 
@@ -146,7 +147,7 @@ export class KpmDashboardComponent implements OnInit {
   ): IDashboardKpmMetricLink {
     return this.linkTo(
       ['/', ROUTE_BASE_PATHS.ASSET, ROUTES.ASSET.LIST],
-      statusFilterQuery(field, status)
+      this.withAllTabQuery('asset', statusFilterQuery(field, status))
     );
   }
 
@@ -161,8 +162,27 @@ export class KpmDashboardComponent implements OnInit {
         ROUTE_BASE_PATHS.VEHICLE,
         ROUTES.VEHICLE.LIST,
       ],
-      statusFilterQuery(field, status)
+      this.withAllTabQuery('vehicle', statusFilterQuery(field, status))
     );
+  }
+
+  /** Compliance rows open the All tab, not My Assets / My Vehicles. */
+  private withAllTabQuery(
+    kind: 'asset' | 'vehicle',
+    statusQuery: Record<string, string[]> | undefined
+  ): Record<string, string | readonly string[]> | undefined {
+    const permissions =
+      kind === 'asset' ? APP_PERMISSION.UI.ASSET : APP_PERMISSION.UI.VEHICLE;
+    const queryParams = {
+      ...(statusQuery ?? {}),
+      ...(scopeTabQuery(
+        permission => this.appPermissionService.hasPermission(permission),
+        permissions,
+        'ALL'
+      ) ?? {}),
+    };
+
+    return Object.keys(queryParams).length > 0 ? queryParams : undefined;
   }
 
   private loadApprovalPending(): void {
