@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { APP_PERMISSION } from '@core/constants';
 import { AppPermissionService } from '@core/services';
@@ -43,6 +49,19 @@ import { HandoverPendingDashboardComponent } from '../handover-pending-dashboard
 })
 export class MainDashboardComponent {
   private readonly appPermissionService = inject(AppPermissionService);
+  private readonly ledgerSpendSection =
+    viewChild<ElementRef<HTMLElement>>('ledgerSpend');
+
+  protected scrollToSection(sectionId: string): void {
+    if (sectionId !== 'ledger-spend') {
+      return;
+    }
+
+    this.ledgerSpendSection()?.nativeElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }
 
   protected readonly ICONS = ICONS;
   protected readonly canViewLedgerSpend = this.appPermissionService.hasPermission(

@@ -6,7 +6,7 @@
     <div class="status-dashboard__shell">
       <app-page-header [pageHeaderConfig]="dashboardPageHeader" />
 
-      <app-kpm-dashboard />
+      <app-kpm-dashboard (scrollToSection)="scrollToSection($event)" />
       <app-handover-pending-dashboard />
       <app-petro-card-wallet-dashboard />
 
@@ -142,6 +142,8 @@
 
       @if (canViewLedgerSpend) {
         <section
+          #ledgerSpend
+          id="ledger-spend"
           class="dash-section"
           aria-labelledby="dash-finance-title"
         >

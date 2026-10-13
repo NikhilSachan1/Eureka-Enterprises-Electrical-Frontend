@@ -66,8 +66,10 @@ export interface IDashboardOpsAttentionChip {
 
 /** Navigation target for a clickable KPM metric row. */
 export interface IDashboardKpmMetricLink {
-  readonly commands: readonly string[];
+  readonly commands?: readonly string[];
   readonly queryParams?: Record<string, string | readonly string[]>;
+  /** Same-page section id. When set, the row scrolls there instead of routing. */
+  readonly scrollToId?: string;
 }
 
 /** Row for a KPM dashboard metric. */

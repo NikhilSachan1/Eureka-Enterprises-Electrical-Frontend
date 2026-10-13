@@ -5,6 +5,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  output,
   signal,
 } from '@angular/core';
 import { CurrencyPipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
@@ -47,6 +48,9 @@ export class KpmDashboardComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly logger = inject(LoggerService);
   private readonly router = inject(Router);
+
+  /** Asks the dashboard page to scroll to a section it owns. */
+  readonly scrollToSection = output<string>();
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly appPermissionService = inject(AppPermissionService);
 
@@ -125,6 +129,15 @@ export class KpmDashboardComponent implements OnInit {
       return;
     }
 
+    if (row.link.scrollToId) {
+      this.scrollToSection.emit(row.link.scrollToId);
+      return;
+    }
+
+    if (!row.link.commands?.length) {
+      return;
+    }
+
     void this.router.navigate([...row.link.commands], {
       queryParams: row.link.queryParams,
     });
@@ -139,6 +152,18 @@ export class KpmDashboardComponent implements OnInit {
     queryParams?: Record<string, string | readonly string[]>
   ): IDashboardKpmMetricLink {
     return queryParams ? { commands, queryParams } : { commands };
+  }
+
+  private ledgerSpendLink(): IDashboardKpmMetricLink | undefined {
+    if (
+      !this.appPermissionService.hasPermission(
+        APP_PERMISSION.UI.DASHBOARD.LEDGER_SPEND
+      )
+    ) {
+      return undefined;
+    }
+
+    return { scrollToId: 'ledger-spend' };
   }
 
   private assetLink(
@@ -382,6 +407,7 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.CURRENCY,
         state: sevPayable(payable?.totalAmount ?? 0),
         valueLoading,
+        link: this.ledgerSpendLink(),
       },
       {
         icon: ICONS.COMMON.ARROW_DOWN,
@@ -391,6 +417,7 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.CURRENCY,
         state: sevRecover(overpaid?.totalAmount ?? 0),
         valueLoading,
+        link: this.ledgerSpendLink(),
       },
       {
         icon: ICONS.FUEL.MENU,
@@ -400,6 +427,7 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.CURRENCY,
         state: sevPayable(fuelPayable?.totalAmount ?? 0),
         valueLoading,
+        link: this.ledgerSpendLink(),
       },
       {
         icon: ICONS.COMMON.ARROW_DOWN,
@@ -409,6 +437,7 @@ export class KpmDashboardComponent implements OnInit {
         format: EDataType.CURRENCY,
         state: sevRecover(fuelOverpaid?.totalAmount ?? 0),
         valueLoading,
+        link: this.ledgerSpendLink(),
       },
     ];
   }
