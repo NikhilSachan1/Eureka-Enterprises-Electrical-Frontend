@@ -1,10 +1,12 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   inject,
+  input,
   OnInit,
+  output,
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -22,6 +24,7 @@ import {
   formatProjectLocation,
   formatVehicleBrandModel,
   getAssignedDriverDisplayName,
+  getAssignedEmployeeDisplayName,
   NULL_ASSIGNMENT_FORM_VALUES,
 } from '@features/attendance-management/utility/attendance-assignment.util';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -48,6 +51,7 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
   imports: [
     PageHeaderComponent,
     DatePipe,
+    NgTemplateOutlet,
     SecondsToDhmsPipe,
     TextCasePipe,
     ButtonComponent,
@@ -68,6 +72,12 @@ export class ApplyAttendanceComponent
   protected readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
+  /** Dashboard mode: status comes from `currentStatus`, page header is hidden, and submit emits `attendanceApplied` instead of navigating. */
+  readonly embedded = input(false);
+  readonly currentStatus =
+    input<IAttendanceCurrentStatusGetResponseDto | null>(null);
+  readonly attendanceApplied = output<void>();
+
   private readonly formContext = {
     isEmployee: false,
     isDriver: false,
@@ -77,14 +87,16 @@ export class ApplyAttendanceComponent
 
   protected readonly initialAttendanceData =
     signal<IAttendanceApplyUIFormDto | null>(null);
-  protected readonly currentStatusData =
+  private readonly routeStatusData =
     signal<IAttendanceCurrentStatusGetResponseDto | null>(null);
+  protected readonly currentStatusData = computed(() =>
+    this.embedded() ? this.currentStatus() : this.routeStatusData()
+  );
   protected readonly assignmentSubmitPayload =
     signal<IAttendanceAssignmentSubmitPayload>(NULL_ASSIGNMENT_FORM_VALUES);
 
-  protected readonly todayDate = new Date();
-  protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ALL_ICONS = ICONS;
+  protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly formatProjectLocation = formatProjectLocation;
   protected readonly formatVehicleBrandModel = formatVehicleBrandModel;
   protected readonly assignedDriverName = computed(() =>
@@ -95,6 +107,20 @@ export class ApplyAttendanceComponent
       ? 'Assigned Drivers'
       : 'Assigned Driver'
   );
+  protected readonly assignedEngineerName = computed(() =>
+    getAssignedEmployeeDisplayName(this.currentStatusData())
+  );
+  protected readonly hasAssignment = computed(() => {
+    const assignedPerson = this.isDriverUser
+      ? this.assignedEngineerName()
+      : this.assignedDriverName();
+
+    return (
+      !!this.currentStatusData()?.site?.name ||
+      !!this.currentStatusData()?.vehicle?.registrationNo ||
+      !!assignedPerson
+    );
+  });
   protected isEmployeeUser = false;
   protected isDriverUser = false;
 
@@ -105,7 +131,14 @@ export class ApplyAttendanceComponent
     this.formContext.isEmployee = this.isEmployeeUser;
     this.formContext.isDriver = this.isDriverUser;
 
-    this.loadCurrentStatusDataFromRoute();
+    if (this.embedded()) {
+      this.initialAttendanceData.set({
+        ...NULL_ASSIGNMENT_FORM_VALUES,
+        remark: null,
+      });
+    } else {
+      this.loadCurrentStatusDataFromRoute();
+    }
 
     this.form = this.formService.createForm<IAttendanceApplyUIFormDto>(
       APPLY_ATTENDANCE_FORM_CONFIG,
@@ -131,7 +164,7 @@ export class ApplyAttendanceComponent
       void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
     }
-    this.currentStatusData.set(currentStatusFromResolver);
+    this.routeStatusData.set(currentStatusFromResolver);
     this.initialAttendanceData.set({
       ...NULL_ASSIGNMENT_FORM_VALUES,
       remark: null,
@@ -171,12 +204,16 @@ export class ApplyAttendanceComponent
       )
       .subscribe({
         next: () => {
+          this.notificationService.success('Attendance applied successfully');
+          if (this.embedded()) {
+            this.attendanceApplied.emit();
+            return;
+          }
           const routeSegments = [
             ROUTE_BASE_PATHS.ATTENDANCE,
             ROUTES.ATTENDANCE.LIST,
           ];
           void this.routerNavigationService.navigateToRoute(routeSegments);
-          this.notificationService.success('Attendance applied successfully');
         },
         error: () => {
           this.notificationService.error('Failed to apply attendance');

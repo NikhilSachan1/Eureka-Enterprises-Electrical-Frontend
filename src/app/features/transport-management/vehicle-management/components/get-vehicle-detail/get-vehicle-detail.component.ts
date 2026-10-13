@@ -63,8 +63,10 @@ export class GetVehicleDetailComponent extends DrawerDetailBase {
       )
       .subscribe({
         next: (response: IVehicleDetailGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
-          this._vehicleDetails.set(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapDetailData(response),
+            mappedData => this._vehicleDetails.set(mappedData)
+          );
           this.logger.logUserAction('Vehicle details loaded successfully');
         },
         error: error => {
@@ -82,7 +84,7 @@ export class GetVehicleDetailComponent extends DrawerDetailBase {
   private mapDetailData(
     response: IVehicleDetailGetResponseDto
   ): IDataViewDetailsWithEntity {
-    const mappedDetails = response.versionHistory.reverse().map(record => {
+    const mappedDetails = [...response.versionHistory].reverse().map(record => {
       const entryData: IDataViewDetails['entryData'] = [
         {
           label: 'Vehicle Number',

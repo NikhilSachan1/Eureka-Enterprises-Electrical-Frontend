@@ -153,7 +153,10 @@ export class GetInvoiceComponent implements OnInit {
       .subscribe({
         next: (response: IInvoiceGetResponseDto) => {
           const { records, totalRecords } = response;
-          this.table.setData(this.mapTableData(records));
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.logger.logUserAction('Invoice records loaded successfully');
         },

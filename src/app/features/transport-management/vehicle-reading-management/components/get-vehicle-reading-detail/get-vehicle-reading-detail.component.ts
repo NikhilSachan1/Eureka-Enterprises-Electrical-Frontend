@@ -63,8 +63,10 @@ export class GetVehicleReadingDetailComponent extends DrawerDetailBase {
       )
       .subscribe({
         next: (response: IVehicleReadingDetailGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
-          this._vehicleReadingDetails.set(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapDetailData(response),
+            mappedData => this._vehicleReadingDetails.set(mappedData)
+          );
           this.logger.logUserAction(
             'Vehicle reading details loaded successfully'
           );

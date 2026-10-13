@@ -23,7 +23,7 @@ import { ToastModule } from 'primeng/toast';
 import { AuthService } from '../../services/auth.service';
 import { CriticalStartupStateService } from '@core/services';
 import { ROLE_SELECTION_BUTTON_CONFIG, AUTH_MESSAGES } from '../../constants';
-import { finalize, switchMap, tap } from 'rxjs/operators';
+import { finalize, switchMap, take, tap } from 'rxjs/operators';
 import { from } from 'rxjs';
 import {
   AnnouncementService,
@@ -121,9 +121,11 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
     this.rememberMe = rememberMe ?? false;
 
     if (roles.length > 1) {
+      this.authService.stageLoginSession(loginResponse);
       this.availableRoles.set(roles);
       this.userName.set(firstName);
       this.showRoleSelection.set(true);
+      this.loadRoleNames();
     } else {
       this.completeLogin(loginResponse, rememberMe);
     }
@@ -164,6 +166,16 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
     this.selectedRole.set(null);
     this.availableRoles.set([]);
     this.pendingLoginResponse = null;
+    this.authService.discardStagedLogin();
+  }
+
+  private loadRoleNames(): void {
+    this.appConfigurationService
+      .loadAllAppRoles()
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: error => this.logger.error('Failed to load role names', error),
+      });
   }
 
   private completeLogin(

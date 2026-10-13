@@ -324,8 +324,10 @@ export class GetAssetComponent implements OnInit {
         next: (response: IAssetGetResponseDto) => {
           const { records, stats, totalRecords } = response;
 
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.assetStats.set(stats);
           this.logger.logUserAction('Asset records loaded successfully');

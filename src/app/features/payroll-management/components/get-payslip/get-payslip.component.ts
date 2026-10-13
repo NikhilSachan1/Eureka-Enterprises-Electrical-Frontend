@@ -112,8 +112,10 @@ export class GetPayslipComponent implements OnInit {
       .subscribe({
         next: (response: IPayslipGetResponseDto) => {
           const { records, totalRecords } = response;
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.logger.info(PAYROLL_MESSAGES.SUCCESS.PAYSLIP_LIST_LOADED);
         },

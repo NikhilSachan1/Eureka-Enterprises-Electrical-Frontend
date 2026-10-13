@@ -400,6 +400,25 @@ export class AuthService {
     }
   }
 
+  /**
+   * Keeps the login tokens in memory so the role picker can load role names
+   * before the user is marked signed in.
+   */
+  stageLoginSession(loginResponse: ILoginResponseDto): void {
+    this._accessToken.set(loginResponse.accessToken);
+    this._refreshToken.set(loginResponse.refreshToken);
+  }
+
+  /** Drops a staged login when the user goes back to the credential form. */
+  discardStagedLogin(): void {
+    if (this._isAuthenticated()) {
+      return;
+    }
+
+    this._accessToken.set(null);
+    this._refreshToken.set(null);
+  }
+
   isTokenRefreshing(): boolean {
     return this.isRefreshing;
   }

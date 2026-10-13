@@ -817,33 +817,10 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       this.appConfigurationService.isDropdownLoading(
         dynamicDropdown.dropdownName
       ) ||
-      this.isConfigurationBackedDynamicDropdown(dynamicDropdown.dropdownName)
-    );
-  }
-
-  private isConfigurationBackedDynamicDropdown(dropdownName: string): boolean {
-    const nonConfigurationDynamicKeys = new Set<string>([
-      CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
-      CONFIGURATION_KEYS.ASSET.ASSET_LIST,
-      CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
-      CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
-      CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
-      CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
-      CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
-      CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
-      CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
-      CONFIGURATION_KEYS.COMMON.ROLE_LIST,
-      CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
-      CONFIGURATION_KEYS.PROJECT.ALLOCATION_STATUS,
-    ]);
-
-    if (nonConfigurationDynamicKeys.has(dropdownName)) {
-      return false;
-    }
-
-    return (
-      !this.appConfigurationService.isAppConfigurationDataReady() &&
-      this.appConfigurationService.isAppConfigurationLoading()
+      this.appConfigurationService.isConfigurationKeyLoading(
+        dynamicDropdown.moduleName,
+        dynamicDropdown.dropdownName
+      )
     );
   }
 

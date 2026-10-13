@@ -1,0 +1,36 @@
+<p-card class="status-dashboard__card">
+  <div class="card-block">
+    <div class="card-block__head card-block__head--wrap">
+      <div class="card-block__titles">
+        <div
+          class="card-block__icon-wrap"
+          aria-hidden="true"
+        >
+          <span [class]="ICONS.ATTENDANCE.CHECK_IN + ' card-block__icon'"></span>
+        </div>
+        <div>
+          <h2 class="card-block__title">Mark attendance</h2>
+          <p class="card-block__hint">Check in from your assigned location</p>
+        </div>
+      </div>
+      <div class="card-block__controls">
+        <app-button
+          [buttonConfig]="openAttendanceButton"
+          (onButtonClick)="openAttendance()"
+        />
+      </div>
+    </div>
+
+    <div class="apply-attendance-dashboard__body">
+      @if (currentStatus(); as status) {
+        <app-apply-attendance
+          [embedded]="true"
+          [currentStatus]="status"
+          (attendanceApplied)="loadCurrentStatus()"
+        />
+      } @else if (!loading()) {
+        <p class="card-block__muted">Couldn't load your attendance status. Please try again later.</p>
+      }
+    </div>
+  </div>
+</p-card>

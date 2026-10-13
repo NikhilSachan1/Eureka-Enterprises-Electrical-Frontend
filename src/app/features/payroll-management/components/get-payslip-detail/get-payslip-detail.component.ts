@@ -65,8 +65,10 @@ export class GetPayslipDetailComponent extends DrawerDetailBase {
       )
       .subscribe({
         next: (response: IPayslipDetailGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
-          this._payslipDetails.set(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapDetailData(response),
+            mappedData => this._payslipDetails.set(mappedData)
+          );
           this.logger.info(PAYROLL_MESSAGES.SUCCESS.PAYSLIP_DETAILS_LOADED);
         },
         error: error => {

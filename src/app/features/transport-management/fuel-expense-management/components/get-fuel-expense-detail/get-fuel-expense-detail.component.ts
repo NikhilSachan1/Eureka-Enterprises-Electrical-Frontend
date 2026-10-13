@@ -72,8 +72,10 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
       )
       .subscribe({
         next: (response: IFuelExpenseDetailGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
-          this._fuelExpenseDetails.set(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapDetailData(response),
+            mappedData => this._fuelExpenseDetails.set(mappedData)
+          );
           this.logger.logUserAction('Fuel expense details loaded successfully');
         },
         error: error => {
@@ -91,7 +93,7 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
   private mapDetailData(
     response: IFuelExpenseDetailGetResponseDto
   ): IDataViewDetailsWithEntity {
-    const mappedDetails = response.history.reverse().map(record => {
+    const mappedDetails = [...response.history].reverse().map(record => {
       const entryData: IDataViewDetails['entryData'] = [
         {
           label: 'Date',

@@ -1,12 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NgStyle } from '@angular/common';
-import { AuthService } from '@features/auth-management/services/auth.service';
+import { APP_PERMISSION } from '@core/constants';
+import { AppPermissionService } from '@core/services';
 import { SEVERITY_STYLES } from '@shared/config';
-import { EUserRole, ICONS } from '@shared/constants';
+import { ICONS } from '@shared/constants';
 import { IPageHeaderConfig } from '@shared/types';
 import { KpmDashboardComponent } from '@features/dashboard/components/kpm-dashboard/kpm-dashboard.component';
 import { OpsAttentionDashboardComponent } from '@features/dashboard/components/ops-attention-dashboard/ops-attention-dashboard.component';
 import { AttendanceDashboardComponent } from '@features/dashboard/components/attendance-dashboard/attendance-dashboard.component';
+import { ApplyAttendanceDashboardComponent } from '@features/dashboard/components/apply-attendance-dashboard/apply-attendance-dashboard.component';
 import { LeaveBalanceDashboardComponent } from '@features/dashboard/components/leave-balance-dashboard/leave-balance-dashboard.component';
 import { ExpenseDashboardComponent } from '@features/dashboard/components/expense-dashboard/expense-dashboard.component';
 import { FuelExpenseDashboardComponent } from '@features/dashboard/components/fuel-expense-dashboard/fuel-expense-dashboard.component';
@@ -15,12 +17,6 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { AnniversaryDashboardComponent } from '../anniversary-dashboard/anniversary-dashboard.component';
 import { BirthdaysDashboardComponent } from '../birthdays-dashboard/birthdays-dashboard.component';
 import { HolidayDashboardComponent } from '../holiday-dashboard/holiday-dashboard.component';
-
-const DASHBOARD_COMING_SOON_ROLES = new Set<string>([
-  EUserRole.EMPLOYEE,
-  EUserRole.DRIVER,
-  'ACCOUNTS',
-]);
 
 @Component({
   selector: 'app-main-dashboard',
@@ -31,6 +27,7 @@ const DASHBOARD_COMING_SOON_ROLES = new Set<string>([
     PetroCardWalletDashboardComponent,
     OpsAttentionDashboardComponent,
     AttendanceDashboardComponent,
+    ApplyAttendanceDashboardComponent,
     LeaveBalanceDashboardComponent,
     ExpenseDashboardComponent,
     FuelExpenseDashboardComponent,
@@ -43,25 +40,35 @@ const DASHBOARD_COMING_SOON_ROLES = new Set<string>([
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainDashboardComponent {
-  private readonly authService = inject(AuthService);
+  private readonly appPermissionService = inject(AppPermissionService);
 
   protected readonly ICONS = ICONS;
-
-  protected readonly showComingSoon = computed(() => {
-    const role = this.authService.user()?.activeRole;
-    return !!role && DASHBOARD_COMING_SOON_ROLES.has(role);
-  });
-
-  protected readonly dashboardPageHeader = computed<Partial<IPageHeaderConfig>>(
-    () => ({
-      title: 'Dashboard',
-      subtitle: this.showComingSoon()
-        ? 'A dashboard for your role is on the way.'
-        : 'Attendance, leave, celebrations, assets, fleet, and ledgers — one place to see what needs attention.',
-      showGoBackButton: false,
-      showHeaderButton: false,
-    })
+  protected readonly canViewLedgerSpend = this.appPermissionService.hasPermission(
+    APP_PERMISSION.UI.DASHBOARD.LEDGER_SPEND
   );
+  protected readonly showApplyAttendance = this.appPermissionService.hasPermission(
+    APP_PERMISSION.ATTENDANCE.APPLY
+  );
+  protected readonly canViewAssets = this.appPermissionService.hasPermission(
+    APP_PERMISSION.DASHBOARD.ASSET_COMPLIANCE
+  );
+  protected readonly canViewTransport = this.appPermissionService.hasPermission(
+    APP_PERMISSION.DASHBOARD.VEHICLE_COMPLIANCE
+  );
+  protected readonly opsSectionTitle =
+    this.canViewAssets && this.canViewTransport
+      ? 'Assets & transport'
+      : this.canViewAssets
+        ? 'Assets'
+        : 'Transport';
+
+  protected readonly dashboardPageHeader: Partial<IPageHeaderConfig> = {
+    title: 'Dashboard',
+    subtitle:
+      'Attendance, leave, celebrations, assets, fleet, and ledgers — one place to see what needs attention.',
+    showGoBackButton: false,
+    showHeaderButton: false,
+  };
 
   /** CSS vars for tiles + approval bar — same hex as `SEVERITY_STYLES` in status-map.config. */
   protected readonly workflowColorVars: Record<string, string> = {

@@ -175,7 +175,10 @@ export class GetPetroCardWalletComponent implements OnInit {
       )
       .subscribe({
         next: response => {
-          this.rechargeTable.setData(this.mapTableData(response.records));
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(response.records),
+            mappedData => this.rechargeTable.setData(mappedData)
+          );
           this.rechargeTable.updateTableConfig({
             totalRecords: response.totalRecords,
           });

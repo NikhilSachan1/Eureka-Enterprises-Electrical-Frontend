@@ -127,8 +127,10 @@ export class GetAttendanceComponent implements OnInit {
         next: (response: IAttendanceGetResponseDto) => {
           const { records, stats, totalRecords } = response;
 
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.attendanceStats.set(stats);
           this.logger.logUserAction('Attendance records loaded successfully');

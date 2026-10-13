@@ -118,8 +118,10 @@ export class GetAssetEventHistoryComponent implements OnInit {
         next: (response: IAssetEventHistoryGetResponseDto) => {
           const { records, stats, totalRecords } = response;
 
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.assetEventHistoryStats.set(stats);
           this.logger.logUserAction(

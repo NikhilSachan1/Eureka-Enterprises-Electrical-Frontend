@@ -1,167 +1,186 @@
-<app-page-header [pageHeaderConfig]="pageHeaderConfig()"></app-page-header>
+@if (!embedded()) {
+  <app-page-header [pageHeaderConfig]="pageHeaderConfig()"></app-page-header>
+}
 
-<div class="attendance-card">
-  <div class="content-card">
-    <div class="content-card__layout">
-      <!-- Status header (gradient) -->
-      <header class="status-header">
-        <div class="status-header__bg"></div>
-        <div class="status-content">
-          <div class="status-pill">
-            <span class="status-pill__dot"></span>
-            <span class="status-pill__text">
-              {{ getAttendanceStatusLabel(currentStatusData()?.status) | textCase: 'title' }}
-            </span>
-          </div>
-          <div class="time-info">
-            <span class="time-info__date">
-              {{ todayDate | date: APP_CONFIG.DATE_FORMATS.WITH_SHORT_MONTH }}
-            </span>
-            <span class="time-info__time">
-              {{ todayDate | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-            </span>
-          </div>
-        </div>
-      </header>
-
-      <!-- Hours + Check-in / Check-out (pehle wala style) -->
-      <section class="hours-section">
-        <div class="hours-block">
-          <div class="hours-block__value">
+@if (!embedded() || currentStatusData()) {
+  <div
+    class="apply-attendance"
+    [class.apply-attendance--page]="!embedded()"
+  >
+    <div class="apply-attendance__panel">
+      <div
+        class="apply-attendance__ring"
+        [class.apply-attendance__ring--live]="!!currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime"
+        [class.apply-attendance__ring--done]="!!currentStatusData()?.checkOutTime"
+        role="img"
+        [attr.aria-label]="getAttendanceStatusLabel(currentStatusData()?.status)"
+      >
+        <div class="apply-attendance__ring-core">
+          <span class="apply-attendance__ring-value">
             {{ currentStatusData()?.workDuration || 0 | secondsToDhms }}
-          </div>
-          <p class="hours-block__label">Total Hours Today</p>
+          </span>
+          <span
+            class="apply-attendance__ring-label"
+            [attr.title]="getAttendanceStatusLabel(currentStatusData()?.status)"
+          >
+            {{ getAttendanceStatusLabel(currentStatusData()?.status) | textCase: 'title' }}
+          </span>
         </div>
-        <div class="time-pills">
-          <div class="time-pill time-pill--start">
-            <span class="time-pill__label">Check-in</span>
-            <span class="time-pill__value time-pill__value--start">
-              @if (currentStatusData()?.checkInTime) {
-                {{ currentStatusData()?.checkInTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-              } @else {
-                —
-              }
-            </span>
-          </div>
-          <div class="time-pill__connector"></div>
-          <div class="time-pill time-pill--end">
-            <span class="time-pill__label">Check-out</span>
-            <span class="time-pill__value time-pill__value--end">
-              @if (currentStatusData()?.checkOutTime) {
-                {{ currentStatusData()?.checkOutTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-              } @else {
-                —
-              }
-            </span>
-          </div>
-        </div>
-      </section>
+      </div>
 
-      @if (!isDriverUser || !currentStatusData()?.checkInTime) {
-      <section class="content-card__main">
-        <form
-          class="form"
-          [formGroup]="form.formGroup"
-          (ngSubmit)="onSubmit()"
-        >
-          @if (isEmployeeUser) {
-            @if (
-              currentStatusData()?.site?.name ||
-              currentStatusData()?.vehicle?.registrationNo ||
-              (currentStatusData()?.checkInTime && assignedDriverName())
-            ) {
-              <div
-                class="apply-context"
-                [class.apply-context--checked-in]="!!currentStatusData()?.checkInTime"
+      <div class="apply-attendance__facts">
+        @if (currentStatusData()?.site; as site) {
+          @if (site.name) {
+            <div class="apply-attendance__fact">
+              <span
+                class="apply-attendance__fact-icon apply-attendance__fact-icon--project"
+                aria-hidden="true"
               >
-                @if (currentStatusData()?.site; as site) {
-                  @if (site.name) {
-                    <div class="apply-project">
-                      <div class="apply-project__content">
-                        <span class="apply-project__icon" aria-hidden="true">
-                          <i [class]="ALL_ICONS.SITE.BUILDING"></i>
-                        </span>
-                        <div class="apply-project__text">
-                          <span class="apply-project__label">Project</span>
-                          <p class="apply-project__name">
-                            {{ site.name | textCase: 'title' }}
-                          </p>
-                          @if (formatProjectLocation(site); as location) {
-                            <p class="apply-project__meta">
-                              <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
-                              <span>{{ location }}</span>
-                            </p>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  }
-                }
-                @if (currentStatusData()?.vehicle; as vehicle) {
-                  @if (vehicle.registrationNo) {
-                    <div class="apply-project apply-project--vehicle">
-                      <div class="apply-project__content">
-                        <span class="apply-project__icon" aria-hidden="true">
-                          <i [class]="ALL_ICONS.COMMON.CAR"></i>
-                        </span>
-                        <div class="apply-project__text">
-                          <span class="apply-project__label">Vehicle</span>
-                          <p class="apply-project__name">
-                            {{ vehicle.registrationNo }}
-                          </p>
-                          @if (formatVehicleBrandModel(vehicle); as brandModel) {
-                            <p class="apply-project__meta">
-                              {{ brandModel | textCase: 'title' }}
-                            </p>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  }
-                }
-                @if (currentStatusData()?.checkInTime && assignedDriverName(); as driver) {
-                  <div class="apply-project apply-project--driver">
-                    <div class="apply-project__content">
-                      <span class="apply-project__icon" aria-hidden="true">
-                        <i [class]="ALL_ICONS.COMMON.USER"></i>
-                      </span>
-                      <div class="apply-project__text">
-                        <span class="apply-project__label">{{ assignedDriverLabel() }}</span>
-                        <p class="apply-project__name">
-                          {{ driver | textCase: 'title' }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                <span [class]="ALL_ICONS.SITE.BUILDING"></span>
+              </span>
+              <div class="apply-attendance__fact-copy">
+                <span class="apply-attendance__fact-label">Project</span>
+                <span class="apply-attendance__fact-value apply-attendance__fact-value--text">
+                  {{ site.name | textCase: 'title' }}
+                </span>
+                @if (formatProjectLocation(site); as location) {
+                  <span class="apply-attendance__fact-meta">{{ location }}</span>
                 }
               </div>
-            }
-            @if (!currentStatusData()?.checkInTime) {
-            <app-attendance-assignment-fields
-              [formGroup]="form.formGroup"
-              [fieldConfigs]="form.fieldConfigs"
-              [assignmentPayload]="currentStatusData()"
-              [(submitPayload)]="assignmentSubmitPayload"
-            />
-            }
-            @if (!currentStatusData()?.checkInTime) {
-              <app-input-field
-                [formGroup]="form.formGroup"
-                [inputFieldConfig]="form.fieldConfigs.remark"
-              />
-            }
-          }
-          @if (!currentStatusData()?.checkInTime) {
-            <div class="action-button">
-              <app-button
-                [buttonConfig]="form.buttonConfigs['checkIn']"
-                [showButtonLoader]="isSubmitting()"
-              />
             </div>
           }
-        </form>
-      </section>
-      }
+        }
+        @if (isDriverUser && assignedEngineerName(); as engineer) {
+          <div class="apply-attendance__fact">
+            <span
+              class="apply-attendance__fact-icon apply-attendance__fact-icon--engineer"
+              aria-hidden="true"
+            >
+              <span [class]="ALL_ICONS.COMMON.USER"></span>
+            </span>
+            <div class="apply-attendance__fact-copy">
+              <span class="apply-attendance__fact-label">Assigned engineer</span>
+              <span class="apply-attendance__fact-value apply-attendance__fact-value--text">
+                {{ engineer | textCase: 'title' }}
+              </span>
+            </div>
+          </div>
+        }
+        @if (currentStatusData()?.vehicle; as vehicle) {
+          @if (vehicle.registrationNo) {
+            <div class="apply-attendance__fact">
+              <span
+                class="apply-attendance__fact-icon apply-attendance__fact-icon--vehicle"
+                aria-hidden="true"
+              >
+                <span [class]="ALL_ICONS.COMMON.CAR"></span>
+              </span>
+              <div class="apply-attendance__fact-copy">
+                <span class="apply-attendance__fact-label">Vehicle</span>
+                <span class="apply-attendance__fact-value apply-attendance__fact-value--text">
+                  {{ vehicle.registrationNo }}
+                </span>
+                @if (formatVehicleBrandModel(vehicle); as brandModel) {
+                  <span class="apply-attendance__fact-meta">{{ brandModel | textCase: 'title' }}</span>
+                }
+              </div>
+            </div>
+          }
+        }
+        @if (isEmployeeUser && assignedDriverName(); as driver) {
+          <div class="apply-attendance__fact">
+            <span
+              class="apply-attendance__fact-icon apply-attendance__fact-icon--driver"
+              aria-hidden="true"
+            >
+              <span [class]="ALL_ICONS.COMMON.USERS"></span>
+            </span>
+            <div class="apply-attendance__fact-copy">
+              <span class="apply-attendance__fact-label">{{ assignedDriverLabel() }}</span>
+              <span class="apply-attendance__fact-value apply-attendance__fact-value--text">
+                {{ driver | textCase: 'title' }}
+              </span>
+            </div>
+          </div>
+        }
+        @if (!hasAssignment()) {
+          <p class="apply-attendance__note">
+            @if (isDriverUser) {
+              No project, engineer, or vehicle assigned yet.
+            } @else {
+              No project, driver, or vehicle assigned yet.
+            }
+          </p>
+        }
+      </div>
     </div>
+
+    @if (currentStatusData()?.checkInTime) {
+    <div
+      class="apply-attendance__track"
+      [class.apply-attendance__track--live]="!!currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime"
+      [class.apply-attendance__track--done]="!!currentStatusData()?.checkOutTime"
+      aria-label="Check-in and check-out"
+    >
+      <div class="apply-attendance__track-line">
+        <div class="apply-attendance__stop">
+          <span class="apply-attendance__stop-label">Check-in</span>
+          <span class="apply-attendance__stop-value apply-attendance__stop-value--in">
+            {{ currentStatusData()?.checkInTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
+          </span>
+        </div>
+        <span class="apply-attendance__rail" aria-hidden="true"></span>
+        <div class="apply-attendance__stop apply-attendance__stop--end">
+          <span class="apply-attendance__stop-label">Check-out</span>
+          <span class="apply-attendance__stop-value apply-attendance__stop-value--out">
+            @if (currentStatusData()?.checkOutTime) {
+              {{ currentStatusData()?.checkOutTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
+            } @else {
+              —
+            }
+          </span>
+        </div>
+      </div>
+    </div>
+    }
+
+    @if (!isDriverUser || !currentStatusData()?.checkInTime) {
+      <div class="apply-attendance__form">
+        <ng-container *ngTemplateOutlet="applyForm" />
+      </div>
+    }
   </div>
-</div>
+}
+
+<ng-template #applyForm>
+  <form
+    class="form"
+    [formGroup]="form.formGroup"
+    (ngSubmit)="onSubmit()"
+  >
+    @if (isEmployeeUser) {
+      @if (!currentStatusData()?.checkInTime) {
+        <app-attendance-assignment-fields
+          [formGroup]="form.formGroup"
+          [fieldConfigs]="form.fieldConfigs"
+          [assignmentPayload]="currentStatusData()"
+          [(submitPayload)]="assignmentSubmitPayload"
+        />
+      }
+      @if (!currentStatusData()?.checkInTime) {
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.remark"
+        />
+      }
+    }
+    @if (!currentStatusData()?.checkInTime) {
+      <div class="action-button">
+        <app-button
+          [buttonConfig]="form.buttonConfigs['checkIn']"
+          [showButtonLoader]="isSubmitting()"
+        />
+      </div>
+    }
+  </form>
+</ng-template>

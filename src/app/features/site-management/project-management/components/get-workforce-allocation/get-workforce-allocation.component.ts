@@ -108,7 +108,10 @@ export class GetWorkforceAllocationComponent implements OnInit {
       .subscribe({
         next: (response: IWorkforceAllocationGetResponseDto) => {
           const { records, stats, totalRecords } = response;
-          this.table.setData(this.mapTableData(records));
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.allocationStats.set(stats);
           this.logger.logUserAction(

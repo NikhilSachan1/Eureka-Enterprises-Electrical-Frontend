@@ -12,6 +12,8 @@ import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Card } from 'primeng/card';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants';
+import { AppPermissionService } from '@core/services';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { dashTextLinkButton } from '@features/dashboard/utils/dashboard-link-button.config';
 import { DashboardService } from '@features/dashboard/services/dashboard.services';
@@ -45,6 +47,14 @@ export class OpsAttentionDashboardComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly dashboardService = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly appPermissionService = inject(AppPermissionService);
+
+  protected readonly canViewAssets = this.appPermissionService.hasPermission(
+    APP_PERMISSION.DASHBOARD.ASSET_COMPLIANCE
+  );
+  protected readonly canViewTransport = this.appPermissionService.hasPermission(
+    APP_PERMISSION.DASHBOARD.VEHICLE_COMPLIANCE
+  );
 
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ICONS = ICONS;
@@ -134,26 +144,44 @@ export class OpsAttentionDashboardComponent implements OnInit {
   private buildChips(
     rows: readonly IDashboardOpsAttentionRow[]
   ): IDashboardOpsAttentionChip[] {
-    return [
+    const chips: IDashboardOpsAttentionChip[] = [
       { id: 'all', label: 'All', count: rows.length },
-      {
+    ];
+
+    if (this.canViewAssets) {
+      chips.push({
         id: 'asset',
         label: 'Assets',
         count: rows.filter(row => row.domain === 'asset').length,
-      },
-      {
-        id: 'vehicle',
-        label: 'Vehicles',
-        count: rows.filter(row => row.tags.some(tag => tag.kind === 'fleet'))
-          .length,
-      },
-      {
-        id: 'service',
-        label: 'Service',
-        count: rows.filter(row => row.tags.some(tag => tag.kind === 'service'))
-          .length,
-      },
-    ];
+      });
+    }
+
+    if (this.canViewTransport) {
+      chips.push(
+        {
+          id: 'vehicle',
+          label: 'Vehicles',
+          count: rows.filter(row => row.tags.some(tag => tag.kind === 'fleet'))
+            .length,
+        },
+        {
+          id: 'service',
+          label: 'Service',
+          count: rows.filter(row =>
+            row.tags.some(tag => tag.kind === 'service')
+          ).length,
+        }
+      );
+    }
+
+    return chips;
+  }
+
+  private canViewKind(kind: TDashboardOpsAttentionKind): boolean {
+    if (kind === 'calibration' || kind === 'warranty') {
+      return this.canViewAssets;
+    }
+    return this.canViewTransport;
   }
 
   private buildRows(
@@ -177,7 +205,7 @@ export class OpsAttentionDashboardComponent implements OnInit {
 
     items.forEach(item => {
       const kind = this.mapKind(item.type);
-      if (!kind) {
+      if (!kind || !this.canViewKind(kind)) {
         return;
       }
 

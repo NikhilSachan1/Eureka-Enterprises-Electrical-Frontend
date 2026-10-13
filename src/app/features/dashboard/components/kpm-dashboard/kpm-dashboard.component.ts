@@ -12,8 +12,9 @@ import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { LoggerService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
 import { AppConfigurationService } from '@shared/services';
 import { DashboardService } from '@features/dashboard/services/dashboard.services';
 import {
@@ -46,6 +47,16 @@ export class KpmDashboardComponent implements OnInit {
   private readonly logger = inject(LoggerService);
   private readonly router = inject(Router);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly appPermissionService = inject(AppPermissionService);
+
+  protected readonly canViewAssetCompliance =
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.DASHBOARD.ASSET_COMPLIANCE
+    );
+  protected readonly canViewVehicleCompliance =
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.DASHBOARD.VEHICLE_COMPLIANCE
+    );
 
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ICONS = ICONS;
@@ -96,8 +107,16 @@ export class KpmDashboardComponent implements OnInit {
   ngOnInit(): void {
     this.loadApprovalPending();
     this.loadLedgerBalance();
-    this.loadAssetFleetAlerts();
-    this.loadVehicleReadingsAlerts();
+    if (this.canViewAssetCompliance || this.canViewVehicleCompliance) {
+      this.loadAssetFleetAlerts();
+    } else {
+      this.assetFleetAlertsLoading.set(false);
+    }
+    if (this.canViewVehicleCompliance) {
+      this.loadVehicleReadingsAlerts();
+    } else {
+      this.vehicleReadingsAlertsLoading.set(false);
+    }
   }
 
   protected openMetric(row: IDashboardKpmMetricRow): void {

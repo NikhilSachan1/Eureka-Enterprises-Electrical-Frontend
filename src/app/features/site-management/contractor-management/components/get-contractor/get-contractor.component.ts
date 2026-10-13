@@ -116,8 +116,10 @@ export class GetContractorComponent implements OnInit {
         next: (response: IContractorGetResponseDto) => {
           const { records, overallStats: stats, totalRecords } = response;
 
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.contractorStats.set(stats);
           this.logger.logUserAction('Contractor records loaded successfully');

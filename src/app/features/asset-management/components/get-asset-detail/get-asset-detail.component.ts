@@ -64,8 +64,10 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
       )
       .subscribe({
         next: (response: IAssetDetailGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
-          this._assetDetails.set(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapDetailData(response),
+            mappedData => this._assetDetails.set(mappedData)
+          );
           this.logger.logUserAction('Asset details loaded successfully');
         },
         error: error => {
@@ -83,7 +85,7 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
   private mapDetailData(
     response: IAssetDetailGetResponseDto
   ): IDataViewDetailsWithEntity {
-    const mappedDetails = response.versionHistory.reverse().map(record => {
+    const mappedDetails = [...response.versionHistory].reverse().map(record => {
       const entryData: IDataViewDetails['entryData'] = [
         {
           label: 'Asset Name',

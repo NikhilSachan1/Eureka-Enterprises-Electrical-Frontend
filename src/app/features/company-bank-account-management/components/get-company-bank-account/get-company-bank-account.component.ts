@@ -96,7 +96,10 @@ export class GetCompanyBankAccountComponent implements OnInit {
       .subscribe({
         next: (response: ICompanyBankAccountGetResponseDto) => {
           const { records, totalRecords } = response;
-          this.table.setData(this.mapTableData(records));
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.logger.logUserAction(
             'Company bank account records loaded successfully'

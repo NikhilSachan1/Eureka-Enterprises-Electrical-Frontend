@@ -60,8 +60,10 @@ export class GetContractorDetailComponent extends DrawerDetailBase {
       )
       .subscribe({
         next: (response: IContractorDetailGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
-          this._contractorDetails.set(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapDetailData(response),
+            mappedData => this._contractorDetails.set(mappedData)
+          );
           this.logger.logUserAction('Contractor details loaded successfully');
         },
         error: error => {

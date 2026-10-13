@@ -78,8 +78,10 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
       )
       .subscribe({
         next: (response: IInvoiceDetailGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
-          this._invoiceDetails.set(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapDetailData(response),
+            mappedData => this._invoiceDetails.set(mappedData)
+          );
           this.logger.logUserAction('Invoice details loaded successfully');
         },
         error: error => {

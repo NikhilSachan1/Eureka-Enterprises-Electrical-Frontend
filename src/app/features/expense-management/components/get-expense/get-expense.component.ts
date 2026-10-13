@@ -142,8 +142,10 @@ export class GetExpenseComponent implements OnInit {
         next: (response: IExpenseGetResponseDto) => {
           const { records, stats, totalRecords } = response;
 
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.expenseStats.set(stats);
 

@@ -321,10 +321,11 @@ export class GetPaymentSheetComponent implements OnInit {
       .subscribe({
         next: (response: IPaymentSheetGetResponseDto) => {
           const { records, stats, totalRecords } = response;
-          const mappedData = this.mapTableData(records);
-
           this.paymentSheetStats.set(stats);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.logger.logUserAction(
             'Payment sheet records loaded successfully'

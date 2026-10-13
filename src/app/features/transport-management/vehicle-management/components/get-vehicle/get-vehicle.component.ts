@@ -334,8 +334,10 @@ export class GetVehicleComponent implements OnInit {
         next: (response: IVehicleGetResponseDto) => {
           const { records, stats, totalRecords } = response;
 
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapTableData(records),
+            mappedData => this.table.setData(mappedData)
+          );
           this.table.updateTableConfig({ totalRecords });
           this.vehicleStats.set(stats);
           this.logger.logUserAction('Vehicle records loaded successfully');

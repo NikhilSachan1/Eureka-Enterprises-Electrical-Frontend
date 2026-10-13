@@ -149,15 +149,10 @@ export class MenuService {
     );
 
     if (item.routerLink) {
-      // Build full route with accumulated path
-      let fullItemRoute = item.routerLink;
-
-      if (itemAccumulatedPath) {
-        const childPath = item.routerLink.startsWith('/')
-          ? item.routerLink.slice(1)
-          : item.routerLink;
-        fullItemRoute = `${itemAccumulatedPath}/${childPath}`;
-      }
+      const fullItemRoute = this.buildMenuRouterLink(
+        item.routerLink,
+        itemAccumulatedPath
+      );
 
       const normalizedItemRoute = fullItemRoute.startsWith('/')
         ? fullItemRoute
@@ -240,6 +235,29 @@ export class MenuService {
   }
 
   /**
+   * Join a menu item's routerLink with its parent base path.
+   * Collapses `.` and `..` so a sibling route (for example Wallet under Petro Cards)
+   * still points at the real URL.
+   */
+  buildMenuRouterLink(
+    routerLink: string,
+    parentBasePath: string | null | undefined
+  ): string {
+    if (!parentBasePath) {
+      return this.collapseMenuPath(routerLink);
+    }
+
+    const basePath = parentBasePath.endsWith('/')
+      ? parentBasePath.slice(0, -1)
+      : parentBasePath;
+    const itemPath = routerLink.startsWith('/')
+      ? routerLink.slice(1)
+      : routerLink;
+
+    return this.collapseMenuPath(`${basePath}/${itemPath}`);
+  }
+
+  /**
    * Generate a unique ID for a menu item
    */
   private getMenuItemId(item: MenuItem): string {
@@ -252,6 +270,26 @@ export class MenuService {
     }
 
     return `item_${item.label}_${Math.random()}`;
+  }
+
+  /** Collapse `.` and `..` segments so the menu link matches a real route. */
+  private collapseMenuPath(path: string): string {
+    const leadingSlash = path.startsWith('/');
+    const resolved: string[] = [];
+
+    for (const part of path.split('/')) {
+      if (part === '' || part === '.') {
+        continue;
+      }
+      if (part === '..') {
+        resolved.pop();
+        continue;
+      }
+      resolved.push(part);
+    }
+
+    const joined = resolved.join('/');
+    return leadingSlash ? `/${joined}` : joined;
   }
 
   /**
@@ -318,14 +356,10 @@ export class MenuService {
 
     return item.children.some(child => {
       if (child.routerLink) {
-        // Build full route with accumulated path
-        let fullChildRoute = child.routerLink;
-        if (itemAccumulatedPath) {
-          const childPath = child.routerLink.startsWith('/')
-            ? child.routerLink.slice(1)
-            : child.routerLink;
-          fullChildRoute = `${itemAccumulatedPath}/${childPath}`;
-        }
+        const fullChildRoute = this.buildMenuRouterLink(
+          child.routerLink,
+          itemAccumulatedPath
+        );
 
         const normalizedChildRoute = fullChildRoute.startsWith('/')
           ? fullChildRoute
@@ -374,15 +408,10 @@ export class MenuService {
 
         // Check if this item's route matches
         if (item.routerLink) {
-          let fullRoute = item.routerLink;
-
-          // Combine with accumulated base path
-          if (itemAccumulatedPath) {
-            const childPath = item.routerLink.startsWith('/')
-              ? item.routerLink.slice(1)
-              : item.routerLink;
-            fullRoute = `${itemAccumulatedPath}/${childPath}`;
-          }
+          const fullRoute = this.buildMenuRouterLink(
+            item.routerLink,
+            itemAccumulatedPath
+          );
 
           const normalizedRoute = fullRoute.startsWith('/')
             ? fullRoute

@@ -63,8 +63,10 @@ export class GetVendorDetailComponent extends DrawerDetailBase {
       )
       .subscribe({
         next: (response: IVendorDetailGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
-          this._vendorDetails.set(mappedData);
+          this.appConfigurationService.runAfterTouchedConfiguration(
+            () => this.mapDetailData(response),
+            mappedData => this._vendorDetails.set(mappedData)
+          );
           this.logger.logUserAction('Vendor details loaded successfully');
         },
         error: error => {

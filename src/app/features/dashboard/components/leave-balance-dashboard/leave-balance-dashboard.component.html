@@ -35,8 +35,60 @@
     } @else if (loadError()) {
       <p class="card-block__muted">Could not load leave balances. Try again later.</p>
     } @else if (showOwnBalanceCards()) {
-      @if (ownBalance(); as balance) {
-        <app-leave-balance-cards [leaveBalance]="balance" />
+      @if (ownBalanceView(); as balance) {
+        <div class="own-leave">
+          <div class="own-leave__panel">
+            <div
+              class="own-leave__ring"
+              [class.own-leave__ring--spent]="balance.available <= 0 && balance.allocated > 0"
+              [class.own-leave__ring--none]="balance.allocated <= 0"
+              [style.--used]="balance.usedPercent"
+              role="img"
+              [attr.aria-label]="balance.caption"
+            >
+              <div class="own-leave__ring-core">
+                <span class="own-leave__ring-value">
+                  {{ balance.available | number: config.FLEXIBLE_DECIMALS : config.LOCALE }}
+                </span>
+                <span class="own-leave__ring-label">days left</span>
+              </div>
+            </div>
+
+            <div class="own-leave__facts">
+              <div class="own-leave__fact">
+                <span
+                  class="own-leave__fact-icon own-leave__fact-icon--allocated"
+                  aria-hidden="true"
+                >
+                  <span [class]="ICONS.COMMON.CALENDAR_PLUS"></span>
+                </span>
+                <div class="own-leave__fact-copy">
+                  <span class="own-leave__fact-label">Allocated</span>
+                  <span class="own-leave__fact-value">
+                    {{ balance.allocated | number: config.FLEXIBLE_DECIMALS : config.LOCALE }}
+                    <span class="own-leave__fact-unit">days</span>
+                  </span>
+                </div>
+              </div>
+              <div class="own-leave__fact">
+                <span
+                  class="own-leave__fact-icon own-leave__fact-icon--consumed"
+                  aria-hidden="true"
+                >
+                  <span [class]="ICONS.COMMON.ARROW_UP"></span>
+                </span>
+                <div class="own-leave__fact-copy">
+                  <span class="own-leave__fact-label">Consumed</span>
+                  <span class="own-leave__fact-value">
+                    {{ balance.consumed | number: config.FLEXIBLE_DECIMALS : config.LOCALE }}
+                    <span class="own-leave__fact-unit">days</span>
+                  </span>
+                </div>
+              </div>
+              <p class="own-leave__note">{{ balance.caption }}</p>
+            </div>
+          </div>
+        </div>
       } @else {
         <p class="card-block__muted">No leave balance found for your account.</p>
       }

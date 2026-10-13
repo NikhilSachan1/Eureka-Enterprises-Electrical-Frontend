@@ -14,7 +14,6 @@ import { finalize } from 'rxjs';
 import { Card } from 'primeng/card';
 import { APP_CONFIG } from '@core/config';
 import { AuthService } from '@features/auth-management/services/auth.service';
-import { LeaveBalanceCardsComponent } from '@features/leave-management/shared/components/leave-balance-cards/leave-balance-cards.component';
 import { LeaveService } from '@features/leave-management/services/leave.service';
 import type { ILeaveBalanceGetBaseResponseDto } from '@features/leave-management/types/leave.dto';
 import { ButtonComponent } from '@shared/components/button/button.component';
@@ -32,7 +31,7 @@ import { EDataType, IInputFieldsConfig } from '@shared/types';
 
 @Component({
   selector: 'app-leave-balance-dashboard',
-  imports: [Card, ButtonComponent, DecimalPipe, InputFieldComponent, LeaveBalanceCardsComponent],
+  imports: [Card, ButtonComponent, DecimalPipe, InputFieldComponent],
   templateUrl: './leave-balance-dashboard.component.html',
   styleUrl: './leave-balance-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,6 +75,32 @@ export class LeaveBalanceDashboardComponent implements OnInit {
   protected readonly openLeaveButton = dashOutlinedLinkButton({
     label: 'Open leave',
     icon: ICONS.COMMON.EXTERNAL_LINK,
+  });
+
+  protected readonly ownBalanceView = computed(() => {
+    const balance = this.ownBalance();
+    if (!balance) {
+      return null;
+    }
+
+    const allocated = this.parseAmount(balance.totalAllocated);
+    const consumed = this.parseAmount(balance.consumed);
+    const available = this.parseAmount(balance.availableBalance);
+    const usedPercent =
+      allocated > 0
+        ? Math.min(100, Math.round((consumed / allocated) * 100))
+        : 0;
+
+    return {
+      allocated,
+      consumed,
+      available,
+      usedPercent,
+      caption:
+        allocated <= 0
+          ? 'No leave allocated this year'
+          : `${this.formatDays(consumed)} of ${this.formatDays(allocated)} days used`,
+    };
   });
 
   protected readonly headerHint = computed(() =>
@@ -129,6 +154,15 @@ export class LeaveBalanceDashboardComponent implements OnInit {
     index: number
   ): string {
     return `${row.employeeCode ?? row.employeeName}-${index}`;
+  }
+
+  private parseAmount(value: string): number {
+    const amount = Number.parseFloat(value);
+    return Number.isFinite(amount) ? amount : 0;
+  }
+
+  private formatDays(value: number): string {
+    return Number.isInteger(value) ? String(value) : value.toFixed(2);
   }
 
   private applyRecords(records: ILeaveBalanceGetBaseResponseDto[]): void {
