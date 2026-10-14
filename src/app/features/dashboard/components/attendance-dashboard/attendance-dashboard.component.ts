@@ -35,6 +35,17 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 const TODAY_ATTENDANCE_PAGE_SIZE = 200;
 
+function attendanceInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) {
+    return '?';
+  }
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
+
 @Component({
   selector: 'app-attendance-dashboard',
   imports: [Card, ButtonComponent, InputFieldComponent, DecimalPipe],
@@ -71,8 +82,24 @@ export class AttendanceDashboardComponent implements OnInit {
     id: 'dashboard-attendance-search',
     fieldName: 'dashboardAttendanceSearch',
     label: 'Search employee',
-    placeholder: 'Search by name',
+    placeholder: 'Search name, project, or vehicle',
   } as IInputFieldsConfig;
+
+  protected readonly summaryCells = computed(() => {
+    const stats = this.summary()?.attendance;
+    if (!stats) {
+      return [];
+    }
+
+    return [
+      { key: 'present', label: 'Present', value: stats.present, tone: 'success' },
+      { key: 'absent', label: 'Absent', value: stats.absent, tone: 'danger' },
+      { key: 'leave', label: 'Leave', value: stats.leave, tone: 'warning' },
+      { key: 'holiday', label: 'Holiday', value: stats.holiday, tone: 'purple' },
+      { key: 'checked-in', label: 'Checked in', value: stats.checkedIn, tone: 'info' },
+      { key: 'not-in', label: 'Not in yet', value: stats.notCheckedInYet, tone: 'neutral' },
+    ];
+  });
 
   protected readonly filteredRows = computed(
     (): IDashboardTodayAttendanceRow[] => {
@@ -176,6 +203,7 @@ export class AttendanceDashboardComponent implements OnInit {
       id: record.id,
       employeeName,
       employeeCode,
+      initials: attendanceInitials(employeeName),
       assignmentTrail,
       searchText:
         `${employeeName} ${employeeCode} ${assignmentSearchText} ${mappedStatus} ${record.status}`.toLowerCase(),
