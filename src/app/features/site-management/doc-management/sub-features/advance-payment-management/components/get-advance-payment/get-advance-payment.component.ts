@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { readDocTabSearch } from '@shared/constants';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { LoggerService } from '@core/services';
@@ -111,6 +112,11 @@ export class GetAdvancePaymentComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const tabSearch = readDocTabSearch(this.route.snapshot.queryParamMap);
+    if (tabSearch) {
+      this.searchTerm.set(tabSearch);
+    }
+
     const docContext = this.route.parent?.snapshot.data[
       'docContext'
     ] as EDocContext;

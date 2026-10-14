@@ -1,7 +1,9 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   computed,
+  effect,
   input,
   output,
   inject,
@@ -41,9 +43,13 @@ import { InputTextModule } from 'primeng/inputtext';
 export class PageHeaderComponent implements OnDestroy {
   private readonly location = inject(Location);
   private readonly appPermissionService = inject(AppPermissionService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private appliedInitialSearch = false;
 
   // Input signals
   pageHeaderConfig = input<Partial<IPageHeaderConfig>>();
+  /** Shown in the search box. Does not emit `onSearch`. */
+  initialSearch = input('');
 
   protected finalPageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected goBackButtonConfig = computed(() => this.getGoBackButtonConfig());
@@ -59,6 +65,18 @@ export class PageHeaderComponent implements OnDestroy {
 
   protected searchValue = '';
   private searchDebounceTimer?: ReturnType<typeof setTimeout>;
+
+  constructor() {
+    effect(() => {
+      const value = this.initialSearch().trim();
+      if (!value || this.appliedInitialSearch) {
+        return;
+      }
+      this.appliedInitialSearch = true;
+      this.searchValue = value;
+      this.changeDetectorRef.markForCheck();
+    });
+  }
 
   ngOnDestroy(): void {
     clearTimeout(this.searchDebounceTimer);

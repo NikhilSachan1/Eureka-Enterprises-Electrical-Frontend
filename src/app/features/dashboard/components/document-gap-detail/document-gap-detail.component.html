@@ -1,0 +1,95 @@
+@if (loading()) {
+  <div class="gap-detail__bones" aria-busy="true" aria-label="Loading documents">
+    @for (bone of [1, 2, 3, 4]; track bone) {
+      <span class="gap-detail__bone"></span>
+    }
+  </div>
+} @else if (errorMessage()) {
+  <div class="gap-detail__state gap-detail__state--error">
+    <i [class]="icons.COMMON.EXCLAMATION_TRIANGLE"></i>
+    <p>{{ errorMessage() }}</p>
+  </div>
+} @else if (detail(); as gap) {
+  <div class="gap-detail">
+    @if (gap.truncated) {
+      <a
+        class="gap-detail__banner"
+        [routerLink]="bannerCommands()"
+        (click)="closeDrawer()"
+      >
+        <span>Showing the first 50. Open the full list for the rest.</span>
+        <i [class]="icons.COMMON.ARROW_RIGHT"></i>
+      </a>
+    }
+
+    @if (gap.items.length === 0) {
+      <div class="gap-detail__state">
+        <i [class]="icons.COMMON.INBOX"></i>
+        <p>No documents in this gap.</p>
+      </div>
+    } @else {
+      @for (section of sections(); track section.key) {
+        <section
+          class="gap-group"
+          [class.gap-group--contractor]="section.tone === 'contractor'"
+          [class.gap-group--vendor]="section.tone === 'vendor'"
+          [class.gap-group--money]="section.hasAmount"
+        >
+          @if (section.title) {
+            <header class="gap-group__head">
+              <h3>{{ section.title }}</h3>
+              <span>{{ section.items.length }}</span>
+            </header>
+          }
+
+          <div class="gap-group__cols" aria-hidden="true">
+            <span>Document</span>
+            <span>Project</span>
+            @if (section.hasAmount) {
+              <span class="is-end">Amount</span>
+            }
+            <span class="is-end">Since</span>
+            <span></span>
+          </div>
+
+          <ul class="gap-group__rows">
+            @for (item of section.items; track item.id) {
+              <li>
+                <a
+                  class="gap-row"
+                  [routerLink]="item.commands"
+                  [queryParams]="item.query"
+                  (click)="closeDrawer()"
+                >
+                  <span class="gap-row__doc">{{ item.documentLabel }}</span>
+                  <span class="gap-row__site">{{ item.siteName }}</span>
+                  @if (section.hasAmount) {
+                    <span class="gap-row__amount">
+                      @if (item.amount != null) {
+                        {{ item.amount | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
+                      } @else {
+                        —
+                      }
+                    </span>
+                  }
+                  <span class="gap-row__since">
+                    @if (item.since) {
+                      {{ item.since | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
+                    } @else {
+                      —
+                    }
+                  </span>
+                  <i
+                    class="gap-row__go"
+                    [class]="icons.COMMON.CHEVRON_RIGHT"
+                    aria-hidden="true"
+                  ></i>
+                </a>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+    }
+  </div>
+}

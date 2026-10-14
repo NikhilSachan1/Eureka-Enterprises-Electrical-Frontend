@@ -16,3 +16,4 @@ export {
   MODULE_NAMES,
   CONFIGURATION_KEYS,
 } from './app-configuration.constants';
+export { DOC_TAB_SEARCH_QUERY_KEY, readDocTabSearch } from './query.constants';

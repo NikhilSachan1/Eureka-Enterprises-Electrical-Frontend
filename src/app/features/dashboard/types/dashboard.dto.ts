@@ -4,6 +4,8 @@ import {
   ApprovalPendingDashboardGetResponseSchema,
   AssetFleetAlertsDashboardGetResponseSchema,
   BirthdaysDashboardGetResponseSchema,
+  DocumentGapDetailGetResponseSchema,
+  DocumentGapsDashboardGetResponseSchema,
   HolidaysDashboardGetResponseSchema,
   LedgerBalanceDashboardGetResponseSchema,
   VehicleReadingsAlertsDashboardGetResponseSchema,
@@ -14,6 +16,14 @@ import {
 */
 export type IApprovalPendingDashboardGetResponseDto = z.infer<
   typeof ApprovalPendingDashboardGetResponseSchema
+>;
+
+export type IDocumentGapsDashboardGetResponseDto = z.infer<
+  typeof DocumentGapsDashboardGetResponseSchema
+>;
+
+export type IDocumentGapDetailGetResponseDto = z.infer<
+  typeof DocumentGapDetailGetResponseSchema
 >;
 
 /*

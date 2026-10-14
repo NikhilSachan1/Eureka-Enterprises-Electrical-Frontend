@@ -14,7 +14,7 @@
           [class]="ICONS.COMMON.INBOX + ' kpm-card__hicon'"
           aria-hidden="true"
         ></span>
-        <span class="kpm-card__htitle">Pending Approvals</span>
+        <span class="kpm-card__htitle">{{ approvalHeading() }}</span>
       </div>
     </div>
     <div class="kpm-card__body">
@@ -87,62 +87,151 @@
 <ng-content />
 
 <section
-  class="kpm-card kpm-card--site-docs kpm-site-docs"
+  class="work-section work-section--docs"
   aria-labelledby="kpm-site-docs-title"
 >
-  <div class="kpm-card__header">
-    <div class="kpm-card__header-lead">
-      <span
-        [class]="ICONS.SITE.BUILDING + ' kpm-card__hicon'"
-        aria-hidden="true"
-      ></span>
-      <span class="kpm-card__htitle-stack">
-        <span
-          id="kpm-site-docs-title"
-          class="kpm-card__htitle"
-        >
-          Project Doc approval
-        </span>
-        <span class="kpm-card__hsub">Waiting for approval</span>
-      </span>
+  <div class="work-section__head">
+    <span class="work-section__icon" aria-hidden="true">
+      <span [class]="ICONS.SITE.BUILDING"></span>
+    </span>
+    <div>
+      <h2 id="kpm-site-docs-title" class="work-section__title">Project Doc approval</h2>
+      <p class="work-section__desc">Documents waiting for approval.</p>
     </div>
+    <span class="work-section__total">
+      @if (siteDocTotal() == null) {
+        <span [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN" aria-hidden="true"></span>
+      } @else {
+        {{ siteDocTotal() | number: config.DEFAULT : config.LOCALE }}
+      }
+    </span>
   </div>
-  <div class="kpm-card__body kpm-card__body--docs">
+  <div class="work-section__grid work-section__grid--docs">
     @for (row of siteDocumentRows(); track row.label) {
-      <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
+      <ng-container *ngTemplateOutlet="statTpl; context: { $implicit: row }"></ng-container>
+    }
+  </div>
+</section>
+
+<section
+  class="work-section work-section--gaps"
+  aria-labelledby="kpm-doc-gaps-title"
+>
+  <div class="work-section__head">
+    <span class="work-section__icon" aria-hidden="true">
+      <span [class]="ICONS.COMMON.EXCLAMATION_TRIANGLE"></span>
+    </span>
+    <div>
+      <h2 id="kpm-doc-gaps-title" class="work-section__title">Document gaps</h2>
+      <p class="work-section__desc">Missing files and documents that still need a next step.</p>
+    </div>
+    <span class="work-section__total">
+      @if (documentGapTotal() == null) {
+        <span [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN" aria-hidden="true"></span>
+      } @else {
+        {{ documentGapTotal() | number: config.DEFAULT : config.LOCALE }}
+      }
+    </span>
+  </div>
+  <div class="work-section__grid work-section__grid--gaps">
+    @for (row of documentGapRows(); track row.gapKey) {
+      <div
+        class="gap-tile"
+        [class.gap-tile--clickable]="!!row.gapKey && !row.valueLoading"
+        [class.gap-tile--clear]="!row.valueLoading && row.value === 0"
+        [class.gap-tile--info]="row.state === KpmRowState.INFO"
+        [attr.role]="row.gapKey ? 'link' : null"
+        [attr.tabindex]="row.gapKey && !row.valueLoading ? 0 : null"
+        [attr.aria-label]="row.gapKey ? 'Open ' + row.label : null"
+        (click)="openMetric(row)"
+        (keydown.enter)="openMetric(row)"
+        (keydown.space)="$event.preventDefault(); openMetric(row)"
+      >
+        <span class="gap-tile__top">
+          <span class="gap-tile__label">{{ row.label }}</span>
+          <span
+            class="gap-tile__count"
+            [attr.aria-busy]="row.valueLoading ? 'true' : null"
+          >
+            @if (row.valueLoading) {
+              <span
+                [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+                aria-hidden="true"
+              ></span>
+            } @else {
+              {{ row.value | number: config.DEFAULT : config.LOCALE }}
+            }
+          </span>
+        </span>
+        @if (row.valueHint) {
+          <span class="gap-tile__hint">{{ row.valueHint }}</span>
+        }
+      </div>
+    } @empty {
+      @if (!documentGapsLoading()) {
+        <p class="work-section__empty">No document gaps.</p>
+      }
     }
   </div>
 </section>
 
 @if (showPaymentSheets) {
 <section
-  class="kpm-card kpm-card--payment-sheets kpm-site-docs"
+  class="work-section work-section--sheets"
   aria-labelledby="kpm-payment-sheets-title"
 >
-  <div class="kpm-card__header">
-    <div class="kpm-card__header-lead">
-      <span
-        [class]="ICONS.COMMON.FILE + ' kpm-card__hicon'"
-        aria-hidden="true"
-      ></span>
-      <span class="kpm-card__htitle-stack">
-        <span
-          id="kpm-payment-sheets-title"
-          class="kpm-card__htitle"
-        >
-          Payment sheet approvals
-        </span>
-        <span class="kpm-card__hsub">Waiting for approval</span>
-      </span>
+  <div class="work-section__head">
+    <span class="work-section__icon" aria-hidden="true">
+      <span [class]="ICONS.COMMON.FILE"></span>
+    </span>
+    <div>
+      <h2 id="kpm-payment-sheets-title" class="work-section__title">Payment sheet approvals</h2>
+      <p class="work-section__desc">Sheets waiting at each stage.</p>
     </div>
+    <span class="work-section__total">
+      @if (paymentSheetTotal() == null) {
+        <span [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN" aria-hidden="true"></span>
+      } @else {
+        {{ paymentSheetTotal() | number: config.DEFAULT : config.LOCALE }}
+      }
+    </span>
   </div>
-  <div class="kpm-card__body kpm-card__body--docs kpm-card__body--sheets">
+  <div class="work-section__grid work-section__grid--sheets">
     @for (row of paymentSheetRows(); track row.label) {
-      <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
+      <ng-container *ngTemplateOutlet="statTpl; context: { $implicit: row }"></ng-container>
     }
   </div>
 </section>
 }
+
+<ng-template #statTpl let-row>
+  <div
+    class="stat-tile"
+    [class.stat-tile--clickable]="!!row.link && !row.valueLoading"
+    [class.stat-tile--clear]="!row.valueLoading && row.value === 0"
+    [attr.role]="row.link ? 'link' : null"
+    [attr.tabindex]="row.link && !row.valueLoading ? 0 : null"
+    [attr.aria-label]="row.link ? 'Open ' + row.label : null"
+    (click)="openMetric(row)"
+    (keydown.enter)="openMetric(row)"
+    (keydown.space)="$event.preventDefault(); openMetric(row)"
+  >
+    <span
+      class="stat-tile__count"
+      [attr.aria-busy]="row.valueLoading ? 'true' : null"
+    >
+      @if (row.valueLoading) {
+        <span
+          [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+          aria-hidden="true"
+        ></span>
+      } @else {
+        {{ row.value | number: config.DEFAULT : config.LOCALE }}
+      }
+    </span>
+    <span class="stat-tile__label">{{ row.label }}</span>
+  </div>
+</ng-template>
 
 <!-- ── Shared row template ──────────────────────────── -->
 <ng-template
@@ -151,14 +240,14 @@
 >
   <div
     class="kpm-card__row"
-    [class.kpm-card__row--clickable]="!!row.link && !row.valueLoading"
+    [class.kpm-card__row--clickable]="(!!row.link || !!row.gapKey) && !row.valueLoading"
     [class.kpm-card__row--info]="row.state === KpmRowState.INFO"
     [class.kpm-card__row--warn]="row.state === KpmRowState.WARN"
     [class.kpm-card__row--alert]="row.state === KpmRowState.ALERT"
     [class.kpm-card__row--success]="row.state === KpmRowState.SUCCESS"
-    [attr.role]="row.link ? 'link' : null"
-    [attr.tabindex]="row.link && !row.valueLoading ? 0 : null"
-    [attr.aria-label]="row.link ? 'Open ' + row.label : null"
+    [attr.role]="row.link || row.gapKey ? 'link' : null"
+    [attr.tabindex]="(row.link || row.gapKey) && !row.valueLoading ? 0 : null"
+    [attr.aria-label]="row.link || row.gapKey ? 'Open ' + row.label : null"
     (click)="openMetric(row)"
     (keydown.enter)="openMetric(row)"
     (keydown.space)="$event.preventDefault(); openMetric(row)"
@@ -192,8 +281,11 @@
           {{ row.value | number: config.DEFAULT : config.LOCALE }}
         }
       </span>
+      @if (row.valueHint) {
+        <span class="kpm-card__rvalue-hint">{{ row.valueHint }}</span>
+      }
     </span>
-    @if (row.link && !row.valueLoading) {
+    @if ((row.link || row.gapKey) && !row.valueLoading) {
       <span
         [class]="ICONS.COMMON.ARROW_RIGHT + ' kpm-card__rarrow'"
         aria-hidden="true"

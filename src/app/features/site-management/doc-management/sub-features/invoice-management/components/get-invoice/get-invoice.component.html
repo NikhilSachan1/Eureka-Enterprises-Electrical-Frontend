@@ -8,6 +8,7 @@
 
 <app-page-header
   [pageHeaderConfig]="pageHeaderConfig()"
+  [initialSearch]="searchTerm()"
   (headerButtonClick)="onHeaderButtonClick($event)"
   (onSearch)="onSearchChange($event)"
 />

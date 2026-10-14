@@ -22,6 +22,7 @@ import { filter } from 'rxjs/operators';
 import { TabsModule } from 'primeng/tabs';
 import { BadgeModule } from 'primeng/badge';
 import { TooltipModule } from 'primeng/tooltip';
+import { DOC_TAB_SEARCH_QUERY_KEY } from '@shared/constants';
 import {
   ITabChange,
   ITabItem,
@@ -76,6 +77,11 @@ export class NavTabsComponent implements OnInit {
   /** URL used for outlet fade + active tab; protected for template binding. */
   protected readonly currentRoute = signal<string>('');
   protected selectedTabIndex = signal<number>(0);
+
+  /** Dropped on tab change so a document-gap search does not follow the next tab. */
+  protected readonly tabSwitchQueryParams: Record<string, null> = {
+    [DOC_TAB_SEARCH_QUERY_KEY]: null,
+  };
 
   private router = inject(Router);
   /** Host route for relative `routerLink` when using `ROUTER_OUTLET` mode. */
@@ -173,7 +179,8 @@ export class NavTabsComponent implements OnInit {
 
     void this.router.navigate([tab.route], {
       relativeTo: this.route,
-      queryParamsHandling: 'preserve',
+      queryParams: this.tabSwitchQueryParams,
+      queryParamsHandling: 'merge',
     });
   }
 

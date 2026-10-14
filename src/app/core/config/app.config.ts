@@ -113,6 +113,11 @@ export const APP_CONFIG = {
     MILEAGE_UNIT: 'km/ltr',
   },
 
+  // PetroCard wallet — employee and driver see this ceiling instead of a higher balance
+  WALLET_CONFIG: {
+    EMPLOYEE_DISPLAY_CAP: 500,
+  },
+
   // Announcement Configuration
   ANNOUNCEMENT_CONFIG: {
     UNACKNOWLEDGED_CHECK_INTERVAL_MS: 35 * 60 * 1000, // 35 minutes

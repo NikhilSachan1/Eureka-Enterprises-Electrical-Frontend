@@ -16,17 +16,24 @@ import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { AppPermissionService, LoggerService } from '@core/services';
-import { AppConfigurationService } from '@shared/services';
+import { AppConfigurationService, DrawerService } from '@shared/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { DashboardService } from '@features/dashboard/services/dashboard.services';
 import {
   IApprovalPendingDashboardGetResponseDto,
   IAssetFleetAlertsDashboardGetResponseDto,
+  IDocumentGapsDashboardGetResponseDto,
   ILedgerBalanceDashboardGetResponseDto,
   IVehicleReadingsAlertsDashboardGetResponseDto,
 } from '@features/dashboard/types/dashboard.dto';
 import { EKpmDashboardSeverity } from '@features/dashboard/types/dashboard.enum';
-import { EApprovalStatus, EDataType } from '@shared/types';
+import {
+  EApprovalStatus,
+  EDataType,
+  EDrawerSize,
+  IOptionDropdown,
+} from '@shared/types';
+import { DocumentGapDetailComponent } from '@features/dashboard/components/document-gap-detail/document-gap-detail.component';
 import {
   IDashboardKpmMetricLink,
   IDashboardKpmMetricRow,
@@ -36,6 +43,26 @@ import {
   scopeTabQuery,
   statusFilterQuery,
 } from '@features/dashboard/utils/kpm-dropdown-link.util';
+
+/** List-status filter for a configured payment-sheet stage. */
+const PAYMENT_SHEET_STATUS_BY_STAGE: Record<string, string> = {
+  INITIATION: 'DRAFT',
+  HR_REVIEW: 'IN_REVIEW',
+  ADMIN_REVIEW: 'IN_REVIEW',
+  PROCESSING: 'PROCESSING',
+};
+
+const DOCUMENT_GAP_ICONS: Record<string, string> = {
+  'po-without-jmc': ICONS.COMMON.FILE,
+  'po-file-missing': ICONS.COMMON.FILE,
+  'po-under-invoiced': ICONS.COMMON.FILE,
+  'jmc-without-invoice': ICONS.COMMON.LIST,
+  'jmc-file-missing': ICONS.COMMON.LIST,
+  'invoice-not-booked': ICONS.PAYMENT.RECORD,
+  'invoice-file-missing': ICONS.COMMON.FILE,
+  'booked-not-transferred': ICONS.BANK.ACCOUNT,
+  'advance-not-settled': ICONS.EXPENSE.MONEY,
+};
 
 @Component({
   selector: 'app-kpm-dashboard',
@@ -49,6 +76,7 @@ export class KpmDashboardComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly logger = inject(LoggerService);
   private readonly router = inject(Router);
+  private readonly drawerService = inject(DrawerService);
 
   /** Asks the dashboard page to scroll to a section it owns. */
   readonly scrollToSection = output<string>();
@@ -78,6 +106,8 @@ export class KpmDashboardComponent implements OnInit {
 
   private readonly approvalPending =
     signal<IApprovalPendingDashboardGetResponseDto | null>(null);
+  private readonly documentGaps =
+    signal<IDocumentGapsDashboardGetResponseDto | null>(null);
   private readonly ledgerBalance =
     signal<ILedgerBalanceDashboardGetResponseDto | null>(null);
   private readonly assetFleetAlerts =
@@ -87,10 +117,16 @@ export class KpmDashboardComponent implements OnInit {
 
   /** One flag per parallel KPM API; cleared in `finalize` so error paths also stop loading. */
   private readonly approvalPendingLoading = signal(true);
+  protected readonly documentGapsLoading = signal(true);
   private readonly ledgerBalanceLoading = signal(true);
   private readonly assetFleetAlertsLoading = signal(true);
   private readonly vehicleReadingsAlertsLoading = signal(true);
 
+  protected readonly approvalHeading = computed(() =>
+    this.approvalPending()?.scope === 'mine'
+      ? 'Waiting for approval'
+      : 'Pending approvals'
+  );
   protected readonly approvalPendingRows = computed<IDashboardKpmMetricRow[]>(
     () =>
       this.buildApprovalPending(
@@ -107,9 +143,28 @@ export class KpmDashboardComponent implements OnInit {
   protected readonly paymentSheetRows = computed<IDashboardKpmMetricRow[]>(() =>
     this.buildPaymentSheets(
       this.approvalPending(),
-      this.approvalPendingLoading()
+      this.approvalPendingLoading(),
+      this.appConfigurationService.paymentSheetStages()
     )
   );
+  protected readonly siteDocTotal = computed(() =>
+    this.metricTotal(this.siteDocumentRows())
+  );
+  protected readonly documentGapTotal = computed(() =>
+    this.metricTotal(this.documentGapRows())
+  );
+  protected readonly paymentSheetTotal = computed(() =>
+    this.metricTotal(this.paymentSheetRows())
+  );
+  protected readonly documentGapRows = computed<IDashboardKpmMetricRow[]>(() => {
+    const loading = this.documentGapsLoading();
+    const data = this.documentGaps();
+
+    return [
+      ...this.buildDocumentGaps(data?.gaps ?? [], loading),
+      ...this.buildDocumentGaps(data?.info ?? [], loading, true),
+    ];
+  });
   protected readonly ledgerBalanceRows = computed<IDashboardKpmMetricRow[]>(
     () =>
       this.buildLedgerBalance(this.ledgerBalance(), this.ledgerBalanceLoading())
@@ -132,6 +187,7 @@ export class KpmDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadApprovalPending();
+    this.loadDocumentGaps();
     if (!this.showKpmCards) {
       this.ledgerBalanceLoading.set(false);
       this.assetFleetAlertsLoading.set(false);
@@ -152,8 +208,29 @@ export class KpmDashboardComponent implements OnInit {
     }
   }
 
+  private metricTotal(rows: readonly IDashboardKpmMetricRow[]): number | null {
+    if (rows.some(row => row.valueLoading)) {
+      return null;
+    }
+    return rows.reduce((sum, row) => sum + row.value, 0);
+  }
+
   protected openMetric(row: IDashboardKpmMetricRow): void {
-    if (!row.link || row.valueLoading) {
+    if (row.valueLoading) {
+      return;
+    }
+
+    if (row.gapKey) {
+      this.drawerService.showDrawer(DocumentGapDetailComponent, {
+        header: row.label,
+        subtitle: row.valueHint,
+        size: EDrawerSize.LARGE,
+        componentData: { key: row.gapKey },
+      });
+      return;
+    }
+
+    if (!row.link) {
       return;
     }
 
@@ -252,6 +329,24 @@ export class KpmDashboardComponent implements OnInit {
         },
         error: error => {
           this.logger.logUserAction('Failed to load approval pending', error);
+        },
+      });
+  }
+
+  private loadDocumentGaps(): void {
+    this.dashboardService
+      .getDocumentGaps()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.documentGapsLoading.set(false))
+      )
+      .subscribe({
+        next: (response: IDocumentGapsDashboardGetResponseDto) => {
+          this.documentGaps.set(response);
+          this.logger.logUserAction('Document gaps loaded successfully');
+        },
+        error: error => {
+          this.logger.logUserAction('Failed to load document gaps', error);
         },
       });
   }
@@ -489,44 +584,29 @@ export class KpmDashboardComponent implements OnInit {
 
   private buildPaymentSheets(
     data: IApprovalPendingDashboardGetResponseDto | null,
-    valueLoading: boolean
+    valueLoading: boolean,
+    stages: readonly IOptionDropdown[]
   ): IDashboardKpmMetricRow[] {
-    const stages: {
-      stage: string;
-      status: string;
-      label: string;
-      icon: string;
-    }[] = [
-      {
-        stage: 'INITIATION',
-        status: 'DRAFT',
-        label: 'Draft',
-        icon: ICONS.COMMON.FILE,
-      },
-      {
-        stage: 'HR_REVIEW',
-        status: 'IN_REVIEW',
-        label: 'HR Review',
-        icon: ICONS.COMMON.USER,
-      },
-      {
-        stage: 'ADMIN_REVIEW',
-        status: 'IN_REVIEW',
-        label: 'Admin Review',
-        icon: ICONS.COMMON.USERS,
-      },
-      {
-        stage: 'PROCESSING',
-        status: 'PROCESSING',
-        label: 'Account Review',
-        icon: ICONS.PAYROLL.WALLET,
-      },
-    ];
+    const fromConfig = stages
+      .filter(option => option.value)
+      .map(option => ({
+        stage: option.value,
+        label: option.label,
+        icon: option.icon || ICONS.COMMON.FILE,
+      }));
+    const source = fromConfig.length
+      ? fromConfig
+      : (data?.paymentSheets?.byStage ?? []).map(item => ({
+          stage: item.stage,
+          label: item.stage,
+          icon: ICONS.COMMON.FILE,
+        }));
 
-    return stages.map(stage => {
+    return source.map(stage => {
       const value =
         data?.paymentSheets?.byStage?.find(item => item.stage === stage.stage)
           ?.count ?? 0;
+      const status = PAYMENT_SHEET_STATUS_BY_STAGE[stage.stage];
 
       return {
         icon: stage.icon,
@@ -543,20 +623,45 @@ export class KpmDashboardComponent implements OnInit {
             ROUTE_BASE_PATHS.PAYMENT_HUB,
             ROUTES.CENTRALIZED_PAYMENT.PAYMENT_SHEETS,
           ],
-          {
-            paymentSheetStatus: stage.status,
-            currentStage: stage.stage,
-          }
+          status
+            ? { paymentSheetStatus: status, currentStage: stage.stage }
+            : { currentStage: stage.stage }
         ),
       };
     });
+  }
+
+  private buildDocumentGaps(
+    gaps: IDocumentGapsDashboardGetResponseDto['gaps'],
+    valueLoading: boolean,
+    informational = false
+  ): IDashboardKpmMetricRow[] {
+    return gaps.map(gap => ({
+      icon: DOCUMENT_GAP_ICONS[gap.key] ?? ICONS.COMMON.FILE,
+      label: gap.label,
+      value: gap.count,
+      valueHint: gap.hint,
+      format: EDataType.NUMBER,
+      state: informational
+        ? EKpmDashboardSeverity.INFO
+        : gap.count > 0
+          ? EKpmDashboardSeverity.WARN
+          : EKpmDashboardSeverity.NORMAL,
+      valueLoading,
+      gapKey: gap.key,
+    }));
   }
 
   private pendingCount(
     data: IApprovalPendingDashboardGetResponseDto | null,
     key: string
   ): number {
-    return data?.queues?.find(queue => queue.key === key)?.pending ?? 0;
+    const queue = data?.queues?.find(item => item.key === key);
+    if (!queue) {
+      return 0;
+    }
+
+    return data?.scope === 'mine' ? queue.raisedByMe : queue.pending;
   }
 
   private buildLedgerBalance(
