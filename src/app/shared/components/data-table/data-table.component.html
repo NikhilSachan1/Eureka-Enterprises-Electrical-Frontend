@@ -1,6 +1,7 @@
 @let selectedCount = selectedTableRows().length;
 @let currentViewMode = resolvedViewMode();
-@let showToggle = tableConfig().showViewModeToggle ?? true;
+@let useMobileCards = forceMobileCards();
+@let showToggle = (tableConfig().showViewModeToggle ?? true) && !useMobileCards;
 
 <!-- View Mode Toggle -->
 @if (showToggle) {
@@ -411,15 +412,61 @@
   styleClass="row-overflow-actions-menu"
 />
 
+<ng-template
+  #cardCell
+  let-column="column"
+  let-rowData="row"
+>
+  @let columnData = $any(resolveNestedProperty(rowData, column.field));
+  @let bodyTemplate = column.bodyTemplate;
+  @let hasLead =
+    column.icon || column.iconField || (column.showImage && (column.dummyImageField || column.iconField));
+  @let t = customBodyTemplates();
+  <div
+    class="min-w-0"
+    [class.flex]="hasLead"
+    [class.items-center]="hasLead"
+    [class.gap-3]="hasLead"
+  >
+    @if (hasLead) {
+      <ng-container
+        [ngTemplateOutlet]="leadingVisualTmpl"
+        [ngTemplateOutletContext]="{ column: column, row: rowData }"
+      />
+    }
+    <div
+      class="min-w-0"
+      [class.flex-1]="hasLead"
+    >
+      @if (column.customTemplateKey && t?.[column.customTemplateKey]) {
+        <ng-container
+          [ngTemplateOutlet]="t[column.customTemplateKey]"
+          [ngTemplateOutletContext]="{ $implicit: rowData, column: column }"
+        />
+      } @else {
+        <ng-container
+          [ngTemplateOutlet]="cellValueTmpl"
+          [ngTemplateOutletContext]="{
+            value: columnData,
+            bodyType: bodyTemplate,
+            column: column,
+            row: rowData,
+            compact: false,
+          }"
+        />
+      }
+    </div>
+  </div>
+</ng-template>
+
 @if (currentViewMode === 'card') {
-  <!-- Card Layout -->
-  <div class="card-layout-container">
-    @if (loading()) {
-      <div class="flex items-center justify-center py-12">
+  <div class="row-card-list-wrap">
+    @if (showTableLoading()) {
+      <div class="row-card-list__state">
         <i [class]="`${icons.COMMON.SPINNER} pi-spin text-2xl`"></i>
       </div>
     } @else if (tableData().length === 0) {
-      <div class="text-center py-12">
+      <div class="row-card-list__state">
         <app-empty-messages
           [icon]="tableConfig().emptyMessageIcon"
           [title]="tableConfig().emptyMessage"
@@ -427,85 +474,85 @@
         />
       </div>
     } @else {
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      @let layout = cardLayoutColumns();
+      <div
+        class="row-card-list"
+        [class.row-card-list--grid]="!isCompactViewport()"
+      >
         @for (rowData of tableData(); track resolveNestedProperty(rowData, tableConfig().tableUniqueId)) {
-          <div
-            class="card-item bg-bg-paper border border-border rounded-xl p-5 shadow-sm hover:shadow-lg hover:border-emerald-300 transition-all duration-300 group"
+          <article
+            class="row-card"
+            [class.row-card--selected]="isRowSelected(rowData)"
+            [class.row-card--disabled]="isRowSelectionDisabled(rowData)"
           >
-            @if (showBulkSelectionCheckbox()) {
-              <div class="mb-4 pb-3 border-b border-border">
+            <header class="row-card__head">
+              @if (showBulkSelectionCheckbox()) {
                 <label
-                  class="flex items-center"
-                  [class.cursor-pointer]="!isRowSelectionDisabled(rowData)"
-                  [class.cursor-not-allowed]="isRowSelectionDisabled(rowData)"
+                  class="row-card__check"
+                  [class.row-card__check--disabled]="isRowSelectionDisabled(rowData)"
                 >
                   <input
                     type="checkbox"
                     [checked]="isRowSelected(rowData)"
                     [disabled]="isRowSelectionDisabled(rowData)"
                     (change)="toggleRowSelection(rowData, $event)"
-                    class="w-4 h-4 text-emerald-600 bg-bg-paper border-2 border-border-medium rounded focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 cursor-pointer transition-colors"
+                    aria-label="Select row"
                   />
-                  <span class="ml-2 text-xs font-medium">Select</span>
                 </label>
-              </div>
-            }
+              }
 
-            @for (column of visibleTableHeaders(); track $index) {
-              @let shouldShowColumn = column.showColumn !== false;
-              @let columnData = $any(resolveNestedProperty(rowData, column.field));
-              @let bodyTemplate = column.bodyTemplate;
+              @if (hasRowExpansion() && isExpandableRow(rowData)) {
+                <button
+                  type="button"
+                  class="row-card__expand"
+                  [class.row-card__expand--open]="isCardRowExpanded(rowData)"
+                  [attr.aria-expanded]="isCardRowExpanded(rowData)"
+                  aria-label="Toggle row details"
+                  (click)="toggleCardRowExpansion(rowData)"
+                >
+                  <i
+                    [class]="
+                      isCardRowExpanded(rowData)
+                        ? icons.COMMON.CHEVRON_DOWN
+                        : icons.COMMON.CHEVRON_RIGHT
+                    "
+                  ></i>
+                </button>
+              }
 
-              @if (shouldShowColumn) {
-                @let hasLead =
-                  column.icon || column.iconField || (column.showImage && (column.dummyImageField || column.iconField));
-                @let isReadMoreCol = column.bodyTemplate === ALL_DATA_TYPES.TEXT_WITH_READ_MORE;
-                <div class="mb-4 last:mb-0">
-                  <div class="text-xs font-semibold mb-2 uppercase tracking-wider">{{ column.header }}</div>
-                  <div
-                    class="text-sm font-medium"
-                    [class.flex]="hasLead"
-                    [class.items-center]="hasLead"
-                    [class.gap-3]="hasLead"
-                  >
-                    @if (hasLead) {
-                      <ng-container
-                        [ngTemplateOutlet]="leadingVisualTmpl"
-                        [ngTemplateOutletContext]="{ column: column, row: rowData }"
-                      />
-                    }
-                    <div
-                      [class.flex-1]="hasLead"
-                      [class.min-w-0]="hasLead || isReadMoreCol"
-                    >
-                      @let t = customBodyTemplates();
-                      @if (column.customTemplateKey && t?.[column.customTemplateKey]) {
-                        <ng-container
-                          [ngTemplateOutlet]="t[column.customTemplateKey]"
-                          [ngTemplateOutletContext]="{ $implicit: rowData, column: column }"
-                        />
-                      } @else {
-                        <ng-container
-                          [ngTemplateOutlet]="cellValueTmpl"
-                          [ngTemplateOutletContext]="{
-                            value: columnData,
-                            bodyType: bodyTemplate,
-                            column: column,
-                            row: rowData,
-                            compact: false,
-                          }"
-                        />
-                      }
-                    </div>
-                  </div>
+              @if (layout.title; as titleColumn) {
+                <div class="row-card__identity">
+                  <ng-container
+                    [ngTemplateOutlet]="cardCell"
+                    [ngTemplateOutletContext]="{ column: titleColumn, row: rowData }"
+                  />
                 </div>
               }
+            </header>
+
+            @if (layout.body.length > 0) {
+              <dl class="row-card__fields">
+                @for (column of layout.body; track column.field) {
+                  <div
+                    class="row-card__field"
+                    [class.row-card__field--stack]="isStackedCardField(column)"
+                  >
+                    <dt class="row-card__label">{{ column.header }}</dt>
+                    <dd class="row-card__value">
+                      <ng-container
+                        [ngTemplateOutlet]="cardCell"
+                        [ngTemplateOutletContext]="{ column: column, row: rowData }"
+                      />
+                    </dd>
+                  </div>
+                }
+              </dl>
             }
 
             @let visibleRowActions = getVisibleRowActions(rowData);
             @let useRowActionsMenuOnly = shouldShowRowActionsInMenuOnly(rowData);
             @if (showRowActionsColumn() && visibleRowActions.length > 0) {
-              <div class="mt-5 pt-4 border-t border-border flex items-center gap-2 flex-wrap">
+              <footer class="row-card__actions">
                 @if (useRowActionsMenuOnly) {
                   <div
                     #overflowAnchor
@@ -525,15 +572,25 @@
                     />
                   }
                 }
-              </div>
+              </footer>
             }
-          </div>
+
+            @if (hasRowExpansion() && isCardRowExpanded(rowData)) {
+              @if (rowExpansionTemplate(); as expansionTpl) {
+                <div class="row-card__expansion">
+                  <ng-container
+                    [ngTemplateOutlet]="expansionTpl"
+                    [ngTemplateOutletContext]="{ $implicit: rowData }"
+                  />
+                </div>
+              }
+            }
+          </article>
         }
       </div>
 
-      <!-- Pagination for Card View -->
       @if (tableConfig().showPaginator) {
-        <div class="mt-6">
+        <div class="row-card-list__pager">
           <app-paginator
             [rows]="paginationRows()"
             [totalRecords]="tableConfig().totalRecords ?? tableData().length"

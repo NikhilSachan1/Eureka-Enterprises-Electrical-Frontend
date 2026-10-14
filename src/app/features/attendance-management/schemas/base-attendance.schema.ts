@@ -65,7 +65,8 @@ export const AttendanceBaseSchema = z.looseObject({
         .optional()
         .nullable(),
     })
-    .nullable(),
+    .nullable()
+    .optional(),
   assignedDrivers: z.array(AttendanceAssignedDriverSchema).optional(),
   site: AttendanceSiteSchema.optional().nullable(),
   vehicle: AttendanceVehicleSchema.optional().nullable(),

@@ -27,6 +27,12 @@ export interface IDataTableConfig {
   totalRecords?: number;
   enableServerSide: boolean;
   showViewModeToggle?: boolean; // Show/hide list & card layout toggle (default: true)
+  /**
+   * On viewports up to 768px, each row renders as a card when
+   * APP_CONFIG.MOBILE_SHOW_CARDS is true.
+   * Set false to keep the table on this screen only.
+   */
+  mobileCardLayout?: boolean;
   rowActionsLimit?: number;
   /** Enables PrimeNG scrollable table (required for frozen columns). */
   scrollable?: boolean;
