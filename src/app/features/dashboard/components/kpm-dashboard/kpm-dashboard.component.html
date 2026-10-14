@@ -134,9 +134,40 @@
       </span>
     </div>
   </div>
-  <div class="kpm-card__body kpm-card__body--docs">
+  <div class="kpm-card__body kpm-card__body--gaps">
     @for (row of documentGapRows(); track row.gapKey) {
-      <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
+      <div
+        class="gap-tile"
+        [class.gap-tile--clickable]="!!row.gapKey && !row.valueLoading"
+        [class.gap-tile--clear]="!row.valueLoading && row.value === 0"
+        [class.gap-tile--info]="row.state === KpmRowState.INFO"
+        [attr.role]="row.gapKey ? 'link' : null"
+        [attr.tabindex]="row.gapKey && !row.valueLoading ? 0 : null"
+        [attr.aria-label]="row.gapKey ? 'Open ' + row.label : null"
+        (click)="openMetric(row)"
+        (keydown.enter)="openMetric(row)"
+        (keydown.space)="$event.preventDefault(); openMetric(row)"
+      >
+        <span class="gap-tile__top">
+          <span class="gap-tile__label">{{ row.label }}</span>
+          <span
+            class="gap-tile__count"
+            [attr.aria-busy]="row.valueLoading ? 'true' : null"
+          >
+            @if (row.valueLoading) {
+              <span
+                [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+                aria-hidden="true"
+              ></span>
+            } @else {
+              {{ row.value | number: config.DEFAULT : config.LOCALE }}
+            }
+          </span>
+        </span>
+        @if (row.valueHint) {
+          <span class="gap-tile__hint">{{ row.valueHint }}</span>
+        }
+      </div>
     } @empty {
       @if (!documentGapsLoading()) {
         <p class="kpm-card__empty">No document gaps.</p>
