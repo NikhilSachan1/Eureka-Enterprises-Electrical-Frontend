@@ -1,4 +1,3 @@
-import { CurrencyPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -13,24 +12,26 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { Card } from 'primeng/card';
-import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { dashOutlinedLinkButton } from '@features/dashboard/utils/dashboard-link-button.config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { PetroCardWalletService } from '@features/transport-management/petro-card-wallet-management/services/petro-card-wallet.service';
 import type { IWalletBalanceResponseDto } from '@features/transport-management/petro-card-wallet-management/types/petro-card-wallet.dto';
+import { formatWalletBalanceForViewer } from '@features/transport-management/petro-card-wallet-management/utils/wallet-balance-display.util';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 
 @Component({
   selector: 'app-petro-card-wallet-dashboard',
-  imports: [Card, CurrencyPipe, ButtonComponent],
+  imports: [Card, ButtonComponent],
   templateUrl: './petro-card-wallet-dashboard.component.html',
   styleUrl: './petro-card-wallet-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PetroCardWalletDashboardComponent implements OnInit {
   private readonly walletService = inject(PetroCardWalletService);
+  private readonly authService = inject(AuthService);
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly logger = inject(LoggerService);
@@ -39,7 +40,6 @@ export class PetroCardWalletDashboardComponent implements OnInit {
   /** When false, hides the “Open wallet” CTA (e.g. already on wallet page). */
   readonly showWalletLink = input(true);
 
-  protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ICONS = ICONS;
   protected readonly canView = this.appPermissionService.hasPermission(
     APP_PERMISSION.PETRO_CARD.WALLET_VIEW
@@ -52,6 +52,13 @@ export class PetroCardWalletDashboardComponent implements OnInit {
   protected readonly availableAmount = computed(
     () => this.balance()?.balance ?? 0
   );
+  protected readonly displayBalance = computed(() => {
+    this.authService.user();
+    return formatWalletBalanceForViewer(
+      this.availableAmount(),
+      this.authService.isActiveRoleEmployeeLike()
+    );
+  });
   protected readonly isHealthyBalance = computed(
     () => this.availableAmount() > 0
   );
@@ -67,11 +74,6 @@ export class PetroCardWalletDashboardComponent implements OnInit {
 
   /** Public so parent pages can refresh after add/edit/delete. */
   reloadBalance(): void {
-    if (!this.canView) {
-      this.loading.set(false);
-      return;
-    }
-
     this.loading.set(true);
     this.walletService
       .getBalance()

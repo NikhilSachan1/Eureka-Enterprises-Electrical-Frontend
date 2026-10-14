@@ -12,8 +12,12 @@ import {
   FormGroup,
   ValidatorFn,
 } from '@angular/forms';
-import { APP_CONFIG } from '@core/config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { PetroCardWalletService } from '@features/transport-management/petro-card-wallet-management/services/petro-card-wallet.service';
+import {
+  formatWalletBalanceAmount,
+  formatWalletBalanceForViewer,
+} from '@features/transport-management/petro-card-wallet-management/utils/wallet-balance-display.util';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { NotificationService } from '@shared/services';
 import type { IInputFieldsConfig } from '@shared/types';
@@ -39,6 +43,7 @@ const PETRO_CARD_PAYMENT_MODE = 'petro_card';
 })
 export class FuelExpenseAmountFieldComponent {
   private readonly walletService = inject(PetroCardWalletService);
+  private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
 
   readonly formGroup = input.required<FormGroup>();
@@ -133,7 +138,7 @@ export class FuelExpenseAmountFieldComponent {
           .subscribe(response => {
             this.availableBalance.set(response.balance);
             this.balanceHint.set(
-              `Available balance: ${this.formatCurrency(response.balance)}`
+              `Available balance: ${this.formatAvailableBalance(response.balance)}`
             );
             amountControl.updateValueAndValidity({ emitEvent: false });
           })
@@ -217,14 +222,13 @@ export class FuelExpenseAmountFieldComponent {
     available: number,
     needed: number
   ): string {
-    return `Insufficient PetroCard Wallet balance. Available ${this.formatCurrency(available)}, this entry needs ${this.formatCurrency(needed)}. Recharge the wallet before recording this fuel entry.`;
+    return `Insufficient PetroCard Wallet balance. Available ${this.formatAvailableBalance(available)}, this entry needs ${formatWalletBalanceAmount(needed)}. Recharge the wallet before recording this fuel entry.`;
   }
 
-  private formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT || 'INR',
-      maximumFractionDigits: 2,
-    }).format(amount);
+  private formatAvailableBalance(amount: number): string {
+    return formatWalletBalanceForViewer(
+      amount,
+      this.authService.isActiveRoleEmployeeLike()
+    );
   }
 }

@@ -1,5 +1,4 @@
-@if (canView) {
-  <p-card
+<p-card
     class="status-dashboard__card petro-wallet-dash"
     [class.petro-wallet-dash--healthy]="!loading() && !loadError() && isHealthyBalance()"
     [class.petro-wallet-dash--low]="!loading() && !loadError() && !isHealthyBalance()"
@@ -17,7 +16,7 @@
             <span class="petro-wallet-dash__eyebrow">PetroCard wallet</span>
             <span class="petro-wallet-dash__label">Available balance</span>
           </div>
-          @if (showWalletLink()) {
+          @if (showWalletLink() && canView) {
             <app-button
               class="petro-wallet-dash__action"
               [buttonConfig]="openWalletButton"
@@ -46,10 +45,7 @@
             <span class="petro-wallet-dash__error">Could not load balance</span>
           } @else {
             <span class="petro-wallet-dash__amount">
-              {{
-                availableAmount()
-                  | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-              }}
+              {{ displayBalance() }}
             </span>
             <span class="petro-wallet-dash__amount-note">
               Shared balance for every PetroCard
@@ -59,4 +55,3 @@
       </div>
     </div>
   </p-card>
-}
