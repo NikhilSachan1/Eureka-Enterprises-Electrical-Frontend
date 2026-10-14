@@ -147,6 +147,15 @@ export class KpmDashboardComponent implements OnInit {
       this.appConfigurationService.paymentSheetStages()
     )
   );
+  protected readonly siteDocTotal = computed(() =>
+    this.metricTotal(this.siteDocumentRows())
+  );
+  protected readonly documentGapTotal = computed(() =>
+    this.metricTotal(this.documentGapRows())
+  );
+  protected readonly paymentSheetTotal = computed(() =>
+    this.metricTotal(this.paymentSheetRows())
+  );
   protected readonly documentGapRows = computed<IDashboardKpmMetricRow[]>(() => {
     const loading = this.documentGapsLoading();
     const data = this.documentGaps();
@@ -197,6 +206,13 @@ export class KpmDashboardComponent implements OnInit {
     } else {
       this.vehicleReadingsAlertsLoading.set(false);
     }
+  }
+
+  private metricTotal(rows: readonly IDashboardKpmMetricRow[]): number | null {
+    if (rows.some(row => row.valueLoading)) {
+      return null;
+    }
+    return rows.reduce((sum, row) => sum + row.value, 0);
   }
 
   protected openMetric(row: IDashboardKpmMetricRow): void {
