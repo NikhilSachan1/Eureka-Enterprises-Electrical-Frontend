@@ -91,7 +91,8 @@ export class GetFuelExpenseComponent implements OnInit {
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly authService = inject(AuthService);
 
-  private readonly hasAssignedVehicle = signal<boolean | null>(null);
+  /** False until the assigned-vehicle request finishes. A null detail is also the unloaded state. */
+  private readonly assignedVehicleResolved = signal(false);
 
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ICONS = ICONS;
@@ -131,7 +132,7 @@ export class GetFuelExpenseComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    this.applyLinkedVehicleFromAppConfiguration();
+    this.resolveAssignedVehicle();
     const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
       createFuelExpenseTableEnhancedConfig(loggedInUserId)
@@ -139,17 +140,18 @@ export class GetFuelExpenseComponent implements OnInit {
     this.searchFilterConfig = SEARCH_FILTER_FUEL_EXPENSE_FORM_CONFIG;
   }
 
-  private applyLinkedVehicleFromAppConfiguration(): void {
+  private resolveAssignedVehicle(): void {
+    this.appConfigurationService
+      .loadLinkedUserVehicleDetailForCurrentUser()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.assignedVehicleResolved.set(true);
+      });
+  }
+
+  private hasLinkedVehicle(): boolean {
     const linked = this.appConfigurationService.linkedUserVehicleDetail();
-    if (linked === null) {
-      this.hasAssignedVehicle.set(false);
-      return;
-    }
-
-    const hasLinkedVehicle =
-      !!linked.vehicle && Object.keys(linked.vehicle).length > 0;
-
-    this.hasAssignedVehicle.set(hasLinkedVehicle);
+    return !!linked?.vehicle && Object.keys(linked.vehicle).length > 0;
   }
 
   private loadFuelExpenseList(): void {
@@ -550,7 +552,9 @@ export class GetFuelExpenseComponent implements OnInit {
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {
-    const noAssignedVehicle = this.hasAssignedVehicle() === false;
+    const resolved = this.assignedVehicleResolved();
+    const hasVehicle = this.hasLinkedVehicle();
+    const noAssignedVehicle = resolved && !hasVehicle;
 
     return {
       title: 'Fuel Expense Management',
@@ -577,10 +581,12 @@ export class GetFuelExpenseComponent implements OnInit {
           icon: ICONS.COMMON.PLUS,
           actionName: 'addFuelExpense',
           permission: [APP_PERMISSION.FUEL_EXPENSE.ADD],
-          disabled: noAssignedVehicle,
+          disabled: !resolved || !hasVehicle,
           disabledTooltip: noAssignedVehicle
             ? 'You have no vehicle assigned. Fuel expense can only be added when at least one vehicle is assigned to you.'
-            : undefined,
+            : !resolved
+              ? 'Checking your assigned vehicle…'
+              : undefined,
         },
       ],
     };
