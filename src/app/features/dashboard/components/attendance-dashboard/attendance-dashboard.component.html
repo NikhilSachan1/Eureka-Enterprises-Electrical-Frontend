@@ -11,7 +11,7 @@
         </div>
         <div>
           <h2 class="card-block__title">Today's attendance</h2>
-          <p class="card-block__hint">Floor snapshot, then people with vehicle, driver and status</p>
+          <p class="card-block__hint">Who is present, absent, and still not checked in</p>
         </div>
       </div>
       <div class="card-block__controls">
@@ -24,32 +24,25 @@
 
     <div class="attendance-today">
       @if (summary(); as st) {
-        <div class="stat-grid stat-grid--attendance">
-          <div class="stat-tile stat-tile--compact stat-tile--present">
-            <span class="stat-tile__label">Present</span>
-            <span class="stat-tile__value">{{ st.attendance.present | number: config.DEFAULT : config.LOCALE }}</span>
-          </div>
-          <div class="stat-tile stat-tile--compact stat-tile--absent">
-            <span class="stat-tile__label">Absent</span>
-            <span class="stat-tile__value">{{ st.attendance.absent | number: config.DEFAULT : config.LOCALE }}</span>
-          </div>
-          <div class="stat-tile stat-tile--compact stat-tile--leave">
-            <span class="stat-tile__label">Leave</span>
-            <span class="stat-tile__value">{{ st.attendance.leave | number: config.DEFAULT : config.LOCALE }}</span>
-          </div>
-          <div class="stat-tile stat-tile--compact stat-tile--holiday">
-            <span class="stat-tile__label">Holiday</span>
-            <span class="stat-tile__value">{{ st.attendance.holiday | number: config.DEFAULT : config.LOCALE }}</span>
-          </div>
-          <div class="stat-tile stat-tile--compact stat-tile--checked-in">
-            <span class="stat-tile__label">Checked in</span>
-            <span class="stat-tile__value">{{ st.attendance.checkedIn | number: config.DEFAULT : config.LOCALE }}</span>
-          </div>
-          <div class="stat-tile stat-tile--compact stat-tile--neutral">
-            <span class="stat-tile__label">Not checked in</span>
-            <span class="stat-tile__value">
-              {{ st.attendance.notCheckedInYet | number: config.DEFAULT : config.LOCALE }}
+        <div
+          class="att-board"
+          aria-label="Today's attendance totals"
+        >
+          <div class="att-board__total">
+            <span class="att-board__total-value">
+              {{ st.attendance.total | number: config.DEFAULT : config.LOCALE }}
             </span>
+            <span class="att-board__total-label">people</span>
+          </div>
+          <div class="att-board__counts">
+            @for (cell of summaryCells(); track cell.key) {
+              <div [class]="'att-count att-count--' + cell.tone">
+                <span class="att-count__value">
+                  {{ cell.value | number: config.DEFAULT : config.LOCALE }}
+                </span>
+                <span class="att-count__label">{{ cell.label }}</span>
+              </div>
+            }
           </div>
         </div>
       }
@@ -79,41 +72,38 @@
           >
             @for (row of filteredRows(); track row.id) {
               <li [class]="'att-row att-row--' + row.statusTone">
-                <div class="att-row__top">
-                  <div class="att-row__who">
-                    <span class="att-row__name">{{ row.employeeName }}</span>
-                    @if (row.employeeCode) {
-                      <span class="att-row__code">{{ row.employeeCode }}</span>
-                    }
+                <span
+                  class="att-row__avatar"
+                  aria-hidden="true"
+                >{{ row.initials }}</span>
+                <div class="att-row__body">
+                  <div class="att-row__top">
+                    <div class="att-row__who">
+                      <span class="att-row__name">{{ row.employeeName }}</span>
+                      @if (row.employeeCode) {
+                        <span class="att-row__code">{{ row.employeeCode }}</span>
+                      }
+                    </div>
+                    <span [class]="'att-status att-status--' + row.statusTone">
+                      {{ row.attendanceStatus }}
+                    </span>
                   </div>
-                  <span [class]="'att-status att-status--' + row.statusTone">
-                    {{ row.attendanceStatus }}
-                  </span>
+                  @if (row.assignmentTrail.length > 0) {
+                    <p class="att-row__meta">
+                      @for (stop of row.assignmentTrail; track stop.kind) {
+                        <span class="att-row__meta-item">
+                          <i
+                            [class]="stop.icon"
+                            aria-hidden="true"
+                          ></i>
+                          <span>{{ stop.value }}</span>
+                        </span>
+                      }
+                    </p>
+                  } @else {
+                    <p class="att-row__meta att-row__meta--empty">No vehicle or driver</p>
+                  }
                 </div>
-
-                @if (row.assignmentTrail.length > 0) {
-                  <div
-                    class="att-assign"
-                    aria-label="Vehicle & Driver"
-                  >
-                    @for (stop of row.assignmentTrail; track stop.kind) {
-                      <div [class]="'att-assign__item att-assign__item--' + stop.kind">
-                        <span
-                          class="att-assign__icon"
-                          aria-hidden="true"
-                        >
-                          <i [class]="stop.icon"></i>
-                        </span>
-                        <span class="att-assign__text">
-                          <span class="att-assign__k">{{ stop.label }}</span>
-                          <span class="att-assign__v">{{ stop.value }}</span>
-                        </span>
-                      </div>
-                    }
-                  </div>
-                } @else {
-                  <span class="att-row__unassigned">No vehicle or driver</span>
-                }
               </li>
             }
           </ul>

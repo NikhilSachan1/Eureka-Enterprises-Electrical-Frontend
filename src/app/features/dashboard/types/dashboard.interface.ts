@@ -23,6 +23,7 @@ export interface IDashboardTodayAttendanceRow {
   readonly id: string;
   readonly employeeName: string;
   readonly employeeCode: string;
+  readonly initials: string;
   readonly assignmentTrail: readonly IDashboardAttendanceTrailStop[];
   /** Lowercase name, code, assignment, and status — built once for search. */
   readonly searchText: string;
