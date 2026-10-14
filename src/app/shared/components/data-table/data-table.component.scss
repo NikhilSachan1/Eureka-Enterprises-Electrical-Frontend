@@ -399,6 +399,74 @@
   }
 }
 
+.mobile-layout-tabs {
+  margin-bottom: 0.85rem;
+
+  ::ng-deep {
+    .p-tabs {
+      background: transparent;
+    }
+
+    .p-tablist {
+      padding: 0.28rem;
+      border: 1px solid var(--border-light-color);
+      border-radius: 0.9rem;
+      background: color-mix(
+        in srgb,
+        var(--primary-color) 7%,
+        var(--background-default-color)
+      );
+    }
+
+    .p-tablist-content,
+    .p-tablist-viewport {
+      overflow: visible;
+    }
+
+    .p-tablist-tab-list {
+      display: flex;
+      gap: 0.25rem;
+      border: 0;
+      background: transparent;
+    }
+
+    .p-tablist-active-bar {
+      display: none;
+    }
+
+    .p-tab {
+      flex: 1 1 0;
+      justify-content: center;
+      min-height: 2.35rem;
+      margin: 0;
+      padding: 0.45rem 0.7rem;
+      border: 1px solid transparent;
+      border-radius: 0.68rem;
+      background: transparent;
+      box-shadow: none;
+      color: var(--text-secondary-color);
+      font-size: 0.84rem;
+      font-weight: 600;
+      gap: 0.4rem;
+
+      i {
+        font-size: 0.85rem;
+      }
+
+      &[data-p-active='true'] {
+        border-color: color-mix(
+          in srgb,
+          var(--primary-color) 22%,
+          var(--border-light-color)
+        );
+        background: var(--background-default-color);
+        color: var(--primary-color);
+        box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
+      }
+    }
+  }
+}
+
 // SelectButton styling for view mode toggle
 ::ng-deep .view-mode-toggle {
   .p-selectbutton {
