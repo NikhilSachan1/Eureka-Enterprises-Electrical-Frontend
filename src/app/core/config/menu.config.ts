@@ -416,6 +416,9 @@ export const appMenu: ApplicationMenu = {
               label: 'Payment Sheets',
               icon: ICONS.COMMON.FILE,
               routerLink: ROUTES.CENTRALIZED_PAYMENT.PAYMENT_SHEETS,
+              permission: [
+                APP_PERMISSION.OUTSTANDING_PAYMENT_SHEETS.TABLE_VIEW,
+              ],
             },
           ],
         },
