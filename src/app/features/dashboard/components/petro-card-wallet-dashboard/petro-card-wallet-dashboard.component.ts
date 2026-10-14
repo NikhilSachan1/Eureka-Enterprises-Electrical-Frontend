@@ -44,6 +44,14 @@ export class PetroCardWalletDashboardComponent implements OnInit {
   protected readonly canView = this.appPermissionService.hasPermission(
     APP_PERMISSION.PETRO_CARD.WALLET_VIEW
   );
+  protected readonly showOpenWallet = computed(() => {
+    this.authService.user();
+    return (
+      this.showWalletLink() &&
+      this.canView &&
+      !this.authService.isActiveRoleEmployeeLike()
+    );
+  });
 
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);

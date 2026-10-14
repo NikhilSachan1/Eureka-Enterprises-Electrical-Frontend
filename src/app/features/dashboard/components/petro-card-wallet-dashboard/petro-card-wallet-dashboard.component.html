@@ -16,7 +16,7 @@
             <span class="petro-wallet-dash__eyebrow">PetroCard wallet</span>
             <span class="petro-wallet-dash__label">Available balance</span>
           </div>
-          @if (showWalletLink() && canView) {
+          @if (showOpenWallet()) {
             <app-button
               class="petro-wallet-dash__action"
               [buttonConfig]="openWalletButton"
