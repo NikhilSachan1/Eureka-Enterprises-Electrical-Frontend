@@ -76,6 +76,11 @@ export const APP_CONFIG = {
   },
 
   // Table Configuration
+  /**
+   * Phone layout for every data table.
+   * true = each row is a card. false = show the normal table on mobile.
+   */
+  MOBILE_SHOW_CARDS: true,
   TABLE_PAGINATION_CONFIG: {
     DEFAULT_PAGE_SIZE: 10,
     DEFAULT_PAGE_SIZE_OPTIONS: [5, 10, 20, 50, 100, 200, 500],

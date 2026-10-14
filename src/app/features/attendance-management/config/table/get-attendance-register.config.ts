@@ -10,6 +10,7 @@ const ATTENDANCE_REGISTER_TABLE_CONFIG: Partial<IDataTableConfig> = {
   scrollable: true,
   scrollHeight: 'calc(100vh - 14rem)',
   tableStyleClass: 'attendance-register-data-table',
+  mobileCardLayout: false,
   emptyMessage: 'No attendance register data found.',
   emptyMessageIcon: ICONS.COMMON.INFO_CIRCLE,
 };

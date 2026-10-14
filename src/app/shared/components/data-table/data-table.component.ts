@@ -2,6 +2,7 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   input,
   output,
   signal,
@@ -148,6 +149,7 @@ export class DataTableComponent {
   private readonly searchFilterUrlRestore = inject(
     SearchFilterUrlRestoreService
   );
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly showTableLoading = computed(
     () => this.loading() || this.searchFilterUrlRestore.hasPendingRestore()
@@ -332,11 +334,88 @@ export class DataTableComponent {
     });
   }
 
+  protected isCardRowExpanded(row: Record<string, unknown>): boolean {
+    const key = this.normalizeRowIdForSelection(
+      row,
+      this.tableConfig().tableUniqueId
+    );
+    if (!key) {
+      return false;
+    }
+    return !!this.expandedRowKeys()[key];
+  }
+
+  protected toggleCardRowExpansion(row: Record<string, unknown>): void {
+    if (!this.isExpandableRow(row)) {
+      return;
+    }
+
+    const key = this.normalizeRowIdForSelection(
+      row,
+      this.tableConfig().tableUniqueId
+    );
+    if (!key) {
+      return;
+    }
+
+    this.expandedRowKeys.update(keys => {
+      const next = { ...keys };
+      if (next[key]) {
+        delete next[key];
+      } else {
+        next[key] = true;
+      }
+      return next;
+    });
+  }
+
+  /** Wide custom cells read better with the label above the value. */
+  protected isStackedCardField(column: IDataTableHeaderConfig): boolean {
+    return (
+      !!column.customTemplateKey ||
+      column.bodyTemplate === EDataType.TEXT_WITH_READ_MORE ||
+      column.bodyTemplate === EDataType.TEXT_WITH_SUBTITLE ||
+      column.bodyTemplate === EDataType.ATTACHMENTS
+    );
+  }
+
+  /** Phones use the same breakpoint as the app sidebar. */
+  protected readonly isCompactViewport = signal(
+    typeof window !== 'undefined' &&
+      window.matchMedia('(max-width: 768px)').matches
+  );
+
   // View mode: 'list' or 'card' - using model signal for two-way binding with SelectButton
   protected viewMode = model<'list' | 'card'>('list');
-  protected readonly resolvedViewMode = computed(() =>
-    this.tableConfig().showViewModeToggle === false ? 'list' : this.viewMode()
+  protected readonly forceMobileCards = computed(
+    () =>
+      this.isCompactViewport() &&
+      this.appConfig.MOBILE_SHOW_CARDS &&
+      this.tableConfig().mobileCardLayout !== false
   );
+
+  protected readonly resolvedViewMode = computed(() => {
+    if (this.forceMobileCards()) {
+      return 'card' as const;
+    }
+
+    return this.tableConfig().showViewModeToggle === false
+      ? 'list'
+      : this.viewMode();
+  });
+
+  /** First non-status column is the card title. Every other column keeps its header. */
+  protected readonly cardLayoutColumns = computed(() => {
+    const visible = this.visibleTableHeaders().filter(
+      column => column.showColumn !== false
+    );
+    const title =
+      visible.find(column => column.bodyTemplate !== EDataType.STATUS) ??
+      visible[0];
+    const body = visible.filter(column => column !== title);
+
+    return { title, body };
+  });
 
   // Track pagination state for card view
   protected paginationFirst = signal<number>(0);
@@ -349,6 +428,18 @@ export class DataTableComponent {
   ];
 
   constructor() {
+    if (typeof window !== 'undefined') {
+      const media = window.matchMedia('(max-width: 768px)');
+      const syncViewport = (): void => {
+        this.isCompactViewport.set(media.matches);
+      };
+      syncViewport();
+      media.addEventListener('change', syncViewport);
+      this.destroyRef.onDestroy(() =>
+        media.removeEventListener('change', syncViewport)
+      );
+    }
+
     // Load view mode from localStorage on init
     const savedViewMode = localStorage.getItem('table-view-mode') as
       | 'list'
