@@ -1,7 +1,24 @@
 @let selectedCount = selectedTableRows().length;
 @let currentViewMode = resolvedViewMode();
-@let useMobileCards = forceMobileCards();
-@let showToggle = (tableConfig().showViewModeToggle ?? true) && !useMobileCards;
+@let showToggle = (tableConfig().showViewModeToggle ?? true) && !isCompactViewport();
+
+@if (canSwitchMobileLayout()) {
+  <div class="mobile-layout-tabs">
+    <p-tabs [value]="mobileViewMode()">
+      <p-tablist>
+        @for (option of mobileLayoutOptions; track option.value) {
+          <p-tab
+            [value]="option.value"
+            (click)="mobileViewMode.set(option.value)"
+          >
+            <i [class]="option.icon"></i>
+            <span>{{ option.label }}</span>
+          </p-tab>
+        }
+      </p-tablist>
+    </p-tabs>
+  </div>
+}
 
 <!-- View Mode Toggle -->
 @if (showToggle) {

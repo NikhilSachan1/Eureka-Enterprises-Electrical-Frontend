@@ -38,6 +38,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { PanelModule } from 'primeng/panel';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { TabsModule } from 'primeng/tabs';
 import {
   IDataTableConfig,
   IDataTableFrozenColumnConfig,
@@ -114,6 +115,7 @@ import {
     PaginatorModule,
     PaginatorComponent,
     SelectButtonModule,
+    TabsModule,
     StatusTagComponent,
     ChipComponent,
     ReadMoreComponent,
@@ -387,7 +389,9 @@ export class DataTableComponent {
 
   // View mode: 'list' or 'card' - using model signal for two-way binding with SelectButton
   protected viewMode = model<'list' | 'card'>('list');
-  protected readonly forceMobileCards = computed(
+  /** Phone layout. Cards are the default; the switch can open the table. */
+  protected mobileViewMode = model<'list' | 'card'>('card');
+  protected readonly canSwitchMobileLayout = computed(
     () =>
       this.isCompactViewport() &&
       this.appConfig.MOBILE_SHOW_CARDS &&
@@ -395,8 +399,12 @@ export class DataTableComponent {
   );
 
   protected readonly resolvedViewMode = computed(() => {
-    if (this.forceMobileCards()) {
-      return 'card' as const;
+    if (this.canSwitchMobileLayout()) {
+      return this.mobileViewMode();
+    }
+
+    if (this.isCompactViewport()) {
+      return 'list' as const;
     }
 
     return this.tableConfig().showViewModeToggle === false
@@ -427,6 +435,11 @@ export class DataTableComponent {
     { label: 'Card', value: 'card', icon: ICONS.COMMON.TH_LARGE },
   ];
 
+  protected readonly mobileLayoutOptions = [
+    { label: 'Cards', value: 'card' as const, icon: ICONS.COMMON.TH_LARGE },
+    { label: 'Table', value: 'list' as const, icon: ICONS.COMMON.TABLE },
+  ];
+
   constructor() {
     if (typeof window !== 'undefined') {
       const media = window.matchMedia('(max-width: 768px)');
@@ -449,10 +462,21 @@ export class DataTableComponent {
       this.viewMode.set(savedViewMode);
     }
 
+    const savedMobileViewMode = localStorage.getItem(
+      'mobile-table-view-mode'
+    ) as 'list' | 'card' | null;
+    if (savedMobileViewMode === 'list' || savedMobileViewMode === 'card') {
+      this.mobileViewMode.set(savedMobileViewMode);
+    }
+
     // Save view mode to localStorage when it changes
     effect(() => {
       const mode = this.viewMode();
       localStorage.setItem('table-view-mode', mode);
+    });
+
+    effect(() => {
+      localStorage.setItem('mobile-table-view-mode', this.mobileViewMode());
     });
 
     // Initialize pagination from URL, then fall back to table config

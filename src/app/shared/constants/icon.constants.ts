@@ -2,6 +2,7 @@ export const ICONS = {
   COMMON: {
     HOME: 'pi pi-home',
     LIST: 'pi pi-list',
+    TABLE: 'pi pi-table',
     ADD: 'pi pi-plus-circle',
     PLUS: 'pi pi-plus',
     SYNC: 'pi pi-sync',
