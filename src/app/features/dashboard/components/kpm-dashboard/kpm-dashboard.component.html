@@ -14,7 +14,7 @@
           [class]="ICONS.COMMON.INBOX + ' kpm-card__hicon'"
           aria-hidden="true"
         ></span>
-        <span class="kpm-card__htitle">Pending Approvals</span>
+        <span class="kpm-card__htitle">{{ approvalHeading() }}</span>
       </div>
     </div>
     <div class="kpm-card__body">
@@ -114,6 +114,37 @@
   </div>
 </section>
 
+<section
+  class="kpm-card kpm-card--doc-gaps kpm-site-docs"
+  aria-labelledby="kpm-doc-gaps-title"
+>
+  <div class="kpm-card__header">
+    <div class="kpm-card__header-lead">
+      <span
+        [class]="ICONS.COMMON.EXCLAMATION_TRIANGLE + ' kpm-card__hicon'"
+        aria-hidden="true"
+      ></span>
+      <span class="kpm-card__htitle-stack">
+        <span
+          id="kpm-doc-gaps-title"
+          class="kpm-card__htitle"
+        >
+          Document gaps
+        </span>
+      </span>
+    </div>
+  </div>
+  <div class="kpm-card__body kpm-card__body--docs">
+    @for (row of documentGapRows(); track row.gapKey) {
+      <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
+    } @empty {
+      @if (!documentGapsLoading()) {
+        <p class="kpm-card__empty">No document gaps.</p>
+      }
+    }
+  </div>
+</section>
+
 @if (showPaymentSheets) {
 <section
   class="kpm-card kpm-card--payment-sheets kpm-site-docs"
@@ -151,14 +182,14 @@
 >
   <div
     class="kpm-card__row"
-    [class.kpm-card__row--clickable]="!!row.link && !row.valueLoading"
+    [class.kpm-card__row--clickable]="(!!row.link || !!row.gapKey) && !row.valueLoading"
     [class.kpm-card__row--info]="row.state === KpmRowState.INFO"
     [class.kpm-card__row--warn]="row.state === KpmRowState.WARN"
     [class.kpm-card__row--alert]="row.state === KpmRowState.ALERT"
     [class.kpm-card__row--success]="row.state === KpmRowState.SUCCESS"
-    [attr.role]="row.link ? 'link' : null"
-    [attr.tabindex]="row.link && !row.valueLoading ? 0 : null"
-    [attr.aria-label]="row.link ? 'Open ' + row.label : null"
+    [attr.role]="row.link || row.gapKey ? 'link' : null"
+    [attr.tabindex]="(row.link || row.gapKey) && !row.valueLoading ? 0 : null"
+    [attr.aria-label]="row.link || row.gapKey ? 'Open ' + row.label : null"
     (click)="openMetric(row)"
     (keydown.enter)="openMetric(row)"
     (keydown.space)="$event.preventDefault(); openMetric(row)"
@@ -192,8 +223,11 @@
           {{ row.value | number: config.DEFAULT : config.LOCALE }}
         }
       </span>
+      @if (row.valueHint) {
+        <span class="kpm-card__rvalue-hint">{{ row.valueHint }}</span>
+      }
     </span>
-    @if (row.link && !row.valueLoading) {
+    @if ((row.link || row.gapKey) && !row.valueLoading) {
       <span
         [class]="ICONS.COMMON.ARROW_RIGHT + ' kpm-card__rarrow'"
         aria-hidden="true"

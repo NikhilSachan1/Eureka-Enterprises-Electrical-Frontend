@@ -9,6 +9,8 @@ import {
   ApprovalPendingDashboardGetResponseSchema,
   AssetFleetAlertsDashboardGetResponseSchema,
   BirthdaysDashboardGetResponseSchema,
+  DocumentGapDetailGetResponseSchema,
+  DocumentGapsDashboardGetResponseSchema,
   HolidaysDashboardGetResponseSchema,
   LedgerBalanceDashboardGetResponseSchema,
   VehicleReadingsAlertsDashboardGetResponseSchema,
@@ -18,6 +20,8 @@ import {
   IApprovalPendingDashboardGetResponseDto,
   IAssetFleetAlertsDashboardGetResponseDto,
   IBirthdaysDashboardGetResponseDto,
+  IDocumentGapDetailGetResponseDto,
+  IDocumentGapsDashboardGetResponseDto,
   IHolidaysDashboardGetResponseDto,
   ILedgerBalanceDashboardGetResponseDto,
   IVehicleReadingsAlertsDashboardGetResponseDto,
@@ -31,6 +35,24 @@ export class DashboardService {
   private readonly apiService = inject(ApiService);
   private ledgerBalanceShared$?: Observable<ILedgerBalanceDashboardGetResponseDto>;
   private assetFleetAlertsShared$?: Observable<IAssetFleetAlertsDashboardGetResponseDto>;
+
+  getDocumentGaps(): Observable<IDocumentGapsDashboardGetResponseDto> {
+    return this.fetch(
+      'Get Document Gaps',
+      API_ROUTES.DASHBOARD.DOCUMENT_GAPS,
+      DocumentGapsDashboardGetResponseSchema
+    );
+  }
+
+  getDocumentGapDetail(
+    key: string
+  ): Observable<IDocumentGapDetailGetResponseDto> {
+    return this.fetch(
+      'Get Document Gap Detail',
+      API_ROUTES.DASHBOARD.DOCUMENT_GAP(key),
+      DocumentGapDetailGetResponseSchema
+    );
+  }
 
   getApprovalPending(): Observable<IApprovalPendingDashboardGetResponseDto> {
     return this.fetch(

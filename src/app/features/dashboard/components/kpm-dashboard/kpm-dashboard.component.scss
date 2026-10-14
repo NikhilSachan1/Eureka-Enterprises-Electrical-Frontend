@@ -76,6 +76,11 @@
     --kpm-accent: #0f766e;
     --kpm-accent-dark: #134e4a;
   }
+
+  &--doc-gaps {
+    --kpm-accent: #b45309;
+    --kpm-accent-dark: #92400e;
+  }
 }
 
 .kpm-site-docs {
@@ -257,6 +262,22 @@
   align-items: flex-end;
   gap: 0.15rem;
   flex-shrink: 0;
+  max-width: 16rem;
+}
+
+.kpm-card__rvalue-hint {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: right;
+  color: var(--text-secondary-color);
+}
+
+.kpm-card__empty {
+  grid-column: 1 / -1;
+  margin: 0.35rem 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary-color);
 }
 
 .kpm-card__rvalue {

@@ -77,12 +77,16 @@ export interface IDashboardKpmMetricRow {
   readonly icon: string;
   readonly label: string;
   readonly hint?: string;
+  /** Supporting line under the count. */
+  readonly valueHint?: string;
   readonly value: number;
   readonly format: EDataType;
   readonly state: EKpmDashboardSeverity;
   /** When true, the value column shows a spinner (e.g. while its backing API is in flight). */
   readonly valueLoading?: boolean;
   readonly link?: IDashboardKpmMetricLink;
+  /** Opens the document-gap drawer instead of navigating. */
+  readonly gapKey?: string;
 }
 
 /** Row for a Birthday, Anniversary or Holiday in the dashboard. */

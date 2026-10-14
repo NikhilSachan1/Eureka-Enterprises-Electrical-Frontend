@@ -11,6 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { readDocTabSearch } from '@shared/constants';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -121,6 +122,11 @@ export class GetInvoiceComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const tabSearch = readDocTabSearch(this.route.snapshot.queryParamMap);
+    if (tabSearch) {
+      this.searchTerm.set(tabSearch);
+    }
+
     const docContext = this.route.parent?.snapshot.data[
       'docContext'
     ] as EDocContext;
