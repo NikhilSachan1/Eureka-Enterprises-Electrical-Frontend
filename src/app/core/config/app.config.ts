@@ -115,7 +115,7 @@ export const APP_CONFIG = {
 
   // PetroCard wallet — employee and driver see this ceiling instead of a higher balance
   WALLET_CONFIG: {
-    EMPLOYEE_DISPLAY_CAP: 500,
+    EMPLOYEE_DISPLAY_CAP: 3000,
   },
 
   // Announcement Configuration
