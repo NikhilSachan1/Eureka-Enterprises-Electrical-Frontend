@@ -1,6 +1,5 @@
 @use "../../styles/dashboard-card-block.shared" as *;
 
-$-bd: var(--border-light-color, #e2e8f0);
 $-tx2: var(--text-secondary-color, #64748b);
 
 :host {
@@ -30,7 +29,7 @@ $-tx2: var(--text-secondary-color, #64748b);
   flex-shrink: 0;
   padding: 0.7rem 0.8rem;
   border-radius: 0.85rem;
-  border: 1px solid color-mix(in srgb, #{$-bd} 92%, #cbd5e1);
+  border: 1px solid var(--border-light-color);
   background: var(--background-paper-color, #f8fafc);
 }
 
@@ -41,7 +40,7 @@ $-tx2: var(--text-secondary-color, #64748b);
   justify-content: center;
   min-width: 4.1rem;
   padding-right: 0.85rem;
-  border-right: 1px solid color-mix(in srgb, #{$-bd} 90%, #e2e8f0);
+  border-right: 1px solid var(--border-light-color);
 }
 
 .att-board__total-value {
@@ -73,12 +72,12 @@ $-tx2: var(--text-secondary-color, #64748b);
   flex-direction: column;
   min-width: 0;
 
-  &--success { --att-count: #047857; }
-  &--danger { --att-count: #b91c1c; }
-  &--warning { --att-count: #b45309; }
-  &--purple { --att-count: #6d28d9; }
-  &--info { --att-count: #1d4ed8; }
-  &--neutral { --att-count: #475569; }
+  &--success { --att-count: color-mix(in srgb, #047857 70%, var(--text-primary-color)); }
+  &--danger { --att-count: color-mix(in srgb, #b91c1c 70%, var(--text-primary-color)); }
+  &--warning { --att-count: color-mix(in srgb, #b45309 70%, var(--text-primary-color)); }
+  &--purple { --att-count: color-mix(in srgb, #6d28d9 70%, var(--text-primary-color)); }
+  &--info { --att-count: color-mix(in srgb, #1d4ed8 70%, var(--text-primary-color)); }
+  &--neutral { --att-count: var(--text-secondary-color); }
 }
 
 .att-count__value {
@@ -135,9 +134,9 @@ $-tx2: var(--text-secondary-color, #64748b);
   min-height: 0;
   max-height: var(--people-list-max-height);
   overflow: auto;
-  border: 1px solid color-mix(in srgb, #{$-bd} 92%, #cbd5e1);
+  border: 1px solid var(--border-light-color);
   border-radius: 0.75rem;
-  background: #fff;
+  background: var(--background-paper-color);
 }
 
 .att-row {
@@ -147,8 +146,9 @@ $-tx2: var(--text-secondary-color, #64748b);
   align-items: start;
   gap: 0.7rem;
   padding: 0.7rem 0.85rem;
-  border-bottom: 1px solid color-mix(in srgb, #{$-bd} 88%, #e2e8f0);
-  background: #fff;
+  border-bottom: 1px solid var(--border-light-color);
+  background: var(--background-default-color);
+  color: var(--text-primary-color);
 
   &:last-child {
     border-bottom: none;
@@ -190,7 +190,7 @@ $-tx2: var(--text-secondary-color, #64748b);
   letter-spacing: 0.02em;
   line-height: 1;
   color: var(--att-tone);
-  background: color-mix(in srgb, var(--att-tone) 14%, #fff);
+  background: color-mix(in srgb, var(--att-tone) 18%, var(--background-paper-color));
 }
 
 .att-row__body {
@@ -278,39 +278,39 @@ $-tx2: var(--text-secondary-color, #64748b);
   line-height: 1.2;
 
   &--success {
-    color: #047857;
-    background: color-mix(in srgb, #10b981 16%, #fff);
-    border: 1px solid color-mix(in srgb, #10b981 26%, #d1fae5);
+    color: color-mix(in srgb, #047857 72%, var(--text-primary-color));
+    background: color-mix(in srgb, #10b981 16%, var(--background-paper-color));
+    border: 1px solid color-mix(in srgb, #10b981 28%, var(--border-light-color));
   }
 
   &--danger {
-    color: #b91c1c;
-    background: color-mix(in srgb, #ef4444 14%, #fff);
-    border: 1px solid color-mix(in srgb, #ef4444 24%, #fee2e2);
+    color: color-mix(in srgb, #b91c1c 72%, var(--text-primary-color));
+    background: color-mix(in srgb, #ef4444 16%, var(--background-paper-color));
+    border: 1px solid color-mix(in srgb, #ef4444 28%, var(--border-light-color));
   }
 
   &--warning {
-    color: #b45309;
-    background: color-mix(in srgb, #f59e0b 16%, #fff);
-    border: 1px solid color-mix(in srgb, #f59e0b 26%, #fde68a);
+    color: color-mix(in srgb, #b45309 72%, var(--text-primary-color));
+    background: color-mix(in srgb, #f59e0b 16%, var(--background-paper-color));
+    border: 1px solid color-mix(in srgb, #f59e0b 28%, var(--border-light-color));
   }
 
   &--info {
-    color: #1d4ed8;
-    background: color-mix(in srgb, #3b82f6 14%, #fff);
-    border: 1px solid color-mix(in srgb, #3b82f6 24%, #dbeafe);
+    color: color-mix(in srgb, #1d4ed8 72%, var(--text-primary-color));
+    background: color-mix(in srgb, #3b82f6 16%, var(--background-paper-color));
+    border: 1px solid color-mix(in srgb, #3b82f6 28%, var(--border-light-color));
   }
 
   &--purple {
-    color: #5b21b6;
-    background: color-mix(in srgb, #a855f7 14%, #fff);
-    border: 1px solid color-mix(in srgb, #a855f7 24%, #ede9fe);
+    color: color-mix(in srgb, #5b21b6 72%, var(--text-primary-color));
+    background: color-mix(in srgb, #a855f7 16%, var(--background-paper-color));
+    border: 1px solid color-mix(in srgb, #a855f7 28%, var(--border-light-color));
   }
 
   &--secondary {
-    color: #475569;
-    background: color-mix(in srgb, #{$-tx2} 12%, #fff);
-    border: 1px solid color-mix(in srgb, #{$-bd} 90%, #e2e8f0);
+    color: var(--text-secondary-color);
+    background: color-mix(in srgb, var(--text-secondary-color) 12%, var(--background-default-color));
+    border: 1px solid var(--border-light-color);
   }
 }
 
@@ -330,8 +330,8 @@ $-tx2: var(--text-secondary-color, #64748b);
   justify-content: center;
   gap: 0.55rem;
   min-height: 5rem;
-  border: 1px solid color-mix(in srgb, #{$-bd} 92%, #cbd5e1);
+  border: 1px solid var(--border-light-color);
   border-radius: 0.65rem;
-  background: color-mix(in srgb, var(--surface-ground, #f8fafc) 35%, #fff);
+  background: var(--background-paper-color);
   font-weight: 600;
 }

@@ -146,6 +146,7 @@ export class GetWorkforceAllocationComponent implements OnInit {
         id: record.userId,
         employeeName: toTitleCase(record.employeeName),
         employeeCode: record.employeeCode,
+        designation: this.resolveDesignationLabel(record.designation),
         role: this.resolveSiteRoleLabel(
           record.role ?? record.currentProject?.role
         ),
@@ -170,6 +171,19 @@ export class GetWorkforceAllocationComponent implements OnInit {
         originalRawData: record,
       } satisfies IWorkforceAllocation;
     });
+  }
+
+  private resolveDesignationLabel(designation?: string | null): string {
+    if (!designation?.trim()) {
+      return '—';
+    }
+
+    return (
+      getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.designations(),
+        designation
+      ) || designation
+    );
   }
 
   private resolveSiteRoleLabel(role?: string | null): string {
