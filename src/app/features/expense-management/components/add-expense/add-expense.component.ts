@@ -17,7 +17,6 @@ import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { ExpenseKindSwitchComponent } from '@shared/components/expense-kind-switch/expense-kind-switch.component';
 import { FormBase } from '@shared/base/form.base';
 
 @Component({
@@ -27,7 +26,6 @@ import { FormBase } from '@shared/base/form.base';
     ReactiveFormsModule,
     ButtonComponent,
     PageHeaderComponent,
-    ExpenseKindSwitchComponent,
   ],
   templateUrl: './add-expense.component.html',
   styleUrl: './add-expense.component.scss',
@@ -100,7 +98,7 @@ export class AddExpenseComponent
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
       title: 'Add Expense',
-      subtitle: 'Travel, food, and other costs. Fuel fill-ups go under Fuel.',
+      subtitle: 'Add a new expense',
     };
   }
 }
