@@ -25,7 +25,7 @@ export const WORKFORCE_ALLOCATION_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderC
       field: 'employeeName',
       header: 'Employee',
       bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-      subtitle: { field: 'employeeCode' },
+      subtitle: { field: 'designation' },
       showImage: true,
       dummyImageField: 'employeeName',
       primaryFieldHighlight: true,

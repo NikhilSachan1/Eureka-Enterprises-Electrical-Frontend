@@ -725,15 +725,11 @@ export class KpmDashboardComponent implements OnInit {
     valueLoading: boolean
   ): IDashboardKpmMetricRow[] {
     const { counts } = data ?? {};
-    const { assetCalibration, assetWarranty } = counts ?? {};
+    const { assetCalibration } = counts ?? {};
     const {
       dueSoon: assetCalibrationDueSoon,
       overdue: assetCalibrationOverdue,
     } = assetCalibration ?? {};
-    const {
-      expired: assetWarrantyExpired,
-      expiringSoon: assetWarrantyExpiringSoon,
-    } = assetWarranty ?? {};
     const sev = (value: number, alert: boolean): EKpmDashboardSeverity => {
       if (value <= 0) {
         return EKpmDashboardSeverity.NORMAL;
@@ -770,38 +766,6 @@ export class KpmDashboardComponent implements OnInit {
           'assetCalibrationStatus',
           pickDropdownValue(
             this.appConfigurationService.assetCalibrationStatuses(),
-            'expired'
-          )
-        ),
-      },
-      {
-        icon: ICONS.SECURITY.SHIELD,
-        label: 'Warranty — expiring soon',
-        hint: 'Warranty coverage ending within the configured window',
-        value: assetWarrantyExpiringSoon ?? 0,
-        format: EDataType.NUMBER,
-        state: sev(assetWarrantyExpiringSoon ?? 0, false),
-        valueLoading,
-        link: this.assetLink(
-          'assetWarrantyStatus',
-          pickDropdownValue(
-            this.appConfigurationService.assetWarrantyStatuses(),
-            'soon'
-          )
-        ),
-      },
-      {
-        icon: ICONS.STATUS.EXPIRED,
-        label: 'Warranty — lapsed',
-        hint: 'Warranty no longer in effect or past validity',
-        value: assetWarrantyExpired ?? 0,
-        format: EDataType.NUMBER,
-        state: sev(assetWarrantyExpired ?? 0, false),
-        valueLoading,
-        link: this.assetLink(
-          'assetWarrantyStatus',
-          pickDropdownValue(
-            this.appConfigurationService.assetWarrantyStatuses(),
             'expired'
           )
         ),

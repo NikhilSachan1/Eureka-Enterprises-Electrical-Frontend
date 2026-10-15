@@ -48,6 +48,7 @@ export const WorkforceAllocationGetBaseResponseSchema = z.looseObject({
   userId: uuidField,
   employeeName: z.string(),
   employeeCode: z.string(),
+  designation: z.string().nullable(),
   status: z.enum(['ALLOCATED', 'FREE']),
   role: z.string().optional().nullable(),
   currentProject: WorkforceAllocationCurrentProjectSchema.nullable(),
