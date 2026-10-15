@@ -91,8 +91,21 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
   }
 
   private loadLinkedUserVehicleDetailFromAppConfiguration(): void {
-    const resolverData = this.appConfigurationService.linkedUserVehicleDetail();
-    this.applyResolverLikeLinkedData(resolverData);
+    this.loadingService.show({
+      title: 'Loading linked vehicle details',
+      message:
+        "We're loading linked vehicle details. This will just take a moment.",
+    });
+
+    this.appConfigurationService
+      .loadLinkedUserVehicleDetailForCurrentUser()
+      .pipe(
+        finalize(() => this.loadingService.hide()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(detail => {
+        this.applyResolverLikeLinkedData(detail);
+      });
   }
 
   /**
