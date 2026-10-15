@@ -14,7 +14,6 @@ import { IExpenseReimburseFormDto } from '@features/expense-management/types/exp
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { ExpenseKindSwitchComponent } from '@shared/components/expense-kind-switch/expense-kind-switch.component';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { RouterNavigationService } from '@shared/services/router-navigation.service';
 import { IPageHeaderConfig } from '@shared/types';
@@ -26,7 +25,6 @@ import { ActivatedRoute } from '@angular/router';
   selector: 'app-reimburse-expense',
   imports: [
     PageHeaderComponent,
-    ExpenseKindSwitchComponent,
     InputFieldComponent,
     ButtonComponent,
     ReactiveFormsModule,
@@ -123,8 +121,7 @@ export class ReimburseExpenseComponent
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
       title: 'Reimburse Expense',
-      subtitle:
-        'Reimburse approved expenses to employees. Fuel reimbursements go under Fuel.',
+      subtitle: 'Reimburse approved expenses to employees',
     };
   }
 }

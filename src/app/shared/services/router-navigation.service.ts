@@ -30,6 +30,7 @@ export class RouterNavigationService {
       relativeTo?: ActivatedRoute;
       queryParamsHandling?: 'merge' | 'preserve' | '';
       replaceUrl?: boolean;
+      state?: Record<string, unknown>;
     }
   ): Promise<boolean> {
     try {
@@ -41,6 +42,7 @@ export class RouterNavigationService {
         queryParams: restoredQueryParams ?? undefined,
         queryParamsHandling: options?.queryParamsHandling ?? '',
         replaceUrl: options?.replaceUrl ?? false,
+        state: options?.state,
       });
 
       if (success) {

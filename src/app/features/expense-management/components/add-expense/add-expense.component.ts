@@ -5,11 +5,18 @@ import {
   inject,
   OnInit,
 } from '@angular/core';
+import { APP_PERMISSION } from '@core/constants';
+import { AppPermissionService } from '@core/services';
 import { RouterNavigationService } from '@shared/services';
 import { IPageHeaderConfig } from '@shared/types';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ADD_EXPENSE_FORM_CONFIG } from '@features/expense-management/config';
+import {
+  fuelExpensePrefillNavigationState,
+  watchFuelExpenseTypeRedirect,
+  withFuelExpenseTypeOption,
+} from '@features/expense-management/config/form/fuel-expense-type-redirect';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import { IExpenseAddFormDto } from '@features/expense-management/types/expense.dto';
@@ -17,7 +24,6 @@ import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { ExpenseKindSwitchComponent } from '@shared/components/expense-kind-switch/expense-kind-switch.component';
 import { FormBase } from '@shared/base/form.base';
 
 @Component({
@@ -27,7 +33,6 @@ import { FormBase } from '@shared/base/form.base';
     ReactiveFormsModule,
     ButtonComponent,
     PageHeaderComponent,
-    ExpenseKindSwitchComponent,
   ],
   templateUrl: './add-expense.component.html',
   styleUrl: './add-expense.component.scss',
@@ -39,14 +44,29 @@ export class AddExpenseComponent
 {
   private readonly expenseService = inject(ExpenseService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appPermissionService = inject(AppPermissionService);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
   ngOnInit(): void {
-    this.form = this.formService.createForm<IExpenseAddFormDto>(
-      ADD_EXPENSE_FORM_CONFIG,
-      {
-        destroyRef: this.destroyRef,
+    const formConfig = this.appPermissionService.hasPermission(
+      APP_PERMISSION.FUEL_EXPENSE.ADD
+    )
+      ? withFuelExpenseTypeOption(ADD_EXPENSE_FORM_CONFIG)
+      : ADD_EXPENSE_FORM_CONFIG;
+
+    this.form = this.formService.createForm<IExpenseAddFormDto>(formConfig, {
+      destroyRef: this.destroyRef,
+    });
+
+    watchFuelExpenseTypeRedirect(
+      this.form.formGroup,
+      this.destroyRef,
+      prefill => {
+        void this.routerNavigationService.navigateToRoute(
+          [ROUTE_BASE_PATHS.TRANSPORT, ROUTE_BASE_PATHS.FUEL, ROUTES.FUEL.ADD],
+          { state: fuelExpensePrefillNavigationState(prefill) }
+        );
       }
     );
   }
@@ -100,7 +120,7 @@ export class AddExpenseComponent
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
       title: 'Add Expense',
-      subtitle: 'Travel, food, and other costs. Fuel fill-ups go under Fuel.',
+      subtitle: 'Add a new expense',
     };
   }
 }

@@ -13,12 +13,8 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import { getDateBeforeXDays } from '@shared/utility';
 import { IFuelExpenseAddUIFormDto } from '../../types/fuel-expense.dto';
 import { APP_CONFIG } from '@core/config';
-import { FinancialYearService } from '@core/services/financial-year.service';
-
-const financialYearService = new FinancialYearService();
 
 const ADD_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseAddUIFormDto> =
   {
@@ -28,12 +24,6 @@ const ADD_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseAd
       fieldName: 'fuelFillDate',
       label: 'Fuel Fill Date',
       dateConfig: {
-        minDate: new Date(
-          Math.max(
-            getDateBeforeXDays(6).getTime(),
-            financialYearService.getFinancialYearStartDate().getTime()
-          )
-        ),
         maxDate: new Date(),
       },
       validators: [Validators.required],

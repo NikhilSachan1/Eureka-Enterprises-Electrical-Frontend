@@ -15,7 +15,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { IPageHeaderConfig } from '@shared/types';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { ExpenseKindSwitchComponent } from '@shared/components/expense-kind-switch/expense-kind-switch.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -25,7 +24,6 @@ import { ActivatedRoute } from '@angular/router';
   selector: 'app-reimburse-fuel-expense',
   imports: [
     PageHeaderComponent,
-    ExpenseKindSwitchComponent,
     InputFieldComponent,
     ButtonComponent,
     ReactiveFormsModule,
@@ -126,8 +124,7 @@ export class ReimburseFuelExpenseComponent
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
       title: 'Reimburse Fuel Expense',
-      subtitle:
-        'Reimburse approved fuel expenses to employees. Other costs go under Other expense.',
+      subtitle: 'Reimburse approved fuel expenses to employees',
     };
   }
 }

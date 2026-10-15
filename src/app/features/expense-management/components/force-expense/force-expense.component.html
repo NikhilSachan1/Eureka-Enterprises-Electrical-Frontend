@@ -1,10 +1,5 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
-<app-expense-kind-switch
-  active="expense"
-  mode="force"
-/>
-
 <form
   (ngSubmit)="onSubmit()"
   [formGroup]="form.formGroup"
