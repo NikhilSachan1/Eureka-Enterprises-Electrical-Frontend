@@ -11,6 +11,10 @@ import { FormBase } from '@shared/base/form.base';
 import { RouterNavigationService } from '@shared/services';
 import { FORCE_FUEL_EXPENSE_FORM_CONFIG } from '../../config';
 import {
+  fuelExpensePrefillFormDefaults,
+  takeFuelExpenseFormPrefill,
+} from '@features/expense-management/config/form/fuel-expense-type-redirect';
+import {
   IFuelExpenseForceFormDto,
   IFuelExpenseForceUIFormDto,
   ILinkedUserVehicleDetailGetResponseDto,
@@ -74,6 +78,9 @@ export class ForceFuelExpenseComponent
       FORCE_FUEL_EXPENSE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
+        defaultValues: fuelExpensePrefillFormDefaults(
+          takeFuelExpenseFormPrefill()
+        ),
       }
     );
 

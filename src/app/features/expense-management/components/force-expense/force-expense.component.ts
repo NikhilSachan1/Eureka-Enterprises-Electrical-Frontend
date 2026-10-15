@@ -7,7 +7,14 @@ import {
   OnInit,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { APP_PERMISSION } from '@core/constants';
+import { AppPermissionService } from '@core/services';
 import { FORCE_EXPENSE_FORM_CONFIG } from '@features/expense-management/config';
+import {
+  fuelExpensePrefillNavigationState,
+  watchFuelExpenseTypeRedirect,
+  withFuelExpenseTypeOption,
+} from '@features/expense-management/config/form/fuel-expense-type-redirect';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import { IExpenseForceFormDto } from '@features/expense-management/types/expense.dto';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
@@ -39,14 +46,33 @@ export class ForceExpenseComponent
 {
   private readonly expenseService = inject(ExpenseService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appPermissionService = inject(AppPermissionService);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
   ngOnInit(): void {
-    this.form = this.formService.createForm<IExpenseForceFormDto>(
-      FORCE_EXPENSE_FORM_CONFIG,
-      {
-        destroyRef: this.destroyRef,
+    const formConfig = this.appPermissionService.hasPermission(
+      APP_PERMISSION.FUEL_EXPENSE.FORCE
+    )
+      ? withFuelExpenseTypeOption(FORCE_EXPENSE_FORM_CONFIG)
+      : FORCE_EXPENSE_FORM_CONFIG;
+
+    this.form = this.formService.createForm<IExpenseForceFormDto>(formConfig, {
+      destroyRef: this.destroyRef,
+    });
+
+    watchFuelExpenseTypeRedirect(
+      this.form.formGroup,
+      this.destroyRef,
+      prefill => {
+        void this.routerNavigationService.navigateToRoute(
+          [
+            ROUTE_BASE_PATHS.TRANSPORT,
+            ROUTE_BASE_PATHS.FUEL,
+            ROUTES.FUEL.FORCE,
+          ],
+          { state: fuelExpensePrefillNavigationState(prefill) }
+        );
       }
     );
   }

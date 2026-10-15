@@ -16,6 +16,10 @@ import {
 import { RouterNavigationService } from '@shared/services';
 import { FuelExpenseService } from '../../services/fuel-expense.service';
 import { ADD_FUEL_EXPENSE_FORM_CONFIG } from '../../config';
+import {
+  fuelExpensePrefillFormDefaults,
+  takeFuelExpenseFormPrefill,
+} from '@features/expense-management/config/form/fuel-expense-type-redirect';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
@@ -64,6 +68,9 @@ export class AddFuelExpenseComponent
       ADD_FUEL_EXPENSE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
+        defaultValues: fuelExpensePrefillFormDefaults(
+          takeFuelExpenseFormPrefill()
+        ),
       }
     );
   }
