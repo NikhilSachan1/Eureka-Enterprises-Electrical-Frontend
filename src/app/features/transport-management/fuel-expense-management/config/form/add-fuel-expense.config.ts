@@ -98,9 +98,11 @@ const ADD_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseAd
       id: 'fuelExpenseAttachments',
       fieldName: 'fuelExpenseAttachments',
       label: 'Fuel Expense Attachments',
+      hint: 'Upload 3 photos: 1 fuel payment receipt, 1 odometer reading, and 1 pump image.',
       fileConfig: {
         fileLimit: 5,
         minFileLimit: 3,
+        maxFileSize: 1024 * 1024 * 20,
         acceptFileTypes: [
           ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
           ...APP_CONFIG.MEDIA_CONFIG.PDF,
