@@ -1,0 +1,36 @@
+@if (showSwitch()) {
+  <div
+    class="expense-kind"
+    role="group"
+    aria-label="Choose expense or fuel"
+  >
+    <p class="expense-kind__label">{{ prompt() }}</p>
+    <div class="expense-kind__options">
+      <button
+        type="button"
+        class="expense-kind__option"
+        [class.expense-kind__option--active]="active() === 'expense'"
+        (click)="select('expense')"
+      >
+        <span [class]="ICONS.EXPENSE.MONEY" aria-hidden="true"></span>
+        Other expense
+      </button>
+      <button
+        type="button"
+        class="expense-kind__option"
+        [class.expense-kind__option--active]="active() === 'fuel'"
+        (click)="select('fuel')"
+      >
+        <span [class]="ICONS.FUEL.MENU" aria-hidden="true"></span>
+        Fuel
+      </button>
+    </div>
+    <p class="expense-kind__hint">
+      @if (active() === 'expense') {
+        A fuel fill-up is not entered here. Switch to Fuel.
+      } @else {
+        Travel, food, and other costs go under Other expense.
+      }
+    </p>
+  </div>
+}

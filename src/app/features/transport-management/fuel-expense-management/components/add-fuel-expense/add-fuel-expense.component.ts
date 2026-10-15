@@ -21,6 +21,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { IPageHeaderConfig } from '@shared/types';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { ExpenseKindSwitchComponent } from '@shared/components/expense-kind-switch/expense-kind-switch.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { LinkedVehiclePetroCardComponent } from '@features/transport-management/fuel-expense-management/shared/linked-vehicle-petro-card/linked-vehicle-petro-card.component';
 import { FuelExpenseAmountFieldComponent } from '@features/transport-management/fuel-expense-management/shared/fuel-expense-amount-field/fuel-expense-amount-field.component';
@@ -31,6 +32,7 @@ import { ButtonComponent } from '@shared/components/button/button.component';
   selector: 'app-add-fuel-expense',
   imports: [
     PageHeaderComponent,
+    ExpenseKindSwitchComponent,
     InputFieldComponent,
     LinkedVehiclePetroCardComponent,
     FuelExpenseAmountFieldComponent,
@@ -127,7 +129,7 @@ export class AddFuelExpenseComponent
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
       title: 'Add Fuel Expense',
-      subtitle: 'Add a new fuel expense',
+      subtitle: 'Fuel fill-ups only. Other costs go under Other expense.',
     };
   }
 }

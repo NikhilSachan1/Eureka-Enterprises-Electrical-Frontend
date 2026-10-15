@@ -23,51 +23,52 @@ const {
 } = FORCE_FUEL_EXPENSE_FORM_CONFIG;
 
 const REIMBURSE_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseReimburseFormDto> =
-  {
-    employeeName,
-    paymentMode,
-    paidFromAccount: {
-      fieldType: EDataType.SELECT,
-      id: 'paidFromAccount',
-      fieldName: 'paidFromAccount',
-      label: 'Paid From Account',
-      selectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.COMPANY_BANK_ACCOUNT,
-          dropdownName:
-            CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
-        },
-        showClearButton: true,
+{
+  employeeName,
+  paymentMode,
+  paidFromAccount: {
+    fieldType: EDataType.SELECT,
+    id: 'paidFromAccount',
+    fieldName: 'paidFromAccount',
+    label: 'Paid From Account',
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.COMPANY_BANK_ACCOUNT,
+        dropdownName:
+          CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
       },
-      conditionalValidators: [
-        {
-          dependsOn: 'paymentMode',
-          validators: [Validators.required],
-          shouldApply: (mode: unknown): boolean =>
-            String(mode ?? '').toLowerCase() !== 'cash',
-          resetOnFalse: true,
-        },
-      ],
+      showClearButton: true,
     },
-    fuelAmount,
-    fuelFillDate,
-    remark: {
-      ...remark,
-      validators: [],
-    },
-    fuelExpenseAttachments: {
-      ...fuelExpenseAttachments,
-      fileConfig: {
-        ...fuelExpenseAttachments.fileConfig,
-        minFileLimit: 0,
-        fileLimit: 2,
+    conditionalValidators: [
+      {
+        dependsOn: 'paymentMode',
+        validators: [Validators.required],
+        shouldApply: (mode: unknown): boolean =>
+          String(mode ?? '').toLowerCase() !== 'cash',
+        resetOnFalse: true,
       },
+    ],
+  },
+  fuelAmount,
+  fuelFillDate,
+  remark: {
+    ...remark,
+    validators: [],
+  },
+  fuelExpenseAttachments: {
+    ...fuelExpenseAttachments,
+    hint: undefined,
+    fileConfig: {
+      ...fuelExpenseAttachments.fileConfig,
+      minFileLimit: 0,
+      fileLimit: 2,
     },
-    transactionId: {
-      ...transactionId,
-      validators: [Validators.required, ...(transactionId?.validators ?? [])],
-    },
-  };
+  },
+  transactionId: {
+    ...transactionId,
+    validators: [Validators.required, ...(transactionId?.validators ?? [])],
+  },
+};
 
 const REIMBURSE_FUEL_EXPENSE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
@@ -81,7 +82,7 @@ const REIMBURSE_FUEL_EXPENSE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
 };
 
 export const REIMBURSE_FUEL_EXPENSE_FORM_CONFIG: IFormConfig<IFuelExpenseReimburseFormDto> =
-  {
-    fields: REIMBURSE_FUEL_EXPENSE_FORM_FIELDS_CONFIG,
-    buttons: REIMBURSE_FUEL_EXPENSE_FORM_BUTTONS_CONFIG,
-  };
+{
+  fields: REIMBURSE_FUEL_EXPENSE_FORM_FIELDS_CONFIG,
+  buttons: REIMBURSE_FUEL_EXPENSE_FORM_BUTTONS_CONFIG,
+};

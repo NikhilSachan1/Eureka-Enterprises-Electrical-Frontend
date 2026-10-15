@@ -17,6 +17,7 @@ import { finalize } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { ExpenseKindSwitchComponent } from '@shared/components/expense-kind-switch/expense-kind-switch.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBase } from '@shared/base/form.base';
 
@@ -24,6 +25,7 @@ import { FormBase } from '@shared/base/form.base';
   selector: 'app-force-expense',
   imports: [
     PageHeaderComponent,
+    ExpenseKindSwitchComponent,
     InputFieldComponent,
     ButtonComponent,
     ReactiveFormsModule,
@@ -103,7 +105,8 @@ export class ForceExpenseComponent
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
       title: 'Force Expense',
-      subtitle: 'Force an expense on behalf of an employee',
+      subtitle:
+        'Force an expense on behalf of an employee. Fuel fill-ups go under Fuel.',
     };
   }
 }

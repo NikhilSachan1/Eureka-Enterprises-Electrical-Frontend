@@ -23,6 +23,7 @@ import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { ExpenseKindSwitchComponent } from '@shared/components/expense-kind-switch/expense-kind-switch.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LinkedVehiclePetroCardComponent } from '../../shared/linked-vehicle-petro-card/linked-vehicle-petro-card.component';
 import { FuelExpenseAmountFieldComponent } from '../../shared/fuel-expense-amount-field/fuel-expense-amount-field.component';
@@ -31,6 +32,7 @@ import { FuelExpenseAmountFieldComponent } from '../../shared/fuel-expense-amoun
   selector: 'app-force-fuel-expense',
   imports: [
     PageHeaderComponent,
+    ExpenseKindSwitchComponent,
     InputFieldComponent,
     ButtonComponent,
     ReactiveFormsModule,
@@ -159,7 +161,8 @@ export class ForceFuelExpenseComponent
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
       title: 'Force Fuel Expense',
-      subtitle: 'Force a fuel expense on behalf of an employee',
+      subtitle:
+        'Force a fuel expense on behalf of an employee. Other costs go under Other expense.',
     };
   }
 }
