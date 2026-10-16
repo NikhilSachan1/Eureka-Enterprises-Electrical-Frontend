@@ -67,6 +67,7 @@ export class AppConfigurationService {
   private static readonly CONFIGURATION_KEY_PAGE_SIZE = 20;
   private readonly REFERENCE_PREFETCH_START_DELAY_MS = 3000;
   private readonly referenceDropdownListPayload = { page: 1, pageSize: 50 };
+  private readonly siteAssetDropdownListPayload = { page: 1, pageSize: 100 };
   private readonly injector = inject(Injector);
   private readonly logger = inject(LoggerService);
   private readonly authService = inject(AuthService);
@@ -1577,7 +1578,7 @@ export class AppConfigurationService {
         )
       ).pipe(
         switchMap(assetService =>
-          assetService.getAssetList(this.referenceDropdownListPayload)
+          assetService.getAssetList(this.siteAssetDropdownListPayload)
         ),
         tap(response => {
           this.logger.logUserAction('Asset List loaded successfully', {
@@ -1995,7 +1996,7 @@ export class AppConfigurationService {
           ).pipe(
             switchMap(({ mapProjectSiteTypeDisplays }) =>
               projectService
-                .getProjectList(this.referenceDropdownListPayload)
+                .getProjectList(this.siteAssetDropdownListPayload)
                 .pipe(
                   switchMap(response =>
                     this.afterTouchedConfiguration(() => {
