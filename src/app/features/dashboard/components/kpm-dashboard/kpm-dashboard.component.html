@@ -36,7 +36,7 @@
       </div>
     </div>
     <div class="kpm-card__body">
-      @for (row of ledgerBalanceRows(); track row.label) {
+      @for (row of duesBalanceRows(); track row.label) {
         <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
       }
     </div>

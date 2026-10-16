@@ -9,3 +9,7 @@ export { VehicleReadingsAlertsDashboardGetResponseSchema } from './vehicle-readi
 export { AnniversariesDashboardGetResponseSchema } from './anniversaries-dashboard.schemas';
 export { HolidaysDashboardGetResponseSchema } from './holidays-dashboard.schemas';
 export { BirthdaysDashboardGetResponseSchema } from './birthdays-dashboard.schemas';
+export {
+  ReceivablesPayablesGetResponseSchema,
+  ReceivablesPayablesQuerySchema,
+} from './receivables-payables.schema';
