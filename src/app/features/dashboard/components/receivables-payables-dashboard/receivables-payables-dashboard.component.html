@@ -6,6 +6,7 @@
     searchId="receivable-party-search"
     searchLabel="Search contractor"
     [loading]="loading()"
+    [outstanding]="receivableOutstanding()"
     [parties]="receivableParties()"
   />
   <app-receivables-party-panel
@@ -15,6 +16,7 @@
     searchId="payable-party-search"
     searchLabel="Search vendor"
     [loading]="loading()"
+    [outstanding]="payableOutstanding()"
     [parties]="payableParties()"
   />
 </div>

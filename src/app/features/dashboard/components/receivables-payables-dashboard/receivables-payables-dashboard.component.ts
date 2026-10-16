@@ -36,6 +36,14 @@ export class ReceivablesPayablesDashboardComponent implements OnInit {
     const summary = this.data();
     return summary ? summary.payable.parties : [];
   });
+  protected readonly receivableOutstanding = computed(() => {
+    const summary = this.data();
+    return summary ? summary.receivable.outstanding : 0;
+  });
+  protected readonly payableOutstanding = computed(() => {
+    const summary = this.data();
+    return summary ? summary.payable.outstanding : 0;
+  });
 
   ngOnInit(): void {
     this.dashboardService

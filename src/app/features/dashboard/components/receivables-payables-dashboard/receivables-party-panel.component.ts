@@ -36,6 +36,7 @@ export class ReceivablesPartyPanelComponent {
   readonly searchId = input.required<string>();
   readonly searchLabel = input.required<string>();
   readonly loading = input(false);
+  readonly outstanding = input(0);
   readonly parties = input<readonly PartyRow[]>([]);
 
   protected readonly searchTerm = signal('');

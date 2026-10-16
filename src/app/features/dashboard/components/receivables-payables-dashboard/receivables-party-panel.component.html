@@ -19,6 +19,38 @@
       </div>
     </div>
 
+    <div
+      class="ledger-balances-block__totals"
+      [attr.aria-label]="tone() === 'receivable' ? 'Still to collect' : 'Still to pay'"
+    >
+      <div class="ledger-balances-block__totals-inner">
+        <article
+          class="ledger-balance-card ledger-total-card ledger-total-card--stack"
+          [class.ledger-total-card--collect]="tone() === 'receivable'"
+          [class.ledger-total-card--pay]="tone() === 'payable'"
+        >
+          <p class="ledger-balance-card__label ledger-balance-card__label--sub">
+            {{ tone() === 'receivable' ? 'To collect' : 'To pay' }}
+          </p>
+          <p class="ledger-balance-card__value">
+            @if (loading()) {
+              <span class="ledger-skeleton ledger-skeleton--metric"></span>
+            } @else {
+              {{
+                outstanding()
+                  | currency
+                    : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                    : 'symbol'
+                    : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                    : APP_CONFIG.NUMBER_FORMATS.LOCALE
+              }}
+            }
+          </p>
+        </article>
+      </div>
+    </div>
+    <div class="ledger-combined-divider"></div>
+
     <div class="ledger-employee-net ledger-employee-net--panel">
       <div class="ledger-search">
         <app-input-field
