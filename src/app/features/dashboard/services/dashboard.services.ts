@@ -13,6 +13,8 @@ import {
   DocumentGapsDashboardGetResponseSchema,
   HolidaysDashboardGetResponseSchema,
   LedgerBalanceDashboardGetResponseSchema,
+  ReceivablesPayablesGetResponseSchema,
+  ReceivablesPayablesQuerySchema,
   VehicleReadingsAlertsDashboardGetResponseSchema,
 } from '../schemas';
 import {
@@ -24,6 +26,8 @@ import {
   IDocumentGapsDashboardGetResponseDto,
   IHolidaysDashboardGetResponseDto,
   ILedgerBalanceDashboardGetResponseDto,
+  IReceivablesPayablesGetResponseDto,
+  IReceivablesPayablesQueryDto,
   IVehicleReadingsAlertsDashboardGetResponseDto,
 } from '../types/dashboard.dto';
 
@@ -34,6 +38,7 @@ export class DashboardService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
   private ledgerBalanceShared$?: Observable<ILedgerBalanceDashboardGetResponseDto>;
+  private receivablesPayablesShared$?: Observable<IReceivablesPayablesGetResponseDto>;
   private assetFleetAlertsShared$?: Observable<IAssetFleetAlertsDashboardGetResponseDto>;
 
   getDocumentGaps(): Observable<IDocumentGapsDashboardGetResponseDto> {
@@ -109,6 +114,42 @@ export class DashboardService {
       'Get Birthdays',
       API_ROUTES.DASHBOARD.BIRTHDAYS,
       BirthdaysDashboardGetResponseSchema
+    );
+  }
+
+  getReceivablesPayables(
+    filters: IReceivablesPayablesQueryDto
+  ): Observable<IReceivablesPayablesGetResponseDto> {
+    return this.fetchQuery(
+      'Get Receivables Payables',
+      API_ROUTES.DASHBOARD.RECEIVABLES_PAYABLES,
+      ReceivablesPayablesQuerySchema,
+      ReceivablesPayablesGetResponseSchema,
+      filters
+    );
+  }
+
+  getReceivablesPayablesShared(): Observable<IReceivablesPayablesGetResponseDto> {
+    this.receivablesPayablesShared$ ??= this.getReceivablesPayables({}).pipe(
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+    return this.receivablesPayablesShared$;
+  }
+
+  private fetchQuery<TRequest extends object, TResponse>(
+    action: string,
+    url: string,
+    request: z.ZodType<TRequest>,
+    response: z.ZodType<TResponse>,
+    input: TRequest
+  ): Observable<TResponse> {
+    this.logger.logUserAction(`${action} Request`, input);
+
+    return this.apiService.getValidated(url, { request, response }, input).pipe(
+      tap(payload => {
+        this.logger.logUserAction(`${action} Response`, payload);
+      }),
+      catchError(error => this.rethrowDashboardError(action, error))
     );
   }
 

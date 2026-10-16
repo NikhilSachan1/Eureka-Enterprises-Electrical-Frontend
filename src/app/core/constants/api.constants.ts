@@ -9,6 +9,7 @@ export const API_ROUTES = {
     HOLIDAYS: 'dashboard/festivals',
     DOCUMENT_GAPS: 'dashboard/document-gaps',
     DOCUMENT_GAP: (key: string) => `dashboard/document-gaps/${key}`,
+    RECEIVABLES_PAYABLES: 'dashboard/receivables-payables',
   },
   HEALTH: {
     CHECK: 'health-check',

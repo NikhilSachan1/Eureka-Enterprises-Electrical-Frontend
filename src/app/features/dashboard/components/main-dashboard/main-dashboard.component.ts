@@ -24,6 +24,7 @@ import { AnniversaryDashboardComponent } from '../anniversary-dashboard/annivers
 import { BirthdaysDashboardComponent } from '../birthdays-dashboard/birthdays-dashboard.component';
 import { HolidayDashboardComponent } from '../holiday-dashboard/holiday-dashboard.component';
 import { HandoverPendingDashboardComponent } from '../handover-pending-dashboard/handover-pending-dashboard.component';
+import { ReceivablesPayablesDashboardComponent } from '../receivables-payables-dashboard/receivables-payables-dashboard.component';
 
 @Component({
   selector: 'app-main-dashboard',
@@ -42,6 +43,7 @@ import { HandoverPendingDashboardComponent } from '../handover-pending-dashboard
     BirthdaysDashboardComponent,
     HolidayDashboardComponent,
     HandoverPendingDashboardComponent,
+    ReceivablesPayablesDashboardComponent,
   ],
   templateUrl: './main-dashboard.component.html',
   styleUrl: './main-dashboard.component.scss',
@@ -51,13 +53,18 @@ export class MainDashboardComponent {
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly ledgerSpendSection =
     viewChild<ElementRef<HTMLElement>>('ledgerSpend');
+  private readonly receivablesSection =
+    viewChild<ElementRef<HTMLElement>>('receivablesPayables');
 
   protected scrollToSection(sectionId: string): void {
-    if (sectionId !== 'ledger-spend') {
-      return;
-    }
+    const target =
+      sectionId === 'ledger-spend'
+        ? this.ledgerSpendSection()
+        : sectionId === 'receivables-payables'
+          ? this.receivablesSection()
+          : undefined;
 
-    this.ledgerSpendSection()?.nativeElement.scrollIntoView({
+    target?.nativeElement.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
     });

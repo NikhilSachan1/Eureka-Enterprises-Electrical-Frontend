@@ -143,6 +143,43 @@
         </section>
       }
 
+      <section
+        #receivablesPayables
+        id="receivables-payables"
+        class="dash-section"
+        aria-labelledby="dash-receivables-title"
+      >
+        <div class="dash-section__head">
+          <div class="dash-section__lead dash-section__lead--finance">
+            <span
+              class="dash-section__lead-icon dash-section__lead-icon--finance"
+              aria-hidden="true"
+            >
+              <span [class]="ICONS.EXPENSE.MONEY"></span>
+            </span>
+            <div>
+              <h2
+                id="dash-receivables-title"
+                class="dash-section__title"
+              >
+                Receivables &amp; payables
+              </h2>
+              <p class="dash-section__desc">
+                Contractor and vendor balances still open.
+              </p>
+            </div>
+          </div>
+        </div>
+        @defer (on idle) {
+          <app-receivables-payables-dashboard />
+        } @placeholder {
+          <div
+            class="dash-section__defer"
+            aria-hidden="true"
+          ></div>
+        }
+      </section>
+
       @if (canViewLedgerSpend) {
         <section
           #ledgerSpend

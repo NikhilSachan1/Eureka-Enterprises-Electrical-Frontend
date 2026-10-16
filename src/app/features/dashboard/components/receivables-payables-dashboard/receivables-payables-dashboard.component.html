@@ -1,0 +1,20 @@
+<div class="receivables-grid">
+  <app-receivables-party-panel
+    tone="receivable"
+    title="Contractor receivable"
+    subtitle="Still to collect, party by party."
+    searchId="receivable-party-search"
+    searchLabel="Search contractor"
+    [loading]="loading()"
+    [parties]="receivableParties()"
+  />
+  <app-receivables-party-panel
+    tone="payable"
+    title="Vendor payable"
+    subtitle="Still to pay, party by party."
+    searchId="payable-party-search"
+    searchLabel="Search vendor"
+    [loading]="loading()"
+    [parties]="payableParties()"
+  />
+</div>

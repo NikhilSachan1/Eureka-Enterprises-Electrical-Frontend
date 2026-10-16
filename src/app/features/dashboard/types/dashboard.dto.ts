@@ -8,6 +8,8 @@ import {
   DocumentGapsDashboardGetResponseSchema,
   HolidaysDashboardGetResponseSchema,
   LedgerBalanceDashboardGetResponseSchema,
+  ReceivablesPayablesGetResponseSchema,
+  ReceivablesPayablesQuerySchema,
   VehicleReadingsAlertsDashboardGetResponseSchema,
 } from '../schemas';
 
@@ -67,3 +69,14 @@ export type IHolidaysDashboardGetResponseDto = z.infer<
 export type IBirthdaysDashboardGetResponseDto = z.infer<
   typeof BirthdaysDashboardGetResponseSchema
 >;
+
+export type IReceivablesPayablesQueryDto = z.infer<
+  typeof ReceivablesPayablesQuerySchema
+>;
+
+export type IReceivablesPayablesGetResponseDto = z.infer<
+  typeof ReceivablesPayablesGetResponseSchema
+>;
+
+export type IReceivablesPayablesSideDto =
+  IReceivablesPayablesGetResponseDto['receivable'];
