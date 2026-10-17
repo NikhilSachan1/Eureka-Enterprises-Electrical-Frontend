@@ -100,6 +100,10 @@ export class KpmDashboardComponent implements OnInit {
     this.appPermissionService.hasPermission(
       APP_PERMISSION.DASHBOARD.VEHICLE_COMPLIANCE
     );
+  protected readonly canViewReceivablesPayables =
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.DASHBOARD.RECEIVABLES_PAYABLES
+    );
 
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ICONS = ICONS;
@@ -174,10 +178,12 @@ export class KpmDashboardComponent implements OnInit {
       this.buildLedgerBalance(this.ledgerBalance(), this.ledgerBalanceLoading())
   );
   protected readonly duesBalanceRows = computed<IDashboardKpmMetricRow[]>(() => [
-    ...this.buildReceivablesPayables(
-      this.receivablesPayables(),
-      this.receivablesPayablesLoading()
-    ),
+    ...(this.canViewReceivablesPayables
+      ? this.buildReceivablesPayables(
+        this.receivablesPayables(),
+        this.receivablesPayablesLoading()
+      )
+      : []),
     ...this.ledgerBalanceRows(),
   ]);
   protected readonly assetAlertsRows = computed<IDashboardKpmMetricRow[]>(() =>
@@ -208,7 +214,11 @@ export class KpmDashboardComponent implements OnInit {
     }
 
     this.loadLedgerBalance();
-    this.loadReceivablesPayables();
+    if (this.canViewReceivablesPayables) {
+      this.loadReceivablesPayables();
+    } else {
+      this.receivablesPayablesLoading.set(false);
+    }
     if (this.canViewAssetCompliance || this.canViewVehicleCompliance) {
       this.loadAssetFleetAlerts();
     } else {
