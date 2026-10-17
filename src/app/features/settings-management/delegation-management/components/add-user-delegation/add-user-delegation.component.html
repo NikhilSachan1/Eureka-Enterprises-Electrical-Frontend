@@ -1,0 +1,17 @@
+<form
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.managerName"
+  />
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.memberName"
+  />
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.module"
+  />
+</form>

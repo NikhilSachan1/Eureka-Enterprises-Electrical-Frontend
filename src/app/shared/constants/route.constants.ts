@@ -51,6 +51,9 @@ export const ROUTE_BASE_PATHS = {
     CRON: {
       BASE: 'cron',
     },
+    DELEGATION: {
+      BASE: 'delegation',
+    },
   },
 } as const;
 
@@ -256,6 +259,9 @@ export const ROUTES = {
       EDIT: `edit`,
     },
     CRON: {
+      LIST: `list`,
+    },
+    DELEGATION: {
       LIST: `list`,
     },
   },

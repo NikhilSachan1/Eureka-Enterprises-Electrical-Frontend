@@ -399,6 +399,11 @@ export const API_ROUTES = {
     DOWNLOAD: (fileId: string) => `org-files/${fileId}/download`,
     BREADCRUMBS: (folderId: string) => `org-files/${folderId}/breadcrumb`,
   },
+  USER_DELEGATION: {
+    LIST: 'user-delegations',
+    ADD: 'user-delegations',
+    WITHDRAW: (delegationId: string) => `user-delegations/${delegationId}`,
+  },
   ANNOUNCEMENT: {
     ADD: 'announcement',
     LIST: 'announcement',
