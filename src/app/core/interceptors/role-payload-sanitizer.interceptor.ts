@@ -2,6 +2,8 @@ import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 
 import { API_ROUTES } from '@core/constants';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { AppPermissionService } from '@core/services/app-permission.service';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { EUserRole, RESTRICTED_ROLES_FOR_USER_ID } from '@shared/constants';
 
@@ -24,6 +26,7 @@ export const RolePayloadSanitizerInterceptor: HttpInterceptorFn = (
   next
 ) => {
   const authService = inject(AuthService);
+  const appPermissionService = inject(AppPermissionService);
   const activeRole = authService.user()?.activeRole ?? '';
 
   // Only sanitize if the active role is restricted
@@ -31,7 +34,7 @@ export const RolePayloadSanitizerInterceptor: HttpInterceptorFn = (
     return next(req);
   }
 
-  if (shouldAllowUserIdForRequest(req, activeRole)) {
+  if (shouldAllowUserIdForRequest(req, activeRole, appPermissionService)) {
     return next(req);
   }
 
@@ -51,18 +54,38 @@ function isRestrictedRole(role: string): boolean {
 }
 
 /**
- * DRIVER may query another user's attendance current status (assigned engineer)
- * to load company / contractor / vehicle assignment fields.
+ * A few on-behalf-of calls must keep userId:
+ * - DRIVER attendance current-status (assigned engineer fields)
+ * - EMPLOYEE with manual fuel or manual vehicle reading, looking up the
+ *   selected employee's assigned vehicle. Add-fuel omits userId, so it
+ *   still resolves to the logged-in user.
  */
 function shouldAllowUserIdForRequest(
   req: HttpRequest<unknown>,
-  activeRole: string
+  activeRole: string,
+  appPermissionService: AppPermissionService
 ): boolean {
-  return (
+  if (
     activeRole === EUserRole.DRIVER &&
     req.method === 'GET' &&
     req.url.includes(API_ROUTES.ATTENDANCE.CURRENT_STATUS) &&
     req.params.has('userId')
+  ) {
+    return true;
+  }
+
+  const canLookupSelectedEmployeeVehicle =
+    appPermissionService.hasAnyPermission([
+      APP_PERMISSION.FUEL_EXPENSE.FORCE,
+      APP_PERMISSION.VEHICLE_READING.FORCE,
+    ]);
+
+  return (
+    activeRole === EUserRole.EMPLOYEE &&
+    req.method === 'GET' &&
+    req.url.includes(API_ROUTES.VEHICLE.GET_LINKED_USER_VEHICLE_DETAIL) &&
+    req.params.has('userId') &&
+    canLookupSelectedEmployeeVehicle
   );
 }
 
