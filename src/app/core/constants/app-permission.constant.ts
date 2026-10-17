@@ -186,6 +186,7 @@ export const APP_PERMISSION = {
   DASHBOARD: {
     ASSET_COMPLIANCE: 'dashboard.asset-compliance',
     VEHICLE_COMPLIANCE: 'dashboard.vehicle-compliance',
+    RECEIVABLES_PAYABLES: 'financials.universal-view',
   },
   CRON: {
     TABLE_VIEW: 'cron.view-list',

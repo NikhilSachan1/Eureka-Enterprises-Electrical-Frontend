@@ -74,6 +74,10 @@ export class MainDashboardComponent {
   protected readonly canViewLedgerSpend = this.appPermissionService.hasPermission(
     APP_PERMISSION.UI.DASHBOARD.LEDGER_SPEND
   );
+  protected readonly canViewReceivablesPayables =
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.DASHBOARD.RECEIVABLES_PAYABLES
+    );
   protected readonly showApplyAttendance = this.appPermissionService.hasPermission(
     APP_PERMISSION.ATTENDANCE.APPLY
   );
