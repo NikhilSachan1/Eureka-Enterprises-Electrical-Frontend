@@ -12,6 +12,7 @@ export interface IFuelExpense
     registrationNumber: string;
     vehicleModel: string;
   } | null;
+  paymentMode: string;
   originalRawData: IFuelExpenseGetBaseResponseDto;
 }
 

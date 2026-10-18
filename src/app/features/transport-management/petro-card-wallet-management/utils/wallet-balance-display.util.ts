@@ -2,10 +2,10 @@ import { APP_CONFIG } from '@core/config';
 
 export function shouldCapWalletBalanceDisplay(
   amount: number,
-  isEmployeeLike: boolean
+  capForViewer: boolean
 ): boolean {
   return (
-    isEmployeeLike &&
+    capForViewer &&
     Number.isFinite(amount) &&
     amount > APP_CONFIG.WALLET_CONFIG.EMPLOYEE_DISPLAY_CAP
   );
@@ -20,12 +20,12 @@ export function formatWalletBalanceAmount(amount: number): string {
   }).format(amount);
 }
 
-/** Exact balance for other roles. Employee and driver see the configured cap with a plus above it. */
+/** Exact balance unless the viewer has the cap permission and the amount is above the cap. */
 export function formatWalletBalanceForViewer(
   amount: number,
-  isEmployeeLike: boolean
+  capForViewer: boolean
 ): string {
-  if (!shouldCapWalletBalanceDisplay(amount, isEmployeeLike)) {
+  if (!shouldCapWalletBalanceDisplay(amount, capForViewer)) {
     return formatWalletBalanceAmount(amount);
   }
 

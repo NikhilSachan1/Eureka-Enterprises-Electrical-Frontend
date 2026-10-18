@@ -118,7 +118,7 @@ export const APP_CONFIG = {
     MILEAGE_UNIT: 'km/ltr',
   },
 
-  // PetroCard wallet — employee and driver see this ceiling instead of a higher balance
+  // PetroCard wallet — viewers with the cap permission see this ceiling instead of a higher balance
   WALLET_CONFIG: {
     EMPLOYEE_DISPLAY_CAP: 3000,
   },
