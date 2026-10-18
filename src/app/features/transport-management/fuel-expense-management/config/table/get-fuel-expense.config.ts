@@ -78,6 +78,11 @@ export const FUEL_EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[]
       showSort: false,
     },
     {
+      field: 'paymentMode',
+      header: 'Payment Mode',
+      showSort: false,
+    },
+    {
       field: 'description',
       header: 'Notes',
       bodyTemplate: EDataType.TEXT_WITH_READ_MORE,

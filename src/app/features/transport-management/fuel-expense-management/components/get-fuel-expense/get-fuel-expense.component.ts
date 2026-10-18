@@ -238,6 +238,10 @@ export class GetFuelExpenseComponent implements OnInit {
           vehicleModel: record.vehicle?.model ?? '',
         },
         fuelAmount: record.fuelAmount,
+        paymentMode: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.fuelExpensePaymentMethods(),
+          record.paymentMode
+        ),
         fileKeys: record.fileKeys,
         transactionType: record.transactionType,
         description: record.description,
