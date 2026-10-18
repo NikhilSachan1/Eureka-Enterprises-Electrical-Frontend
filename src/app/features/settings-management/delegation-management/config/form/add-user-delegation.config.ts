@@ -25,11 +25,11 @@ const ADD_USER_DELEGATION_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IUserDelega
       validators: [Validators.required],
     },
     memberName: {
-      fieldType: EDataType.SELECT,
+      fieldType: EDataType.MULTI_SELECT,
       id: 'memberName',
       fieldName: 'memberName',
       label: 'Member',
-      selectConfig: {
+      multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.EMPLOYEE,
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,

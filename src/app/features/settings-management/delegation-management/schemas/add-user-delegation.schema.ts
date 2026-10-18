@@ -4,13 +4,13 @@ import { z } from 'zod';
 export const UserDelegationAddRequestSchema = z
   .object({
     managerName: uuidField,
-    memberName: uuidField,
+    memberName: z.array(uuidField).min(1),
     module: z.string().trim().min(1),
   })
   .strict()
   .transform(data => ({
     managerId: data.managerName,
-    memberId: data.memberName,
+    memberIds: data.memberName,
     module: data.module,
   }));
 

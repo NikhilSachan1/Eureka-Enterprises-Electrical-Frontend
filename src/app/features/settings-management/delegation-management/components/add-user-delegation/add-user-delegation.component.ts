@@ -49,7 +49,7 @@ export class AddUserDelegationComponent
 
   protected override handleSubmit(): void {
     const formData = this.form.getData();
-    if (formData.managerName === formData.memberName) {
+    if (formData.memberName.includes(formData.managerName)) {
       this.notificationService.error(
         'A person cannot be delegated to manage their own entries.'
       );

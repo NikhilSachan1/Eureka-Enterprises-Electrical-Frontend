@@ -336,6 +336,15 @@
   margin-top: 0.45rem;
 }
 
+// Single-select check sits on the same flex row. flex-start pins that small
+// icon to the top of a two-line rich row; center it with the avatar instead.
+::ng-deep .p-select-overlay .p-select-option:has(.ee-dropdown-option--rich) > .p-select-option-check-icon,
+::ng-deep .p-select-overlay .p-select-option:has(.ee-dropdown-option--rich) > .p-select-option-blank-icon,
+::ng-deep .p-select-overlay .p-select-option:has(.ee-dropdown-option--icon) > .p-select-option-check-icon,
+::ng-deep .p-select-overlay .p-select-option:has(.ee-dropdown-option--icon) > .p-select-option-blank-icon {
+  align-self: center;
+}
+
 ::ng-deep .p-select-overlay .ee-dropdown-option,
 ::ng-deep .p-multiselect-overlay .ee-dropdown-option {
   flex: 1 1 auto;
