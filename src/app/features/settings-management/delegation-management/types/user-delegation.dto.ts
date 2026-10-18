@@ -5,6 +5,8 @@ import {
   UserDelegationGetBaseResponseSchema,
   UserDelegationGetRequestSchema,
   UserDelegationGetResponseSchema,
+  UserDelegationManagedUsersRequestSchema,
+  UserDelegationManagedUsersResponseSchema,
   UserDelegationWithdrawResponseSchema,
 } from '../schemas';
 
@@ -33,4 +35,17 @@ export type IUserDelegationAddResponseDto = z.infer<
 
 export type IUserDelegationWithdrawResponseDto = z.infer<
   typeof UserDelegationWithdrawResponseSchema
+>;
+
+export type IUserDelegationManagedUsersRequestDto = z.infer<
+  typeof UserDelegationManagedUsersRequestSchema
+>;
+export type IUserDelegationManagedUsersFormDto = z.input<
+  typeof UserDelegationManagedUsersRequestSchema
+>;
+export type IUserDelegationManagedUserDto = z.infer<
+  typeof UserDelegationManagedUsersResponseSchema
+>['users'][number];
+export type IUserDelegationManagedUsersResponseDto = z.infer<
+  typeof UserDelegationManagedUsersResponseSchema
 >;

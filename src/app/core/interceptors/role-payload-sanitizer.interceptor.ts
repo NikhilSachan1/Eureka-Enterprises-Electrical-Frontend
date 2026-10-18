@@ -58,12 +58,41 @@ function shouldAllowUserIdForRequest(
   req: HttpRequest<unknown>,
   activeRole: string
 ): boolean {
+  if (isOnBehalfRequest(req)) {
+    return true;
+  }
+
   return (
     activeRole === EUserRole.DRIVER &&
     req.method === 'GET' &&
     req.url.includes(API_ROUTES.ATTENDANCE.CURRENT_STATUS) &&
     req.params.has('userId')
   );
+}
+
+/**
+ * Add and list calls where a delegated manager may name a colleague.
+ * userId / userIds stay on these calls so the backend can refuse anyone
+ * who was not assigned. Force, approval and credit stay stripped.
+ */
+const ON_BEHALF_ROUTES: ReadonlyArray<{ method: string; route: string }> = [
+  { method: 'POST', route: API_ROUTES.EXPENSE.ADD },
+  { method: 'GET', route: API_ROUTES.EXPENSE.LIST },
+  { method: 'POST', route: API_ROUTES.FUEL_EXPENSE.ADD },
+  { method: 'GET', route: API_ROUTES.FUEL_EXPENSE.LIST },
+  { method: 'GET', route: API_ROUTES.VEHICLE.GET_LINKED_USER_VEHICLE_DETAIL },
+];
+
+function isOnBehalfRequest(req: HttpRequest<unknown>): boolean {
+  const path = req.url.split('?')[0];
+
+  return ON_BEHALF_ROUTES.some(
+    entry => req.method === entry.method && endsWithRoute(path, entry.route)
+  );
+}
+
+function endsWithRoute(path: string, route: string): boolean {
+  return path.endsWith(`/${route}`) || path === route;
 }
 
 /**

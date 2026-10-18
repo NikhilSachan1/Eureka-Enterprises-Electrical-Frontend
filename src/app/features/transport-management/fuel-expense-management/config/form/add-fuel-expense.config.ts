@@ -18,6 +18,20 @@ import { APP_CONFIG } from '@core/config';
 
 const ADD_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseAddUIFormDto> =
   {
+    employeeName: {
+      fieldType: EDataType.SELECT,
+      id: 'employeeName',
+      fieldName: 'employeeName',
+      label: 'Employee',
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.EMPLOYEE,
+          dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+          employeeStatusFilter: ['ACTIVE'],
+        },
+        showClearButton: false,
+      },
+    },
     fuelFillDate: {
       fieldType: EDataType.DATE,
       id: 'fuelFillDate',

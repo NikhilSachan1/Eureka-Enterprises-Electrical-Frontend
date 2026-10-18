@@ -45,6 +45,7 @@ import {
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { EUserRole } from '@shared/constants/role.constants';
 import { AnnouncementService } from '@features/announcement-management/services/announcement.service';
+import { UserDelegationService } from '@features/settings-management/delegation-management/services/user-delegation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -58,6 +59,7 @@ export class AuthService {
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly announcementService = inject(AnnouncementService);
+  private readonly userDelegationService = inject(UserDelegationService);
 
   public readonly loggedInUserInitials = computed(() =>
     this.getLoggedInUserInitials()
@@ -547,6 +549,7 @@ export class AuthService {
    */
   private clearAuthState(): void {
     this.announcementService.stopPeriodicUnacknowledgedCheck();
+    this.userDelegationService.clearManagedUsersCache();
     this.appPermissionService.setAssignableVendorAccess({
       gated: false,
       allowed: false,

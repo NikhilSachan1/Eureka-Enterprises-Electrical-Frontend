@@ -402,6 +402,7 @@ export const API_ROUTES = {
   USER_DELEGATION: {
     LIST: 'user-delegations',
     ADD: 'user-delegations',
+    MANAGED_USERS: 'user-delegations/managed-users',
     WITHDRAW: (delegationId: string) => `user-delegations/${delegationId}`,
   },
   ANNOUNCEMENT: {

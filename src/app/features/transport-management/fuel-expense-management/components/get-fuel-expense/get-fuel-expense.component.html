@@ -5,12 +5,14 @@
 
 <app-metrics-card [metricGroups]="metricGroups()" />
 
-<div class="search-filter-wrapper">
-  <app-search-filter
-    [tableRef]="dataTable.dt()"
-    [searchFilterConfig]="searchFilterConfig"
-  />
-</div>
+@if (searchFilterConfig) {
+  <div class="search-filter-wrapper">
+    <app-search-filter
+      [tableRef]="dataTable.dt()"
+      [searchFilterConfig]="searchFilterConfig"
+    />
+  </div>
+}
 
 <ng-template
   #fuelDetails

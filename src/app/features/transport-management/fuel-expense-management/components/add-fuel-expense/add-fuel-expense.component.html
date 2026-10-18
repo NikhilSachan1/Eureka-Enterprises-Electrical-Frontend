@@ -1,16 +1,30 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
-<app-linked-vehicle-petro-card
-  class="block mb-8"
-  [redirectRoute]="redirectRoute"
-  (linkedUserVehicleDetailChange)="linkedUserVehicleDetail.set($event)"
-/>
-
 <form
   (ngSubmit)="onSubmit()"
   [formGroup]="form.formGroup"
   class="form"
 >
+  <app-filing-target
+    module="fuel"
+    [formGroup]="form.formGroup"
+    [employeeField]="form.fieldConfigs.employeeName"
+    (selectedEmployeeIdChange)="onBehalfEmployeeId.set($event)"
+    (targetChange)="onFilingTargetChange($event)"
+    (canFileForOthersChange)="canFileForOthers.set($event)"
+    (resolvedChange)="managedUsersResolved.set($event)"
+  />
+
+  @if (showLinkedVehicle()) {
+    <app-linked-vehicle-petro-card
+      class="block mb-8"
+      [employeeName]="onBehalfEmployeeId()"
+      [prefillFromAppConfiguration]="filingFor() === filingTargets.SELF"
+      [redirectRoute]="canFileForOthers() ? null : redirectRoute"
+      (linkedUserVehicleDetailChange)="linkedUserVehicleDetail.set($event)"
+    />
+  }
+
   <div class="grid grid-cols-1 md:grid-cols-4">
     <app-input-field
       [formGroup]="form.formGroup"

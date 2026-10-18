@@ -5,6 +5,12 @@
   [formGroup]="form.formGroup"
   class="form"
 >
+  <app-filing-target
+    module="expense"
+    [formGroup]="form.formGroup"
+    [employeeField]="form.fieldConfigs.employeeName"
+  />
+
   <div class="grid grid-cols-1 md:grid-cols-2">
     <app-input-field
       [formGroup]="form.formGroup"

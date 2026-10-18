@@ -31,6 +31,7 @@ import { LoggerService } from '@core/services';
 import { AppPermissionService } from '@core/services/app-permission.service';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
+import { UserDelegationService } from '@features/settings-management/delegation-management/services/user-delegation.service';
 import { applyIconsToDropdownOptions } from '@shared/config/dropdown-option-icons.config';
 import {
   CONFIGURATION_TYPE_DATA,
@@ -74,6 +75,7 @@ export class AppConfigurationService {
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly roleService = inject(RoleService);
   private readonly userPermissionService = inject(UserPermissionService);
+  private readonly userDelegationService = inject(UserDelegationService);
   private readonly configurationService = inject(ConfigurationService);
 
   /** Loads a feature service only when its dropdown/list is first requested. */
@@ -797,6 +799,7 @@ export class AppConfigurationService {
    * Does not clear populated signals.
    */
   invalidateAppConfigurationCaches(): void {
+    this.userDelegationService.clearManagedUsersCache();
     this.roleListCache$ = undefined;
     this.configurationKeyCaches.clear();
     this.loadedConfigurationKeys.clear();
@@ -2341,6 +2344,12 @@ export class AppConfigurationService {
               roleId: currentRoleId,
             }),
           vendorMenuAccess: this.loadVendorMenuAccessForActiveRole(),
+          managedUsers: this.userDelegationService.loadManagedUsers().pipe(
+            catchError(error => {
+              this.logger.error('Failed to load managed users', error);
+              return of(null);
+            })
+          ),
         }).pipe(
           map(parallelResults => ({
             roles: rolesResponse,

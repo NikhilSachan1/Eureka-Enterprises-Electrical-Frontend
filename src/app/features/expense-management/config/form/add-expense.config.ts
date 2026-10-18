@@ -19,6 +19,20 @@ import { IExpenseAddFormDto } from '@features/expense-management/types/expense.d
 
 const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseAddFormDto> =
   {
+    employeeName: {
+      fieldType: EDataType.SELECT,
+      id: 'employeeName',
+      fieldName: 'employeeName',
+      label: 'Employee',
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.EMPLOYEE,
+          dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+          employeeStatusFilter: ['ACTIVE'],
+        },
+        showClearButton: false,
+      },
+    },
     expenseCategory: {
       fieldType: EDataType.SELECT,
       id: 'expenseCategory',
