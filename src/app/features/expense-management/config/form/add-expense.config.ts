@@ -30,7 +30,6 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseAddFormDto>
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
           employeeStatusFilter: ['ACTIVE'],
         },
-        showClearButton: false,
       },
     },
     expenseCategory: {

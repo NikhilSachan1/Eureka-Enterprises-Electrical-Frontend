@@ -29,7 +29,6 @@ const ADD_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseAd
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
           employeeStatusFilter: ['ACTIVE'],
         },
-        showClearButton: false,
       },
     },
     fuelFillDate: {
