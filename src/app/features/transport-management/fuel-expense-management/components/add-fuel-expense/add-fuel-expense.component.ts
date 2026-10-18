@@ -70,6 +70,13 @@ export class AddFuelExpenseComponent
       this.managedUsersResolved() &&
       (this.filingFor() === EFilingTarget.SELF || !!this.onBehalfEmployeeId())
   );
+  protected readonly showFuelFields = computed(() => {
+    if (this.filingFor() !== EFilingTarget.OTHER || !this.onBehalfEmployeeId()) {
+      return true;
+    }
+    const detail = this.linkedUserVehicleDetail();
+    return !!(detail?.vehicle && Object.keys(detail.vehicle).length > 0);
+  });
 
   protected readonly redirectRoute = [
     ROUTE_BASE_PATHS.TRANSPORT,

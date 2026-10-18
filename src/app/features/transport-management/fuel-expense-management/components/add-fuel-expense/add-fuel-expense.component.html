@@ -16,15 +16,20 @@
   />
 
   @if (showLinkedVehicle()) {
-    <app-linked-vehicle-petro-card
-      class="block mb-8"
-      [employeeName]="onBehalfEmployeeId()"
-      [prefillFromAppConfiguration]="filingFor() === filingTargets.SELF"
-      [redirectRoute]="canFileForOthers() ? null : redirectRoute"
-      (linkedUserVehicleDetailChange)="linkedUserVehicleDetail.set($event)"
-    />
+    <section
+      class="fuel-assignment"
+      [class.fuel-assignment--filled]="showFuelFields()"
+    >
+      <app-linked-vehicle-petro-card
+        [employeeName]="onBehalfEmployeeId()"
+        [prefillFromAppConfiguration]="filingFor() === filingTargets.SELF"
+        [redirectRoute]="canFileForOthers() ? null : redirectRoute"
+        (linkedUserVehicleDetailChange)="linkedUserVehicleDetail.set($event)"
+      />
+    </section>
   }
 
+  @if (showFuelFields()) {
   <div class="grid grid-cols-1 md:grid-cols-4">
     <app-input-field
       [formGroup]="form.formGroup"
@@ -82,4 +87,5 @@
       [showButtonLoader]="isSubmitting()"
     />
   </div>
+  }
 </form>

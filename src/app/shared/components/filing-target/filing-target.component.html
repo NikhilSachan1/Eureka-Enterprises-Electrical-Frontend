@@ -1,9 +1,8 @@
 @if (showChoices()) {
 <div class="filing-for">
-  <span class="text-md font-semibold">{{ label() }}</span>
   <div
     class="filing-for__choices"
-    role="group"
+    role="tablist"
     [attr.aria-label]="label()"
   >
     @for (option of choices(); track option.value) {
@@ -11,7 +10,8 @@
         type="button"
         class="filing-for__choice"
         [class.filing-for__choice--selected]="filingTarget() === option.value"
-        [attr.aria-pressed]="filingTarget() === option.value"
+        role="tab"
+        [attr.aria-selected]="filingTarget() === option.value"
         (click)="select(option.value)"
       >
         <span class="filing-for__icon">
