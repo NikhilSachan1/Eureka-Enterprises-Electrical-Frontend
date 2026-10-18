@@ -127,6 +127,7 @@ export const APP_PERMISSION = {
     UNLINK_VEHICLE: 'petro-card.unlink-vehicle',
     WALLET_VIEW: 'petro-card.wallet-view',
     WALLET_MANAGE: 'petro-card.wallet-manage',
+    WALLET_BALANCE_CAP: 'petro-card.wallet-balance-cap',
   },
   SALARY_STRUCTURE: {
     VIEW_DETAIL: 'salary-structure.view-detail',

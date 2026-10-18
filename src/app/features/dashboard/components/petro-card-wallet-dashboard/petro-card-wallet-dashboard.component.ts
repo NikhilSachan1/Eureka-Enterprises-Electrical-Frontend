@@ -60,13 +60,14 @@ export class PetroCardWalletDashboardComponent implements OnInit {
   protected readonly availableAmount = computed(
     () => this.balance()?.balance ?? 0
   );
-  protected readonly displayBalance = computed(() => {
-    this.authService.user();
-    return formatWalletBalanceForViewer(
+  protected readonly displayBalance = computed(() =>
+    formatWalletBalanceForViewer(
       this.availableAmount(),
-      this.authService.isActiveRoleEmployeeLike()
-    );
-  });
+      this.appPermissionService.hasPermission(
+        APP_PERMISSION.PETRO_CARD.WALLET_BALANCE_CAP
+      )
+    )
+  );
   protected readonly isHealthyBalance = computed(
     () => this.availableAmount() > 0
   );

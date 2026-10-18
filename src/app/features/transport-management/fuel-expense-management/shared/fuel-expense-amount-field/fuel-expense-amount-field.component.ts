@@ -12,7 +12,8 @@ import {
   FormGroup,
   ValidatorFn,
 } from '@angular/forms';
-import { AuthService } from '@features/auth-management/services/auth.service';
+import { APP_PERMISSION } from '@core/constants';
+import { AppPermissionService } from '@core/services';
 import { PetroCardWalletService } from '@features/transport-management/petro-card-wallet-management/services/petro-card-wallet.service';
 import {
   formatWalletBalanceAmount,
@@ -43,7 +44,7 @@ const PETRO_CARD_PAYMENT_MODE = 'petro_card';
 })
 export class FuelExpenseAmountFieldComponent {
   private readonly walletService = inject(PetroCardWalletService);
-  private readonly authService = inject(AuthService);
+  private readonly appPermissionService = inject(AppPermissionService);
   private readonly notificationService = inject(NotificationService);
 
   readonly formGroup = input.required<FormGroup>();
@@ -228,7 +229,9 @@ export class FuelExpenseAmountFieldComponent {
   private formatAvailableBalance(amount: number): string {
     return formatWalletBalanceForViewer(
       amount,
-      this.authService.isActiveRoleEmployeeLike()
+      this.appPermissionService.hasPermission(
+        APP_PERMISSION.PETRO_CARD.WALLET_BALANCE_CAP
+      )
     );
   }
 }
