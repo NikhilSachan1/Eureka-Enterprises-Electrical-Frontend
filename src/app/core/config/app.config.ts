@@ -111,6 +111,7 @@ export const APP_CONFIG = {
     DEFAULT_FILTER_LENGTH: 7,
     VIRTUAL_SCROLL_ITEM_SIZE: 38,
     VIRTUAL_SCROLL_THRESHOLD: 100,
+    PAGINATED_PAGE_SIZE: 10,
   },
 
   // Vehicle Configuration

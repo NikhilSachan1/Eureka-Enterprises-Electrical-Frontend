@@ -23,7 +23,6 @@ import {
   switchMap,
   take,
   tap,
-  timer,
   throwError,
 } from 'rxjs';
 
@@ -32,6 +31,7 @@ import { AppPermissionService } from '@core/services/app-permission.service';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { UserDelegationService } from '@features/settings-management/delegation-management/services/user-delegation.service';
+import { PaginatedDropdownService } from '@shared/services/paginated-dropdown.service';
 import { applyIconsToDropdownOptions } from '@shared/config/dropdown-option-icons.config';
 import {
   CONFIGURATION_TYPE_DATA,
@@ -54,6 +54,7 @@ import type { IProjectGetResponseDto } from '@features/site-management/project-m
 import type { IPetroCardGetResponseDto } from '@features/transport-management/petro-card-management/types/petro-card.dto';
 import type { ICompanyBankAccountGetResponseDto } from '@features/company-bank-account-management/types/company-bank-account.dto';
 import type { ILinkedUserVehicleDetailGetResponseDto } from '@features/transport-management/fuel-expense-management/types/fuel-expense.dto';
+import { mapProjectSiteTypeDisplays } from '@features/site-management/project-management/utility/project-site-type.util';
 import { replaceTextWithSeparator, toTitleCase } from '@shared/utility';
 import { ConfigurationService } from '@features/settings-management/configuration-management/services/configuration.service';
 import type {
@@ -66,7 +67,6 @@ import type {
 })
 export class AppConfigurationService {
   private static readonly CONFIGURATION_KEY_PAGE_SIZE = 20;
-  private readonly REFERENCE_PREFETCH_START_DELAY_MS = 3000;
   private readonly referenceDropdownListPayload = { page: 1, pageSize: 50 };
   private readonly siteAssetDropdownListPayload = { page: 1, pageSize: 100 };
   private readonly injector = inject(Injector);
@@ -77,6 +77,17 @@ export class AppConfigurationService {
   private readonly userPermissionService = inject(UserPermissionService);
   private readonly userDelegationService = inject(UserDelegationService);
   private readonly configurationService = inject(ConfigurationService);
+  private readonly paginatedDropdownService = inject(PaginatedDropdownService);
+
+  constructor() {
+    this.paginatedDropdownService.registerReferenceListSink({
+      merge: (dropdownName, options) =>
+        this.mergeReferenceDropdownOptions(dropdownName, options),
+      clear: dropdownName => this.clearReferenceDropdownOptions(dropdownName),
+      mapRecords: (dropdownName, records) =>
+        this.mapReferenceDropdownRecords(dropdownName, records),
+    });
+  }
 
   /** Loads a feature service only when its dropdown/list is first requested. */
   private injectAfterLoad<T>(loadToken: () => Promise<Type<T>>): Observable<T> {
@@ -115,13 +126,7 @@ export class AppConfigurationService {
   private projectListCache$?: Observable<IProjectGetResponseDto>;
   private linkedUserVehicleDetailCache$?: Observable<ILinkedUserVehicleDetailGetResponseDto | null>;
   private readonly _dropdownLoadingState = signal<Record<string, boolean>>({});
-  private readonly pendingLazyLoads = new Set<string>();
-  /**
-   * Lazy loads from {@link getDropdown} run once per key until caches are invalidated or a refresh* method runs.
-   * Without this, every UI recomputation re-queued fetches when the list stayed empty or HTTP failed (storm of `user` calls).
-   */
   private readonly lazyReferenceDropdownLoadScheduledKeys = new Set<string>();
-  private isReferencePrefetchScheduled = false;
 
   private readonly EMPTY_DROPDOWN = signal<IOptionDropdown[]>([]).asReadonly();
 
@@ -831,12 +836,9 @@ export class AppConfigurationService {
     this.lazyReferenceDropdownLoadScheduledKeys.delete(
       CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST
     );
-    this.loadEmployeeList()
-      .pipe(take(1))
-      .subscribe({
-        error: err =>
-          this.logger.error('Employee dropdown refetch failed', err),
-      });
+    this.paginatedDropdownService.invalidate(
+      CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST
+    );
   }
 
   refreshAssetDropdowns(): void {
@@ -844,11 +846,7 @@ export class AppConfigurationService {
     this.lazyReferenceDropdownLoadScheduledKeys.delete(
       CONFIGURATION_KEYS.ASSET.ASSET_LIST
     );
-    this.loadAssetList()
-      .pipe(take(1))
-      .subscribe({
-        error: err => this.logger.error('Asset dropdown refetch failed', err),
-      });
+    this.paginatedDropdownService.invalidate(CONFIGURATION_KEYS.ASSET.ASSET_LIST);
   }
 
   refreshVehicleDropdowns(): void {
@@ -856,11 +854,9 @@ export class AppConfigurationService {
     this.lazyReferenceDropdownLoadScheduledKeys.delete(
       CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST
     );
-    this.loadVehicleList()
-      .pipe(take(1))
-      .subscribe({
-        error: err => this.logger.error('Vehicle dropdown refetch failed', err),
-      });
+    this.paginatedDropdownService.invalidate(
+      CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST
+    );
   }
 
   refreshCompanyDropdowns(): void {
@@ -868,11 +864,9 @@ export class AppConfigurationService {
     this.lazyReferenceDropdownLoadScheduledKeys.delete(
       CONFIGURATION_KEYS.COMPANY.COMPANY_LIST
     );
-    this.loadCompanyList()
-      .pipe(take(1))
-      .subscribe({
-        error: err => this.logger.error('Company dropdown refetch failed', err),
-      });
+    this.paginatedDropdownService.invalidate(
+      CONFIGURATION_KEYS.COMPANY.COMPANY_LIST
+    );
   }
 
   refreshContractorDropdowns(): void {
@@ -880,12 +874,9 @@ export class AppConfigurationService {
     this.lazyReferenceDropdownLoadScheduledKeys.delete(
       CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST
     );
-    this.loadContractorList()
-      .pipe(take(1))
-      .subscribe({
-        error: err =>
-          this.logger.error('Contractor dropdown refetch failed', err),
-      });
+    this.paginatedDropdownService.invalidate(
+      CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST
+    );
   }
 
   refreshVendorDropdowns(): void {
@@ -893,11 +884,7 @@ export class AppConfigurationService {
     this.lazyReferenceDropdownLoadScheduledKeys.delete(
       CONFIGURATION_KEYS.VENDOR.VENDOR_LIST
     );
-    this.loadVendorList()
-      .pipe(take(1))
-      .subscribe({
-        error: err => this.logger.error('Vendor dropdown refetch failed', err),
-      });
+    this.paginatedDropdownService.invalidate(CONFIGURATION_KEYS.VENDOR.VENDOR_LIST);
   }
 
   refreshProjectListDropdowns(): void {
@@ -905,12 +892,9 @@ export class AppConfigurationService {
     this.lazyReferenceDropdownLoadScheduledKeys.delete(
       CONFIGURATION_KEYS.PROJECT.PROJECT_LIST
     );
-    this.loadProjectList()
-      .pipe(take(1))
-      .subscribe({
-        error: err =>
-          this.logger.error('Project list dropdown refetch failed', err),
-      });
+    this.paginatedDropdownService.invalidate(
+      CONFIGURATION_KEYS.PROJECT.PROJECT_LIST
+    );
   }
 
   refreshPetroCardDropdowns(): void {
@@ -918,12 +902,9 @@ export class AppConfigurationService {
     this.lazyReferenceDropdownLoadScheduledKeys.delete(
       CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST
     );
-    this.loadPetroCardList()
-      .pipe(take(1))
-      .subscribe({
-        error: err =>
-          this.logger.error('Petro card dropdown refetch failed', err),
-      });
+    this.paginatedDropdownService.invalidate(
+      CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST
+    );
   }
 
   refreshCompanyBankAccountDropdowns(): void {
@@ -931,15 +912,9 @@ export class AppConfigurationService {
     this.lazyReferenceDropdownLoadScheduledKeys.delete(
       CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST
     );
-    this.loadCompanyBankAccountList()
-      .pipe(take(1))
-      .subscribe({
-        error: err =>
-          this.logger.error(
-            'Company bank account dropdown refetch failed',
-            err
-          ),
-      });
+    this.paginatedDropdownService.invalidate(
+      CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST
+    );
   }
 
   refreshLinkedUserVehicleDropdowns(): void {
@@ -954,11 +929,7 @@ export class AppConfigurationService {
   /** When many lists may have changed; heavier than a single {@link refreshAssetDropdowns} etc. */
   refreshAllReferenceDropdowns(): void {
     this.invalidateReferenceListCaches();
-    this.loadReferenceLists()
-      .pipe(take(1))
-      .subscribe({
-        error: err => this.logger.error('Reference lists refetch failed', err),
-      });
+    this.paginatedDropdownService.invalidateAll();
   }
 
   /**
@@ -1037,32 +1008,7 @@ export class AppConfigurationService {
 
           const employeeList: IOptionDropdown[] = response.records
             .map(employee => {
-              const first = employee.firstName?.trim() ?? '';
-              const last = employee.lastName?.trim() ?? '';
-              const employeeStatus = employee.status?.trim() ?? '';
-              const formattedEmployeeStatus = employeeStatus
-                ? toTitleCase(employeeStatus)
-                : '';
-              const employeeCode = employee.employeeId?.trim() ?? '';
-              const subtitleParts = [
-                employeeCode,
-                formattedEmployeeStatus,
-              ].filter(Boolean);
-              const initialChar =
-                first.charAt(0) ||
-                last.charAt(0) ||
-                (employee.employeeId?.trim()?.charAt(0) ?? '');
-              const dropdownItem: IOptionDropdown = {
-                label: toTitleCase(`${first} ${last}`.trim()),
-                subtitle:
-                  subtitleParts.length > 0
-                    ? subtitleParts.join(' • ')
-                    : undefined,
-                initial: initialChar ? initialChar.toUpperCase() : undefined,
-                value: employee.id,
-                disabled: employeeStatus.toLowerCase() === 'archived',
-                data: employee,
-              };
+              const dropdownItem = this.toEmployeeDropdownOption(employee);
 
               // Parse roles and add to role-based lists
               const roles = employee.roles
@@ -1135,7 +1081,6 @@ export class AppConfigurationService {
 
   getDropdown(module: string, key: string): Signal<IOptionDropdown[]> {
     this.ensureConfigurationForKey(module, key);
-    this.triggerLazyReferenceLoadForDropdownKey(key);
     return (
       this.MODULE_DROPDOWN_REGISTRY[module]
         ?.find(dropdown => dropdown.key === key)
@@ -1162,52 +1107,68 @@ export class AppConfigurationService {
     );
   }
 
-  private triggerLazyReferenceLoadForDropdownKey(key: string): void {
-    const loadByKey: Partial<Record<string, () => Observable<unknown>>> = {
-      [CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST]: () =>
-        this.loadEmployeeList(),
-      [CONFIGURATION_KEYS.ASSET.ASSET_LIST]: () => this.loadAssetList(),
-      [CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST]: () => this.loadVehicleList(),
-      [CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST]: () =>
-        this.loadPetroCardList(),
-      [CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST]: () =>
-        this.loadCompanyBankAccountList(),
-      [CONFIGURATION_KEYS.COMPANY.COMPANY_LIST]: () => this.loadCompanyList(),
-      [CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST]: () =>
-        this.loadContractorList(),
-      [CONFIGURATION_KEYS.VENDOR.VENDOR_LIST]: () => this.loadVendorList(),
-      [CONFIGURATION_KEYS.PROJECT.PROJECT_LIST]: () => this.loadProjectList(),
-    };
-
-    const loader = loadByKey[key];
-    const taskKey = `ref:${key}`;
-    if (
-      !loader ||
-      this.pendingLazyLoads.has(taskKey) ||
-      this.lazyReferenceDropdownLoadScheduledKeys.has(key)
-    ) {
+  mergeReferenceDropdownOptions(
+    dropdownName: string,
+    options: IOptionDropdown[]
+  ): void {
+    const target = this.referenceListSignal(dropdownName);
+    if (!target || options.length === 0) {
       return;
     }
 
-    this.lazyReferenceDropdownLoadScheduledKeys.add(key);
-    this.pendingLazyLoads.add(taskKey);
+    const merged = new Map(target().map(option => [option.value, option]));
+    options.forEach(option => merged.set(option.value, option));
+    target.set([...merged.values()]);
 
-    queueMicrotask(() => {
-      loader()
-        .pipe(
-          take(1),
-          finalize(() => {
-            this.pendingLazyLoads.delete(taskKey);
-          })
-        )
-        .subscribe({
-          error: error =>
-            this.logger.warn(
-              `Lazy reference load failed for key: ${key}`,
-              error
-            ),
-        });
+    if (dropdownName === CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST) {
+      this.mergeEmployeeListByRole(options);
+    }
+  }
+
+  clearReferenceDropdownOptions(dropdownName: string): void {
+    this.referenceListSignal(dropdownName)?.set([]);
+    if (dropdownName === CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST) {
+      this._employeeListByRole.set({});
+    }
+  }
+
+  private referenceListSignal(
+    dropdownName: string
+  ): WritableSignal<IOptionDropdown[]> | undefined {
+    const signals: Record<string, WritableSignal<IOptionDropdown[]>> = {
+      [CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST]: this._employeeList,
+      [CONFIGURATION_KEYS.ASSET.ASSET_LIST]: this._assetList,
+      [CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST]: this._vehicleList,
+      [CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST]: this._petroCardList,
+      [CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST]:
+        this._companyBankAccountList,
+      [CONFIGURATION_KEYS.COMPANY.COMPANY_LIST]: this._companyList,
+      [CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST]: this._contractorList,
+      [CONFIGURATION_KEYS.VENDOR.VENDOR_LIST]: this._vendorList,
+      [CONFIGURATION_KEYS.PROJECT.PROJECT_LIST]: this._projectList,
+    };
+    return signals[dropdownName];
+  }
+
+  private mergeEmployeeListByRole(options: IOptionDropdown[]): void {
+    const current = { ...this._employeeListByRole() };
+    options.forEach(option => {
+      const roles =
+        (
+          option.data as { roles?: { name?: string | null }[] | null } | undefined
+        )?.roles ?? [];
+      roles.forEach(role => {
+        const roleName = role.name?.trim();
+        if (!roleName) {
+          return;
+        }
+        const existing = current[roleName] ?? [];
+        current[roleName] = existing.some(item => item.value === option.value)
+          ? existing.map(item => (item.value === option.value ? option : item))
+          : [...existing, option];
+      });
     });
+    this._employeeListByRole.set(current);
   }
 
   getEmployeesByRole(roleName: string): IOptionDropdown[] {
@@ -1589,17 +1550,7 @@ export class AppConfigurationService {
           });
 
           const assetList: IOptionDropdown[] = response.records
-            .map(asset => {
-              const rawName = asset.name?.trim() ?? '';
-              const aid = asset.assetId?.trim();
-              return {
-                label: toTitleCase(rawName),
-                subtitle: aid || undefined,
-                initial: this.initialsForDropdownLabel(rawName),
-                value: asset.id,
-                data: asset,
-              };
-            })
+            .map(asset => this.toAssetDropdownOption(asset))
             .sort(this.sortByLabel);
 
           this._assetList.set(assetList);
@@ -1638,23 +1589,7 @@ export class AppConfigurationService {
           });
 
           const vehicleList: IOptionDropdown[] = response.records
-            .map(vehicle => {
-              const reg = vehicle.registrationNo?.trim() ?? '';
-              const brandModel = [vehicle.brand, vehicle.model]
-                .filter(Boolean)
-                .join(' ')
-                .trim();
-              const initialMatch = reg.match(/[A-Za-z0-9]/);
-              return {
-                label: reg,
-                subtitle: brandModel ? toTitleCase(brandModel) : undefined,
-                initial: initialMatch
-                  ? initialMatch[0].toUpperCase()
-                  : undefined,
-                value: vehicle.id,
-                data: vehicle,
-              };
-            })
+            .map(vehicle => this.toVehicleDropdownOption(vehicle))
             .sort(this.sortByLabel);
 
           this._vehicleList.set(vehicleList);
@@ -1693,12 +1628,7 @@ export class AppConfigurationService {
           });
 
           const petroCardList: IOptionDropdown[] = response.records
-            .map(petroCard => ({
-              label: toTitleCase(
-                `${petroCard.cardName} (${petroCard.cardNumber})`.trim()
-              ),
-              value: petroCard.id,
-            }))
+            .map(petroCard => this.toPetroCardDropdownOption(petroCard))
             .sort(this.sortByLabel);
 
           this._petroCardList.set(petroCardList);
@@ -1742,18 +1672,7 @@ export class AppConfigurationService {
 
           const companyBankAccountList: IOptionDropdown[] = response.records
             .filter(account => account.isActive)
-            .map(account => {
-              const bankName = account.bankName?.trim() ?? '';
-              const accountNumber = account.accountNumber?.trim() ?? '';
-              const accountHolderName =
-                account.accountHolderName?.trim() ?? '';
-              return {
-                label: toTitleCase(`${bankName} (${accountNumber})`.trim()),
-                subtitle: accountHolderName || undefined,
-                value: account.id,
-                data: account,
-              };
-            })
+            .map(account => this.toCompanyBankAccountDropdownOption(account))
             .sort(this.sortByLabel);
 
           this._companyBankAccountList.set(companyBankAccountList);
@@ -1795,19 +1714,7 @@ export class AppConfigurationService {
           });
 
           const companyList: IOptionDropdown[] = response.records
-            .map(company => {
-              const rawName = company.name?.trim() ?? '';
-              const subtitle =
-                [company.city, company.state].filter(Boolean).join(', ') ||
-                `ID ${company.id.slice(0, 8)}`;
-              return {
-                label: toTitleCase(rawName),
-                subtitle,
-                initial: this.initialsForDropdownLabel(rawName),
-                value: company.id,
-                data: company,
-              };
-            })
+            .map(company => this.toCompanyDropdownOption(company))
             .sort(this.sortByLabel);
 
           this._companyList.set(companyList);
@@ -1846,23 +1753,7 @@ export class AppConfigurationService {
           });
 
           const contractorList: IOptionDropdown[] = response.records
-            .map(contractor => {
-              const rawName = contractor.name?.trim() ?? '';
-              const subtitle = this.buildContractorVendorDropdownSubtitle({
-                gstNumber: contractor.gstNumber,
-                city: contractor.city,
-                state: contractor.state,
-                email: contractor.email,
-                id: contractor.id,
-              });
-              return {
-                label: toTitleCase(rawName),
-                subtitle,
-                initial: this.initialsForDropdownLabel(rawName),
-                value: contractor.id,
-                data: contractor,
-              };
-            })
+            .map(contractor => this.toContractorDropdownOption(contractor))
             .sort(this.sortByLabel);
 
           this._contractorList.set(contractorList);
@@ -1944,24 +1835,7 @@ export class AppConfigurationService {
           });
 
           const vendorList: IOptionDropdown[] = response.records
-            .map(vendor => {
-              const rawName = vendor.name?.trim() ?? '';
-              const subtitle = this.buildContractorVendorDropdownSubtitle({
-                code: vendor.vendorCode,
-                gstNumber: vendor.gstNumber,
-                city: vendor.city,
-                state: vendor.state,
-                email: vendor.email,
-                id: vendor.id,
-              });
-              return {
-                label: toTitleCase(rawName),
-                subtitle,
-                initial: this.initialsForDropdownLabel(rawName),
-                value: vendor.id,
-                data: vendor,
-              };
-            })
+            .map(vendor => this.toVendorDropdownOption(vendor))
             .sort(this.sortByLabel);
 
           this._vendorList.set(vendorList);
@@ -1992,61 +1866,29 @@ export class AppConfigurationService {
         ).then(m => m.ProjectService)
       ).pipe(
         switchMap(projectService =>
-          from(
-            import(
-              '@features/site-management/project-management/utility/project-site-type.util'
-            )
-          ).pipe(
-            switchMap(({ mapProjectSiteTypeDisplays }) =>
-              projectService
-                .getProjectList(this.siteAssetDropdownListPayload)
-                .pipe(
-                  switchMap(response =>
-                    this.afterTouchedConfiguration(() => {
-                      this.logger.logUserAction(
-                        'Project List loaded successfully',
-                        {
-                          count: response.totalRecords,
-                        }
-                      );
+          projectService
+            .getProjectList(this.siteAssetDropdownListPayload)
+            .pipe(
+              switchMap(response =>
+                this.afterTouchedConfiguration(() => {
+                  this.logger.logUserAction(
+                    'Project List loaded successfully',
+                    {
+                      count: response.totalRecords,
+                    }
+                  );
 
-                      return response.records
-                        .map(project => {
-                          const rawName = project.name?.trim() ?? '';
-                          const siteTypeLabels = mapProjectSiteTypeDisplays(
-                            project.siteTypes,
-                            this.projectSiteTypes()
-                          )
-                            .map(item => item.label)
-                            .join(' · ');
-                          const location =
-                            [project.city, project.state]
-                              .filter(Boolean)
-                              .join(', ') || undefined;
-                          const label = toTitleCase(rawName);
-                          const subtitle =
-                            [siteTypeLabels, location]
-                              .filter(Boolean)
-                              .join(' · ') || undefined;
-                          return {
-                            label,
-                            subtitle,
-                            initial: this.initialsForDropdownLabel(rawName),
-                            value: project.id,
-                            data: project,
-                          };
-                        })
-                        .sort(this.sortByLabel);
-                    }).pipe(
-                      tap(projectOptions => {
-                        this._projectList.set(projectOptions);
-                      }),
-                      map(() => response)
-                    )
-                  )
+                  return response.records
+                    .map(project => this.toProjectDropdownOption(project))
+                    .sort(this.sortByLabel);
+                }).pipe(
+                  tap(projectOptions => {
+                    this._projectList.set(projectOptions);
+                  }),
+                  map(() => response)
                 )
+              )
             )
-          )
         ),
         catchError(error => {
           this.projectListCache$ = undefined;
@@ -2055,6 +1897,225 @@ export class AppConfigurationService {
         })
       )
     );
+  }
+
+  private mapReferenceDropdownRecords(
+    dropdownName: string,
+    records: unknown[]
+  ): Observable<IOptionDropdown[]> {
+    const mapNow = (): IOptionDropdown[] => {
+      switch (dropdownName) {
+        case CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST:
+          return (records as IEmployeeGetResponseDto['records']).map(record =>
+            this.toEmployeeDropdownOption(record)
+          );
+        case CONFIGURATION_KEYS.ASSET.ASSET_LIST:
+          return (records as IAssetGetResponseDto['records']).map(record =>
+            this.toAssetDropdownOption(record)
+          );
+        case CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST:
+          return (records as IVehicleGetResponseDto['records']).map(record =>
+            this.toVehicleDropdownOption(record)
+          );
+        case CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST:
+          return (records as IPetroCardGetResponseDto['records']).map(record =>
+            this.toPetroCardDropdownOption(record)
+          );
+        case CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST:
+          return (
+            records as ICompanyBankAccountGetResponseDto['records']
+          ).map(record => this.toCompanyBankAccountDropdownOption(record));
+        case CONFIGURATION_KEYS.COMPANY.COMPANY_LIST:
+          return (records as ICompanyGetResponseDto['records']).map(record =>
+            this.toCompanyDropdownOption(record)
+          );
+        case CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST:
+          return (records as IContractorGetResponseDto['records']).map(record =>
+            this.toContractorDropdownOption(record)
+          );
+        case CONFIGURATION_KEYS.VENDOR.VENDOR_LIST:
+          return (records as IVendorGetResponseDto['records']).map(record =>
+            this.toVendorDropdownOption(record)
+          );
+        case CONFIGURATION_KEYS.PROJECT.PROJECT_LIST:
+          return (records as IProjectGetResponseDto['records']).map(record =>
+            this.toProjectDropdownOption(record)
+          );
+        default:
+          return [];
+      }
+    };
+
+    if (dropdownName === CONFIGURATION_KEYS.PROJECT.PROJECT_LIST) {
+      return this.afterTouchedConfiguration(mapNow);
+    }
+
+    return of(mapNow());
+  }
+
+  toEmployeeDropdownOption(
+    employee: IEmployeeGetResponseDto['records'][number]
+  ): IOptionDropdown {
+    const first = employee.firstName?.trim() ?? '';
+    const last = employee.lastName?.trim() ?? '';
+    const employeeStatus = employee.status?.trim() ?? '';
+    const formattedEmployeeStatus = employeeStatus
+      ? toTitleCase(employeeStatus)
+      : '';
+    const employeeCode = employee.employeeId?.trim() ?? '';
+    const subtitleParts = [employeeCode, formattedEmployeeStatus].filter(
+      Boolean
+    );
+    const initialChar =
+      first.charAt(0) ||
+      last.charAt(0) ||
+      (employee.employeeId?.trim()?.charAt(0) ?? '');
+
+    return {
+      label: toTitleCase(`${first} ${last}`.trim()),
+      subtitle:
+        subtitleParts.length > 0 ? subtitleParts.join(' • ') : undefined,
+      initial: initialChar ? initialChar.toUpperCase() : undefined,
+      value: employee.id,
+      disabled: employeeStatus.toLowerCase() === 'archived',
+      data: employee,
+    };
+  }
+
+  toAssetDropdownOption(
+    asset: IAssetGetResponseDto['records'][number]
+  ): IOptionDropdown {
+    const rawName = asset.name?.trim() ?? '';
+    const aid = asset.assetId?.trim();
+    return {
+      label: toTitleCase(rawName),
+      subtitle: aid || undefined,
+      initial: this.initialsForDropdownLabel(rawName),
+      value: asset.id,
+      data: asset,
+    };
+  }
+
+  toVehicleDropdownOption(
+    vehicle: IVehicleGetResponseDto['records'][number]
+  ): IOptionDropdown {
+    const reg = vehicle.registrationNo?.trim() ?? '';
+    const brandModel = [vehicle.brand, vehicle.model]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+    const initialMatch = reg.match(/[A-Za-z0-9]/);
+    return {
+      label: reg,
+      subtitle: brandModel ? toTitleCase(brandModel) : undefined,
+      initial: initialMatch ? initialMatch[0].toUpperCase() : undefined,
+      value: vehicle.id,
+      data: vehicle,
+    };
+  }
+
+  toPetroCardDropdownOption(
+    petroCard: IPetroCardGetResponseDto['records'][number]
+  ): IOptionDropdown {
+    return {
+      label: toTitleCase(
+        `${petroCard.cardName} (${petroCard.cardNumber})`.trim()
+      ),
+      value: petroCard.id,
+    };
+  }
+
+  toCompanyBankAccountDropdownOption(
+    account: ICompanyBankAccountGetResponseDto['records'][number]
+  ): IOptionDropdown {
+    const bankName = account.bankName?.trim() ?? '';
+    const accountNumber = account.accountNumber?.trim() ?? '';
+    const accountHolderName = account.accountHolderName?.trim() ?? '';
+    return {
+      label: toTitleCase(`${bankName} (${accountNumber})`.trim()),
+      subtitle: accountHolderName || undefined,
+      value: account.id,
+      data: account,
+    };
+  }
+
+  toCompanyDropdownOption(
+    company: ICompanyGetResponseDto['records'][number]
+  ): IOptionDropdown {
+    const rawName = company.name?.trim() ?? '';
+    const subtitle =
+      [company.city, company.state].filter(Boolean).join(', ') ||
+      `ID ${company.id.slice(0, 8)}`;
+    return {
+      label: toTitleCase(rawName),
+      subtitle,
+      initial: this.initialsForDropdownLabel(rawName),
+      value: company.id,
+      data: company,
+    };
+  }
+
+  toContractorDropdownOption(
+    contractor: IContractorGetResponseDto['records'][number]
+  ): IOptionDropdown {
+    const rawName = contractor.name?.trim() ?? '';
+    return {
+      label: toTitleCase(rawName),
+      subtitle: this.buildContractorVendorDropdownSubtitle({
+        gstNumber: contractor.gstNumber,
+        city: contractor.city,
+        state: contractor.state,
+        email: contractor.email,
+        id: contractor.id,
+      }),
+      initial: this.initialsForDropdownLabel(rawName),
+      value: contractor.id,
+      data: contractor,
+    };
+  }
+
+  toVendorDropdownOption(
+    vendor: IVendorGetResponseDto['records'][number]
+  ): IOptionDropdown {
+    const rawName = vendor.name?.trim() ?? '';
+    return {
+      label: toTitleCase(rawName),
+      subtitle: this.buildContractorVendorDropdownSubtitle({
+        code: vendor.vendorCode,
+        gstNumber: vendor.gstNumber,
+        city: vendor.city,
+        state: vendor.state,
+        email: vendor.email,
+        id: vendor.id,
+      }),
+      initial: this.initialsForDropdownLabel(rawName),
+      value: vendor.id,
+      data: vendor,
+    };
+  }
+
+  toProjectDropdownOption(
+    project: IProjectGetResponseDto['records'][number]
+  ): IOptionDropdown {
+    const rawName = project.name?.trim() ?? '';
+    const siteTypeLabels = mapProjectSiteTypeDisplays(
+      project.siteTypes,
+      this.projectSiteTypes()
+    )
+      .map(item => item.label)
+      .join(' · ');
+    const location =
+      [project.city, project.state].filter(Boolean).join(', ') || undefined;
+    const label = toTitleCase(rawName);
+    const subtitle =
+      [siteTypeLabels, location].filter(Boolean).join(' · ') || undefined;
+    return {
+      label,
+      subtitle,
+      initial: this.initialsForDropdownLabel(rawName),
+      value: project.id,
+      data: project,
+    };
   }
 
   /** Rich dropdown subtitle: GST (if any) + city/state for contractor & vendor lists. */
@@ -2240,43 +2301,13 @@ export class AppConfigurationService {
     return options;
   }
 
-  /** All heavy dropdown lists in one round-trip (used by {@link refreshAllReferenceDropdowns}). */
-  loadReferenceLists(): Observable<{
-    employeeList: IEmployeeGetResponseDto;
-    assetList: IAssetGetResponseDto;
-    vehicleList: IVehicleGetResponseDto;
-    petroCardList: IPetroCardGetResponseDto;
-    companyBankAccountList: ICompanyBankAccountGetResponseDto;
-    companyList: ICompanyGetResponseDto;
-    contractorList: IContractorGetResponseDto;
-    vendorList: IVendorGetResponseDto;
-    linkedUserVehicleForCurrentUser: ILinkedUserVehicleDetailGetResponseDto | null;
-  }> {
-    return forkJoin({
-      employeeList: this.loadEmployeeList(),
-      assetList: this.loadAssetList(),
-      vehicleList: this.loadVehicleList(),
-      petroCardList: this.loadPetroCardList(),
-      companyBankAccountList: this.loadCompanyBankAccountList(),
-      companyList: this.loadCompanyList(),
-      contractorList: this.loadContractorList(),
-      vendorList: this.loadVendorList(),
-      linkedUserVehicleForCurrentUser:
-        this.loadLinkedUserVehicleDetailForCurrentUser(),
-    });
+  loadReferenceLists(): Observable<void> {
+    return of(undefined);
   }
 
   loadAllAppData(): Observable<{
     roles: IRoleGetResponseDto;
     permissions: unknown;
-    employeeList: IEmployeeGetResponseDto;
-    assetList: IAssetGetResponseDto;
-    vehicleList: IVehicleGetResponseDto;
-    petroCardList: IPetroCardGetResponseDto;
-    companyBankAccountList: ICompanyBankAccountGetResponseDto;
-    companyList: ICompanyGetResponseDto;
-    contractorList: IContractorGetResponseDto;
-    vendorList: IVendorGetResponseDto;
     linkedUserVehicleForCurrentUser: ILinkedUserVehicleDetailGetResponseDto | null;
   }> {
     this.logger.info('Loading all app data...');
@@ -2295,14 +2326,6 @@ export class AppConfigurationService {
               roleId: currentRoleId,
             }),
           vendorMenuAccess: this.loadVendorMenuAccessForActiveRole(),
-          employeeList: this.loadEmployeeList(),
-          assetList: this.loadAssetList(),
-          vehicleList: this.loadVehicleList(),
-          petroCardList: this.loadPetroCardList(),
-          companyBankAccountList: this.loadCompanyBankAccountList(),
-          companyList: this.loadCompanyList(),
-          contractorList: this.loadContractorList(),
-          vendorList: this.loadVendorList(),
           linkedUserVehicleForCurrentUser:
             this.loadLinkedUserVehicleDetailForCurrentUser(),
         }).pipe(
@@ -2370,27 +2393,6 @@ export class AppConfigurationService {
    * Keeps navigation fast while warming caches in background.
    */
   prefetchReferenceListsInBackground(): void {
-    if (this.isReferencePrefetchScheduled) {
-      return;
-    }
-
-    this.isReferencePrefetchScheduled = true;
-
-    timer(this.REFERENCE_PREFETCH_START_DELAY_MS)
-      .pipe(
-        switchMap(() => this.loadReferenceLists().pipe(take(1))),
-        finalize(() => {
-          this.isReferencePrefetchScheduled = false;
-        })
-      )
-      .subscribe({
-        complete: () =>
-          this.logger.info('Reference lists prefetched in background'),
-        error: error =>
-          this.logger.warn(
-            'Background prefetch of reference lists failed',
-            error
-          ),
-      });
+    return;
   }
 }

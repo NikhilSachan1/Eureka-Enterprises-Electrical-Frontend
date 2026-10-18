@@ -126,13 +126,16 @@
         [optionValue]="selectConfig?.optionValue ?? 'value'"
         [optionDisabled]="selectConfig?.optionDisabled"
         [checkmark]="selectConfig?.showCheckmark"
-        [filter]="selectConfig?.haveFilter && (optionsDropdownLength ?? 0) > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH"
+        [filter]="isPaginatedReferenceDropdown() || (selectConfig?.haveFilter && (optionsDropdownLength ?? 0) > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH)"
+        [resetFilterOnHide]="isPaginatedReferenceDropdown()"
         [filterBy]="effectiveDropdownFilterBy(selectConfig, selectOpts)"
         [loading]="selectConfig?.loading ?? false"
         [showClear]="selectConfig?.showClearButton"
         [editable]="selectConfig?.isEditable"
         [virtualScroll]="
-          selectConfig?.virtualScroll ?? (optionsDropdownLength ?? 0) > ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD
+          isPaginatedReferenceDropdown()
+            ? false
+            : (selectConfig?.virtualScroll ?? (optionsDropdownLength ?? 0) > ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD)
         "
         [virtualScrollItemSize]="effectiveDropdownVirtualScrollItemSize(selectConfig, selectOpts)"
         [disabled]="config.disabledInput || false"
@@ -141,6 +144,9 @@
         [class]="invalidClass"
         (onChange)="onValueChange($event.value)"
         (onBlur)="onBlur()"
+        (onShow)="onPaginatedDropdownShow('select')"
+        (onHide)="onPaginatedDropdownHide()"
+        (onFilter)="onPaginatedDropdownFilter($event)"
       >
         <ng-template
           pTemplate="item"
@@ -219,20 +225,28 @@
             </span>
           }
         </ng-template>
-        @if (dropdownCreateActionButtonConfig(); as createAction) {
+        @if (dropdownCreateActionButtonConfig() || paginatedDropdownLoading()) {
           <ng-template pTemplate="footer">
-            <div
-              class="ee-dropdown-create"
-              tabindex="-1"
-              (mousedown)="$event.stopPropagation()"
-              (click)="$event.stopPropagation()"
-            >
-              <app-button
-                [buttonConfig]="createAction"
-                [stopClickPropagation]="true"
-                (onButtonClick)="onDropdownCreateAction()"
-              />
-            </div>
+            @if (paginatedDropdownLoading()) {
+              <div class="ee-dropdown-load-more" aria-live="polite">
+                <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+                <span>Loading...</span>
+              </div>
+            }
+            @if (dropdownCreateActionButtonConfig(); as createAction) {
+              <div
+                class="ee-dropdown-create"
+                tabindex="-1"
+                (mousedown)="$event.stopPropagation()"
+                (click)="$event.stopPropagation()"
+              >
+                <app-button
+                  [buttonConfig]="createAction"
+                  [stopClickPropagation]="true"
+                  (onButtonClick)="onDropdownCreateAction()"
+                />
+              </div>
+            }
           </ng-template>
         }
       </p-select>
@@ -296,8 +310,10 @@
         [maxSelectedLabels]="maxVisibleLabels"
         [selectedItemsLabel]="multiSelectConfig?.selectedItemsLabel ?? '+{0}'"
         [filter]="
-          multiSelectConfig?.haveFilter && (optionsDropdownLengthMs ?? 0) > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH
+          isPaginatedReferenceDropdown() ||
+          (multiSelectConfig?.haveFilter && (optionsDropdownLengthMs ?? 0) > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH)
         "
+        [resetFilterOnHide]="isPaginatedReferenceDropdown()"
         [filterBy]="effectiveDropdownFilterBy(multiSelectConfig, multiOpts)"
         [loading]="multiSelectConfig?.loading ?? false"
         [emptyMessage]="getMultiSelectEmptyMessage(multiSelectConfig)"
@@ -306,8 +322,10 @@
         [display]="multiSelectConfig?.display || ALL_MULTI_SELECT_DISPLAY_TYPES.Chip"
         [showClear]="multiSelectConfig?.showClearButton"
         [virtualScroll]="
-          multiSelectConfig?.virtualScroll ??
-          (optionsDropdownLengthMs ?? 0) > ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD
+          isPaginatedReferenceDropdown()
+            ? false
+            : (multiSelectConfig?.virtualScroll ??
+              (optionsDropdownLengthMs ?? 0) > ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD)
         "
         [virtualScrollItemSize]="effectiveDropdownVirtualScrollItemSize(multiSelectConfig, multiOpts)"
         [disabled]="config.disabledInput || false"
@@ -316,6 +334,9 @@
         [class]="invalidClass"
         (onChange)="onValueChange($event.value)"
         (onBlur)="onBlur()"
+        (onPanelShow)="onPaginatedDropdownShow('multi')"
+        (onPanelHide)="onPaginatedDropdownHide()"
+        (onFilter)="onPaginatedDropdownFilter($event)"
       >
         <ng-template
           pTemplate="item"
@@ -393,20 +414,28 @@
             </div>
           }
         </ng-template>
-        @if (dropdownCreateActionButtonConfig(); as createAction) {
+        @if (dropdownCreateActionButtonConfig() || paginatedDropdownLoading()) {
           <ng-template pTemplate="footer">
-            <div
-              class="ee-dropdown-create"
-              tabindex="-1"
-              (mousedown)="$event.stopPropagation()"
-              (click)="$event.stopPropagation()"
-            >
-              <app-button
-                [buttonConfig]="createAction"
-                [stopClickPropagation]="true"
-                (onButtonClick)="onDropdownCreateAction()"
-              />
-            </div>
+            @if (paginatedDropdownLoading()) {
+              <div class="ee-dropdown-load-more" aria-live="polite">
+                <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+                <span>Loading...</span>
+              </div>
+            }
+            @if (dropdownCreateActionButtonConfig(); as createAction) {
+              <div
+                class="ee-dropdown-create"
+                tabindex="-1"
+                (mousedown)="$event.stopPropagation()"
+                (click)="$event.stopPropagation()"
+              >
+                <app-button
+                  [buttonConfig]="createAction"
+                  [stopClickPropagation]="true"
+                  (onButtonClick)="onDropdownCreateAction()"
+                />
+              </div>
+            }
           </ng-template>
         }
       </p-multiselect>

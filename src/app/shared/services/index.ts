@@ -11,4 +11,5 @@ export { TableServerSideParamsBuilderService } from './table-server-side-params-
 export { AttachmentsService } from './attachments.service';
 export { GalleryService } from './gallery.service';
 export { AppConfigurationService } from './app-configuration.service';
+export { PaginatedDropdownService } from './paginated-dropdown.service';
 export { SearchFilterUrlRestoreService } from './search-filter-url-restore.service';

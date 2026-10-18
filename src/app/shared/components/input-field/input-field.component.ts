@@ -12,6 +12,7 @@ import {
   computed,
   signal,
   effect,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -55,6 +56,7 @@ import {
   GalleryService,
   InputFieldConfigService,
 } from '@shared/services';
+import { PaginatedDropdownService } from '@shared/services/paginated-dropdown.service';
 import { AppPermissionService } from '@core/services';
 import {
   EButtonActionType,
@@ -144,6 +146,12 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   private readonly galleryService = inject(GalleryService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly paginatedDropdownService = inject(PaginatedDropdownService);
+  private readonly paginatedDropdownSessionId = crypto.randomUUID();
+  private readonly paginatedFilter$ = new Subject<string>();
+  private readonly paginatedAutocomplete$ = new Subject<string>();
+  private paginatedScrollCleanup?: () => void;
+  private paginatedFilterReady = false;
   private readonly drawerService = inject(DrawerService);
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly authService = inject(AuthService);
@@ -322,8 +330,14 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   resolvedInputFieldConfig = computed(() => {
     const config = this.inputFieldConfig();
     this.dependentDropdownParentValue(); // ensure recomputation when parent control changes
+    if (this.isPaginatedReferenceDropdown()) {
+      this.paginatedDropdownService.watch(this.paginatedDropdownSessionId);
+    }
     const opts = this.getDropdownOptions();
     const isDynamicLoading = this.isDynamicDropdownLoading();
+    const paginatedView = this.isPaginatedReferenceDropdown()
+      ? this.paginatedDropdownService.watch(this.paginatedDropdownSessionId)
+      : undefined;
     const displayOptions =
       opts.length > 0 ? opts : [this.getEmptyDropdownPlaceholderOption()];
     if (config.fieldType === EDataType.SELECT && config.selectConfig) {
@@ -333,7 +347,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         selectConfig: {
           ...config.selectConfig,
           loading: isDynamicSelect
-            ? isDynamicLoading
+            ? (paginatedView?.initialLoading ?? isDynamicLoading)
             : (config.selectConfig.loading ?? false),
           optionsDropdown: displayOptions,
         },
@@ -349,7 +363,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         multiSelectConfig: {
           ...config.multiSelectConfig,
           loading: isDynamicMultiSelect
-            ? isDynamicLoading
+            ? (paginatedView?.initialLoading ?? isDynamicLoading)
             : (config.multiSelectConfig.loading ?? false),
           optionsDropdown: displayOptions,
         },
@@ -405,6 +419,22 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   private dependentDropdownParentValue = signal<unknown>(undefined);
 
   constructor() {
+    effect(() => {
+      const dropdown = this.paginatedDropdownQuery();
+      const value = this.effectiveValue();
+      if (!dropdown) {
+        return;
+      }
+      const selectedIds = selectedDropdownIds(value);
+      untracked(() => {
+        this.paginatedDropdownService.sync(
+          this.paginatedDropdownSessionId,
+          dropdown,
+          selectedIds
+        );
+      });
+    });
+
     // Standalone mode: sync file upload when fieldValue (effectiveValue) changes for ATTACHMENTS
     effect(() => {
       if (this.isFormMode()) {
@@ -427,6 +457,11 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.bindPaginatedDropdownFilter();
+    this.destroyRef.onDestroy(() => {
+      this.paginatedScrollCleanup?.();
+      this.paginatedDropdownService.destroy(this.paginatedDropdownSessionId);
+    });
     const config = this.inputFieldConfig();
     const fg = this.formGroup();
     const control = fg?.get(config.fieldName);
@@ -687,6 +722,157 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     return options;
   }
 
+  private applyDropdownOptionFilters(
+    dropdownConfig: {
+      dynamicDropdown?: { includeLoggedInUser?: boolean };
+      filterOptions?: { include?: string[]; exclude?: string[] };
+    },
+    options: IOptionDropdown[]
+  ): IOptionDropdown[] {
+    let nextOptions = options;
+    if (dropdownConfig.filterOptions) {
+      nextOptions = filterOptionsByIncludeExclude(
+        nextOptions,
+        dropdownConfig.filterOptions.include ?? [],
+        dropdownConfig.filterOptions.exclude ?? []
+      );
+    }
+
+    if (dropdownConfig.dynamicDropdown?.includeLoggedInUser === false) {
+      const selfId = this.authService.getCurrentUser()?.userId?.trim();
+      if (selfId) {
+        nextOptions = filterOptionsByIncludeExclude(nextOptions, [], [selfId]);
+      }
+    }
+
+    return nextOptions;
+  }
+
+  private paginatedDropdownQuery(): {
+    dropdownName: string;
+    filterByRole?: string[];
+    employeeStatus?: string;
+  } | null {
+    const config = this.inputFieldConfig();
+    const dropdown =
+      config.selectConfig?.dynamicDropdown ??
+      config.multiSelectConfig?.dynamicDropdown ??
+      config.autocompleteConfig?.dynamicDropdown;
+    if (
+      !dropdown ||
+      !this.paginatedDropdownService.isPaginatedDropdown(dropdown.dropdownName)
+    ) {
+      return null;
+    }
+
+    const statusFilter = dropdown.employeeStatusFilter ?? [];
+    return {
+      dropdownName: dropdown.dropdownName,
+      filterByRole: dropdown.filterByRole,
+      employeeStatus: statusFilter.length === 1 ? statusFilter[0] : undefined,
+    };
+  }
+
+  private bindPaginatedDropdownFilter(): void {
+    if (this.paginatedFilterReady || !this.paginatedDropdownQuery()) {
+      return;
+    }
+    this.paginatedFilterReady = true;
+    this.paginatedFilter$
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(term => {
+        this.paginatedDropdownService.search(
+          this.paginatedDropdownSessionId,
+          term
+        );
+      });
+
+    this.paginatedAutocomplete$
+      .pipe(
+        debounceTime(300),
+        switchMap(term => {
+          const query = this.paginatedDropdownQuery();
+          if (!query) {
+            return of([] as IOptionDropdown[]);
+          }
+          return this.paginatedDropdownService.searchOnce({
+            ...query,
+            search: term,
+          });
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(options => {
+        this.autocompleteSuggestions.set(
+          this.applyEmployeeDropdownOptionRules(
+            this.applyDropdownOptionFilters(
+              this.inputFieldConfig().autocompleteConfig ?? {},
+              options
+            ),
+            this.inputFieldConfig().autocompleteConfig?.dynamicDropdown
+          )
+        );
+      });
+  }
+
+  protected isPaginatedReferenceDropdown(): boolean {
+    return this.paginatedDropdownQuery() !== null;
+  }
+
+  protected paginatedDropdownLoading(): boolean {
+    return this.paginatedDropdownService.watch(this.paginatedDropdownSessionId)
+      .loading;
+  }
+
+  onPaginatedDropdownShow(kind: 'select' | 'multi'): void {
+    if (!this.isPaginatedReferenceDropdown()) {
+      return;
+    }
+    this.paginatedDropdownService.loadFirst(this.paginatedDropdownSessionId);
+    setTimeout(() => this.bindPaginatedDropdownScroll(kind));
+  }
+
+  onPaginatedDropdownHide(): void {
+    this.paginatedScrollCleanup?.();
+    this.paginatedScrollCleanup = undefined;
+    if (!this.isPaginatedReferenceDropdown()) {
+      return;
+    }
+    this.paginatedDropdownService.resetSearch(this.paginatedDropdownSessionId);
+  }
+
+  onPaginatedDropdownFilter(event: { filter?: string | null }): void {
+    if (!this.isPaginatedReferenceDropdown()) {
+      return;
+    }
+    this.paginatedFilter$.next(event.filter ?? '');
+  }
+
+  private bindPaginatedDropdownScroll(kind: 'select' | 'multi'): void {
+    this.paginatedScrollCleanup?.();
+    const wrapper =
+      kind === 'select'
+        ? this.selectRef?.itemsWrapper
+        : this.multiSelectRef?.itemsWrapper;
+    if (!wrapper) {
+      return;
+    }
+    const onScroll = (): void => {
+      const distanceFromBottom =
+        wrapper.scrollHeight - wrapper.scrollTop - wrapper.clientHeight;
+      if (distanceFromBottom <= wrapper.clientHeight) {
+        this.paginatedDropdownService.loadMore(this.paginatedDropdownSessionId);
+      }
+    };
+    wrapper.addEventListener('scroll', onScroll, { passive: true });
+    this.paginatedScrollCleanup = () =>
+      wrapper.removeEventListener('scroll', onScroll);
+  }
+
   private getDynamicDropdownOptions(dynamicDropdown: {
     moduleName: string;
     dropdownName: string;
@@ -784,6 +970,20 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       return [];
     }
 
+    if (
+      this.paginatedDropdownService.isPaginatedDropdown(
+        dropdownConfig.dynamicDropdown?.dropdownName
+      )
+    ) {
+      const paginatedOptions = this.paginatedDropdownService.watch(
+        this.paginatedDropdownSessionId
+      ).options;
+      return this.applyEmployeeDropdownOptionRules(
+        this.applyDropdownOptionFilters(dropdownConfig, paginatedOptions),
+        dropdownConfig.dynamicDropdown
+      );
+    }
+
     const dependentConfig = dropdownConfig.dependentDropdown;
     if (dependentConfig && this.formGroup()) {
       if (
@@ -811,6 +1011,15 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     const dynamicDropdown = dropdownConfig?.dynamicDropdown;
     if (!dynamicDropdown?.dropdownName) {
       return false;
+    }
+
+    if (
+      this.paginatedDropdownService.isPaginatedDropdown(
+        dynamicDropdown.dropdownName
+      )
+    ) {
+      return this.paginatedDropdownService.watch(this.paginatedDropdownSessionId)
+        .initialLoading;
     }
 
     return (
@@ -1103,6 +1312,11 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     const config = this.inputFieldConfig().autocompleteConfig;
     if (config?.onSearch) {
       this.autocompleteSearchQuery$.next(event.query ?? '');
+      return;
+    }
+
+    if (this.paginatedDropdownQuery()) {
+      this.paginatedAutocomplete$.next(event.query ?? '');
       return;
     }
 
@@ -1827,4 +2041,18 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
     return this.fb.group(groupConfig);
   }
+}
+
+function selectedDropdownIds(value: unknown): string[] {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed ? [trimmed] : [];
+  }
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value
+    .filter((item): item is string => typeof item === 'string')
+    .map(item => item.trim())
+    .filter(Boolean);
 }
