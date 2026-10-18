@@ -192,6 +192,10 @@ export const APP_PERMISSION = {
     TABLE_VIEW: 'cron.view-list',
     RUN: 'cron.run',
   },
+  USER_DELEGATION: {
+    TABLE_VIEW: 'user-delegation.view-list',
+    MANAGE: 'user-delegation.manage',
+  },
   CONFIGURATION: {
     TABLE_VIEW: 'configuration.view-list',
     ADD: 'configuration.add',

@@ -71,8 +71,12 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
         this.loadLinkedUserVehicleDetailFromApi(empName);
         this.previousEmployeeName = empName;
       } else if (this.previousEmployeeName && !empName) {
-        this.linkedUserVehicleDetail.set(null);
         this.previousEmployeeName = null;
+        if (this.prefillFromAppConfiguration()) {
+          this.loadLinkedUserVehicleDetailFromAppConfiguration();
+        } else {
+          this.linkedUserVehicleDetail.set(null);
+        }
       }
     });
   }
@@ -168,9 +172,14 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
         },
         error: error => {
           this.linkedUserVehicleDetail.set(null);
-          this.notificationService.error(
-            this.getLinkedVehicleLoadErrorMessage(error)
-          );
+          if (
+            !(error instanceof HttpErrorResponse) ||
+            error.status !== 403
+          ) {
+            this.notificationService.error(
+              this.getLinkedVehicleLoadErrorMessage(error)
+            );
+          }
           this.logger.error('Failed to load linked user vehicle detail', error);
         },
       });

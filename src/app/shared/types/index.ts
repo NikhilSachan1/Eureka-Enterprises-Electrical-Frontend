@@ -174,6 +174,7 @@ export type {
 } from './bank-details/bank-details.interface';
 export { EBankDetailsDisplayMode } from './bank-details/bank-details.types';
 export { EDataType } from './common/data-types.type';
+export { EFilingTarget } from './filing-target/filing-target.types';
 export { EStepperOrientation } from './stepper/stepper.types';
 export type {
   IStepperConfig,

@@ -1,14 +1,17 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   OnInit,
+  viewChild,
 } from '@angular/core';
 import { APP_PERMISSION } from '@core/constants';
 import { AppPermissionService } from '@core/services';
 import { RouterNavigationService } from '@shared/services';
 import { IPageHeaderConfig } from '@shared/types';
+import { FilingTargetComponent } from '@shared/components/filing-target/filing-target.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ADD_EXPENSE_FORM_CONFIG } from '@features/expense-management/config';
@@ -33,6 +36,7 @@ import { FormBase } from '@shared/base/form.base';
     ReactiveFormsModule,
     ButtonComponent,
     PageHeaderComponent,
+    FilingTargetComponent,
   ],
   templateUrl: './add-expense.component.html',
   styleUrl: './add-expense.component.scss',
@@ -45,6 +49,7 @@ export class AddExpenseComponent
   private readonly expenseService = inject(ExpenseService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appPermissionService = inject(AppPermissionService);
+  private readonly filingTarget = viewChild(FilingTargetComponent);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
@@ -107,7 +112,10 @@ export class AddExpenseComponent
           ];
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
-        error: () => {
+        error: (error: HttpErrorResponse) => {
+          if (error?.status === 403) {
+            return;
+          }
           this.notificationService.error('Failed to add expense');
         },
       });
@@ -115,6 +123,7 @@ export class AddExpenseComponent
 
   protected onReset(): void {
     this.onResetSingleForm();
+    this.filingTarget()?.reset();
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

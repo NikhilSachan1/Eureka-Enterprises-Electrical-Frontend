@@ -2,8 +2,6 @@ import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 
 import { API_ROUTES } from '@core/constants';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
-import { AppPermissionService } from '@core/services/app-permission.service';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { EUserRole, RESTRICTED_ROLES_FOR_USER_ID } from '@shared/constants';
 
@@ -26,7 +24,6 @@ export const RolePayloadSanitizerInterceptor: HttpInterceptorFn = (
   next
 ) => {
   const authService = inject(AuthService);
-  const appPermissionService = inject(AppPermissionService);
   const activeRole = authService.user()?.activeRole ?? '';
 
   // Only sanitize if the active role is restricted
@@ -34,7 +31,7 @@ export const RolePayloadSanitizerInterceptor: HttpInterceptorFn = (
     return next(req);
   }
 
-  if (shouldAllowUserIdForRequest(req, activeRole, appPermissionService)) {
+  if (shouldAllowUserIdForRequest(req, activeRole)) {
     return next(req);
   }
 
@@ -54,39 +51,48 @@ function isRestrictedRole(role: string): boolean {
 }
 
 /**
- * A few on-behalf-of calls must keep userId:
- * - DRIVER attendance current-status (assigned engineer fields)
- * - EMPLOYEE with manual fuel or manual vehicle reading, looking up the
- *   selected employee's assigned vehicle. Add-fuel omits userId, so it
- *   still resolves to the logged-in user.
+ * DRIVER may query another user's attendance current status (assigned engineer)
+ * to load company / contractor / vehicle assignment fields.
  */
 function shouldAllowUserIdForRequest(
   req: HttpRequest<unknown>,
-  activeRole: string,
-  appPermissionService: AppPermissionService
+  activeRole: string
 ): boolean {
-  if (
+  if (isOnBehalfRequest(req)) {
+    return true;
+  }
+
+  return (
     activeRole === EUserRole.DRIVER &&
     req.method === 'GET' &&
     req.url.includes(API_ROUTES.ATTENDANCE.CURRENT_STATUS) &&
     req.params.has('userId')
-  ) {
-    return true;
-  }
-
-  const canLookupSelectedEmployeeVehicle =
-    appPermissionService.hasAnyPermission([
-      APP_PERMISSION.FUEL_EXPENSE.FORCE,
-      APP_PERMISSION.VEHICLE_READING.FORCE,
-    ]);
-
-  return (
-    activeRole === EUserRole.EMPLOYEE &&
-    req.method === 'GET' &&
-    req.url.includes(API_ROUTES.VEHICLE.GET_LINKED_USER_VEHICLE_DETAIL) &&
-    req.params.has('userId') &&
-    canLookupSelectedEmployeeVehicle
   );
+}
+
+/**
+ * Add and list calls where a delegated manager may name a colleague.
+ * userId / userIds stay on these calls so the backend can refuse anyone
+ * who was not assigned. Force, approval and credit stay stripped.
+ */
+const ON_BEHALF_ROUTES: ReadonlyArray<{ method: string; route: string }> = [
+  { method: 'POST', route: API_ROUTES.EXPENSE.ADD },
+  { method: 'GET', route: API_ROUTES.EXPENSE.LIST },
+  { method: 'POST', route: API_ROUTES.FUEL_EXPENSE.ADD },
+  { method: 'GET', route: API_ROUTES.FUEL_EXPENSE.LIST },
+  { method: 'GET', route: API_ROUTES.VEHICLE.GET_LINKED_USER_VEHICLE_DETAIL },
+];
+
+function isOnBehalfRequest(req: HttpRequest<unknown>): boolean {
+  const path = req.url.split('?')[0];
+
+  return ON_BEHALF_ROUTES.some(
+    entry => req.method === entry.method && endsWithRoute(path, entry.route)
+  );
+}
+
+function endsWithRoute(path: string, route: string): boolean {
+  return path.endsWith(`/${route}`) || path === route;
 }
 
 /**

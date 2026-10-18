@@ -18,6 +18,11 @@ import {
 } from '@shared/services';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { FuelExpenseService } from '../../services/fuel-expense.service';
+import { UserDelegationService } from '@features/settings-management/delegation-management/services/user-delegation.service';
+import {
+  applyManagedUsersToSearchFilter,
+  revealEmployeeColumnForManagedUsers,
+} from '@features/settings-management/delegation-management/utils/managed-users.util';
 import {
   EButtonActionType,
   EDataType,
@@ -79,6 +84,7 @@ export class GetFuelExpenseComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly fuelExpenseService = inject(FuelExpenseService);
+  private readonly userDelegationService = inject(UserDelegationService);
 
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -111,7 +117,7 @@ export class GetFuelExpenseComponent implements OnInit {
   }
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
-  protected searchFilterConfig!: ITableSearchFilterFormConfig;
+  protected searchFilterConfig?: ITableSearchFilterFormConfig;
   private readonly fuelExpenseStats =
     signal<IFuelExpenseGetStatsResponseDto | null>(null);
 
@@ -137,7 +143,14 @@ export class GetFuelExpenseComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       createFuelExpenseTableEnhancedConfig(loggedInUserId)
     );
-    this.searchFilterConfig = SEARCH_FILTER_FUEL_EXPENSE_FORM_CONFIG;
+    const managedUsers = this.userDelegationService.managedUsersFor('fuel');
+    this.searchFilterConfig = applyManagedUsersToSearchFilter(
+      SEARCH_FILTER_FUEL_EXPENSE_FORM_CONFIG,
+      managedUsers
+    );
+    this.table.updateHeaders(
+      revealEmployeeColumnForManagedUsers(this.table.getHeaders(), managedUsers)
+    );
   }
 
   private resolveAssignedVehicle(): void {

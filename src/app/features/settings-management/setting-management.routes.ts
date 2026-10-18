@@ -28,4 +28,11 @@ export const SETTING_MANAGEMENT_ROUTES: Routes = [
         m => m.GET_CRON_ROUTES
       ),
   },
+  {
+    path: ROUTE_BASE_PATHS.SETTINGS.DELEGATION.BASE,
+    loadChildren: () =>
+      import('./delegation-management/delegation-management.routes').then(
+        m => m.DELEGATION_MANAGEMENT_ROUTES
+      ),
+  },
 ];

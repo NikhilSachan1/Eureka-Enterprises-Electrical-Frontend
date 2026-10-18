@@ -499,6 +499,12 @@ export const appMenu: ApplicationMenu = {
                   routerLink: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
                   permission: [APP_PERMISSION.USER_PERMISSION.TABLE_VIEW],
                 },
+                {
+                  label: 'Delegation',
+                  icon: ICONS.COMMON.USERS,
+                  routerLink: `../${ROUTE_BASE_PATHS.SETTINGS.DELEGATION.BASE}/${ROUTES.SETTINGS.DELEGATION.LIST}`,
+                  permission: [APP_PERMISSION.USER_DELEGATION.TABLE_VIEW],
+                },
               ],
             },
             {

@@ -1,0 +1,35 @@
+@if (showChoices()) {
+<div class="filing-for">
+  <div
+    class="filing-for__choices"
+    role="tablist"
+    [attr.aria-label]="label()"
+  >
+    @for (option of choices(); track option.value) {
+      <button
+        type="button"
+        class="filing-for__choice"
+        [class.filing-for__choice--selected]="filingTarget() === option.value"
+        role="tab"
+        [attr.aria-selected]="filingTarget() === option.value"
+        (click)="select(option.value)"
+      >
+        <span class="filing-for__icon">
+          <i [class]="option.icon"></i>
+        </span>
+        <span class="filing-for__copy">
+          <span class="filing-for__title">{{ option.label }}</span>
+          <span class="filing-for__hint">{{ option.hint }}</span>
+        </span>
+      </button>
+    }
+  </div>
+
+  @if (filingTarget() === filingTargets.OTHER && employeeFieldView(); as field) {
+    <app-input-field
+      [formGroup]="formGroup()"
+      [inputFieldConfig]="field"
+    />
+  }
+</div>
+}

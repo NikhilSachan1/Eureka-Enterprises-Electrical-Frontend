@@ -21,6 +21,11 @@ import {
   TableService,
 } from '@shared/services';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
+import { UserDelegationService } from '@features/settings-management/delegation-management/services/user-delegation.service';
+import {
+  applyManagedUsersToSearchFilter,
+  revealEmployeeColumnForManagedUsers,
+} from '@features/settings-management/delegation-management/utils/managed-users.util';
 import {
   EButtonActionType,
   EDataType,
@@ -82,6 +87,7 @@ export class GetExpenseComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly expenseService = inject(ExpenseService);
+  private readonly userDelegationService = inject(UserDelegationService);
 
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -122,7 +128,14 @@ export class GetExpenseComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       createExpenseTableEnhancedConfig(loggedInUserId)
     );
-    this.searchFilterConfig = SEARCH_FILTER_EXPENSE_FORM_CONFIG;
+    const managedUsers = this.userDelegationService.managedUsersFor('expense');
+    this.searchFilterConfig = applyManagedUsersToSearchFilter(
+      SEARCH_FILTER_EXPENSE_FORM_CONFIG,
+      managedUsers
+    );
+    this.table.updateHeaders(
+      revealEmployeeColumnForManagedUsers(this.table.getHeaders(), managedUsers)
+    );
   }
 
   private loadExpenseList(): void {

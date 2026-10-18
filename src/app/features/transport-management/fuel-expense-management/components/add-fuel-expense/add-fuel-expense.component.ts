@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -23,13 +24,14 @@ import {
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { IPageHeaderConfig } from '@shared/types';
+import { EFilingTarget, IPageHeaderConfig } from '@shared/types';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { LinkedVehiclePetroCardComponent } from '@features/transport-management/fuel-expense-management/shared/linked-vehicle-petro-card/linked-vehicle-petro-card.component';
 import { FuelExpenseAmountFieldComponent } from '@features/transport-management/fuel-expense-management/shared/fuel-expense-amount-field/fuel-expense-amount-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ButtonComponent } from '@shared/components/button/button.component';
+import { FilingTargetComponent } from '@shared/components/filing-target/filing-target.component';
 
 @Component({
   selector: 'app-add-fuel-expense',
@@ -40,6 +42,7 @@ import { ButtonComponent } from '@shared/components/button/button.component';
     FuelExpenseAmountFieldComponent,
     ReactiveFormsModule,
     ButtonComponent,
+    FilingTargetComponent,
   ],
   templateUrl: './add-fuel-expense.component.html',
   styleUrl: './add-fuel-expense.component.scss',
@@ -52,10 +55,28 @@ export class AddFuelExpenseComponent
   private readonly fuelExpenseService = inject(FuelExpenseService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly fuelAmountField = viewChild(FuelExpenseAmountFieldComponent);
+  private readonly filingTarget = viewChild(FilingTargetComponent);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly linkedUserVehicleDetail =
     signal<ILinkedUserVehicleDetailGetResponseDto | null>(null);
+  protected readonly managedUsersResolved = signal(false);
+  protected readonly canFileForOthers = signal(false);
+  protected readonly onBehalfEmployeeId = signal<string | null>(null);
+  protected readonly filingTargets = EFilingTarget;
+  protected readonly filingFor = signal<EFilingTarget>(EFilingTarget.SELF);
+  protected readonly showLinkedVehicle = computed(
+    () =>
+      this.managedUsersResolved() &&
+      (this.filingFor() === EFilingTarget.SELF || !!this.onBehalfEmployeeId())
+  );
+  protected readonly showFuelFields = computed(() => {
+    if (this.filingFor() !== EFilingTarget.OTHER || !this.onBehalfEmployeeId()) {
+      return true;
+    }
+    const detail = this.linkedUserVehicleDetail();
+    return !!(detail?.vehicle && Object.keys(detail.vehicle).length > 0);
+  });
 
   protected readonly redirectRoute = [
     ROUTE_BASE_PATHS.TRANSPORT,
@@ -75,6 +96,13 @@ export class AddFuelExpenseComponent
     );
   }
 
+  protected onFilingTargetChange(target: EFilingTarget): void {
+    this.filingFor.set(target);
+    if (target === EFilingTarget.OTHER) {
+      this.linkedUserVehicleDetail.set(null);
+    }
+  }
+
   protected override handleSubmit(): void {
     if (!this.fuelAmountField()?.ensureCanSubmit()) {
       this.isSubmitting.set(false);
@@ -88,6 +116,7 @@ export class AddFuelExpenseComponent
     const formData = this.form.getData();
     return {
       ...formData,
+      employeeName: formData.employeeName,
       vehicleName: this.linkedUserVehicleDetail()?.vehicle?.id ?? '',
       cardName: this.linkedUserVehicleDetail()?.card?.id ?? null,
     };
@@ -121,7 +150,10 @@ export class AddFuelExpenseComponent
           ];
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
-        error: () => {
+        error: (error: HttpErrorResponse) => {
+          if (error?.status === 403) {
+            return;
+          }
           this.notificationService.error('Failed to add fuel expense');
         },
       });
@@ -129,6 +161,7 @@ export class AddFuelExpenseComponent
 
   protected onReset(): void {
     this.onResetSingleForm();
+    this.filingTarget()?.reset();
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
