@@ -42,6 +42,7 @@ export interface IPaginatedDropdownView {
   loading: boolean;
   hasMore: boolean;
   initialLoading: boolean;
+  totalRecords: number;
 }
 
 interface IPageResult {
@@ -399,6 +400,7 @@ export class PaginatedDropdownService {
         loading: false,
         hasMore: false,
         initialLoading: false,
+        totalRecords: 0,
       };
     }
 
@@ -412,6 +414,7 @@ export class PaginatedDropdownService {
       loading: catalog.loading,
       hasMore: this.hasMore(catalog),
       initialLoading: catalog.loading && options.length === 0,
+      totalRecords: catalog.totalRecords,
     };
   }
 

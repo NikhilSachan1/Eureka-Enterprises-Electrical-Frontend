@@ -823,6 +823,22 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     return this.paginatedDropdownQuery() !== null;
   }
 
+  protected dropdownFilterEnabled(
+    haveFilter: boolean | undefined,
+    loadedLength: number
+  ): boolean {
+    if (this.isPaginatedReferenceDropdown()) {
+      return (
+        this.paginatedDropdownService.watch(this.paginatedDropdownSessionId)
+          .totalRecords > this.ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH
+      );
+    }
+    return (
+      !!haveFilter &&
+      loadedLength > this.ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH
+    );
+  }
+
   protected paginatedDropdownLoading(): boolean {
     return this.paginatedDropdownService.watch(this.paginatedDropdownSessionId)
       .loading;
