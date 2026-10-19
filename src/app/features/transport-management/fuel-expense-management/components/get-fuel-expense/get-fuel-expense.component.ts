@@ -465,7 +465,7 @@ export class GetFuelExpenseComponent implements OnInit {
         ),
       },
       {
-        label: 'Odometer',
+        label: 'Car Meter Reading',
         value: selectedRow.odometerKm,
         suffix: 'km',
         type: EDataType.NUMBER,

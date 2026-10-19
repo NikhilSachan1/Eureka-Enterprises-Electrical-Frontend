@@ -45,7 +45,7 @@ const ADD_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseAd
       fieldType: EDataType.NUMBER,
       id: 'odometerReading',
       fieldName: 'odometerReading',
-      label: 'Odometer Reading',
+      label: 'Car Meter Reading',
       numberConfig: {
         mode: EInputNumberMode.Decimal,
       },

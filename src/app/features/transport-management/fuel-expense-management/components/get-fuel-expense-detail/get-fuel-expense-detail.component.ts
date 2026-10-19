@@ -137,7 +137,7 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
           value: record.transactionId,
         },
         {
-          label: 'Odometer',
+          label: 'Car Meter Reading',
           value: record.odometerKm,
           suffix: 'km',
           type: EDataType.NUMBER,
