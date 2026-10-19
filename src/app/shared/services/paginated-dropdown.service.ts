@@ -4,6 +4,7 @@ import { CONFIGURATION_KEYS } from '@shared/constants';
 import { IOptionDropdown } from '@shared/types';
 import {
   catchError,
+  finalize,
   forkJoin,
   from,
   map,
@@ -54,6 +55,14 @@ interface ISession {
   filterByRole: string[];
   employeeStatus?: string;
   pinnedIds: string[];
+}
+
+interface ICatalog {
+  key: string;
+  dropdownName: string;
+  search: string;
+  filterByRole: string[];
+  employeeStatus?: string;
   pageOptions: IOptionDropdown[];
   loadedPage: number;
   totalRecords: number;
@@ -77,6 +86,8 @@ export class PaginatedDropdownService {
   private readonly injector = inject(Injector);
   private readonly stateTick = signal(0);
   private readonly sessions = new Map<string, ISession>();
+  private readonly catalogs = new Map<string, ICatalog>();
+  private readonly inFlightPages = new Map<string, Observable<IPageResult>>();
   private readonly records = new Map<string, Map<string, IOptionDropdown>>();
   private readonly failedIds = new Set<string>();
   private readonly inFlightDetails = new Map<
@@ -114,34 +125,29 @@ export class PaginatedDropdownService {
       session.filterByRole = [...(query.filterByRole ?? [])];
       session.employeeStatus = query.employeeStatus;
       session.search = '';
-      session.pageOptions = [];
-      session.loadedPage = 0;
-      session.totalRecords = 0;
-      session.generation += 1;
     }
 
     session.pinnedIds = selectedIds.filter(id => UUID_PATTERN.test(id));
     this.publish();
     this.ensurePinned(session);
-    if (session.loadedPage === 0 && !session.loading) {
-      this.loadPage(sessionId, 1, true);
-    }
+    this.ensureFirstPage(session);
   }
 
   loadFirst(sessionId: string): void {
     const session = this.sessions.get(sessionId);
-    if (!session || session.loading || session.loadedPage > 0) {
+    if (!session) {
       return;
     }
-    this.loadPage(sessionId, 1, true);
+    this.ensureFirstPage(session);
   }
 
   loadMore(sessionId: string): void {
     const session = this.sessions.get(sessionId);
-    if (!session || session.loading || !this.view(sessionId).hasMore) {
+    const catalog = session ? this.catalogFor(session) : undefined;
+    if (!session || !catalog || catalog.loading || !this.hasMore(catalog)) {
       return;
     }
-    this.loadPage(sessionId, session.loadedPage + 1, false);
+    this.loadPage(catalog, catalog.loadedPage + 1, false);
   }
 
   search(sessionId: string, term: string): void {
@@ -150,16 +156,16 @@ export class PaginatedDropdownService {
       return;
     }
     const nextSearch = term.trim();
-    if (nextSearch === session.search && session.loadedPage > 0) {
+    if (nextSearch === session.search && this.catalogFor(session)?.loadedPage) {
       return;
     }
     session.search = nextSearch;
-    session.pageOptions = [];
-    session.loadedPage = 0;
-    session.totalRecords = 0;
-    session.generation += 1;
-    session.loading = false;
-    this.loadPage(sessionId, 1, true);
+    const catalog = this.ensureCatalog(session);
+    if (catalog.loadedPage > 0 || catalog.loading) {
+      this.publish();
+      return;
+    }
+    this.loadPage(catalog, 1, true);
   }
 
   resetSearch(sessionId: string): void {
@@ -168,11 +174,6 @@ export class PaginatedDropdownService {
       return;
     }
     session.search = '';
-    session.pageOptions = [];
-    session.loadedPage = 0;
-    session.totalRecords = 0;
-    session.generation += 1;
-    session.loading = false;
     this.publish();
   }
 
@@ -188,19 +189,34 @@ export class PaginatedDropdownService {
         this.failedIds.delete(key);
       }
     }
-    this.inFlightDetails.clear();
+    for (const key of [...this.inFlightDetails.keys()]) {
+      if (key.startsWith(`${dropdownName}:`)) {
+        this.inFlightDetails.delete(key);
+      }
+    }
+    for (const catalog of this.catalogs.values()) {
+      if (catalog.dropdownName !== dropdownName) {
+        continue;
+      }
+      catalog.generation += 1;
+      catalog.pageOptions = [];
+      catalog.loadedPage = 0;
+      catalog.totalRecords = 0;
+      catalog.loading = false;
+    }
+    this.referenceListSink?.clear(dropdownName);
+    const liveCatalogs = new Map<string, ICatalog>();
     for (const session of this.sessions.values()) {
       if (session.dropdownName !== dropdownName) {
         continue;
       }
-      session.pageOptions = [];
-      session.loadedPage = 0;
-      session.totalRecords = 0;
-      session.loading = false;
-      session.generation += 1;
+      const catalog = this.ensureCatalog(session);
+      liveCatalogs.set(catalog.key, catalog);
     }
-    this.referenceListSink?.clear(dropdownName);
     this.publish();
+    for (const catalog of liveCatalogs.values()) {
+      this.loadPage(catalog, 1, true);
+    }
   }
 
   invalidateAll(): void {
@@ -212,14 +228,24 @@ export class PaginatedDropdownService {
   searchOnce(
     query: IPaginatedDropdownQuery
   ): Observable<IOptionDropdown[]> {
-    return this.fetchPage(query.dropdownName, {
-      page: 1,
-      pageSize: APP_CONFIG.DROPDOWN_CONFIG.PAGINATED_PAGE_SIZE,
-      search: query.search?.trim() || undefined,
-      filterByRole: query.filterByRole,
+    const catalog = this.ensureCatalog({
+      dropdownName: query.dropdownName,
+      search: query.search?.trim() ?? '',
+      filterByRole: [...(query.filterByRole ?? [])],
       employeeStatus: query.employeeStatus,
-    }).pipe(
-      tap(result => this.remember(query.dropdownName, result.options)),
+      pinnedIds: [],
+    });
+    if (catalog.loadedPage > 0) {
+      return of(catalog.pageOptions);
+    }
+    if (!catalog.loading) {
+      this.loadPage(catalog, 1, true);
+    }
+    const inFlight = this.inFlightPages.get(this.pageFlightKey(catalog, 1));
+    if (!inFlight) {
+      return of(catalog.pageOptions);
+    }
+    return inFlight.pipe(
       map(result => result.options),
       catchError(() => of([]))
     );
@@ -239,14 +265,54 @@ export class PaginatedDropdownService {
       filterByRole: [...(query.filterByRole ?? [])],
       employeeStatus: query.employeeStatus,
       pinnedIds: [],
+    };
+    this.sessions.set(sessionId, session);
+    return session;
+  }
+
+  private ensureFirstPage(session: ISession): void {
+    const catalog = this.ensureCatalog(session);
+    if (catalog.loadedPage === 0 && !catalog.loading) {
+      this.loadPage(catalog, 1, true);
+    }
+  }
+
+  private catalogFor(session: ISession): ICatalog | undefined {
+    return this.catalogs.get(catalogKey(session));
+  }
+
+  private ensureCatalog(session: ISession): ICatalog {
+    const key = catalogKey(session);
+    const existing = this.catalogs.get(key);
+    if (existing) {
+      return existing;
+    }
+    const catalog: ICatalog = {
+      key,
+      dropdownName: session.dropdownName,
+      search: session.search,
+      filterByRole: [...session.filterByRole],
+      employeeStatus: session.employeeStatus,
       pageOptions: [],
       loadedPage: 0,
       totalRecords: 0,
       loading: false,
       generation: 0,
     };
-    this.sessions.set(sessionId, session);
-    return session;
+    this.catalogs.set(key, catalog);
+    return catalog;
+  }
+
+  private hasMore(catalog: ICatalog): boolean {
+    return (
+      catalog.loadedPage > 0 &&
+      catalog.loadedPage * APP_CONFIG.DROPDOWN_CONFIG.PAGINATED_PAGE_SIZE <
+        catalog.totalRecords
+    );
+  }
+
+  private pageFlightKey(catalog: ICatalog, page: number): string {
+    return `${catalog.key}:${page}:${catalog.generation}`;
   }
 
   private ensurePinned(session: ISession): void {
@@ -272,26 +338,35 @@ export class PaginatedDropdownService {
     });
   }
 
-  private loadPage(sessionId: string, page: number, replace: boolean): void {
-    const session = this.sessions.get(sessionId);
-    if (!session || session.loading) {
+  private loadPage(catalog: ICatalog, page: number, replace: boolean): void {
+    if (catalog.loading || (!replace && catalog.loadedPage >= page)) {
       return;
     }
 
-    session.loading = true;
-    const generation = session.generation;
-    const dropdownName = session.dropdownName;
+    catalog.loading = true;
+    const generation = catalog.generation;
+    const dropdownName = catalog.dropdownName;
     this.publish();
 
-    this.fetchPage(dropdownName, {
-      page,
-      pageSize: APP_CONFIG.DROPDOWN_CONFIG.PAGINATED_PAGE_SIZE,
-      search: session.search || undefined,
-      filterByRole: session.filterByRole,
-      employeeStatus: session.employeeStatus,
-    }).subscribe({
+    const flightKey = this.pageFlightKey(catalog, page);
+    let request$ = this.inFlightPages.get(flightKey);
+    if (!request$) {
+      request$ = this.fetchPage(dropdownName, {
+        page,
+        pageSize: APP_CONFIG.DROPDOWN_CONFIG.PAGINATED_PAGE_SIZE,
+        search: catalog.search || undefined,
+        filterByRole: catalog.filterByRole,
+        employeeStatus: catalog.employeeStatus,
+      }).pipe(
+        finalize(() => this.inFlightPages.delete(flightKey)),
+        shareReplay(1)
+      );
+      this.inFlightPages.set(flightKey, request$);
+    }
+
+    request$.subscribe({
       next: result => {
-        const current = this.sessions.get(sessionId);
+        const current = this.catalogs.get(catalog.key);
         if (!current || current.generation !== generation) {
           return;
         }
@@ -305,7 +380,7 @@ export class PaginatedDropdownService {
         this.publish();
       },
       error: () => {
-        const current = this.sessions.get(sessionId);
+        const current = this.catalogs.get(catalog.key);
         if (!current || current.generation !== generation) {
           return;
         }
@@ -317,7 +392,8 @@ export class PaginatedDropdownService {
 
   private view(sessionId: string): IPaginatedDropdownView {
     const session = this.sessions.get(sessionId);
-    if (!session) {
+    const catalog = session ? this.catalogFor(session) : undefined;
+    if (!session || !catalog) {
       return {
         options: [],
         loading: false,
@@ -329,18 +405,13 @@ export class PaginatedDropdownService {
     const pinned = session.pinnedIds
       .map(id => this.records.get(session.dropdownName)?.get(id))
       .filter((option): option is IOptionDropdown => !!option);
-    const options = mergeOptions(pinned, session.pageOptions);
-    const hasMore =
-      session.loadedPage > 0 &&
-      session.loadedPage * APP_CONFIG.DROPDOWN_CONFIG.PAGINATED_PAGE_SIZE <
-      session.totalRecords;
+    const options = mergeOptions(pinned, catalog.pageOptions);
 
     return {
       options,
-      loading: session.loading,
-      hasMore,
-      initialLoading:
-        session.loading && options.length === 0,
+      loading: catalog.loading,
+      hasMore: this.hasMore(catalog),
+      initialLoading: catalog.loading && options.length === 0,
     };
   }
 
@@ -661,4 +732,18 @@ function sameStrings(left: string[], right: string[]): boolean {
     left.length === right.length &&
     left.every((value, index) => value === right[index])
   );
+}
+
+function catalogKey(query: {
+  dropdownName: string;
+  search: string;
+  filterByRole: string[];
+  employeeStatus?: string;
+}): string {
+  return [
+    query.dropdownName,
+    query.employeeStatus ?? '',
+    [...query.filterByRole].sort().join('\u0001'),
+    query.search,
+  ].join('\u0002');
 }
