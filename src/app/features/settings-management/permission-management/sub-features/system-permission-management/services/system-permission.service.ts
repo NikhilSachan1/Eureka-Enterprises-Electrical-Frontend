@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { catchError, map, Observable, tap, throwError } from 'rxjs';
+import { catchError, map, Observable, switchMap, tap, throwError } from 'rxjs';
 import { ApiService, LoggerService } from '@core/services';
 import {
   ISystemPermissionAddFormDto,
@@ -185,8 +185,13 @@ export class SystemPermissionService {
   getSystemPermissionModuleWise(): Observable<IModulePermission[]> {
     this.logger.logUserAction('Get System Permission Module Wise Request');
 
-    return this.getSystemPermissionList().pipe(
-      map((response: ISystemPermissionGetResponseDto) => {
+    return this.appConfigurationService
+      .afterTouchedConfiguration(() => {
+        this.appConfigurationService.moduleNames();
+      })
+      .pipe(
+        switchMap(() => this.getSystemPermissionList()),
+        map((response: ISystemPermissionGetResponseDto) => {
         const moduleNames = this.appConfigurationService.moduleNames();
 
         const normalizeModuleKey = (value: string): string =>
