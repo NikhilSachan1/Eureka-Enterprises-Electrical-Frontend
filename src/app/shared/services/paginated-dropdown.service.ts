@@ -408,13 +408,24 @@ export class PaginatedDropdownService {
       .map(id => this.records.get(session.dropdownName)?.get(id))
       .filter((option): option is IOptionDropdown => !!option);
     const options = mergeOptions(pinned, catalog.pageOptions);
+    const listCatalog =
+      session.search === ''
+        ? catalog
+        : (this.catalogs.get(
+            catalogKey({
+              dropdownName: session.dropdownName,
+              search: '',
+              filterByRole: session.filterByRole,
+              employeeStatus: session.employeeStatus,
+            })
+          ) ?? catalog);
 
     return {
       options,
       loading: catalog.loading,
       hasMore: this.hasMore(catalog),
       initialLoading: catalog.loading && options.length === 0,
-      totalRecords: catalog.totalRecords,
+      totalRecords: listCatalog.totalRecords,
     };
   }
 
