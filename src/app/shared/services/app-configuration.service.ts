@@ -113,6 +113,12 @@ export class AppConfigurationService {
   private readonly loadedConfigurationKeys = new Set<string>();
   private readonly failedConfigurationKeys = new Set<string>();
   private readonly configurationKeyLoadScheduled = new Set<string>();
+  private readonly pendingConfigurationKeys = new Set<string>();
+  private configurationBatchScheduled = false;
+  private readonly configurationKeyEmitters = new Map<
+    string,
+    ReplaySubject<IConfigurationGetResponseDto>
+  >();
   /** Configuration keys touched while probing a one-shot table/detail mapper. */
   private configurationKeyCapture: Set<string> | null = null;
   private employeeListCache$?: Observable<IEmployeeGetResponseDto>;
@@ -1330,75 +1336,138 @@ export class AppConfigurationService {
       return existing;
     }
 
-    const request$ = this.fetchConfigurationKey(configurationKey).pipe(
-      tap(response => {
-        this.applyConfigurationKey(configurationKey, response);
-        this.loadedConfigurationKeys.add(configurationKey);
-      }),
-      catchError(error => {
-        this.configurationKeyCaches.delete(configurationKey);
-        this.failedConfigurationKeys.add(configurationKey);
-        this.applyConfigurationKey(configurationKey, {
-          records: [],
-          totalRecords: 0,
-        });
-        this.logger.logUserAction(
-          `Failed to load configuration key: ${configurationKey}`,
-          error
-        );
-        return throwError(() => error);
-      }),
-      this.shareAppDataCache()
-    );
+    const emitter = new ReplaySubject<IConfigurationGetResponseDto>(1);
+    this.configurationKeyEmitters.set(configurationKey, emitter);
+    this.configurationKeyLoadScheduled.add(configurationKey);
+    this.pendingConfigurationKeys.add(configurationKey);
+    this.scheduleConfigurationBatch();
 
+    const request$ = emitter.asObservable();
     this.configurationKeyCaches.set(configurationKey, request$);
     return request$;
   }
 
-  private fetchConfigurationKey(
-    configurationKey: string
+  private scheduleConfigurationBatch(): void {
+    if (this.configurationBatchScheduled) {
+      return;
+    }
+    this.configurationBatchScheduled = true;
+    queueMicrotask(() => {
+      this.configurationBatchScheduled = false;
+      const configurationKeys = [...this.pendingConfigurationKeys];
+      this.pendingConfigurationKeys.clear();
+      if (configurationKeys.length === 0) {
+        return;
+      }
+
+      this.fetchConfigurationKeys(configurationKeys).subscribe({
+        next: response =>
+          this.publishConfigurationBatch(configurationKeys, response),
+        error: error => {
+          for (const configurationKey of configurationKeys) {
+            this.configurationKeyCaches.delete(configurationKey);
+            this.configurationKeyLoadScheduled.delete(configurationKey);
+            this.failedConfigurationKeys.add(configurationKey);
+            this.applyConfigurationKey(configurationKey, {
+              records: [],
+              totalRecords: 0,
+            });
+            this.logger.logUserAction(
+              `Failed to load configuration key: ${configurationKey}`,
+              error
+            );
+            const emitter = this.configurationKeyEmitters.get(configurationKey);
+            this.configurationKeyEmitters.delete(configurationKey);
+            emitter?.error(error);
+          }
+        },
+      });
+    });
+  }
+
+  private publishConfigurationBatch(
+    configurationKeys: string[],
+    response: IConfigurationGetResponseDto
+  ): void {
+    const recordsByKey = new Map<
+      string,
+      IConfigurationGetResponseDto['records']
+    >();
+    for (const record of response.records) {
+      const records = recordsByKey.get(record.key) ?? [];
+      records.push(record);
+      recordsByKey.set(record.key, records);
+    }
+
+    for (const configurationKey of configurationKeys) {
+      const records = recordsByKey.get(configurationKey) ?? [];
+      const emitter = this.configurationKeyEmitters.get(configurationKey);
+      this.configurationKeyEmitters.delete(configurationKey);
+      this.configurationKeyLoadScheduled.delete(configurationKey);
+      this.applyConfigurationKey(configurationKey, {
+        records,
+        totalRecords: records.length,
+      });
+      this.loadedConfigurationKeys.add(configurationKey);
+      emitter?.next({ records, totalRecords: records.length });
+      emitter?.complete();
+    }
+  }
+
+  private fetchConfigurationKeys(
+    configurationKeys: string[]
   ): Observable<IConfigurationGetResponseDto> {
-    this.logger.logUserAction('Load configuration key', { configurationKey });
+    this.logger.logUserAction('Load configuration keys', {
+      configurationKeys,
+    });
 
     const pageSize = AppConfigurationService.CONFIGURATION_KEY_PAGE_SIZE;
     const listPayload = {
       pageSize,
-      key: configurationKey,
+      key: configurationKeys,
       sortField: 'createdAt' as const,
       sortOrder: 'DESC' as const,
     };
-
-    return this.withDropdownLoading(
-      this.configurationLoadingKey(configurationKey),
-      this.configurationService
-        .getConfigurationList({
-          ...listPayload,
-          page: 1,
-        })
-        .pipe(
-          switchMap(firstPage => {
-            if (firstPage.totalRecords <= firstPage.records.length) {
-              return of(firstPage);
-            }
-
-            const pageCount = Math.ceil(firstPage.totalRecords / pageSize);
-            const remainingPages = Array.from(
-              { length: pageCount - 1 },
-              (_, index) =>
-                this.configurationService.getConfigurationList({
-                  ...listPayload,
-                  page: index + 2,
-                })
-            );
-
-            return forkJoin(remainingPages).pipe(
-              map(pages =>
-                this.mergeConfigurationListPages([firstPage, ...pages])
-              )
-            );
-          })
-        )
+    configurationKeys.forEach(configurationKey =>
+      this.setDropdownLoading(this.configurationLoadingKey(configurationKey), true)
     );
+
+    return this.configurationService
+      .getConfigurationList({
+        ...listPayload,
+        page: 1,
+      })
+      .pipe(
+        switchMap(firstPage => {
+          if (firstPage.totalRecords <= firstPage.records.length) {
+            return of(firstPage);
+          }
+
+          const pageCount = Math.ceil(firstPage.totalRecords / pageSize);
+          const remainingPages = Array.from(
+            { length: pageCount - 1 },
+            (_, index) =>
+              this.configurationService.getConfigurationList({
+                ...listPayload,
+                page: index + 2,
+              })
+          );
+
+          return forkJoin(remainingPages).pipe(
+            map(pages =>
+              this.mergeConfigurationListPages([firstPage, ...pages])
+            )
+          );
+        }),
+        finalize(() => {
+          configurationKeys.forEach(configurationKey =>
+            this.setDropdownLoading(
+              this.configurationLoadingKey(configurationKey),
+              false
+            )
+          );
+        })
+      );
   }
 
   private applyConfigurationKey(
