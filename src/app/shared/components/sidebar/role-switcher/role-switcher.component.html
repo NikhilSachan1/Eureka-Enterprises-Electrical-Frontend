@@ -1,39 +1,25 @@
 <!-- Only show if user has multiple roles -->
 @if (hasMultipleRoles()) {
-  @if (isSidebarCollapsed()) {
-    <!-- Collapsed Sidebar - Only Icon (clickable) -->
-    <button
-      type="button"
-      class="role-btn-compact"
-      [disabled]="isSubmitting()"
-      (click)="togglePopover($event)"
-      [attr.aria-label]="`Switch Role: ${activeRole().name}`"
-    >
-      <div class="role-icon-compact">
-        <i [class]="ALL_ICONS.COMMON.ID_CARD"></i>
-      </div>
-    </button>
-  } @else {
-    <!-- Expanded Sidebar - Full Role Switcher Button -->
-    <button
-      type="button"
-      class="role-btn"
-      [disabled]="isSubmitting()"
-      (click)="togglePopover($event)"
-    >
-      <div class="role-icon">
-        <i [class]="ALL_ICONS.COMMON.ID_CARD"></i>
-      </div>
-      <div class="role-info">
-        <span class="role-label">Current Role</span>
-        <span class="role-name">{{ activeRole().name }}</span>
-      </div>
+  <button
+    type="button"
+    class="role-chip"
+    [class.role-chip--collapsed]="isSidebarCollapsed()"
+    [disabled]="isSubmitting()"
+    (click)="togglePopover($event)"
+    [attr.aria-label]="`Switch Role: ${activeRole().name}`"
+    [attr.title]="activeRole().name"
+  >
+    <span class="role-chip__icon">
+      <i [class]="ALL_ICONS.COMMON.ID_CARD"></i>
+    </span>
+    @if (!isSidebarCollapsed()) {
+      <span class="role-chip__name">{{ activeRole().name }}</span>
       <i
-        [class]="ALL_ICONS.COMMON.SYNC + ' switch-icon'"
+        [class]="ALL_ICONS.COMMON.SYNC + ' role-chip__sync'"
         [class.spinning]="isSubmitting()"
       ></i>
-    </button>
-  }
+    }
+  </button>
 
   <!-- Role Selection Popover -->
   <p-popover
@@ -43,13 +29,11 @@
     [appendTo]="'body'"
   >
     <div class="role-menu">
-      <!-- Header -->
       <div class="role-menu-header">
         <i [class]="ALL_ICONS.COMMON.USERS"></i>
         <span>Switch Role</span>
       </div>
 
-      <!-- Role Cards -->
       <div class="role-list">
         @for (role of roles(); track role.id) {
           @let isActive = role.id === activeRole().id;
@@ -60,15 +44,10 @@
             [disabled]="isSubmitting()"
             (click)="selectRole(role)"
           >
-            <!-- Role Icon -->
             <div class="role-card-icon">
               <i [class]="ALL_ICONS.COMMON.ID_CARD"></i>
             </div>
-
-            <!-- Role Name -->
             <span class="role-card-name">{{ role.name }}</span>
-
-            <!-- Selection Indicator -->
             <div class="selection-indicator">
               @if (isActive) {
                 <div class="selected-circle">

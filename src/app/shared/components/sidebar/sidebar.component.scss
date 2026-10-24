@@ -21,7 +21,7 @@
   // Layout variables
   --sidebar-width: 300px;
   --sidebar-collapsed-width: 70px; // Icon-only width for desktop collapsed state
-  --header-height: 70px;
+  --header-height: 3.25rem;
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -78,10 +78,8 @@
     flex-shrink: 0;
   }
 
-  // User Profile - Top (centered)
-  app-sidebar-user-profile:first-of-type {
+  app-sidebar-user-profile {
     flex-shrink: 0;
-    border-bottom: 1px solid var(--sidebar-border-color);
   }
 
   // Scrollable content area – same light bg taaki scroll karte waqt white na dikhe
@@ -116,34 +114,9 @@
     flex: 1;
   }
 
-  // User Profile - Bottom (compact)
-  app-sidebar-user-profile:last-of-type {
-    flex-shrink: 0;
-    margin-top: auto;
-  }
-
-  app-role-switcher {
-    flex-shrink: 0;
-  }
-
   // Desktop collapsed state - hide content, show only icons
   &--collapsed {
     @media (min-width: 769px) {
-      // Hide top profile only
-      app-sidebar-user-profile:first-of-type {
-        display: none;
-      }
-
-      // Show bottom profile but only avatar (handled in component)
-      app-sidebar-user-profile:last-of-type {
-        display: block;
-      }
-
-      // Role switcher shows compact version (handled in component)
-      app-role-switcher {
-        display: block;
-      }
-
       // Show only menu icons in collapsed state
       .sidebar-content {
         padding: 0.5rem;

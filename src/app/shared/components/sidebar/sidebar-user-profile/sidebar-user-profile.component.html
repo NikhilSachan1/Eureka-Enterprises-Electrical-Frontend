@@ -1,79 +1,97 @@
-<!-- User Profile Section -->
-<div
-  class="user-section"
-  [class.compact]="compact()"
->
-  <!-- User Card -->
-  <div
-    class="user-card"
-    [class.compact]="compact()"
-  >
-    @if (!compact()) {
-      <!-- Top Section - Centered with Avatar and Info -->
-      <!-- Avatar - Center -->
+<div class="user-section">
+  @if (isSidebarCollapsed()) {
+    <button
+      type="button"
+      class="user-trigger user-trigger--collapsed"
+      (click)="toggleUserOptions($event)"
+      [attr.aria-expanded]="menuOpen()"
+      [attr.aria-label]="'Account menu for ' + (user()?.fullName || 'user')"
+    >
+      <img
+        [src]="userAvatar()"
+        [alt]="user()?.fullName"
+        class="user-avatar user-avatar--sm"
+        loading="lazy"
+      />
+    </button>
+  } @else {
+    <button
+      type="button"
+      class="user-trigger"
+      [class.user-trigger--open]="menuOpen()"
+      (click)="toggleUserOptions($event)"
+      [attr.aria-expanded]="menuOpen()"
+      [attr.aria-haspopup]="true"
+      [attr.aria-label]="'Account menu for ' + (user()?.fullName || 'user')"
+    >
       <img
         [src]="userAvatar()"
         [alt]="user()?.fullName"
         class="user-avatar"
         loading="lazy"
       />
-
-      <!-- User Info - Below Avatar -->
-      <div class="user-info">
-        <span class="user-name">{{ user()?.fullName }}</span>
-        @if (userDesignation()) {
-          <span class="user-role">{{ userDesignation() }}</span>
-        }
-      </div>
-    } @else {
-      <!-- Bottom Section -->
-      @if (isSidebarCollapsed()) {
-        <!-- Collapsed Sidebar - Only Avatar (clickable) -->
-        <img
-          [src]="userAvatar()"
-          [alt]="user()?.fullName"
-          class="user-avatar user-avatar-compact"
-          (click)="toggleUserOptions($event)"
-          (keydown.enter)="toggleUserOptions($event)"
-          tabindex="0"
-          role="button"
-          loading="lazy"
-        />
-      } @else {
-        <!-- Expanded Sidebar - Avatar + Name + Role -->
-        <img
-          [src]="userAvatar()"
-          [alt]="user()?.fullName"
-          class="user-avatar"
-          loading="lazy"
-        />
-        <div class="user-info">
-          <span class="user-name">{{ user()?.fullName }}</span>
-          @if (userDesignation()) {
-            <span class="user-role">{{ userDesignation() }}</span>
-          }
-        </div>
-        <button
-          type="button"
-          class="user-menu-btn"
-          (click)="toggleUserOptions($event)"
-          (keydown.enter)="toggleUserOptions($event)"
-          tabindex="0"
-        >
-          <i [class]="ICONS.COMMON.ELLIPSIS_V"></i>
-        </button>
+      <span class="user-name">{{ user()?.fullName }}</span>
+      @if (userDesignation()) {
+        <span class="user-designation">{{ userDesignation() }}</span>
       }
-    }
-  </div>
+      @if (activeRoleName()) {
+        <span class="user-role">{{ activeRoleName() }}</span>
+      }
+      <span class="user-hint">
+        Account
+        <i [ngClass]="ICONS.COMMON.CHEVRON_DOWN" aria-hidden="true"></i>
+      </span>
+    </button>
+  }
 
-  <!-- User Menu Popover -->
   <p-popover
     #userPopover
     [styleClass]="sidebarFooterPopoverClass"
     [dismissable]="true"
     [appendTo]="'body'"
+    (onShow)="onMenuShow()"
+    (onHide)="onMenuHide()"
   >
     <div class="user-menu">
+      <div class="user-menu-header">
+        <img
+          [src]="userAvatar()"
+          [alt]="user()?.fullName"
+          class="user-menu-header__avatar"
+          loading="lazy"
+        />
+        <div class="user-menu-header__info">
+          <span class="user-menu-header__name">{{ user()?.fullName }}</span>
+          @if (userDesignation()) {
+            <span class="user-menu-header__meta">{{ userDesignation() }}</span>
+          }
+        </div>
+      </div>
+
+      @if (hasMultipleRoles()) {
+        <div class="menu-section-label">Switch role</div>
+        @for (role of roles(); track role.id) {
+          @let isActive = role.id === activeRoleId();
+          <button
+            type="button"
+            class="menu-item"
+            [class.menu-item--active]="isActive"
+            [disabled]="isSubmitting()"
+            (click)="selectRole(role)"
+          >
+            <i [class]="ICONS.COMMON.ID_CARD"></i>
+            <span>{{ role.name }}</span>
+            @if (isActive) {
+              <i
+                class="menu-item__check"
+                [class]="ICONS.COMMON.CHECK_TICK"
+              ></i>
+            }
+          </button>
+        }
+        <div class="menu-divider"></div>
+      }
+
       @for (option of primaryOptions; track option.id) {
         <button
           type="button"

@@ -5,13 +5,12 @@ import {
   output,
 } from '@angular/core';
 import { ButtonComponent } from '@shared/components/button/button.component';
-import { AppVersionComponent } from '@shared/components/app-version/app-version.component';
 import { EButtonSize, IButtonConfig } from '@shared/types';
 
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
-  imports: [ButtonComponent, AppVersionComponent],
+  imports: [ButtonComponent],
   templateUrl: './auth-layout.component.html',
   styleUrls: ['./auth-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
