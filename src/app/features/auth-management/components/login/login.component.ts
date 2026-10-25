@@ -196,7 +196,10 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
     this.appConfigurationService
       .loadCriticalAppData()
       .pipe(
-        switchMap(() => {
+        // Start root-scoped polls BEFORE navigate. Navigating away destroys
+        // LoginComponent; takeUntilDestroyed would cancel a post-navigate tap
+        // and leave bell/announcement polling never started until hard refresh.
+        tap(() => {
           this.criticalStartupState.clearCriticalLoadFailure();
           if (selectedRoleName) {
             this.notificationService.success(
@@ -205,19 +208,17 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
               )
             );
           }
-          return from(this.navigateAfterLoginAsync());
-        }),
-        tap(() => {
           this.announcementService.startPeriodicUnacknowledgedCheck({
             dialogOpenDelayMs: POST_LOGIN_ANNOUNCEMENT_DIALOG_DELAY_MS,
           });
           this.notificationInboxService.startUnreadPolling();
         }),
+        switchMap(() => from(this.navigateAfterLoginAsync())),
+        take(1),
         finalize(() => {
           this.loadingService.hide();
           this.clearPendingLoginData();
-        }),
-        takeUntilDestroyed(this.destroyRef)
+        })
       )
       .subscribe({
         error: error => {
