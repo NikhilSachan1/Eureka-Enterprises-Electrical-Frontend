@@ -106,9 +106,14 @@ export class ConfirmationDialogComponent {
       } else {
         this.confirmationDialogService.closeDialog();
       }
-    } else {
-      this.confirmationDialogService.closeDialog();
+      return;
     }
+
+    const onAccept = this.currentDialogConfig().onAccept;
+    if (onAccept) {
+      await onAccept();
+    }
+    this.confirmationDialogService.closeDialog();
   }
 
   private async handleReject(): Promise<void> {
@@ -120,9 +125,14 @@ export class ConfirmationDialogComponent {
       } else {
         this.confirmationDialogService.closeDialog();
       }
-    } else {
-      this.confirmationDialogService.closeDialog();
+      return;
     }
+
+    const onReject = this.currentDialogConfig().onReject;
+    if (onReject) {
+      await onReject();
+    }
+    this.confirmationDialogService.closeDialog();
   }
 
   private loadDynamicComponent(config: IDialogActionConfig): void {

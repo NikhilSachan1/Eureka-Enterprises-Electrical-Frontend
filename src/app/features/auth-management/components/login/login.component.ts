@@ -29,6 +29,7 @@ import {
   AnnouncementService,
   POST_LOGIN_ANNOUNCEMENT_DIALOG_DELAY_MS,
 } from '@features/announcement-management/services/announcement.service';
+import { NotificationInboxService } from '@features/notification-management/services/notification-inbox.service';
 import { ILoginFormDto, ILoginResponseDto } from '../../types/auth.dto';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { FormBase } from '@shared/base/form.base';
@@ -54,6 +55,7 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly criticalStartupState = inject(CriticalStartupStateService);
   private readonly announcementService = inject(AnnouncementService);
+  private readonly notificationInboxService = inject(NotificationInboxService);
 
   // Role selection state
   protected readonly showRoleSelection = signal(false);
@@ -209,6 +211,7 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
           this.announcementService.startPeriodicUnacknowledgedCheck({
             dialogOpenDelayMs: POST_LOGIN_ANNOUNCEMENT_DIALOG_DELAY_MS,
           });
+          this.notificationInboxService.startUnreadPolling();
         }),
         finalize(() => {
           this.loadingService.hide();

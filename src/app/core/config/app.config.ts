@@ -128,4 +128,11 @@ export const APP_CONFIG = {
   ANNOUNCEMENT_CONFIG: {
     UNACKNOWLEDGED_CHECK_INTERVAL_MS: 35 * 60 * 1000, // 35 minutes
   },
+
+  // In-app notification bell (web list + badge; no push)
+  BELL_NOTIFICATION_CONFIG: {
+    UNREAD_POLL_INTERVAL_MS: 60 * 1000, // 60 seconds — silent all+unread refresh
+    /** Fetched once at bootstrap for both tabs; popover never re-fetches. */
+    DROPDOWN_PAGE_SIZE: 50,
+  },
 };

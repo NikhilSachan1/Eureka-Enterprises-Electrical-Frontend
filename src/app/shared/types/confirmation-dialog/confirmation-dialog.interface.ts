@@ -37,4 +37,7 @@ export interface IDialogActionConfig {
   detailViewCustomTemplates?: Record<string, TemplateRef<unknown>>;
   dynamicComponent?: Type<unknown>;
   dynamicComponentInputs?: Record<string, unknown>;
+  /** Used when there is no `dynamicComponent` (simple confirm / alert). */
+  onAccept?: () => void | Promise<void>;
+  onReject?: () => void | Promise<void>;
 }

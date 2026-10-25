@@ -40,6 +40,7 @@ import {
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { AnnouncementService } from '@features/announcement-management/services/announcement.service';
+import { NotificationInboxService } from '@features/notification-management/services/notification-inbox.service';
 import { AppConfigurationService } from '@shared/services';
 import { lastValueFrom, take } from 'rxjs';
 import { FinancialYearService } from '@core/services/financial-year.service';
@@ -103,6 +104,7 @@ export const appConfig: ApplicationConfig = {
       const financialYearService = inject(FinancialYearService);
       const appConfigurationService = inject(AppConfigurationService);
       const announcementService = inject(AnnouncementService);
+      const notificationInboxService = inject(NotificationInboxService);
       const criticalStartupState = inject(CriticalStartupStateService);
       const healthCheckService = inject(HealthCheckService);
 
@@ -146,6 +148,7 @@ export const appConfig: ApplicationConfig = {
       }
 
       announcementService.startPeriodicUnacknowledgedCheck();
+      notificationInboxService.startUnreadPolling();
     }),
   ],
 };

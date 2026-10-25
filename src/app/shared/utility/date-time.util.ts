@@ -275,6 +275,49 @@ export const formatMonthYear = (month: number, year: number): string => {
 };
 
 /**
+ * Compact relative time for notification lists ("Just now", "2h ago", …).
+ * Falls back to a short date once older than a week.
+ */
+export const formatRelativeTime = (
+  value: string | Date | null | undefined,
+  nowMs: number = Date.now()
+): string => {
+  if (value === null || value === undefined || value === '') {
+    return '';
+  }
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const diffMs = nowMs - date.getTime();
+  if (diffMs < 0) {
+    return 'Just now';
+  }
+
+  const sec = Math.floor(diffMs / 1000);
+  if (sec < 60) {
+    return 'Just now';
+  }
+  const min = Math.floor(sec / 60);
+  if (min < 60) {
+    return `${min}m ago`;
+  }
+  const hr = Math.floor(min / 60);
+  if (hr < 24) {
+    return `${hr}h ago`;
+  }
+  const day = Math.floor(hr / 24);
+  if (day < 7) {
+    return `${day}d ago`;
+  }
+
+  return (
+    transformDateFormat(date, APP_CONFIG.DATE_FORMATS.DEFAULT) ?? ''
+  );
+};
+
+/**
  * Turns standalone 24h clock tokens (HH:mm) in a string into 12h with AM/PM.
  * Used for API error text such as "allowed only between 09:50 and 22:47".
  */

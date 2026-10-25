@@ -20,6 +20,7 @@ import {
 } from '@shared/types';
 import { DEFAULT_PAGE_HEADER_CONFIG } from '@shared/config';
 import { ButtonComponent } from '../button/button.component';
+import { NotificationBellComponent } from '@features/notification-management/components/notification-bell/notification-bell.component';
 import { ICONS } from '@shared/constants';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -35,6 +36,7 @@ import { InputTextModule } from 'primeng/inputtext';
     IconFieldModule,
     InputIconModule,
     InputTextModule,
+    NotificationBellComponent,
   ],
   templateUrl: './page-header.component.html',
   styleUrls: ['./page-header.component.scss'],
