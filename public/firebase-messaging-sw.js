@@ -18,6 +18,52 @@ firebase.initializeApp({
   appId: '1:183927025702:web:a238a58b40a9182523b6e7',
 });
 
-firebase.messaging();
-// Server sends a notification payload with a click link, so Firebase shows
-// the system notification and opens the portal page on click.
+const messaging = firebase.messaging();
+
+// Fallback if the payload is data-only (no notification block).
+messaging.onBackgroundMessage(payload => {
+  const title = payload.notification?.title || payload.data?.title || 'Notification';
+  const body = payload.notification?.body || payload.data?.body || '';
+  const link =
+    payload.fcmOptions?.link ||
+    payload.data?.route ||
+    payload.notification?.click_action ||
+    '/';
+
+  return self.registration.showNotification(title, {
+    body,
+    icon: '/favicon.ico',
+    data: { url: link, ...payload.data },
+  });
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const target =
+    event.notification.data?.url ||
+    event.notification.data?.route ||
+    '/';
+  const absolute =
+    typeof target === 'string' && target.startsWith('http')
+      ? target
+      : new URL(target || '/', self.location.origin).href;
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then(clientList => {
+        for (const client of clientList) {
+          if ('focus' in client && 'navigate' in client) {
+            return client.navigate(absolute).then(c => (c ? c.focus() : client.focus()));
+          }
+          if ('focus' in client) {
+            return client.focus();
+          }
+        }
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(absolute);
+        }
+        return undefined;
+      })
+  );
+});

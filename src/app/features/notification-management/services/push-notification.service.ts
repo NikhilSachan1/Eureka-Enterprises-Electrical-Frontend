@@ -5,13 +5,14 @@ import { ApiService, EnvironmentService, LoggerService } from '@core/services';
 import { NotificationService } from '@shared/services';
 import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
 import {
+  deleteToken,
   getMessaging,
   getToken,
   isSupported,
   Messaging,
-  onMessage,
-  unregister,
 } from 'firebase/messaging';
+
+const FIREBASE_MESSAGING_SW_URL = '/firebase-messaging-sw.js';
 import {
   catchError,
   finalize,
@@ -27,8 +28,6 @@ import {
   NotificationRegisterDeviceResponseSchema,
   NotificationUnregisterDeviceResponseSchema,
 } from '../schemas';
-import { NotificationInboxService } from './notification-inbox.service';
-
 export type PushPermissionState =
   | 'unsupported'
   | 'unconfigured'
@@ -45,12 +44,10 @@ export class PushNotificationService {
   private readonly apiService = inject(ApiService);
   private readonly environmentService = inject(EnvironmentService);
   private readonly logger = inject(LoggerService);
-  private readonly inbox = inject(NotificationInboxService);
   private readonly notificationService = inject(NotificationService);
 
   private messaging: Messaging | null = null;
   private currentToken: string | null = null;
-  private foregroundSubscribed = false;
   private initPromise: Promise<boolean> | null = null;
 
   private readonly _permissionState = signal<PushPermissionState>('default');
@@ -271,7 +268,6 @@ export class PushNotificationService {
       const app = this.getOrInitApp(env.FIREBASE);
       this.messaging = getMessaging(app);
       this.syncPermissionState();
-      this.subscribeForeground();
       return true;
     } catch (error) {
       this.logger.error('Firebase messaging init failed', error);
@@ -309,17 +305,26 @@ export class PushNotificationService {
     }
 
     const vapidKey = this.environmentService.environment.FIREBASE_VAPID_KEY;
+    const messaging = this.messaging;
 
-    return from(
-      getToken(this.messaging, {
-        vapidKey,
-      })
-    ).pipe(
+    return from(this.ensureMessagingServiceWorker()).pipe(
+      switchMap(serviceWorkerRegistration =>
+        from(
+          getToken(messaging, {
+            vapidKey,
+            serviceWorkerRegistration,
+          })
+        )
+      ),
       switchMap(token => {
         if (!token) {
+          this.logger.warn('Push getToken returned empty token');
           return of(false);
         }
         this.currentToken = token;
+        this.logger.logUserAction('Push FCM token obtained', {
+          tokenLength: token.length,
+        });
         return this.postDevice(token);
       }),
       tap(ok => {
@@ -334,6 +339,36 @@ export class PushNotificationService {
         return of(false);
       })
     );
+  }
+
+  /**
+   * Explicitly register the FCM SW. Auto-discovery is flaky when other
+   * workers were unregistered on boot, or when the SW is not yet active.
+   */
+  private async ensureMessagingServiceWorker(): Promise<ServiceWorkerRegistration> {
+    if (!('serviceWorker' in navigator)) {
+      throw new Error('Service workers are not supported');
+    }
+
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    const existing = registrations.find(reg => {
+      const scriptUrl =
+        reg.active?.scriptURL ??
+        reg.waiting?.scriptURL ??
+        reg.installing?.scriptURL ??
+        '';
+      return scriptUrl.includes('firebase-messaging-sw.js');
+    });
+
+    const registration =
+      existing ??
+      (await navigator.serviceWorker.register(FIREBASE_MESSAGING_SW_URL, {
+        scope: '/',
+      }));
+
+    // Wait until a worker is ready so getToken can bind to it.
+    await navigator.serviceWorker.ready;
+    return registration;
   }
 
   private postDevice(token: string): Observable<boolean> {
@@ -373,26 +408,12 @@ export class PushNotificationService {
       );
   }
 
-  private subscribeForeground(): void {
-    if (!this.messaging || this.foregroundSubscribed) {
-      return;
-    }
-
-    this.foregroundSubscribed = true;
-    onMessage(this.messaging, payload => {
-      this.inbox.refreshOnPush();
-      const title = payload.notification?.title?.trim();
-      if (title) {
-        this.notificationService.info(title, 'Notification');
-      }
-    });
-  }
-
   private async deleteLocalToken(): Promise<void> {
     if (!this.messaging) {
       return;
     }
-    await unregister(this.messaging);
+    // Pair with getToken (legacy FCM token). unregister() is for FID register().
+    await deleteToken(this.messaging);
   }
 
   private syncPermissionState(): void {
