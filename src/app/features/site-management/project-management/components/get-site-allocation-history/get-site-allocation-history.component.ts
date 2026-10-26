@@ -343,6 +343,7 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
       showHeaderButton: false,
       showHeaderFilter: true,
       showGoBackButton: false,
+      showNotificationBell: false,
     };
   }
 }

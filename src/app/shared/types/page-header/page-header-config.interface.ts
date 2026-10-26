@@ -9,6 +9,8 @@ export interface IPageHeaderConfig {
   showSearch?: boolean;
   searchPlaceholder?: string;
   showHeaderFilter?: boolean;
+  /** Defaults to true. Set false on pages where the bell is not wanted (e.g. Preferences). */
+  showNotificationBell?: boolean;
 }
 
 export interface ISectionHeaderConfig {

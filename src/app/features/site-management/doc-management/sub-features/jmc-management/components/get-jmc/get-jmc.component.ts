@@ -425,6 +425,7 @@ export class GetJmcComponent implements OnInit {
       subtitle: '',
       showHeaderButton: true,
       showGoBackButton: false,
+      showNotificationBell: false,
       showSearch: true,
       searchPlaceholder: 'Search by JMC Number',
       headerButtonConfig,

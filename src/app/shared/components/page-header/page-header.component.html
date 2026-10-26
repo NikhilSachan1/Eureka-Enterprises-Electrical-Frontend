@@ -61,19 +61,26 @@
     }
 
     <!-- Right Section - action buttons + notification bell (aligned) -->
-    <div
-      class="page-header-actions flex items-center gap-2 flex-nowrap ml-auto max-sm:w-full max-sm:justify-end"
-    >
-      @if (finalPageHeader.showHeaderButton && permittedHeaderButtons().length) {
-        @for (buttonConfig of permittedHeaderButtons(); track buttonConfig.id) {
-          <app-button
-            [buttonConfig]="buttonConfig"
-            (onButtonClick)="headerButtonClick.emit(buttonConfig.actionName || '')"
-          />
+    @if (
+      (finalPageHeader.showHeaderButton && permittedHeaderButtons().length) ||
+      finalPageHeader.showNotificationBell
+    ) {
+      <div
+        class="page-header-actions flex items-center gap-2 flex-nowrap ml-auto max-sm:w-full max-sm:justify-end"
+      >
+        @if (finalPageHeader.showHeaderButton && permittedHeaderButtons().length) {
+          @for (buttonConfig of permittedHeaderButtons(); track buttonConfig.id) {
+            <app-button
+              [buttonConfig]="buttonConfig"
+              (onButtonClick)="headerButtonClick.emit(buttonConfig.actionName || '')"
+            />
+          }
         }
-      }
 
-      <app-notification-bell />
-    </div>
+        @if (finalPageHeader.showNotificationBell) {
+          <app-notification-bell />
+        }
+      </div>
+    }
   </div>
 </div>

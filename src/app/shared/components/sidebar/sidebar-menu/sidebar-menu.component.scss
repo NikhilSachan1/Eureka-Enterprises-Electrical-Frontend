@@ -43,6 +43,19 @@
   }
 }
 
+.menu-badge {
+  flex-shrink: 0;
+  min-width: 1.125rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary-color) 18%, transparent);
+  color: var(--primary-color);
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.125rem;
+  text-align: center;
+}
+
 .menu-container {
   .menu-item {
     margin: 0.125rem 0;
@@ -67,7 +80,7 @@
         transition: color 0.15s ease;
       }
 
-      span {
+      span:not(.menu-badge) {
         font-size: 0.8125rem;
         font-weight: 500;
         flex: 1;
@@ -110,7 +123,7 @@
           color: var(--sidebar-primary-color);
         }
 
-        span {
+        span:not(.menu-badge) {
           color: var(--sidebar-primary-color);
           font-weight: 600;
         }
@@ -129,8 +142,18 @@
           width: 100%;
           position: relative;
 
-          span {
+          span:not(.menu-badge) {
             display: none; // Hide text labels
+          }
+
+          .menu-badge {
+            position: absolute;
+            top: 0.2rem;
+            right: 0.2rem;
+            min-width: 0.95rem;
+            padding: 0 0.2rem;
+            line-height: 0.95rem;
+            font-size: 0.5625rem;
           }
 
           .pi-chevron-down {
@@ -191,6 +214,15 @@
           font-size: 0.875rem;
           width: 1rem;
           text-align: center;
+        }
+
+        > span:not(.menu-badge) {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .menu-badge {
+          margin-left: auto;
         }
 
         &:hover {

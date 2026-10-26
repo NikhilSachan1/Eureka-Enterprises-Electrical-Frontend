@@ -34,6 +34,10 @@ import {
   INotificationReadAllResponseDto,
   NotificationListStatus,
 } from '../types/notification.dto';
+import {
+  buildUnreadCountsByMenuKey,
+  formatMenuBadgeCount,
+} from '../utils/notification-menu-badge.util';
 
 interface NotificationBucket {
   records: INotificationListItemDto[];
@@ -92,7 +96,20 @@ export class NotificationInboxService {
       : this._allBucket().records
   );
 
+  /** Unread counts by sidebar menu `basePath` (from loaded unread bucket). */
+  readonly unreadCountByMenuKey = computed(() =>
+    buildUnreadCountsByMenuKey(this._unreadBucket().records)
+  );
+
   private pollSubscription?: Subscription;
+
+  /** Badge label for a menu item `basePath`, or empty when none. */
+  menuBadgeLabel(menuKey: string | undefined | null): string {
+    if (!menuKey) {
+      return '';
+    }
+    return formatMenuBadgeCount(this.unreadCountByMenuKey().get(menuKey) ?? 0);
+  }
 
   setStatusFilter(status: NotificationListStatus): void {
     if (status === 'all' || status === 'unread') {

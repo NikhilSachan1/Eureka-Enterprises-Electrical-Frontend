@@ -327,6 +327,7 @@ export class GetDsrComponent implements OnInit {
       showHeaderButton: true,
       showHeaderFilter: true,
       showGoBackButton: false,
+      showNotificationBell: false,
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
