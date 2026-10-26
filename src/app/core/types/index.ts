@@ -1,5 +1,8 @@
 export { ELogTypes } from './logger.enum';
 export type { IApiErrorResponse } from './api-error-response.interface';
 export type { IAppConfig } from './app-config.interface';
-export type { Environment } from './environment.interface';
+export type {
+  Environment,
+  FirebaseWebConfig,
+} from './environment.interface';
 export { EEnvironment } from './environment.types';

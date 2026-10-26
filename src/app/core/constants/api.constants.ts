@@ -417,6 +417,16 @@ export const API_ROUTES = {
     DELETE: 'announcement/bulk',
     ACKNOWLEDGE: 'announcement/acknowledge',
   },
+  NOTIFICATION: {
+    LIST: 'notifications',
+    MARK_READ: (notificationId: string) => `notifications/${notificationId}/read`,
+    MARK_UNREAD: (notificationId: string) =>
+      `notifications/${notificationId}/unread`,
+    READ_ALL: 'notifications/read-all',
+    REGISTER_DEVICE: 'notifications/devices',
+    UNREGISTER_DEVICE: (token: string) =>
+      `notifications/devices/${encodeURIComponent(token)}`,
+  },
   CENTRALIZED_PAYMENT: {
     EXPENSE_PENDING_SETTLEMENT: 'expenses/pending-settlement',
     FUEL_EXPENSE_PENDING_SETTLEMENT: 'fuel-expenses/pending-settlement',
@@ -474,6 +484,7 @@ export const GET_ENDPOINT_PATHS_WITHOUT_ERROR_TOAST = new Set<string>([
   API_ROUTES.SITE.CONTRACTOR.LIST,
   API_ROUTES.SITE.VENDOR.LIST,
   API_ROUTES.SITE.VENDOR.ASSIGNABLE_SITES,
+  API_ROUTES.NOTIFICATION.LIST,
 ]);
 
 export const SKIP_AUTH_ENDPOINTS = [

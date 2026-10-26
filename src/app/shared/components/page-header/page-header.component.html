@@ -1,7 +1,7 @@
 @let finalPageHeader = finalPageHeaderConfig();
 
 <div
-  class="page-header-root relative mb-6 w-full max-w-full overflow-hidden"
+  class="page-header-root relative mb-6 w-full max-w-full overflow-x-clip overflow-y-visible"
   [ngClass]="
     (finalPageHeader.showSearch || finalPageHeader.showHeaderFilter) &&
     !finalPageHeader.title &&
@@ -60,16 +60,20 @@
       </div>
     }
 
-    <!-- Right Section - Action Buttons (filtered by user permissions) -->
-    @if (finalPageHeader.showHeaderButton && permittedHeaderButtons().length) {
-      <div class="flex items-center gap-2 flex-wrap max-sm:w-full max-sm:justify-end">
+    <!-- Right Section - action buttons + notification bell (aligned) -->
+    <div
+      class="page-header-actions flex items-center gap-2 flex-nowrap ml-auto max-sm:w-full max-sm:justify-end"
+    >
+      @if (finalPageHeader.showHeaderButton && permittedHeaderButtons().length) {
         @for (buttonConfig of permittedHeaderButtons(); track buttonConfig.id) {
           <app-button
             [buttonConfig]="buttonConfig"
             (onButtonClick)="headerButtonClick.emit(buttonConfig.actionName || '')"
           />
         }
-      </div>
-    }
+      }
+
+      <app-notification-bell />
+    </div>
   </div>
 </div>

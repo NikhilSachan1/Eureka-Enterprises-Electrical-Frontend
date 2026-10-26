@@ -36,6 +36,7 @@ export {
   transformTimeFormat,
   getDateBeforeXDays,
   formatMonthYear,
+  formatRelativeTime,
   format24hClockTimesInTextTo12h,
 } from './date-time.util';
 export {

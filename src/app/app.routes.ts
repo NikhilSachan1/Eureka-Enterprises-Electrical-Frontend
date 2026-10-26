@@ -63,6 +63,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: ROUTE_BASE_PATHS.PREFERENCES,
+        loadChildren: () =>
+          import('./features/preferences/preferences.routes').then(
+            m => m.PREFERENCES_ROUTES
+          ),
+      },
+      {
         path: ROUTE_BASE_PATHS.SETTINGS.BASE,
         loadChildren: () =>
           import(

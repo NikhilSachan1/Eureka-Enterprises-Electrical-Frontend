@@ -53,6 +53,9 @@ export const ICONS = {
     HISTORY: 'pi pi-history',
     MEGAPHONE: 'pi pi-megaphone',
     INBOX: 'pi pi-inbox',
+    BELL: 'pi pi-bell',
+    /** Mark-as-read / muted bell. */
+    BELL_SLASH: 'pi pi-bell-slash',
     FOLDER: 'pi pi-folder',
     FOLDER_OPEN: 'pi pi-folder-open',
     UPLOAD: 'pi pi-upload',

@@ -1,0 +1,177 @@
+<div class="bell-root">
+  @if (panelOpen()) {
+    <div
+      class="bell-backdrop"
+      aria-hidden="true"
+      (click)="closePanel()"
+    ></div>
+  }
+
+  <div class="bell-anchor">
+    <button
+      #bellTrigger
+      type="button"
+      class="bell-trigger"
+      [class.bell-trigger--open]="panelOpen()"
+      [class.bell-trigger--loading]="bootstrapLoading()"
+      [class.bell-trigger--pulse]="badgePulse()"
+      [disabled]="bootstrapLoading()"
+      [attr.aria-expanded]="panelOpen()"
+      [attr.aria-busy]="bootstrapLoading()"
+      [attr.aria-label]="
+        bootstrapLoading()
+          ? 'Loading notifications'
+          : hasUnread()
+            ? 'Notifications, ' + unreadCount() + ' unread'
+            : 'Notifications'
+      "
+      [pTooltip]="bootstrapLoading() ? 'Loading…' : 'Notifications'"
+      tooltipPosition="bottom"
+      (click)="togglePanel($event)"
+    >
+      <i [ngClass]="ICONS.COMMON.BELL" aria-hidden="true"></i>
+      @if (bootstrapLoading()) {
+        <span class="bell-badge bell-badge--loading" aria-hidden="true">
+          <i [ngClass]="[ICONS.COMMON.SPINNER, ICONS.COMMON.SPIN]"></i>
+        </span>
+      } @else if (badgeLabel(); as badge) {
+        <span
+          class="bell-badge"
+          [class.bell-badge--pulse]="badgePulse()"
+          aria-hidden="true"
+        >{{ badge }}</span>
+      }
+    </button>
+
+  </div>
+
+  <p-popover
+    #bellPopover
+    styleClass="notification-bell-popover"
+    [dismissable]="true"
+    [appendTo]="'body'"
+    (onShow)="onPanelShow()"
+    (onHide)="onPanelHide()"
+  >
+    <div class="bell-panel">
+      <header class="bell-panel__header">
+        <div class="bell-panel__title-row">
+          <h2>Notifications</h2>
+          @if (hasUnread()) {
+            <button
+              type="button"
+              class="bell-panel__mark-all"
+              [disabled]="markingAll()"
+              (click)="markAllAsRead()"
+            >
+              Mark all as read
+            </button>
+          }
+        </div>
+
+        <div
+          class="bell-panel__tabs"
+          role="tablist"
+          aria-label="Notification filters"
+        >
+          <button
+            type="button"
+            role="tab"
+            class="bell-tab"
+            [class.bell-tab--active]="statusFilter() === 'all'"
+            [attr.aria-selected]="statusFilter() === 'all'"
+            (click)="setStatusFilter('all')"
+          >
+            All
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="bell-tab"
+            [class.bell-tab--active]="statusFilter() === 'unread'"
+            [attr.aria-selected]="statusFilter() === 'unread'"
+            (click)="setStatusFilter('unread')"
+          >
+            Unread
+            @if (hasUnread()) {
+              <span class="bell-tab__count">{{ badgeLabel() }}</span>
+            }
+          </button>
+        </div>
+      </header>
+
+      <div class="bell-panel__body">
+        @if (bootstrapError() && records().length === 0) {
+          <div class="bell-state">
+            <i [ngClass]="ICONS.COMMON.EXCLAMATION_TRIANGLE" aria-hidden="true"></i>
+            <span>Couldn’t load notifications</span>
+            <button
+              type="button"
+              class="bell-state__retry"
+              (click)="retryBootstrap()"
+            >
+              Try again
+            </button>
+          </div>
+        } @else if (records().length === 0) {
+          <div class="bell-state bell-state--empty">
+            <i [ngClass]="ICONS.COMMON.INBOX" aria-hidden="true"></i>
+            <span>{{ emptyMessage() }}</span>
+          </div>
+        } @else {
+          <ul class="bell-list" role="list">
+            @for (item of records(); track item.id) {
+              <li
+                class="bell-item"
+                [class.bell-item--unread]="!item.isRead"
+                [class.bell-item--busy]="actingId() === item.id"
+              >
+                <button
+                  type="button"
+                  class="bell-item__main"
+                  [disabled]="actingId() === item.id"
+                  (click)="onRowClick(item)"
+                >
+                  <span
+                    class="bell-item__icon"
+                    [class.bell-item__icon--unread]="!item.isRead"
+                    aria-hidden="true"
+                  >
+                    <i [ngClass]="iconFor(item)"></i>
+                  </span>
+
+                  <span class="bell-item__content">
+                    <span class="bell-item__title">{{ item.title }}</span>
+                    <span class="bell-item__message">{{ item.message }}</span>
+                    <span class="bell-item__meta">
+                      <time>{{ relativeTime(item) }}</time>
+                    </span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="bell-item__toggle"
+                  [attr.aria-label]="
+                    item.isRead ? 'Mark as unread' : 'Mark as read'
+                  "
+                  [pTooltip]="item.isRead ? 'Mark unread' : 'Mark read'"
+                  tooltipPosition="left"
+                  [disabled]="actingId() === item.id"
+                  (click)="toggleReadState($event, item)"
+                >
+                  <i
+                    [ngClass]="
+                      item.isRead ? ICONS.COMMON.BELL : ICONS.COMMON.CHECK_TICK
+                    "
+                    aria-hidden="true"
+                  ></i>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  </p-popover>
+</div>

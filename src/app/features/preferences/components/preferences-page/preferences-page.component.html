@@ -1,0 +1,92 @@
+<div class="preferences">
+  <app-page-header [pageHeaderConfig]="pageHeaderConfig" />
+
+  <div class="preferences__body">
+    <section class="preferences__section" aria-labelledby="prefs-appearance">
+      <h2 id="prefs-appearance" class="preferences__section-title">Appearance</h2>
+      <p class="preferences__section-sub">
+        Choose how the portal looks on this device.
+      </p>
+
+      <div class="preferences__row">
+        <div class="preferences__row-main">
+          <span class="preferences__row-icon" aria-hidden="true">
+            <i [ngClass]="appearanceIcon()"></i>
+          </span>
+          <div class="preferences__row-text">
+            <span class="preferences__row-label">Theme</span>
+            <span class="preferences__row-meta">{{ appearanceLabel() }} mode</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="preferences__action"
+          (click)="toggleAppearance()"
+        >
+          Switch to {{ isDarkMode() ? 'Light' : 'Dark' }}
+        </button>
+      </div>
+    </section>
+
+    <section class="preferences__section" aria-labelledby="prefs-push">
+      <h2 id="prefs-push" class="preferences__section-title">
+        Browser notifications
+      </h2>
+      <p class="preferences__section-sub">
+        System alerts when the portal tab is in the background. The bell still
+        works either way.
+      </p>
+
+      <div class="preferences__row">
+        <div class="preferences__row-main">
+          <span class="preferences__row-icon" aria-hidden="true">
+            <i
+              [ngClass]="
+                isPushActive() ? ICONS.COMMON.BELL : ICONS.COMMON.BELL_SLASH
+              "
+            ></i>
+          </span>
+          <div class="preferences__row-text">
+            <span class="preferences__row-label">Push notifications</span>
+            @if (showPushUnavailable()) {
+              <span class="preferences__row-meta">
+                Not available in this browser
+              </span>
+            } @else if (showPushDenied()) {
+              <span class="preferences__row-meta">
+                Blocked — allow notifications in your browser settings, then
+                turn them on here
+              </span>
+            } @else if (isPushActive()) {
+              <span class="preferences__row-meta">On for this browser</span>
+            } @else {
+              <span class="preferences__row-meta">Off</span>
+            }
+          </div>
+        </div>
+
+        @if (showPushToggle()) {
+          @if (isPushActive()) {
+            <button
+              type="button"
+              class="preferences__action preferences__action--muted"
+              [disabled]="pushBusy()"
+              (click)="disablePush()"
+            >
+              {{ pushDisabling() ? 'Turning off…' : 'Turn off' }}
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="preferences__action"
+              [disabled]="pushBusy()"
+              (click)="enablePush()"
+            >
+              {{ pushEnabling() ? 'Enabling…' : 'Turn on' }}
+            </button>
+          }
+        }
+      </div>
+    </section>
+  </div>
+</div>

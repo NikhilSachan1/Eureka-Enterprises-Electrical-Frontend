@@ -29,6 +29,8 @@ import {
   AnnouncementService,
   POST_LOGIN_ANNOUNCEMENT_DIALOG_DELAY_MS,
 } from '@features/announcement-management/services/announcement.service';
+import { NotificationInboxService } from '@features/notification-management/services/notification-inbox.service';
+import { PushNotificationService } from '@features/notification-management/services/push-notification.service';
 import { ILoginFormDto, ILoginResponseDto } from '../../types/auth.dto';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { FormBase } from '@shared/base/form.base';
@@ -54,6 +56,8 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly criticalStartupState = inject(CriticalStartupStateService);
   private readonly announcementService = inject(AnnouncementService);
+  private readonly notificationInboxService = inject(NotificationInboxService);
+  private readonly pushNotificationService = inject(PushNotificationService);
 
   // Role selection state
   protected readonly showRoleSelection = signal(false);
@@ -194,7 +198,10 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
     this.appConfigurationService
       .loadCriticalAppData()
       .pipe(
-        switchMap(() => {
+        // Start root-scoped polls BEFORE navigate. Navigating away destroys
+        // LoginComponent; takeUntilDestroyed would cancel a post-navigate tap
+        // and leave bell/announcement polling never started until hard refresh.
+        tap(() => {
           this.criticalStartupState.clearCriticalLoadFailure();
           if (selectedRoleName) {
             this.notificationService.success(
@@ -203,18 +210,18 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
               )
             );
           }
-          return from(this.navigateAfterLoginAsync());
-        }),
-        tap(() => {
           this.announcementService.startPeriodicUnacknowledgedCheck({
             dialogOpenDelayMs: POST_LOGIN_ANNOUNCEMENT_DIALOG_DELAY_MS,
           });
+          this.notificationInboxService.startUnreadPolling();
+          this.pushNotificationService.registerIfPermitted().subscribe();
         }),
+        switchMap(() => from(this.navigateAfterLoginAsync())),
+        take(1),
         finalize(() => {
           this.loadingService.hide();
           this.clearPendingLoginData();
-        }),
-        takeUntilDestroyed(this.destroyRef)
+        })
       )
       .subscribe({
         error: error => {

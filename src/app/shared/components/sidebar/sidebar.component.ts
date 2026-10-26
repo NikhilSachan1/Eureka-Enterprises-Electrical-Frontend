@@ -16,7 +16,6 @@ import { SidebarHeaderComponent } from './sidebar-header/sidebar-header.componen
 import { SidebarUserProfileComponent } from './sidebar-user-profile/sidebar-user-profile.component';
 import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
 import { ContentAreaComponent } from '../content-area/content-area.component';
-import { RoleSwitcherComponent } from './role-switcher/role-switcher.component';
 import {
   isNodeInSidebarFooterPopover,
   isPointerInSidebarFooterPopover,
@@ -32,7 +31,6 @@ import {
     SidebarUserProfileComponent,
     SidebarMenuComponent,
     ContentAreaComponent,
-    RoleSwitcherComponent,
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',

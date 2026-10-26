@@ -1,37 +1,17 @@
 .sidebar-header {
-  height: var(--header-height);
-  padding: 0 1rem;
+  height: 3.25rem;
+  padding: 0 0.75rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.5rem;
   background: var(--sidebar-bg);
   border-bottom: 1px solid var(--sidebar-border-color);
-  transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+  flex-shrink: 0;
 
-  // Collapsed state - center logo only
   :host-context(.sidebar-collapsed) & {
     @media (min-width: 769px) {
       padding: 0 0.5rem;
       justify-content: center;
-    }
-  }
-
-  // Collapse icon - right aligned
-  .collapse-icon {
-    font-size: 0.875rem;
-    color: var(--sidebar-text-secondary);
-    transition: all 0.2s ease;
-    opacity: 0.7;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 0.25rem;
-    flex-shrink: 0;
-    margin-left: auto;
-
-    &:hover {
-      opacity: 1;
-      background: var(--sidebar-hover-bg);
     }
   }
 }
@@ -39,55 +19,41 @@
 .logo-section {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  transition: gap 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 0.625rem;
+  min-width: 0;
+  flex: 1;
 
-  // Clickable on desktop
   &.clickable {
     cursor: pointer;
     border-radius: 0.5rem;
-    padding: 0.25rem;
-    margin: -0.25rem;
-    transition: background 0.2s ease;
+    padding: 0.2rem;
+    margin: -0.2rem;
 
     &:hover {
       background: var(--sidebar-hover-bg);
     }
   }
 
-  // Collapsed state - remove gap
   :host-context(.sidebar-collapsed) & {
     @media (min-width: 769px) {
-      gap: 0;
+      flex: none;
       justify-content: center;
+      gap: 0;
     }
   }
 }
 
 .logo {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.35rem;
   object-fit: contain;
   flex-shrink: 0;
-  transition:
-    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  // Collapsed state - slightly smaller
-  :host-context(.sidebar-collapsed) & {
-    @media (min-width: 769px) {
-      width: 2rem;
-      height: 2rem;
-    }
-  }
 }
 
 .brand {
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 0;
 
-  // Collapsed state - hide brand text
   :host-context(.sidebar-collapsed) & {
     @media (min-width: 769px) {
       display: none;
@@ -95,23 +61,49 @@
   }
 
   h1 {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--sidebar-text-primary);
     margin: 0;
-    line-height: 1.25;
-    letter-spacing: -0.025em;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--sidebar-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   h2 {
-    font-size: 0.6875rem;
-    font-weight: 500;
-    color: var(--sidebar-text-secondary);
     margin: 0;
+    font-size: 0.625rem;
+    font-weight: 500;
     line-height: 1.25;
+    color: var(--sidebar-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.collapse-btn {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: var(--sidebar-text-secondary);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--sidebar-hover-bg);
+    color: var(--sidebar-primary-color);
   }
 
-  .brand-version {
-    margin-top: 0.125rem;
+  i {
+    font-size: 0.75rem;
   }
 }
