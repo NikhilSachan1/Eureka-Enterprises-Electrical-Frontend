@@ -49,6 +49,11 @@
             ></i>
           }
           <span class="flex-1">{{ item.label }}</span>
+          @if (menuBadge(item); as badge) {
+            <span class="menu-badge" [attr.aria-label]="badge + ' unread'">{{
+              badge
+            }}</span>
+          }
         </div>
       </div>
     } @else {
@@ -68,7 +73,12 @@
             aria-hidden="true"
           ></i>
         }
-        <span>{{ item.label }}</span>
+        <span class="flex-1">{{ item.label }}</span>
+        @if (menuBadge(item); as badge) {
+          <span class="menu-badge" [attr.aria-label]="badge + ' unread'">{{
+            badge
+          }}</span>
+        }
       </a>
     }
   }
@@ -93,6 +103,11 @@
             ></i>
           }
           <span class="flex-1">{{ item.label }}</span>
+          @if (menuBadge(item); as badge) {
+            <span class="menu-badge" [attr.aria-label]="badge + ' unread'">{{
+              badge
+            }}</span>
+          }
           <i
             [class]="`${icons.COMMON.CHEVRON_DOWN} text-sm transition-transform`"
             [class.rotate-180]="isMenuItemExpanded(item)"
@@ -143,6 +158,11 @@
             ></i>
           }
           <span class="flex-1">{{ item.label }}</span>
+          @if (menuBadge(item); as badge) {
+            <span class="menu-badge" [attr.aria-label]="badge + ' unread'">{{
+              badge
+            }}</span>
+          }
           <i
             [class]="`${icons.COMMON.CHEVRON_DOWN} text-xs transition-transform`"
             [class.rotate-180]="isMenuItemExpanded(item)"

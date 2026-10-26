@@ -7,6 +7,7 @@ import {
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
 import { MenuService } from '@core/services';
+import { NotificationInboxService } from '@features/notification-management/services/notification-inbox.service';
 import { slideInOut } from '@shared/animations';
 import { MenuItem } from '@shared/types';
 import { ICONS } from '@shared/constants';
@@ -22,10 +23,20 @@ import { ICONS } from '@shared/constants';
 })
 export class SidebarMenuComponent {
   readonly menuService = inject(MenuService);
+  private readonly notificationInbox = inject(NotificationInboxService);
   readonly icons = ICONS;
 
   /** When true, sidebar shows icons only (collapsed or hover-overlay not active). */
   isCollapsed = input<boolean>(false);
+
+  /** Forces OnPush to refresh when unread menu counts change. */
+  readonly unreadMenuCounts = this.notificationInbox.unreadCountByMenuKey;
+
+  menuBadge(item: MenuItem): string {
+    // Touch signal so OnPush updates when unread counts change.
+    this.unreadMenuCounts();
+    return this.notificationInbox.menuBadgeLabel(item.basePath);
+  }
 
   /**
    * Toggle a top-level submenu item's expanded state
