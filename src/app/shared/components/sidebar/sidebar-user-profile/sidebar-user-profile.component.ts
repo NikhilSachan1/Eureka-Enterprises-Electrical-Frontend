@@ -10,7 +10,7 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
-import { LoggerService, ThemeService } from '@core/services';
+import { LoggerService } from '@core/services';
 import { UserOption } from '@shared/types';
 import { NgClass } from '@angular/common';
 import { primaryUserOptions, secondaryUserOptions } from '@core/config';
@@ -52,7 +52,6 @@ export class SidebarUserProfileComponent implements OnInit {
   isSidebarCollapsed = input<boolean>(false);
 
   private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
   private readonly loadingService = inject(LoadingService);
   private readonly notificationService = inject(NotificationService);
@@ -101,14 +100,6 @@ export class SidebarUserProfileComponent implements OnInit {
     this.authService.ensureLoggedInUserProfilePictureLoaded();
   }
 
-  getThemeIcon(): string {
-    return this.themeService.isDarkMode() ? ICONS.THEME.SUN : ICONS.THEME.MOON;
-  }
-
-  getThemeLabel(): string {
-    return this.themeService.isDarkMode() ? 'Light Mode' : 'Dark Mode';
-  }
-
   getLoggedUserDesignation(): string {
     return getMappedValueFromArrayOfObjects(
       this.appConfigurationService.designations(),
@@ -151,10 +142,6 @@ export class SidebarUserProfileComponent implements OnInit {
     this.executeSwitchActiveRole(role.id);
   }
 
-  toggleTheme(): void {
-    this.themeService.toggleTheme();
-  }
-
   navigateTo(path: string): void {
     void this.routerNavigationService.navigateByUrl(path);
     this.userPopover.hide();
@@ -190,10 +177,7 @@ export class SidebarUserProfileComponent implements OnInit {
   }
 
   handleOptionClick(option: UserOption): void {
-    if (option.id === 'theme') {
-      this.toggleTheme();
-      this.userPopover.hide();
-    } else if (option.id === 'logout') {
+    if (option.id === 'logout') {
       this.logout();
     } else if (option.path) {
       this.navigateTo(option.path);

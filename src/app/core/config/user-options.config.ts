@@ -18,10 +18,10 @@ export const primaryUserOptions: UserOption[] = [
  */
 export const secondaryUserOptions: UserOption[] = [
   {
-    id: 'theme',
-    label: 'Dark Mode',
-    icon: ICONS.THEME.MOON,
-    variant: 'theme',
+    id: 'preferences',
+    label: 'Preferences',
+    icon: ICONS.SETTINGS.SLIDERS,
+    path: ROUTE_BASE_PATHS.PREFERENCES,
   },
   {
     id: 'logout',

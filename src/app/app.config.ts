@@ -41,6 +41,7 @@ import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { AnnouncementService } from '@features/announcement-management/services/announcement.service';
 import { NotificationInboxService } from '@features/notification-management/services/notification-inbox.service';
+import { PushNotificationService } from '@features/notification-management/services/push-notification.service';
 import { AppConfigurationService } from '@shared/services';
 import { lastValueFrom, take } from 'rxjs';
 import { FinancialYearService } from '@core/services/financial-year.service';
@@ -90,10 +91,21 @@ export const appConfig: ApplicationConfig = {
       inject(ThemeService);
     }),
     provideAppInitializer(() => {
-      // Angular SW is not used. Unregister leftover workers from older deploys.
+      // Angular ngsw is not used. Unregister leftover workers from older deploys,
+      // but keep the Firebase messaging worker for background push.
       if ('serviceWorker' in navigator) {
         void navigator.serviceWorker.getRegistrations().then(registrations => {
-          registrations.forEach(reg => reg.unregister());
+          registrations.forEach(reg => {
+            const scriptUrl =
+              reg.active?.scriptURL ??
+              reg.waiting?.scriptURL ??
+              reg.installing?.scriptURL ??
+              '';
+            if (scriptUrl.includes('firebase-messaging-sw.js')) {
+              return;
+            }
+            void reg.unregister();
+          });
         });
       }
     }),
@@ -105,6 +117,7 @@ export const appConfig: ApplicationConfig = {
       const appConfigurationService = inject(AppConfigurationService);
       const announcementService = inject(AnnouncementService);
       const notificationInboxService = inject(NotificationInboxService);
+      const pushNotificationService = inject(PushNotificationService);
       const criticalStartupState = inject(CriticalStartupStateService);
       const healthCheckService = inject(HealthCheckService);
 
@@ -149,6 +162,7 @@ export const appConfig: ApplicationConfig = {
 
       announcementService.startPeriodicUnacknowledgedCheck();
       notificationInboxService.startUnreadPolling();
+      pushNotificationService.registerIfPermitted().subscribe();
     }),
   ],
 };

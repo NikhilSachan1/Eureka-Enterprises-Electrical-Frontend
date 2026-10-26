@@ -217,6 +217,11 @@ export class NotificationInboxService {
     }
   }
 
+  /** Silent list/badge refresh when a foreground FCM push arrives. */
+  refreshOnPush(): void {
+    this.refreshBothLists(false).subscribe();
+  }
+
   private patchReadState(
     endpoint: string,
     label: string,

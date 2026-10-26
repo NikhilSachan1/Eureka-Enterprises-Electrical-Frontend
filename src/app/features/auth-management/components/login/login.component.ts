@@ -30,6 +30,7 @@ import {
   POST_LOGIN_ANNOUNCEMENT_DIALOG_DELAY_MS,
 } from '@features/announcement-management/services/announcement.service';
 import { NotificationInboxService } from '@features/notification-management/services/notification-inbox.service';
+import { PushNotificationService } from '@features/notification-management/services/push-notification.service';
 import { ILoginFormDto, ILoginResponseDto } from '../../types/auth.dto';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { FormBase } from '@shared/base/form.base';
@@ -56,6 +57,7 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
   private readonly criticalStartupState = inject(CriticalStartupStateService);
   private readonly announcementService = inject(AnnouncementService);
   private readonly notificationInboxService = inject(NotificationInboxService);
+  private readonly pushNotificationService = inject(PushNotificationService);
 
   // Role selection state
   protected readonly showRoleSelection = signal(false);
@@ -212,6 +214,7 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
             dialogOpenDelayMs: POST_LOGIN_ANNOUNCEMENT_DIALOG_DELAY_MS,
           });
           this.notificationInboxService.startUnreadPolling();
+          this.pushNotificationService.registerIfPermitted().subscribe();
         }),
         switchMap(() => from(this.navigateAfterLoginAsync())),
         take(1),

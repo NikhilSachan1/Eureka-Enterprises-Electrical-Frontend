@@ -20,6 +20,7 @@ export const ROUTE_BASE_PATHS = {
   PAYROLL: 'payroll',
   PAYMENT_HUB: 'payment-hub',
   DASHBOARD: 'dashboard',
+  PREFERENCES: 'preferences',
   PETRO_CARD: 'petro-card',
   PETRO_CARD_WALLET: 'petro-card-wallet',
   TRANSPORT: 'transport',

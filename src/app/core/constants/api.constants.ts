@@ -423,6 +423,9 @@ export const API_ROUTES = {
     MARK_UNREAD: (notificationId: string) =>
       `notifications/${notificationId}/unread`,
     READ_ALL: 'notifications/read-all',
+    REGISTER_DEVICE: 'notifications/devices',
+    UNREGISTER_DEVICE: (token: string) =>
+      `notifications/devices/${encodeURIComponent(token)}`,
   },
   CENTRALIZED_PAYMENT: {
     EXPENSE_PENDING_SETTLEMENT: 'expenses/pending-settlement',

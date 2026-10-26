@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, switchMap, tap } from 'rxjs/operators';
 import {
   ApiService,
   LoggerService,
@@ -46,6 +46,7 @@ import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { EUserRole } from '@shared/constants/role.constants';
 import { AnnouncementService } from '@features/announcement-management/services/announcement.service';
 import { NotificationInboxService } from '@features/notification-management/services/notification-inbox.service';
+import { PushNotificationService } from '@features/notification-management/services/push-notification.service';
 import { UserDelegationService } from '@features/settings-management/delegation-management/services/user-delegation.service';
 
 @Injectable({
@@ -61,6 +62,7 @@ export class AuthService {
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly announcementService = inject(AnnouncementService);
   private readonly notificationInboxService = inject(NotificationInboxService);
+  private readonly pushNotificationService = inject(PushNotificationService);
   private readonly userDelegationService = inject(UserDelegationService);
 
   public readonly loggedInUserInitials = computed(() =>
@@ -228,30 +230,33 @@ export class AuthService {
       refreshToken: currentRefreshToken,
     };
 
-    return this.apiService
-      .postValidated(
-        API_ROUTES.AUTH.LOGOUT,
-        {
-          response: LogoutResponseSchema,
-          request: LogoutRequestSchema,
-        },
-        formData
-      )
-      .pipe(
-        tap((response: ILogoutResponseDto) => {
-          this.logger.logUserAction('Logout Response', response);
-          this.clearAuthState();
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Logout Error', error);
-          } else {
-            this.logger.logUserAction('Logout Error', error);
-          }
-          this.clearAuthState();
-          return throwError(() => error);
-        })
-      );
+    // Unregister FCM device while auth header is still valid.
+    return this.pushNotificationService.unregisterOnLogout().pipe(
+      catchError(() => of(undefined)),
+      switchMap(() =>
+        this.apiService.postValidated(
+          API_ROUTES.AUTH.LOGOUT,
+          {
+            response: LogoutResponseSchema,
+            request: LogoutRequestSchema,
+          },
+          formData
+        )
+      ),
+      tap((response: ILogoutResponseDto) => {
+        this.logger.logUserAction('Logout Response', response);
+        this.clearAuthState();
+      }),
+      catchError(error => {
+        if (error?.name === 'ZodError') {
+          this.logger.logDtoValidationErrors('Logout Error', error);
+        } else {
+          this.logger.logUserAction('Logout Error', error);
+        }
+        this.clearAuthState();
+        return throwError(() => error);
+      })
+    );
   }
 
   switchActiveRole(
@@ -349,6 +354,14 @@ export class AuthService {
 
   forceLogout(): void {
     this.logger.warn('Force logout: Session expired, redirecting to login');
+    // Best-effort: drop FCM registration while the access token may still work.
+    this.pushNotificationService.unregisterOnLogout().subscribe({
+      next: () => this.completeForceLogout(),
+      error: () => this.completeForceLogout(),
+    });
+  }
+
+  private completeForceLogout(): void {
     this.clearAuthState();
     this.refreshTokenSubject = new BehaviorSubject<string | null>(null);
     this.notificationService.error(

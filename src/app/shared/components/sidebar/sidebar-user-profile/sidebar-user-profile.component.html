@@ -107,15 +107,14 @@
 
       @for (option of secondaryOptions; track option.id) {
         @let isDanger = option.variant === 'danger';
-        @let isTheme = option.id === 'theme';
         <button
           type="button"
           class="menu-item"
           [class.danger]="isDanger"
           (click)="handleOptionClick(option)"
         >
-          <i [ngClass]="isTheme ? getThemeIcon() : option.icon"></i>
-          <span>{{ isTheme ? getThemeLabel() : option.label }}</span>
+          <i [ngClass]="option.icon"></i>
+          <span>{{ option.label }}</span>
         </button>
       }
     </div>
