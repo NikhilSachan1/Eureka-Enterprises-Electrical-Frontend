@@ -307,6 +307,7 @@ export class GetReportComponent implements OnInit {
       subtitle: '',
       showHeaderButton: true,
       showGoBackButton: false,
+      showNotificationBell: false,
       showSearch: true,
       searchPlaceholder: 'Search by PO Number',
       headerButtonConfig: [

@@ -414,6 +414,7 @@ export class GetInvoiceComponent implements OnInit {
       subtitle: '',
       showHeaderButton: true,
       showGoBackButton: false,
+      showNotificationBell: false,
       showSearch: true,
       searchPlaceholder: 'Search by Invoice Number',
       headerButtonConfig: [

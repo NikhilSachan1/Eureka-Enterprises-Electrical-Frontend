@@ -380,6 +380,7 @@ export class GetAdvancePaymentComponent implements OnInit {
       subtitle: '',
       showHeaderButton: true,
       showGoBackButton: false,
+      showNotificationBell: false,
       showSearch: true,
       searchPlaceholder: 'Search by Advance / PO Number',
       headerButtonConfig: [

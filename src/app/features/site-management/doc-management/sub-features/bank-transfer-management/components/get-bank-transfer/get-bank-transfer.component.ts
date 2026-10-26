@@ -447,6 +447,7 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
       subtitle: '',
       showHeaderButton: true,
       showGoBackButton: false,
+      showNotificationBell: false,
       showHeaderFilter: true,
       headerButtonConfig: [
         {

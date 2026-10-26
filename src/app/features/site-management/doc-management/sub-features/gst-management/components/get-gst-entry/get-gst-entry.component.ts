@@ -332,6 +332,7 @@ export class GetGstEntryComponent implements OnInit {
       showHeaderButton: false,
       showHeaderFilter: true,
       showGoBackButton: false,
+      showNotificationBell: false,
     };
   }
 }
