@@ -154,6 +154,7 @@ export class AddProjectComponent
       .subscribe({
         next: () => {
           this.notificationService.success('Project added successfully');
+          this.appConfigurationService.refreshProjectListDropdowns();
           const routeSegments = [
             ROUTE_BASE_PATHS.SITE.BASE,
             ROUTE_BASE_PATHS.SITE.PROJECT,

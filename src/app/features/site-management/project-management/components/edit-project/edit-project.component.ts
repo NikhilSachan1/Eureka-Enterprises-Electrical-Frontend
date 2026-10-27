@@ -250,6 +250,7 @@ export class EditProjectComponent
       .subscribe({
         next: () => {
           this.notificationService.success('Project updated successfully');
+          this.appConfigurationService.refreshProjectListDropdowns();
           const routeSegments = [
             ROUTE_BASE_PATHS.SITE.BASE,
             ROUTE_BASE_PATHS.SITE.PROJECT,

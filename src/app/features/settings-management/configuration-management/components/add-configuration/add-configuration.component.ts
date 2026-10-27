@@ -16,7 +16,10 @@ import {
   IConfigurationAddUIFormDto,
 } from '../../types/configuration.dto';
 import { ConfigurationService } from '../../services/configuration.service';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import {
   ADD_CONFIGURATION_FORM_CONFIG,
   ADD_CONFIGURATION_VALUE_EDITOR_DEFAULT_MAX_DEPTH,
@@ -27,6 +30,7 @@ import {
   ROUTES,
 } from '@shared/constants';
 import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
+import { replaceTextWithSeparator, toLowerCase } from '@shared/utility';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
@@ -58,6 +62,7 @@ export class AddConfigurationComponent
 {
   private readonly configurationService = inject(ConfigurationService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   private trackedFormFields!: ITrackedFields<IConfigurationAddUIFormDto>;
 
@@ -167,6 +172,12 @@ export class AddConfigurationComponent
       .subscribe({
         next: () => {
           this.notificationService.success('Configuration added successfully');
+          const configurationKey = toLowerCase(
+            replaceTextWithSeparator(formData.configurationName, ' ', '_')
+          );
+          this.appConfigurationService.invalidateConfigurationDropdowns([
+            configurationKey,
+          ]);
           const routeSegments = [
             ROUTE_BASE_PATHS.SETTINGS.BASE,
             ROUTE_BASE_PATHS.SETTINGS.CONFIGURATION.BASE,
