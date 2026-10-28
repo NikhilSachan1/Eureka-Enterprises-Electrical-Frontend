@@ -12,6 +12,7 @@ export { AttachmentsService } from './attachments.service';
 export { GalleryService } from './gallery.service';
 export { AppConfigurationService } from './app-configuration/app-configuration.service';
 export { ConfigurationDropdownCacheService } from './app-configuration/configuration-dropdown-cache.service';
+export { ConfigurationDropdownSignalStore } from './app-configuration/configuration-dropdown-signal-store.service';
 export { ReferenceEntityDropdownCacheService } from './app-configuration/reference-entity-dropdown-cache.service';
 export { PaginatedDropdownService } from './paginated-dropdown.service';
 export { SearchFilterUrlRestoreService } from './search-filter-url-restore.service';
