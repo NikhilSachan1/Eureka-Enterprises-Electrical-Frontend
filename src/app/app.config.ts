@@ -101,7 +101,12 @@ export const appConfig: ApplicationConfig = {
               reg.waiting?.scriptURL ??
               reg.installing?.scriptURL ??
               '';
-            if (scriptUrl.includes('firebase-messaging-sw.js')) {
+            // Skip Firebase SW; also skip unknown/empty URLs so we don't
+            // kill a messaging worker mid-install.
+            if (
+              !scriptUrl ||
+              scriptUrl.includes('firebase-messaging-sw.js')
+            ) {
               return;
             }
             void reg.unregister();

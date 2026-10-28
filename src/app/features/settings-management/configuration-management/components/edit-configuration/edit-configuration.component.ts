@@ -15,7 +15,10 @@ import {
   IConfigurationGetBaseResponseDto,
 } from '../../types/configuration.dto';
 import { ConfigurationService } from '../../services/configuration.service';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { ActivatedRoute } from '@angular/router';
 import {
   FORM_VALIDATION_MESSAGES,
@@ -62,6 +65,7 @@ export class EditConfigurationComponent
 {
   private readonly configurationService = inject(ConfigurationService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly location = inject(Location);
 
@@ -256,6 +260,14 @@ export class EditConfigurationComponent
           this.notificationService.success(
             'Configuration updated successfully'
           );
+          const configurationKey = this.prefilledRow()?.key;
+          if (configurationKey) {
+            this.appConfigurationService.invalidateConfigurationDropdowns([
+              configurationKey,
+            ]);
+          } else {
+            this.appConfigurationService.invalidateConfigurationDropdowns();
+          }
           const routeSegments = [
             ROUTE_BASE_PATHS.SETTINGS.BASE,
             ROUTE_BASE_PATHS.SETTINGS.CONFIGURATION.BASE,

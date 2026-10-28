@@ -49,11 +49,21 @@ export const SITE_ALLOCATION_HISTORY_TABLE_HEADER_CONFIG: Partial<IDataTableHead
       showSort: false,
     },
     {
-      field: 'createdAt',
-      header: 'Recorded on',
+      field: 'lastUpdatedAt',
+      header: 'Last updated',
       bodyTemplate: EDataType.DATE,
       dataType: EDataType.DATE,
       dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME,
+      showSort: false,
+    },
+    {
+      field: 'lastUpdatedBy.fullName',
+      header: 'Last updated by',
+      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+      subtitle: { field: 'lastUpdatedBy.employeeId' },
+      showImage: true,
+      dummyImageField: 'lastUpdatedBy.fullName',
+      primaryFieldHighlight: true,
       showSort: false,
     },
     {

@@ -335,6 +335,7 @@ export class GetProjectComponent implements OnInit {
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,
       onSuccess: () => {
+        this.appConfigurationService.refreshProjectListDropdowns();
         this.loadProjectList();
       },
     };

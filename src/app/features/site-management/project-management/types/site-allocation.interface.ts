@@ -10,7 +10,11 @@ export interface ISiteAllocationHistory {
   };
   role: string;
   allocationPeriod: Date[];
-  createdAt: Date;
+  lastUpdatedAt: Date;
+  lastUpdatedBy: {
+    fullName: string;
+    employeeId: string;
+  };
   allocationStatus: string;
   originalRawData: ISiteAllocationGetBaseResponseDto;
 }

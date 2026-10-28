@@ -78,8 +78,12 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
 
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly routeQuery = toSignal(this.activatedRoute.queryParamMap);
+  private readonly routeEmployeeId = computed(
+    () => this.routeQuery()?.get('employeeName') ?? null
+  );
   private appliedRouteEmployee: string | null = null;
   private appliedProjectId: string | undefined;
+  private appliedFilterVersion = 0;
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
@@ -108,22 +112,31 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      const employeeId = this.routeQuery()?.get('employeeName') ?? null;
+      const employeeId = this.routeEmployeeId();
       const projectId =
         this.workspaceContext.selectedProjectId() ??
         this.workspaceContext.activeProjectId();
-      this.workspaceContext.filterSubmitVersion();
+      const filterVersion = this.workspaceContext.filterSubmitVersion();
 
-      if (
-        employeeId !== this.appliedRouteEmployee ||
-        projectId !== this.appliedProjectId
-      ) {
+      const employeeChanged = employeeId !== this.appliedRouteEmployee;
+      const projectChanged = projectId !== this.appliedProjectId;
+      const filtersChanged = filterVersion !== this.appliedFilterVersion;
+
+      if (employeeChanged) {
         this.selectedEmployeeName.set(employeeId);
         this.appliedRouteEmployee = employeeId;
+      }
+      if (projectChanged) {
         this.appliedProjectId = projectId;
       }
+      if (filtersChanged) {
+        this.appliedFilterVersion = filterVersion;
+      }
 
-      if (this.tableFilterData) {
+      if (
+        this.tableFilterData &&
+        (employeeChanged || projectChanged || filtersChanged)
+      ) {
         this.loadAllocationHistory();
       }
     });
@@ -192,6 +205,19 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
     };
   }
 
+  private mapAuditUser(
+    user:
+      | ISiteAllocationGetBaseResponseDto['createdByUser']
+      | ISiteAllocationGetBaseResponseDto['updatedByUser']
+  ): ISiteAllocationHistory['lastUpdatedBy'] {
+    const fullName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
+
+    return {
+      fullName: fullName || '—',
+      employeeId: user?.employeeId ?? '',
+    };
+  }
+
   private mapTableData(
     response: ISiteAllocationGetBaseResponseDto[]
   ): ISiteAllocationHistory[] {
@@ -226,7 +252,12 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
         allocationPeriod: deallocatedAt
           ? [allocatedAt, deallocatedAt]
           : [allocatedAt],
-        createdAt: new Date(record.createdAt),
+        lastUpdatedAt: new Date(record.updatedAt ?? record.createdAt),
+        lastUpdatedBy: this.mapAuditUser(
+          record.updatedByUser?.firstName
+            ? record.updatedByUser
+            : record.createdByUser
+        ),
         allocationStatus: record.isCurrentlyAllocated
           ? 'Allocated'
           : 'Deallocated',
