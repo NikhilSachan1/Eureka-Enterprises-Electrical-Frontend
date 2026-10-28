@@ -3,9 +3,11 @@ import {
   FilterSchema,
   isoDateTimeField,
   onlyDateStringField,
+  UserSchema,
   uuidField,
 } from '@shared/schemas';
 import { EmployeeBaseSchema } from '@features/employee-management/schemas/base-employee.schema';
+import { makeFieldsNullable } from '@shared/utility';
 
 const { sortOrder, sortField, pageSize, page } = FilterSchema.shape;
 
@@ -43,12 +45,15 @@ const SiteAllocationUserSchema = EmployeeBaseSchema.pick({
 export const SiteAllocationGetBaseResponseSchema = z.looseObject({
   id: uuidField,
   createdAt: isoDateTimeField,
+  updatedAt: isoDateTimeField.nullable().optional(),
   allocatedAt: onlyDateStringField,
   deallocatedAt: onlyDateStringField.nullable(),
   isCurrentlyAllocated: z.boolean(),
   role: z.string().optional().nullable(),
   site: SiteAllocationSiteSchema,
   user: SiteAllocationUserSchema,
+  createdByUser: UserSchema.nullable().optional(),
+  updatedByUser: makeFieldsNullable(UserSchema).nullable().optional(),
 });
 
 export const SiteAllocationGetResponseSchema = z.looseObject({
