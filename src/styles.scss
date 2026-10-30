@@ -522,3 +522,16 @@ p-card:has(app-nav-tabs) .p-card {
     justify-content: center;
   }
 }
+
+// Touch calendar (phones): PrimeNG gives it a modal mask but no centring, so it would sit at the
+// top-left of <body>. Its open animation's translate does not persist, so the centring is set here.
+.p-datepicker-panel.app-datepicker-touch {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(22rem, calc(100vw - 2rem)) !important;
+  min-width: 0 !important;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+}

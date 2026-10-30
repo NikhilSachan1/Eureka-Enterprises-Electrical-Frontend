@@ -445,6 +445,7 @@
     <p-floatlabel [variant]="config.floatLabelVariant">
       @let dateConfig = config.dateConfig;
       @let isDateLoading = dateConfig?.loading ?? false;
+      @let touchDatePicker = useTouchDatePicker(dateConfig?.touchUI);
       <div
         class="input-field-date-wrapper"
         [class.input-field-date-wrapper--loading]="isDateLoading"
@@ -466,8 +467,9 @@
           [hourFormat]="dateConfig?.hourFormat || ALL_HOUR_FORMATS.Twelve"
           [view]="dateConfig?.calendarView || ALL_CALENDAR_VIEWS.Date"
           [numberOfMonths]="dateConfig?.numberOfMonths || 1"
-          [touchUI]="dateConfig?.touchUI"
-          [appendTo]="dateConfig?.touchUI ? undefined : 'body'"
+          [touchUI]="touchDatePicker"
+          [appendTo]="'body'"
+          [panelStyleClass]="touchDatePicker ? 'app-datepicker-touch' : ''"
           [readonlyInput]="config.readonlyInput || isDateLoading"
           [disabled]="config.disabledInput || false"
           [ngModel]="effectiveValue()"
