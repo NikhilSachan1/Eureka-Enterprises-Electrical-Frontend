@@ -68,6 +68,7 @@ import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { EVehicleScope } from '../../types/vehicle.enum';
+import { FUEL_LEDGER_VEHICLE_TAB_INDEX } from '@features/transport-management/fuel-expense-management/types/fuel-expense.enum';
 
 @Component({
   selector: 'app-get-vehicle',
@@ -381,23 +382,23 @@ export class GetVehicleComponent implements OnInit {
     return response.map((record: IVehicleGetBaseResponseDto) => {
       const latestEvent = record.latestEvent
         ? {
-          ...record.latestEvent,
-          eventTypeCode: record.latestEvent.eventType,
-          eventType: this.allowedLatestEventTypes.has(
-            record.latestEvent.eventType
-          )
-            ? getMappedValueFromArrayOfObjects(
-              this.appConfigurationService.vehicleEventStatuses(),
+            ...record.latestEvent,
+            eventTypeCode: record.latestEvent.eventType,
+            eventType: this.allowedLatestEventTypes.has(
               record.latestEvent.eventType
             )
-            : '',
-          fromUserName: record.latestEvent.fromUserUser
-            ? `${record.latestEvent.fromUserUser.firstName} ${record.latestEvent.fromUserUser.lastName}`
-            : '-',
-          toUserName: record.latestEvent.toUserUser
-            ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
-            : '-',
-        }
+              ? getMappedValueFromArrayOfObjects(
+                  this.appConfigurationService.vehicleEventStatuses(),
+                  record.latestEvent.eventType
+                )
+              : '',
+            fromUserName: record.latestEvent.fromUserUser
+              ? `${record.latestEvent.fromUserUser.firstName} ${record.latestEvent.fromUserUser.lastName}`
+              : '-',
+            toUserName: record.latestEvent.toUserUser
+              ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
+              : '-',
+          }
         : null;
 
       return {
@@ -525,6 +526,11 @@ export class GetVehicleComponent implements OnInit {
       this.navigateToServiceInfo(selectedFirstRow.id);
       return;
     }
+
+    if (actionType === EButtonActionType.FUEL_REPORT) {
+      this.navigateToFuelReport(selectedFirstRow.id);
+      return;
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,
@@ -588,7 +594,7 @@ export class GetVehicleComponent implements OnInit {
         label: 'Petro Card',
         value:
           selectedRow.associatedCard?.cardName &&
-            selectedRow.associatedCard?.cardNumber
+          selectedRow.associatedCard?.cardNumber
             ? `${selectedRow.associatedCard?.cardName} (${selectedRow.associatedCard?.cardNumber})`
             : 'N/A',
       },
@@ -707,6 +713,17 @@ export class GetVehicleComponent implements OnInit {
         error
       );
     }
+  }
+
+  /** Opens the fuel ledger on its Vehicle Wise tab, filtered to this vehicle. */
+  private navigateToFuelReport(vehicleId: string): void {
+    void this.routerNavigationService.navigateWithQueryParams(
+      [ROUTE_BASE_PATHS.TRANSPORT, ROUTE_BASE_PATHS.FUEL, ROUTES.FUEL.LEDGER],
+      {
+        tab: FUEL_LEDGER_VEHICLE_TAB_INDEX,
+        vehicleName: vehicleId,
+      }
+    );
   }
 
   private navigateToServiceInfo(vehicleId: string): void {
