@@ -5,7 +5,8 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 10050;
+  // Above the sidebar (1001), below PrimeNG modals such as drawers and dialogs (1100+).
+  z-index: 1050;
   width: 5.5rem;
   height: 5.5rem;
   overflow: hidden;

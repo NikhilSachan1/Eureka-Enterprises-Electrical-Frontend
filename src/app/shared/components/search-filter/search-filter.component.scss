@@ -124,3 +124,121 @@
   padding-top: 0.75rem;
   border-top: 1px solid color-mix(in srgb, var(--border-light-color) 85%, transparent);
 }
+
+// ── Active filter badge ───────────────────────────────────────────────────────
+.search-filter-badge {
+  flex-shrink: 0;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+}
+
+// ── Phones: trigger button + side drawer ──────────────────────────────────────
+.search-filter-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--border-light-color);
+  border-radius: 0.75rem;
+  font: inherit;
+  text-align: left;
+  color: var(--text-primary-color);
+  background: var(--background-default-color);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+  cursor: pointer;
+
+  &--active {
+    border-color: color-mix(in srgb, var(--primary-color) 35%, var(--border-light-color));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+}
+
+.search-filter-trigger__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  color: #fff;
+  background: linear-gradient(to bottom right, var(--primary-color), var(--primary-dark-color));
+}
+
+.search-filter-trigger__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+::ng-deep .search-filter-drawer.p-drawer {
+  width: min(22rem, 88vw);
+
+  .p-drawer-header {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-light-color);
+  }
+
+  .p-drawer-content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    padding: 0;
+    overflow-y: auto;
+  }
+}
+
+// Inside the drawer: one column, actions pinned to the bottom and aligned right.
+// No :host prefix: PrimeNG moves the drawer to <body>, outside this component's host.
+::ng-deep .search-filter-drawer {
+  .search-filter-form {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 100%;
+  }
+
+  .search-filter-grid {
+    --search-filter-max-cols: 1;
+
+    flex: 1 1 auto;
+    align-content: flex-start;
+    padding: 1rem;
+  }
+
+  .filter-field-wrapper {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  .search-filter-actions {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border-light-color);
+    background: var(--background-paper-color);
+    box-shadow: 0 -4px 12px -8px rgb(0 0 0 / 0.15);
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-filter-container {
+    margin-bottom: 0.75rem;
+  }
+}

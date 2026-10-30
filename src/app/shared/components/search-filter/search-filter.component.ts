@@ -24,10 +24,11 @@ import {
 } from '@shared/types';
 import { FormService, SearchFilterUrlRestoreService } from '@shared/services';
 import { InputFieldComponent } from '../input-field/input-field.component';
-import { KeyValuePipe } from '@angular/common';
+import { KeyValuePipe, NgTemplateOutlet } from '@angular/common';
 import { ButtonComponent } from '../button/button.component';
 import { Table } from 'primeng/table';
 import { PanelModule } from 'primeng/panel';
+import { DrawerModule } from 'primeng/drawer';
 import { AppPermissionService } from '@core/services';
 import { ICONS } from '@shared/constants';
 import {
@@ -45,6 +46,8 @@ import {
     KeyValuePipe,
     ButtonComponent,
     PanelModule,
+    DrawerModule,
+    NgTemplateOutlet,
   ],
   templateUrl: './search-filter.component.html',
   styleUrl: './search-filter.component.scss',
@@ -87,6 +90,15 @@ export class SearchFilterComponent implements OnInit {
   onFilterReset = output<void>();
   formReady = output<IEnhancedForm<Record<string, unknown>>>();
 
+  /** Phones: the form lives in a side drawer opened from a small "Filters" button. */
+  protected readonly isCompactViewport = signal(
+    typeof window !== 'undefined' &&
+      window.matchMedia('(max-width: 768px)').matches
+  );
+  protected readonly mobileDrawerOpen = signal(false);
+  /** Filters currently applied (visible fields with a value), shown as a badge in the header. */
+  protected readonly activeFilterCount = signal(0);
+
   protected form!: IEnhancedForm<Record<string, unknown>>;
   protected hasSearched = false;
   protected hasPrefillValues = false;
@@ -96,6 +108,17 @@ export class SearchFilterComponent implements OnInit {
   private allowRestoreWithoutTable = false;
 
   constructor() {
+    if (typeof window !== 'undefined') {
+      const media = window.matchMedia('(max-width: 768px)');
+      const syncViewport = (): void => {
+        this.isCompactViewport.set(media.matches);
+      };
+      media.addEventListener('change', syncViewport);
+      this.destroyRef.onDestroy(() =>
+        media.removeEventListener('change', syncViewport)
+      );
+    }
+
     afterNextRender(() => {
       this.applyRestoredFilters();
       if (this.restoreFromUrlPending && !this.tableRefValue()) {
@@ -136,6 +159,7 @@ export class SearchFilterComponent implements OnInit {
     if (Object.keys(prefillData).length > 0) {
       this.hasPrefillValues = true;
     }
+    this.refreshActiveFilterCount();
 
     this.restoreFromUrlPending = hasSearchFilterQueryParams(urlValues);
     if (this.restoreFromUrlPending) {
@@ -214,6 +238,8 @@ export class SearchFilterComponent implements OnInit {
     this.hasSearched = true;
     this.hasPrefillValues = false;
     this.syncFiltersToUrl(this.form.getRawData());
+    this.refreshActiveFilterCount();
+    this.mobileDrawerOpen.set(false);
     this.changeDetectorRef.markForCheck();
   }
 
@@ -246,7 +272,26 @@ export class SearchFilterComponent implements OnInit {
     }
     this.hasSearched = false;
     this.hasPrefillValues = false;
+    this.refreshActiveFilterCount();
+    this.mobileDrawerOpen.set(false);
     this.changeDetectorRef.markForCheck();
+  }
+
+  private refreshActiveFilterCount(): void {
+    const data = this.form.getRawData();
+    const count = Object.keys(this.form.fieldConfigs).filter(fieldName => {
+      if (!this.isFieldVisible(fieldName)) {
+        return false;
+      }
+      const value = data[fieldName];
+      if (Array.isArray(value)) {
+        return value.some(
+          item => item !== null && item !== undefined && item !== ''
+        );
+      }
+      return value !== null && value !== undefined && value !== '';
+    }).length;
+    this.activeFilterCount.set(count);
   }
 
   protected customSort(): number {
