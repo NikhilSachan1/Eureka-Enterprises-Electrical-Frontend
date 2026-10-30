@@ -407,7 +407,8 @@ export class PaginatedDropdownService {
     const pinned = session.pinnedIds
       .map(id => this.records.get(session.dropdownName)?.get(id))
       .filter((option): option is IOptionDropdown => !!option);
-    const options = mergeOptions(pinned, catalog.pageOptions);
+    // Selected options keep their place in the list; one not loaded yet is appended so its label still shows.
+    const options = mergeOptions(catalog.pageOptions, pinned);
     const listCatalog =
       session.search === ''
         ? catalog
