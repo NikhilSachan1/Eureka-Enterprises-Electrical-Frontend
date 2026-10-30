@@ -86,11 +86,89 @@
   color: var(--text-secondary-color);
 }
 
+// ── Health bar: share of overdue vs due soon ───────────────────────────────────
+.ops-health {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin: -0.25rem 0 1rem;
+}
+
+.ops-health__bar {
+  display: flex;
+  flex: 1 1 12rem;
+  gap: 2px;
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border-light-color) 60%, transparent);
+
+  .ops-health--clear & {
+    background: color-mix(in srgb, var(--wf-success, #16a34a) 30%, transparent);
+  }
+}
+
+.ops-health__seg {
+  flex-basis: 0;
+  min-width: 0.4rem;
+  border-radius: 999px;
+
+  &--overdue {
+    background: var(--wf-danger, #ef4444);
+  }
+
+  &--soon {
+    background: var(--wf-warning, #f59e0b);
+  }
+}
+
+.ops-health__legend {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.9rem;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary-color);
+
+  .ops-health--clear & {
+    gap: 0.35rem;
+    color: var(--wf-success-ink, #15803d);
+  }
+}
+
+.ops-health__key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-variant-numeric: tabular-nums;
+
+  &::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: currentColor;
+  }
+
+  &--overdue {
+    color: var(--wf-danger-ink, #b91c1c);
+  }
+
+  &--soon {
+    color: var(--wf-warning-ink, #b45309);
+  }
+}
+
+// ── Lanes: fill the card; each list scrolls on its own ─────────────────────────
 .ops-lanes {
   display: grid;
+  flex: 1 1 auto;
   gap: 1rem;
-  grid-template-columns: 1fr;
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
 
   @media (min-width: 840px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -98,95 +176,127 @@
 }
 
 .ops-lane {
+  --lane-tone: var(--wf-danger, #ef4444);
+
   display: flex;
   flex-direction: column;
   min-width: 0;
-  min-height: 18rem;
-  max-height: 28rem;
-  border-radius: 0.9rem;
-  border: 1px solid var(--border-light-color);
-  background: var(--background-paper-color);
+  min-height: 12rem;
+  max-height: 24rem;
   overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--lane-tone) 22%, var(--border-light-color));
+  border-radius: 0.75rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--lane-tone) 6%, var(--background-paper-color)) 0%,
+    var(--background-paper-color) 3rem
+  );
 
-  &--overdue {
-    border-top: 3px solid var(--wf-danger, #ef4444);
+  // Inside the dashboard's fixed-height tile the lanes take the remaining card height instead.
+  :host-context(.dash-bento__tile--fill) & {
+    @media (min-width: 840px) {
+      max-height: none;
+    }
   }
 
   &--soon {
-    border-top: 3px solid var(--wf-warning, #f59e0b);
+    --lane-tone: var(--wf-warning, #f59e0b);
   }
 }
 
 .ops-lane__head {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.75rem 0.9rem 0.55rem;
-  flex-shrink: 0;
+  padding: 0.7rem 0.85rem 0.5rem;
 }
 
 .ops-lane__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--text-primary-color);
+  color: color-mix(in srgb, var(--lane-tone) 70%, var(--text-primary-color));
+}
+
+.ops-lane__icon {
+  font-size: 0.8rem;
+  color: var(--lane-tone);
 }
 
 .ops-lane__count {
-  font-size: 0.75rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  min-width: 1.6rem;
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  background: var(--background-default-color);
-  border: 1px solid var(--border-light-color);
-  color: var(--text-secondary-color);
-}
-
-.ops-lane--overdue .ops-lane__count {
-  color: var(--wf-danger, #ef4444);
-  border-color: color-mix(in srgb, var(--wf-danger, #ef4444) 28%, var(--border-light-color));
-}
-
-.ops-lane--soon .ops-lane__count {
-  color: var(--wf-warning-ink, #b45309);
-  border-color: color-mix(in srgb, var(--wf-warning, #f59e0b) 32%, var(--border-light-color));
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  background: var(--lane-tone);
 }
 
 .ops-lane__list {
-  margin: 0;
-  padding: 0 0.55rem 0.65rem;
-  list-style: none;
+  display: flex;
   flex: 1 1 auto;
+  flex-direction: column;
   min-height: 0;
+  margin: 0;
+  padding: 0 0.4rem 0.4rem;
   overflow-x: hidden;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+  list-style: none;
+  scrollbar-width: thin;
 }
 
 .ops-lane__empty {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
   margin: 0;
   padding: 1.5rem 1rem;
   font-size: 0.8125rem;
+  text-align: center;
   color: var(--text-secondary-color);
 }
 
+// ── Rows: light list, domain colour on the left edge ───────────────────────────
 .ops-row {
   --ops-tone: var(--primary-color);
+
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  min-height: 3.15rem;
-  padding: 0.5rem 0.6rem;
-  border-radius: 0.65rem;
-  background: var(--background-default-color);
-  border: 1px solid var(--border-light-color);
-  border-left: 3px solid var(--ops-tone);
+  padding: 0.55rem 0.5rem 0.55rem 0.75rem;
+  border-radius: 0.5rem;
+  transition: background 0.15s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0.6rem;
+    bottom: 0.6rem;
+    left: 0.2rem;
+    width: 3px;
+    border-radius: 999px;
+    background: var(--ops-tone);
+  }
+
+  & + & {
+    border-top: 1px dashed var(--border-light-color);
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--ops-tone) 6%, transparent);
+  }
 
   &--asset {
     --ops-tone: #4f46e5;
@@ -203,66 +313,64 @@
 
 .ops-row__icon {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  width: 1.85rem;
-  height: 1.85rem;
+  width: 1.75rem;
+  height: 1.75rem;
   border-radius: 0.5rem;
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   color: var(--ops-tone);
-  background: color-mix(in srgb, var(--ops-tone) 12%, var(--background-paper-color));
-  border: 1px solid color-mix(in srgb, var(--ops-tone) 22%, var(--border-light-color));
+  background: color-mix(in srgb, var(--ops-tone) 12%, transparent);
 }
 
 .ops-row__copy {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 0.1rem;
   min-width: 0;
-  flex: 1;
 }
 
 .ops-row__title {
+  overflow: hidden;
   font-size: 0.8125rem;
   font-weight: 600;
+  line-height: 1.3;
   color: var(--text-primary-color);
-  line-height: 1.25;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .ops-row__meta {
-  font-size: 0.75rem;
-  font-weight: 600;
+  overflow: hidden;
+  font-size: 0.72rem;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary-color);
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .ops-row__tags {
   display: flex;
+  flex-shrink: 0;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.3rem;
-  max-width: 14rem;
-  flex-shrink: 0;
+  max-width: 12rem;
 }
 
 .ops-tag {
+  padding: 0.18rem 0.45rem;
+  border-radius: 999px;
   font-size: 0.625rem;
   font-weight: 700;
+  line-height: 1.2;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  padding: 0.18rem 0.42rem;
-  border-radius: 999px;
-  line-height: 1.2;
   color: var(--ops-tone);
   background: color-mix(in srgb, var(--ops-tone) 10%, var(--background-paper-color));
-  border: 1px solid color-mix(in srgb, var(--ops-tone) 22%, var(--border-light-color));
 
   &--calibration,
   &--warranty {
@@ -279,7 +387,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ops-chip {
+  .ops-chip,
+  .ops-row {
     transition: none;
   }
 }

@@ -1,181 +1,163 @@
+@let hasOps = canViewAssets || canViewTransport;
+
 <div class="main-dashboard">
   <div
     class="status-dashboard"
     [ngStyle]="workflowColorVars"
   >
-    <div class="status-dashboard__shell">
-      <app-page-header [pageHeaderConfig]="dashboardPageHeader" />
-
-      <app-kpm-dashboard (scrollToSection)="scrollToSection($event)">
-        <app-petro-card-wallet-dashboard />
-        <app-handover-pending-dashboard />
-      </app-kpm-dashboard>
-
-      <section
-        class="dash-section"
-        aria-labelledby="dash-celebrations-title"
-      >
-        <div class="dash-section__head">
-          <div class="dash-section__lead dash-section__lead--celebrations">
-            <span
-              class="dash-section__lead-icon dash-section__lead-icon--celebrations"
-              aria-hidden="true"
-            >
-              <span [class]="ICONS.COMMON.GIFT"></span>
-            </span>
-            <div>
-              <h2
-                id="dash-celebrations-title"
-                class="dash-section__title"
-              >
-                Birthdays, anniversaries &amp; holidays
-              </h2>
-              <p class="dash-section__desc">People milestones and upcoming public / company holidays.</p>
-            </div>
-          </div>
-        </div>
-        @defer (on idle) {
-          <div class="people-celebrations-grid">
-            <app-birthdays-dashboard />
-            <app-anniversary-dashboard />
-            <app-holiday-dashboard />
-          </div>
-        } @placeholder {
-          <div
-            class="dash-section__defer"
+    <!-- Hero -->
+    <header class="dash-hero">
+      <div class="dash-hero__text">
+        <h1 class="dash-hero__title">{{ heroTitle }}</h1>
+        <p class="dash-hero__date">
+          <span
+            [class]="ICONS.COMMON.CALENDAR"
             aria-hidden="true"
-          ></div>
-        }
-      </section>
+          ></span>
+          {{ today | date: 'EEEE, d MMMM y' }}
+        </p>
+      </div>
 
-      @if (showPeopleTime) {
-      <section
-        class="dash-section"
-        aria-labelledby="dash-people-time-title"
-      >
-        <div class="dash-section__head">
-          <div class="dash-section__lead dash-section__lead--people">
-            <span
-              class="dash-section__lead-icon dash-section__lead-icon--people"
-              aria-hidden="true"
-            >
-              <span [class]="ICONS.COMMON.USERS"></span>
-            </span>
-            <div>
-              <h2
-                id="dash-people-time-title"
-                class="dash-section__title"
-              >
-                Attendance &amp; leave
-              </h2>
-              <p class="dash-section__desc">Today’s attendance list and remaining leave balances.</p>
-            </div>
-          </div>
-        </div>
-        <div
-          class="dash-section__grid dash-section__grid--people-time"
-          role="region"
-          aria-label="Attendance and leave balance"
+      @if (canViewReceivablesPayables || canViewLedgerSpend) {
+        <nav
+          class="dash-hero__links"
+          aria-label="Jump to section"
         >
+          @if (canViewReceivablesPayables) {
+            <button
+              type="button"
+              class="dash-hero__link"
+              (click)="scrollToSection('receivables-payables')"
+            >
+              <span
+                [class]="ICONS.EXPENSE.MONEY"
+                aria-hidden="true"
+              ></span>
+              Receivables &amp; payables
+            </button>
+          }
+          @if (canViewLedgerSpend) {
+            <button
+              type="button"
+              class="dash-hero__link"
+              (click)="scrollToSection('ledger-spend')"
+            >
+              <span
+                [class]="ICONS.COMMON.CREDIT_CARD"
+                aria-hidden="true"
+              ></span>
+              Ledger &amp; spend
+            </button>
+          }
+        </nav>
+      }
+    </header>
+
+    <!-- Key numbers -->
+    <app-kpm-dashboard (scrollToSection)="scrollToSection($event)">
+      <app-petro-card-wallet-dashboard />
+      <app-handover-pending-dashboard />
+    </app-kpm-dashboard>
+
+    <!-- Bento: big and small tiles alternate sides row by row. -->
+    <div class="dash-bento">
+      @if (showPeopleTime) {
+        <div class="dash-bento__tile dash-bento__tile--wide dash-bento__tile--fill">
           @defer (on idle) {
             @if (showApplyAttendance) {
               <app-apply-attendance-dashboard />
             } @else {
               <app-attendance-dashboard />
             }
-            <app-leave-balance-dashboard />
           } @placeholder {
             <div
-              class="dash-section__defer dash-section__defer--tall"
+              class="dash-bento__defer dash-bento__defer--tall"
               aria-hidden="true"
             ></div>
           }
         </div>
-      </section>
       }
 
-      @if (canViewAssets || canViewTransport) {
-        <section
-          class="dash-section"
-          aria-labelledby="dash-ops-title"
-        >
-          <div class="dash-section__head">
-            <div class="dash-section__lead dash-section__lead--ops">
-              <span
-                class="dash-section__lead-icon dash-section__lead-icon--ops"
-                aria-hidden="true"
-              >
-                <span [class]="ICONS.COMMON.CAR"></span>
-              </span>
-              <div>
-                <h2
-                  id="dash-ops-title"
-                  class="dash-section__title"
-                >
-                  {{ opsSectionTitle }}
-                </h2>
-                <p class="dash-section__desc">
-                  @if (canViewAssets && canViewTransport) {
-                    Work queue for calibration, warranty, fleet documents, and service — overdue vs coming due.
-                  } @else if (canViewAssets) {
-                    Work queue for asset calibration and warranty — overdue vs coming due.
-                  } @else {
-                    Work queue for fleet documents and vehicle service — overdue vs coming due.
-                  }
-                </p>
-              </div>
-            </div>
-          </div>
+      <div
+        class="dash-bento__tile dash-celebrations"
+        [class.dash-bento__tile--narrow]="showPeopleTime"
+        [class.dash-bento__tile--scroll]="showPeopleTime"
+        [class.dash-bento__tile--full]="!showPeopleTime"
+        [class.dash-celebrations--row]="!showPeopleTime"
+        role="region"
+        aria-label="Birthdays, anniversaries and holidays"
+      >
+        @defer (on idle) {
+          <app-holiday-dashboard />
+          <app-birthdays-dashboard />
+          <app-anniversary-dashboard />
+        } @placeholder {
           <div
-            class="dash-section__grid dash-section__grid--ops"
-            role="region"
-            aria-label="Operations alerts"
-          >
-            @defer (on idle) {
-              <app-ops-attention-dashboard />
-            } @placeholder {
-              <div
-                class="dash-section__defer"
-                aria-hidden="true"
-              ></div>
-            }
-          </div>
-        </section>
+            class="dash-bento__defer"
+            aria-hidden="true"
+          ></div>
+        }
+      </div>
+
+      @if (showPeopleTime) {
+        <div
+          class="dash-bento__tile dash-bento__tile--fill"
+          [class.dash-bento__tile--narrow]="hasOps"
+          [class.dash-bento__tile--full]="!hasOps"
+        >
+          @defer (on idle) {
+            <app-leave-balance-dashboard />
+          } @placeholder {
+            <div
+              class="dash-bento__defer dash-bento__defer--tall"
+              aria-hidden="true"
+            ></div>
+          }
+        </div>
+      }
+
+      @if (hasOps) {
+        <div
+          class="dash-bento__tile"
+          [class.dash-bento__tile--wide]="showPeopleTime"
+          [class.dash-bento__tile--fill]="showPeopleTime"
+          [class.dash-bento__tile--full]="!showPeopleTime"
+          role="region"
+          [attr.aria-label]="opsSectionTitle + ' alerts'"
+        >
+          @defer (on idle) {
+            <app-ops-attention-dashboard />
+          } @placeholder {
+            <div
+              class="dash-bento__defer"
+              aria-hidden="true"
+            ></div>
+          }
+        </div>
       }
 
       @if (canViewReceivablesPayables) {
         <section
           #receivablesPayables
           id="receivables-payables"
-          class="dash-section"
+          class="dash-bento__tile dash-bento__tile--full"
           aria-labelledby="dash-receivables-title"
         >
-          <div class="dash-section__head">
-            <div class="dash-section__lead dash-section__lead--finance">
-              <span
-                class="dash-section__lead-icon dash-section__lead-icon--finance"
-                aria-hidden="true"
-              >
-                <span [class]="ICONS.EXPENSE.MONEY"></span>
-              </span>
-              <div>
-                <h2
-                  id="dash-receivables-title"
-                  class="dash-section__title"
-                >
-                  Receivables &amp; payables
-                </h2>
-                <p class="dash-section__desc">
-                  Contractor and vendor balances still open.
-                </p>
-              </div>
-            </div>
-          </div>
+          <h2
+            id="dash-receivables-title"
+            class="dash-bento__label"
+          >
+            <span
+              [class]="ICONS.EXPENSE.MONEY"
+              aria-hidden="true"
+            ></span>
+            Receivables &amp; payables
+          </h2>
           @defer (on idle) {
             <app-receivables-payables-dashboard />
           } @placeholder {
             <div
-              class="dash-section__defer"
+              class="dash-bento__defer"
               aria-hidden="true"
             ></div>
           }
@@ -186,39 +168,26 @@
         <section
           #ledgerSpend
           id="ledger-spend"
-          class="dash-section"
+          class="dash-bento__tile dash-bento__tile--full"
           aria-labelledby="dash-finance-title"
         >
-          <div class="dash-section__head">
-            <div class="dash-section__lead dash-section__lead--finance">
-              <span
-                class="dash-section__lead-icon dash-section__lead-icon--finance"
-                aria-hidden="true"
-              >
-                <span [class]="ICONS.COMMON.CREDIT_CARD"></span>
-              </span>
-              <div>
-                <h2
-                  id="dash-finance-title"
-                  class="dash-section__title"
-                >
-                  Ledger &amp; spend
-                </h2>
-                <p class="dash-section__desc">Expense and fuel ledgers with balances and employee-wise summaries.</p>
-              </div>
-            </div>
-          </div>
-          <div
-            class="dash-section__grid dash-section__grid--finance"
-            role="region"
-            aria-label="Ledger metrics"
+          <h2
+            id="dash-finance-title"
+            class="dash-bento__label"
           >
+            <span
+              [class]="ICONS.COMMON.CREDIT_CARD"
+              aria-hidden="true"
+            ></span>
+            Ledger &amp; spend
+          </h2>
+          <div class="dash-ledgers">
             @defer (on idle) {
               <app-expense-dashboard />
               <app-fuel-expense-dashboard />
             } @placeholder {
               <div
-                class="dash-section__defer"
+                class="dash-bento__defer"
                 aria-hidden="true"
               ></div>
             }

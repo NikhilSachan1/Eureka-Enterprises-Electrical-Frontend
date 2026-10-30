@@ -68,6 +68,43 @@
       }
     </div>
 
+    @let overdueCount = overdueRows().length;
+    @let soonCount = soonRows().length;
+    @let alertTotal = overdueCount + soonCount;
+    <div
+      class="ops-health"
+      [class.ops-health--clear]="alertTotal === 0"
+    >
+      <div
+        class="ops-health__bar"
+        role="img"
+        [attr.aria-label]="overdueCount + ' overdue, ' + soonCount + ' due soon'"
+      >
+        @if (alertTotal > 0) {
+          <span
+            class="ops-health__seg ops-health__seg--overdue"
+            [style.flex-grow]="overdueCount"
+          ></span>
+          <span
+            class="ops-health__seg ops-health__seg--soon"
+            [style.flex-grow]="soonCount"
+          ></span>
+        }
+      </div>
+      <p class="ops-health__legend">
+        @if (alertTotal === 0) {
+          <span
+            [class]="ICONS.ACTIONS.CHECK_CIRCLE"
+            aria-hidden="true"
+          ></span>
+          All clear in this view
+        } @else {
+          <span class="ops-health__key ops-health__key--overdue">{{ overdueCount | number: config.DEFAULT : config.LOCALE }} overdue</span>
+          <span class="ops-health__key ops-health__key--soon">{{ soonCount | number: config.DEFAULT : config.LOCALE }} due soon</span>
+        }
+      </p>
+    </div>
+
     <div class="ops-lanes">
       <section
         class="ops-lane ops-lane--overdue"
@@ -78,6 +115,10 @@
             id="ops-lane-overdue-title"
             class="ops-lane__title"
           >
+            <span
+              [class]="ICONS.COMMON.EXCLAMATION_TRIANGLE + ' ops-lane__icon'"
+              aria-hidden="true"
+            ></span>
             Overdue
           </h3>
           <span class="ops-lane__count">{{ overdueRows().length | number: config.DEFAULT : config.LOCALE }}</span>
@@ -134,6 +175,10 @@
             id="ops-lane-soon-title"
             class="ops-lane__title"
           >
+            <span
+              [class]="ICONS.COMMON.CLOCK + ' ops-lane__icon'"
+              aria-hidden="true"
+            ></span>
             Due soon
           </h3>
           <span class="ops-lane__count">{{ soonRows().length | number: config.DEFAULT : config.LOCALE }}</span>
