@@ -67,6 +67,19 @@
   font-size: 1.02rem;
   font-weight: 600;
 }
+.dcs-card__count {
+  flex-shrink: 0;
+  min-width: 1.6rem;
+  margin-left: auto;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--dcs-scroll-accent);
+  background: color-mix(in srgb, var(--dcs-scroll-accent) 12%, transparent);
+}
 .dcs-card__subtitle {
   margin: 0.1rem 0 0;
   font-size: 0.78rem;
@@ -209,4 +222,102 @@
   text-align: center;
   padding: 1.1rem 0.8rem;
   color: var(--text-secondary-color);
+}
+
+// ── Compact: one section of the dashboard's combined celebrations card ────────
+// No card chrome or fixed list height; the section colour carries the identity.
+:host-context(.dash-celebrations--stack) {
+  height: auto;
+  flex: 0 0 auto;
+
+  .dcs-card {
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .dcs-card__head {
+    gap: 0.55rem;
+    padding: 0.8rem 1rem 0.45rem;
+    border-bottom: 0;
+  }
+
+  .dcs-card__icon-tile {
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 0.45rem;
+    font-size: 0.8rem;
+  }
+
+  .dcs-card__title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--dcs-scroll-accent);
+  }
+
+  .dcs-card__subtitle {
+    display: none;
+  }
+
+  .dcs-card__count {
+    color: #fff;
+    background: var(--dcs-scroll-accent);
+  }
+
+  .dcs-card__loading,
+  .dcs-card__tray {
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
+    padding: 0 0.75rem 0.75rem;
+    scrollbar-gutter: auto;
+  }
+
+  .dcs-card__loading {
+    padding: 0.75rem;
+  }
+
+  .dcs-list {
+    gap: 0.35rem;
+  }
+
+  .dcs-row {
+    padding: 0.5rem 0.6rem;
+    border: 0;
+    border-left: 3px solid var(--dcs-scroll-accent);
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--dcs-scroll-accent) 6%, var(--background-paper-color));
+  }
+
+  .dcs-row--today {
+    border-left-color: #059669;
+    background: color-mix(in srgb, #22c55e 12%, var(--background-paper-color));
+  }
+
+  .dcs-avatar,
+  .dcs-flag {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .dcs-flag {
+    color: var(--dcs-scroll-accent);
+    background: color-mix(in srgb, var(--dcs-scroll-accent) 14%, transparent);
+  }
+
+  .dcs-empty {
+    justify-content: flex-start;
+    min-height: auto;
+    margin: 0 0.75rem 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px dashed color-mix(in srgb, var(--dcs-scroll-accent) 30%, var(--border-light-color));
+    border-radius: 0.5rem;
+    font-size: 0.78rem;
+    text-align: left;
+  }
 }

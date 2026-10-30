@@ -5,12 +5,11 @@ import {
   inject,
   viewChild,
 } from '@angular/core';
-import { NgStyle } from '@angular/common';
+import { DatePipe, NgStyle } from '@angular/common';
 import { APP_PERMISSION } from '@core/constants';
 import { AppPermissionService } from '@core/services';
 import { SEVERITY_STYLES } from '@shared/config';
 import { ICONS } from '@shared/constants';
-import { IPageHeaderConfig } from '@shared/types';
 import { KpmDashboardComponent } from '@features/dashboard/components/kpm-dashboard/kpm-dashboard.component';
 import { OpsAttentionDashboardComponent } from '@features/dashboard/components/ops-attention-dashboard/ops-attention-dashboard.component';
 import { AttendanceDashboardComponent } from '@features/dashboard/components/attendance-dashboard/attendance-dashboard.component';
@@ -19,7 +18,7 @@ import { LeaveBalanceDashboardComponent } from '@features/dashboard/components/l
 import { ExpenseDashboardComponent } from '@features/dashboard/components/expense-dashboard/expense-dashboard.component';
 import { FuelExpenseDashboardComponent } from '@features/dashboard/components/fuel-expense-dashboard/fuel-expense-dashboard.component';
 import { PetroCardWalletDashboardComponent } from '@features/dashboard/components/petro-card-wallet-dashboard/petro-card-wallet-dashboard.component';
-import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { AnniversaryDashboardComponent } from '../anniversary-dashboard/anniversary-dashboard.component';
 import { BirthdaysDashboardComponent } from '../birthdays-dashboard/birthdays-dashboard.component';
 import { HolidayDashboardComponent } from '../holiday-dashboard/holiday-dashboard.component';
@@ -29,8 +28,8 @@ import { ReceivablesPayablesDashboardComponent } from '../receivables-payables-d
 @Component({
   selector: 'app-main-dashboard',
   imports: [
+    DatePipe,
     NgStyle,
-    PageHeaderComponent,
     KpmDashboardComponent,
     PetroCardWalletDashboardComponent,
     OpsAttentionDashboardComponent,
@@ -51,6 +50,7 @@ import { ReceivablesPayablesDashboardComponent } from '../receivables-payables-d
 })
 export class MainDashboardComponent {
   private readonly appPermissionService = inject(AppPermissionService);
+  private readonly authService = inject(AuthService);
   private readonly ledgerSpendSection =
     viewChild<ElementRef<HTMLElement>>('ledgerSpend');
   private readonly receivablesSection =
@@ -105,13 +105,24 @@ export class MainDashboardComponent {
         ? 'Assets'
         : 'Transport';
 
-  protected readonly dashboardPageHeader: Partial<IPageHeaderConfig> = {
-    title: 'Dashboard',
-    subtitle:
-      'Attendance, leave, celebrations, assets, fleet, and ledgers — one place to see what needs attention.',
-    showGoBackButton: false,
-    showHeaderButton: false,
-  };
+  protected readonly today = new Date();
+  /** "Good morning, Nikhil", or just the greeting when the name is unknown. */
+  protected readonly heroTitle = [
+    MainDashboardComponent.greetingFor(this.today.getHours()),
+    this.authService.getCurrentUser()?.firstName?.trim(),
+  ]
+    .filter(Boolean)
+    .join(', ');
+
+  private static greetingFor(hour: number): string {
+    if (hour < 12) {
+      return 'Good morning';
+    }
+    if (hour < 17) {
+      return 'Good afternoon';
+    }
+    return 'Good evening';
+  }
 
   /** CSS vars for tiles + approval bar — same hex as `SEVERITY_STYLES` in status-map.config. */
   protected readonly workflowColorVars: Record<string, string> = {

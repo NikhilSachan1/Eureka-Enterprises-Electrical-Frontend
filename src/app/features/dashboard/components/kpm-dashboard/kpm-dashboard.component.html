@@ -257,39 +257,50 @@
       aria-hidden="true"
     ></span>
 
-    <span class="kpm-card__rlabel-stack">
-      <span class="kpm-card__rlabel-main">{{ row.label }}</span>
-      @if (row.hint) {
-        <span class="kpm-card__rhint">{{ row.hint }}</span>
-      }
-    </span>
-
-    <span class="kpm-card__rvalue-stack">
-      <span
-        class="kpm-card__rvalue"
-        [attr.aria-busy]="row.valueLoading ? 'true' : null"
-      >
-        @if (row.valueLoading) {
+    <span class="kpm-card__rcontent">
+      <span class="kpm-card__rtop">
+        <span class="kpm-card__rlabel-main">{{ row.label }}</span>
+        <span class="kpm-card__rvalue-stack">
+          @let isLargeAmount = row.format === 'currency' && (row.value >= 100000 || row.value <= -100000);
           <span
-            [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN + ' kpm-card__rvalue-loader'"
+            class="kpm-card__rvalue"
+            [attr.aria-busy]="row.valueLoading ? 'true' : null"
+            [attr.title]="isLargeAmount ? (row.value | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT) : null"
+          >
+            @if (row.valueLoading) {
+              <span
+                [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN + ' kpm-card__rvalue-loader'"
+                aria-hidden="true"
+              ></span>
+              <span class="kpm-card__sr-only">Loading value</span>
+            } @else if (isLargeAmount) {
+              <!-- Lakh / crore figures stay short so the label column keeps its width; full amount on hover. -->
+              {{ row.value | indianCurrency }}
+            } @else if (row.format === 'currency') {
+              {{ row.value | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
+            } @else {
+              {{ row.value | number: config.DEFAULT : config.LOCALE }}
+            }
+          </span>
+          @if (row.valueHint) {
+            <span class="kpm-card__rvalue-hint">{{ row.valueHint }}</span>
+          }
+        </span>
+        @if ((row.link || row.gapKey) && !row.valueLoading) {
+          <span
+            [class]="ICONS.COMMON.ARROW_RIGHT + ' kpm-card__rarrow'"
             aria-hidden="true"
           ></span>
-          <span class="kpm-card__sr-only">Loading value</span>
-        } @else if (row.format === 'currency') {
-          {{ row.value | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
-        } @else {
-          {{ row.value | number: config.DEFAULT : config.LOCALE }}
         }
       </span>
-      @if (row.valueHint) {
-        <span class="kpm-card__rvalue-hint">{{ row.valueHint }}</span>
+      @if (row.hint) {
+        <span
+          class="kpm-card__rhint"
+          [attr.title]="row.hint"
+        >
+          {{ row.hint }}
+        </span>
       }
     </span>
-    @if ((row.link || row.gapKey) && !row.valueLoading) {
-      <span
-        [class]="ICONS.COMMON.ARROW_RIGHT + ' kpm-card__rarrow'"
-        aria-hidden="true"
-      ></span>
-    }
   </div>
 </ng-template>

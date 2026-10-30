@@ -22,6 +22,9 @@
         <p class="dcs-card__subtitle">{{ subtitle() }}</p>
       }
     </div>
+    @if (!loading()) {
+      <span class="dcs-card__count">{{ rows().length }}</span>
+    }
   </header>
 
   <div class="dcs-card__body">

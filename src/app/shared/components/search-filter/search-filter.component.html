@@ -1,53 +1,104 @@
 @if (form.formGroup && form.fieldConfigs && form.buttonConfigs) {
   <div class="search-filter-container">
-    <p-panel
-      [toggleable]="true"
-      [collapsed]="false"
-      class="search-filter-panel"
-    >
-      <!-- Custom Header -->
-      <ng-template pTemplate="header">
-        <div class="flex items-center gap-2.5">
-          <div class="search-filter-header-icon">
-            <i [class]="ICONS.COMMON.FILTER + ' text-white text-xs'"></i>
-          </div>
-          <div class="flex-1 min-w-0">
-            <h3 class="font-semibold text-base leading-tight">Search & Filter</h3>
-            <p class="text-xs mt-0.5 text-text-secondary">Find exactly what you need</p>
-          </div>
-        </div>
-      </ng-template>
-
-      <!-- Panel Content -->
-      <form
-        (ngSubmit)="onSubmit()"
-        [formGroup]="form.formGroup"
+    @if (isCompactViewport()) {
+      <!-- Phones: a small trigger; the form opens in a side drawer. -->
+      <button
+        type="button"
+        class="search-filter-trigger"
+        [class.search-filter-trigger--active]="activeFilterCount() > 0"
+        aria-haspopup="dialog"
+        [attr.aria-expanded]="mobileDrawerOpen()"
+        (click)="mobileDrawerOpen.set(true)"
       >
-        <div class="search-filter-grid">
-          @for (field of form.fieldConfigs | keyvalue: customSort; track field.key) {
-            @if (isFieldVisible(field.key)) {
-              <div class="filter-field-wrapper">
-                <app-input-field
-                  [formGroup]="form.formGroup"
-                  [inputFieldConfig]="field.value"
-                />
-              </div>
-            }
-          }
-        </div>
+        <span
+          [class]="ICONS.COMMON.FILTER + ' search-filter-trigger__icon'"
+          aria-hidden="true"
+        ></span>
+        <span class="search-filter-trigger__label">Search &amp; Filter</span>
+        @if (activeFilterCount() > 0) {
+          <span class="search-filter-badge">{{ activeFilterCount() }} active</span>
+        }
+      </button>
 
-        <div class="search-filter-actions">
-          <app-button
-            [buttonConfig]="form.buttonConfigs['reset']"
-            [showDisabledButton]="isResetDisabled()"
-            (onButtonClick)="onReset()"
-          />
-          <app-button
-            [buttonConfig]="form.buttonConfigs['submit']"
-            [showDisabledButton]="isSearchDisabled()"
-          />
-        </div>
-      </form>
-    </p-panel>
+      <p-drawer
+        [visible]="mobileDrawerOpen()"
+        (visibleChange)="mobileDrawerOpen.set($event)"
+        position="right"
+        [modal]="true"
+        [blockScroll]="true"
+        styleClass="search-filter-drawer"
+      >
+        <ng-template #header>
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="search-filter-header-icon">
+              <i [class]="ICONS.COMMON.FILTER + ' text-white text-xs'"></i>
+            </div>
+            <h3 class="font-semibold text-base leading-tight">Search & Filter</h3>
+            @if (activeFilterCount() > 0) {
+              <span class="search-filter-badge">{{ activeFilterCount() }} active</span>
+            }
+          </div>
+        </ng-template>
+
+        <ng-container *ngTemplateOutlet="filterForm" />
+      </p-drawer>
+    } @else {
+      <p-panel
+        [toggleable]="true"
+        [collapsed]="false"
+        class="search-filter-panel"
+      >
+        <!-- Custom Header -->
+        <ng-template pTemplate="header">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="search-filter-header-icon">
+              <i [class]="ICONS.COMMON.FILTER + ' text-white text-xs'"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-base leading-tight">Search & Filter</h3>
+              <p class="text-xs mt-0.5 text-text-secondary">Find exactly what you need</p>
+            </div>
+            @if (activeFilterCount() > 0) {
+              <span class="search-filter-badge">{{ activeFilterCount() }} active</span>
+            }
+          </div>
+        </ng-template>
+
+        <ng-container *ngTemplateOutlet="filterForm" />
+      </p-panel>
+    }
   </div>
+
+  <ng-template #filterForm>
+    <form
+      class="search-filter-form"
+      (ngSubmit)="onSubmit()"
+      [formGroup]="form.formGroup"
+    >
+      <div class="search-filter-grid">
+        @for (field of form.fieldConfigs | keyvalue: customSort; track field.key) {
+          @if (isFieldVisible(field.key)) {
+            <div class="filter-field-wrapper">
+              <app-input-field
+                [formGroup]="form.formGroup"
+                [inputFieldConfig]="field.value"
+              />
+            </div>
+          }
+        }
+      </div>
+
+      <div class="search-filter-actions">
+        <app-button
+          [buttonConfig]="form.buttonConfigs['reset']"
+          [showDisabledButton]="isResetDisabled()"
+          (onButtonClick)="onReset()"
+        />
+        <app-button
+          [buttonConfig]="form.buttonConfigs['submit']"
+          [showDisabledButton]="isSearchDisabled()"
+        />
+      </div>
+    </form>
+  </ng-template>
 }

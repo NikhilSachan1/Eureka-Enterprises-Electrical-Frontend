@@ -29,19 +29,33 @@
 }
 
 // ── Card shell ─────────────────────────────────────────────────────────────────
+// Matches the list-page metrics cards: light tinted card, colour strip, icon chip, compact rows.
 .kpm-card {
   --kpm-accent: #006d5b;
   --kpm-accent-dark: #004d41;
 
-  border-radius: 1rem;
-  overflow: hidden;
-  background: var(--background-paper-color);
-  box-shadow:
-    0 2px 8px -2px rgb(0 0 0 / 0.1),
-    0 1px 3px -1px rgb(0 0 0 / 0.06);
-  border: 1px solid var(--border-light-color);
+  position: relative;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--kpm-accent) 18%, var(--border-light-color));
+  border-radius: 0.75rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--kpm-accent) 7%, var(--background-paper-color)) 0%,
+    var(--background-paper-color) 3.5rem
+  );
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.06);
+
+  // Card colour strip.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--kpm-accent), var(--kpm-accent-dark));
+  }
 
   // ── Colour variants ────────────────────────────────────────────────────────
   /* Pending counts queue — attention needed (distinct from dues red / renewals indigo) */
@@ -66,19 +80,14 @@
     --kpm-accent: #006d5b;
     --kpm-accent-dark: #004d41;
   }
-
 }
 
 // ── Header ─────────────────────────────────────────────────────────────────────
 .kpm-card__header {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-  min-height: 3.35rem;
-  padding: 1rem 1.15rem;
-  background: linear-gradient(135deg, var(--kpm-accent) 0%, var(--kpm-accent-dark) 100%);
+  gap: 0.6rem;
+  padding: 0.9rem 1rem 0.5rem;
 }
 
 .kpm-card__header-lead {
@@ -89,9 +98,17 @@
 }
 
 .kpm-card__hicon {
-  font-size: 1.125rem;
-  color: rgba(255 255 255 / 0.92);
+  display: inline-flex;
   flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--kpm-accent), var(--kpm-accent-dark));
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--kpm-accent) 35%, transparent);
 }
 
 .kpm-card__htitle-stack {
@@ -105,29 +122,25 @@
   font-size: 0.6875rem;
   font-weight: 500;
   line-height: 1.2;
-  color: rgb(255 255 255 / 0.82);
+  color: var(--text-secondary-color);
 }
 
 .kpm-card__htitle {
-  font-size: 0.9375rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: #fff;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.3;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--kpm-accent-dark);
 }
 
 // ── Body ───────────────────────────────────────────────────────────────────────
-// Soft tray; each row is its own rounded surface (gap only — no divider lines).
 .kpm-card__body {
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
   flex: 1;
-  padding: 0.5rem 0.65rem;
-  background: color-mix(in srgb, var(--border-light-color) 12%, var(--background-paper-color));
-  max-height: calc(5 * 3.45rem + 4 * 0.4rem + 0.25rem);
+  flex-direction: column;
+  max-height: calc(5 * 3.4rem);
+  padding: 0 0.5rem 0.5rem;
   overflow-y: auto;
   overscroll-behavior: contain;
 
@@ -143,7 +156,6 @@
     background: color-mix(in srgb, var(--kpm-accent) 30%, transparent);
     border-radius: 999px;
   }
-
 }
 
 .work-section {
@@ -403,28 +415,50 @@
   color: var(--text-secondary-color);
 }
 
-// ── Row (filled strip — full width inside body padding; no lines) ─────────────
+// ── Row ────────────────────────────────────────────────────────────────────────
+// Icon, then a content column: title + value + arrow on top, hint underneath at full width.
+// --row-tone follows the row state and colours the icon and value.
 .kpm-card__row {
+  --row-tone: var(--kpm-accent);
+
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.65rem;
-  margin: 0;
-  padding: 0.65rem 0.85rem;
-  background: var(--background-default-color);
-  border: none;
-  border-radius: 0.55rem;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.045);
-  transition:
-    background 0.12s ease,
-    box-shadow 0.12s ease;
+  padding: 0.55rem 0.5rem;
+  border-radius: 0.5rem;
+  transition: background 0.15s ease;
+
+  & + & {
+    border-top: 1px dashed var(--border-light-color);
+  }
 
   &:hover {
-    background: color-mix(in srgb, var(--kpm-accent) 7%, var(--background-default-color));
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.07);
+    background: color-mix(in srgb, var(--row-tone) 7%, transparent);
+  }
+
+  &--info {
+    --row-tone: #0284c7;
+  }
+
+  &--warn {
+    --row-tone: #d97706;
+  }
+
+  &--alert {
+    --row-tone: #dc2626;
+  }
+
+  &--success {
+    --row-tone: #16a34a;
   }
 
   &--clickable {
     cursor: pointer;
+
+    &:hover .kpm-card__rarrow {
+      opacity: 1;
+      transform: translateX(2px);
+    }
 
     &:focus-visible {
       outline: 2px solid color-mix(in srgb, var(--kpm-accent) 55%, transparent);
@@ -433,54 +467,63 @@
   }
 }
 
-// ── Row icon (soft glyph, not a heavy tile) ────────────────────────────────────
 .kpm-card__ricon {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 1.85rem;
   height: 1.85rem;
   border-radius: 0.5rem;
-  font-size: 0.82rem;
-  flex-shrink: 0;
-  color: var(--kpm-accent);
-  background: color-mix(in srgb, var(--kpm-accent) 6%, transparent);
-  border: 1px solid color-mix(in srgb, var(--kpm-accent) 12%, var(--border-light-color));
+  font-size: 0.8rem;
+  color: var(--row-tone);
+  background: color-mix(in srgb, var(--row-tone) 12%, transparent);
 }
 
-// ── Row label stack (title + supporting hint) ─────────────────────────────────
-.kpm-card__rlabel-stack {
+.kpm-card__rcontent {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
   gap: 0.15rem;
-  flex: 1;
   min-width: 0;
 }
 
+// Value and arrow keep their width; the title takes what is left and wraps.
+.kpm-card__rtop {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 1.85rem;
+}
+
 .kpm-card__rlabel-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--text-primary-color);
   line-height: 1.3;
-  letter-spacing: -0.01em;
+  color: var(--text-primary-color);
 }
 
+// Up to two lines; the full text is in the title attribute.
 .kpm-card__rhint {
+  display: -webkit-box;
+  overflow: hidden;
   font-size: 0.6875rem;
-  font-weight: 400;
-  line-height: 1.35;
+  line-height: 1.4;
   color: var(--text-secondary-color);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
-// ── Row value ──────────────────────────────────────────────────────────────────
 .kpm-card__rvalue-stack {
   display: flex;
+  flex-shrink: 0;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.15rem;
-  flex-shrink: 0;
+  gap: 0.1rem;
   max-width: 16rem;
 }
 
@@ -503,37 +546,31 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  min-width: 2.5rem;
-  min-height: 1.25rem;
-  font-size: 0.9375rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  line-height: 1;
+  min-width: 2rem;
+  font-size: 0.975rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
   color: var(--text-primary-color);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 
-  .kpm-card__row--info & {
-    color: #0284c7;
-  }
-
-  .kpm-card__row--warn & {
-    color: #f59e0b;
-  }
-
-  .kpm-card__row--alert & {
-    color: #ef4444;
-  }
-
+  .kpm-card__row--info &,
+  .kpm-card__row--warn &,
+  .kpm-card__row--alert &,
   .kpm-card__row--success & {
-    color: #16a34a;
+    color: var(--row-tone);
   }
 }
 
 .kpm-card__rarrow {
   flex-shrink: 0;
-  font-size: 0.75rem;
-  color: color-mix(in srgb, var(--kpm-accent) 70%, var(--text-secondary-color));
+  font-size: 0.7rem;
+  color: var(--kpm-accent);
+  opacity: 0.55;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 
 .kpm-card__rvalue-loader {

@@ -114,6 +114,12 @@ import {
 import { ImageModule } from 'primeng/image';
 import { NgClass } from '@angular/common';
 
+/** Phones get the centred touch calendar; larger screens get the popup anchored to the field. */
+const TOUCH_DATEPICKER_QUERY =
+  typeof window !== 'undefined'
+    ? window.matchMedia('(max-width: 768px)')
+    : null;
+
 @Component({
   selector: 'app-input-field',
   imports: [
@@ -143,6 +149,10 @@ import { NgClass } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputFieldComponent implements OnInit, AfterViewInit {
+  protected useTouchDatePicker(touchUI: boolean | undefined): boolean {
+    return !!touchUI && !!TOUCH_DATEPICKER_QUERY?.matches;
+  }
+
   private readonly galleryService = inject(GalleryService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly appConfigurationService = inject(AppConfigurationService);

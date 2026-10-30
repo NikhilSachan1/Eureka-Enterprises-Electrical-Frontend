@@ -7,93 +7,69 @@
     >
       @for (group of visibleGroups(); track group.id) {
         @let acc = getGroupAccent(group);
-        @if (group.layout === 'kpi' && group.metrics[0]; as kpiMetric) {
-          <section
-            class="metric-panel metric-panel--kpi"
-            [attr.aria-label]="group.title"
-            [style.--mc-accent]="acc.light"
-            [style.--mc-accent-dark]="acc.dark"
-          >
-            <header class="metric-panel__header">
-              <div class="metric-panel__header-lead">
-                @if (group.icon) {
-                  <span
-                    class="metric-panel__hicon"
-                    aria-hidden="true"
-                  >
-                    <i [ngClass]="group.icon"></i>
-                  </span>
-                }
-                <h2 class="metric-panel__title">{{ group.title }}</h2>
-              </div>
-            </header>
-            <div class="metric-panel__body">
-              <div class="metric-panel__kpi">
-                @if (getIcon(kpiMetric); as kpiIcon) {
-                  <span
-                    class="metric-panel__kpi-icon-wrap"
-                    aria-hidden="true"
-                  >
-                    <i [ngClass]="kpiIcon"></i>
-                  </span>
-                }
-                <p class="metric-panel__kpi-label">{{ kpiMetric.label }}</p>
-                <p
-                  class="metric-panel__kpi-value"
-                  [attr.aria-busy]="kpiMetric.valueLoading ? 'true' : null"
-                >
-                  @if (kpiMetric.valueLoading) {
-                    <span
-                      [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN + ' metric-row__value-loader'"
-                      aria-hidden="true"
-                    ></span>
-                    <span class="metric-row__sr-only">Loading value</span>
-                  } @else if (kpiMetric.type === ALL_DATA_TYPES.CURRENCY && kpiMetric.format) {
-                    {{ kpiMetric.value | currency: kpiMetric.format }}
-                  } @else {
-                    {{ kpiMetric.value }}
-                  }
-                </p>
-              </div>
+        @let heroMetric = group.layout === 'kpi' || group.metrics.length === 1 ? group.metrics[0] : null;
+        <section
+          class="metric-panel"
+          [class.metric-panel--hero]="heroMetric"
+          [attr.aria-label]="group.title"
+          [style.--mc-accent]="acc.light"
+          [style.--mc-accent-dark]="acc.dark"
+        >
+          <header class="metric-panel__header">
+            @if (group.icon) {
+              <span
+                class="metric-panel__hicon"
+                aria-hidden="true"
+              >
+                <i [ngClass]="group.icon"></i>
+              </span>
+            }
+            <h2 class="metric-panel__title">{{ group.title }}</h2>
+          </header>
+
+          @if (heroMetric) {
+            @let heroColors = getColorScheme(heroMetric.label);
+            @let heroTip = getMetricTooltip(heroMetric);
+            <div
+              class="metric-hero"
+              [style.--row-accent]="heroColors.primary"
+              [pTooltip]="heroTip"
+              [tooltipDisabled]="!heroTip"
+              tooltipPosition="top"
+            >
+              <span
+                class="metric-hero__value"
+                [attr.aria-busy]="heroMetric.valueLoading ? 'true' : null"
+              >
+                <ng-container *ngTemplateOutlet="metricValueTpl; context: { $implicit: heroMetric }" />
+              </span>
+              <span class="metric-hero__label">{{ heroMetric.label }}</span>
+              @if (heroMetric.subtitle) {
+                <span class="metric-stat__sub">{{ heroMetric.subtitle }}</span>
+              }
+              @if (group.icon) {
+                <i
+                  [ngClass]="group.icon"
+                  class="metric-hero__watermark"
+                  aria-hidden="true"
+                ></i>
+              }
             </div>
-          </section>
-        } @else {
-          <section
-            class="metric-panel"
-            [attr.aria-label]="group.title"
-            [style.--mc-accent]="acc.light"
-            [style.--mc-accent-dark]="acc.dark"
-          >
-            <header class="metric-panel__header">
-              <div class="metric-panel__header-lead">
-                @if (group.icon) {
-                  <span
-                    class="metric-panel__hicon"
-                    aria-hidden="true"
-                  >
-                    <i [ngClass]="group.icon"></i>
-                  </span>
-                }
-                <h2 class="metric-panel__title">{{ group.title }}</h2>
-              </div>
-            </header>
+          } @else {
             <div class="metric-panel__body">
               <ul
-                class="metric-panel__list"
+                class="metric-panel__stats"
                 role="list"
               >
                 @for (metric of group.metrics; track metric.label) {
-                  <li
-                    class="metric-panel__item"
-                    role="listitem"
-                  >
-                    <ng-container *ngTemplateOutlet="metricRowTpl; context: { $implicit: metric }" />
+                  <li role="listitem">
+                    <ng-container *ngTemplateOutlet="metricStatTpl; context: { $implicit: metric }" />
                   </li>
                 }
               </ul>
             </div>
-          </section>
-        }
+          }
+        </section>
       }
     </div>
   }
@@ -106,15 +82,12 @@
       >
         <div class="metric-panel__body">
           <ul
-            class="metric-panel__list"
+            class="metric-panel__stats"
             role="list"
           >
             @for (metric of flatMetrics; track metric.label) {
-              <li
-                class="metric-panel__item"
-                role="listitem"
-              >
-                <ng-container *ngTemplateOutlet="metricRowTpl; context: { $implicit: metric }" />
+              <li role="listitem">
+                <ng-container *ngTemplateOutlet="metricStatTpl; context: { $implicit: metric }" />
               </li>
             }
           </ul>
@@ -125,69 +98,63 @@
 }
 
 <ng-template
-  #metricRowTpl
+  #metricStatTpl
   let-metric
 >
   @let colors = getColorScheme(metric.label);
 
   @if (metric.metricType === ALL_DATA_TYPES.KNOB && metric.knobConfig) {
     <div
-      class="metric-knob"
+      class="metric-stat metric-stat--knob"
       [style.--row-accent]="colors.primary"
     >
-      @if (getIcon(metric); as kIcon) {
-        <i
-          [ngClass]="kIcon"
-          class="metric-knob__icon"
-          aria-hidden="true"
-        ></i>
-      }
       <app-knob [config]="metric.knobConfig" />
-      <span class="metric-knob__caption">{{ metric.label }}</span>
+      <span class="metric-stat__label">{{ metric.label }}</span>
     </div>
   } @else {
     @let metricTip = getMetricTooltip(metric);
     <div
-      class="metric-row"
+      class="metric-stat"
       [style.--row-accent]="colors.primary"
       [pTooltip]="metricTip"
       [tooltipDisabled]="!metricTip"
       tooltipPosition="top"
     >
-      @if (getIcon(metric); as rowIcon) {
+      <span class="metric-stat__label">
         <span
-          class="metric-row__icon-wrap"
+          class="metric-stat__dot"
           aria-hidden="true"
-        >
-          <i
-            [ngClass]="rowIcon"
-            class="metric-row__icon"
-          ></i>
+        ></span>
+        <span class="metric-stat__label-text">
+          {{ metric.label }}
+          @if (metric.subtitle) {
+            <span class="metric-stat__sub">{{ metric.subtitle }}</span>
+          }
         </span>
-      }
-      <div class="metric-row__text">
-        <span class="metric-row__label">{{ metric.label }}</span>
-        @if (metric.subtitle) {
-          <span class="metric-row__sub">{{ metric.subtitle }}</span>
-        }
-      </div>
+      </span>
       <span
-        class="metric-row__value"
-        [class.metric-row__value--currency]="metric.type === ALL_DATA_TYPES.CURRENCY && metric.format"
+        class="metric-stat__value"
         [attr.aria-busy]="metric.valueLoading ? 'true' : null"
       >
-        @if (metric.valueLoading) {
-          <span
-            [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN + ' metric-row__value-loader'"
-            aria-hidden="true"
-          ></span>
-          <span class="metric-row__sr-only">Loading value</span>
-        } @else if (metric.type === ALL_DATA_TYPES.CURRENCY && metric.format) {
-          {{ metric.value | currency: metric.format }}
-        } @else {
-          {{ metric.value }}
-        }
+        <ng-container *ngTemplateOutlet="metricValueTpl; context: { $implicit: metric }" />
       </span>
     </div>
+  }
+</ng-template>
+
+<ng-template
+  #metricValueTpl
+  let-metric
+>
+  @if (metric.valueLoading) {
+    <span
+      [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN + ' metric-stat__loader'"
+      aria-hidden="true"
+    ></span>
+    <span class="metric-stat__sr-only">Loading value</span>
+  } @else if (metric.type === ALL_DATA_TYPES.CURRENCY && metric.format) {
+    {{ metric.value | currency: metric.format }}
+  } @else {
+    {{ metric.value }}
   }
 </ng-template>

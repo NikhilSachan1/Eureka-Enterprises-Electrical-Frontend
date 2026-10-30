@@ -1,47 +1,53 @@
-.environment-banner {
+// Diagonal corner ribbon over the sidebar logo (top-left). Takes no layout space and lets clicks through.
+.environment-ribbon {
+  --ribbon-bg: var(--orange-600, #ea580c);
+
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  z-index: 10050;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  height: var(--env-banner-height, 28px);
-  padding: 0 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #fff;
-  background: var(--orange-600, #ea580c);
-  box-shadow: 0 1px 4px rgb(0 0 0 / 0.2);
+  // Above the sidebar (1001), below PrimeNG modals such as drawers and dialogs (1100+).
+  z-index: 1050;
+  width: 5.5rem;
+  height: 5.5rem;
+  overflow: hidden;
   pointer-events: none;
   user-select: none;
 
   &--local {
-    background: var(--blue-600, #2563eb);
+    --ribbon-bg: var(--blue-600, #2563eb);
   }
 
   &--uat {
-    background: var(--orange-600, #ea580c);
+    --ribbon-bg: var(--orange-600, #ea580c);
   }
 
-  &__env {
-    font-weight: 700;
+  // Phones: the top-left corner holds the menu button, so use the top-right corner.
+  @media (max-width: 768px) {
+    right: 0;
+    left: auto;
   }
+}
 
-  &__separator {
-    opacity: 0.75;
-    font-weight: 400;
-    text-transform: none;
-  }
+.environment-ribbon__band {
+  position: absolute;
+  top: 0.95rem;
+  left: -2.1rem;
+  width: 7.5rem;
+  padding: 0.18rem 0;
+  font-size: 0.625rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--ribbon-bg);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+  transform: rotate(-45deg);
 
-  &__hint {
-    font-weight: 500;
-    opacity: 0.92;
-    text-transform: none;
-    letter-spacing: 0.02em;
+  @media (max-width: 768px) {
+    right: -2.1rem;
+    left: auto;
+    transform: rotate(45deg);
   }
 }

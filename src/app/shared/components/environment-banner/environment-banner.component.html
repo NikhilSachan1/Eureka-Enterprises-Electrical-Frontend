@@ -2,34 +2,30 @@
   @switch (environment) {
     @case (EEnvironment.LOCAL) {
       <div
-        class="environment-banner environment-banner--local"
+        class="environment-ribbon environment-ribbon--local"
         role="status"
-        aria-live="polite"
+        aria-label="Local, non-production environment"
       >
-        <span class="environment-banner__env">Local</span>
         <span
-          class="environment-banner__separator"
+          class="environment-ribbon__band"
           aria-hidden="true"
         >
-          ·
+          Local
         </span>
-        <span class="environment-banner__hint">Non-production environment</span>
       </div>
     }
     @case (EEnvironment.DEVELOPMENT) {
       <div
-        class="environment-banner environment-banner--uat"
+        class="environment-ribbon environment-ribbon--uat"
         role="status"
-        aria-live="polite"
+        aria-label="UAT, non-production environment"
       >
-        <span class="environment-banner__env">UAT environment</span>
         <span
-          class="environment-banner__separator"
+          class="environment-ribbon__band"
           aria-hidden="true"
         >
-          ·
+          UAT
         </span>
-        <span class="environment-banner__hint">Non-production environment</span>
       </div>
     }
   }
