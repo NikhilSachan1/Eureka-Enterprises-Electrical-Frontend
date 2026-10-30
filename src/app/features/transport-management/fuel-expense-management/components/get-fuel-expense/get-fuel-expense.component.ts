@@ -6,6 +6,7 @@ import {
   inject,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
 import { AppPermissionService, LoggerService } from '@core/services';
 import {
@@ -26,11 +27,14 @@ import {
 import {
   EButtonActionType,
   EDataType,
+  ETabMode,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
   IMetricGroup,
   IPageHeaderConfig,
+  ITabChange,
+  ITabItem,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
@@ -48,6 +52,7 @@ import {
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IFuelExpense } from '../../types/fuel-expense.interface';
+import { EFuelLedgerView } from '../../types/fuel-expense.enum';
 import { APP_CONFIG } from '@core/config';
 import { GetFuelExpenseDetailComponent } from '../get-fuel-expense-detail/get-fuel-expense-detail.component';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
@@ -56,6 +61,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import {
   applyGroupMetricValueLoading,
   getMappedValueFromArrayOfObjects,
@@ -69,6 +75,7 @@ import { AuthService } from '@features/auth-management/services/auth.service';
   imports: [
     PageHeaderComponent,
     MetricsCardComponent,
+    NavTabsComponent,
     SearchFilterComponent,
     DataTableComponent,
     DecimalPipe,
@@ -96,6 +103,64 @@ export class GetFuelExpenseComponent implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly authService = inject(AuthService);
+  private readonly dataTable = viewChild(DataTableComponent);
+
+  protected readonly ledgerTabMode = ETabMode.CONTENT;
+  protected readonly ledgerTabs: ITabItem[] = [
+    {
+      route: EFuelLedgerView.EMPLOYEE,
+      label: 'Employee Ledger',
+      icon: ICONS.COMMON.USERS,
+      tooltip: 'Fuel ledger with balances per employee',
+    },
+    {
+      route: EFuelLedgerView.VEHICLE,
+      label: 'Vehicle Wise',
+      icon: ICONS.COMMON.CAR,
+      tooltip: 'Fuel entries of one vehicle, whoever filled it',
+    },
+  ];
+
+  /** Active tab. Filter values stay; the list reloads for the new view. */
+  protected readonly ledgerView = signal<EFuelLedgerView>(
+    EFuelLedgerView.EMPLOYEE
+  );
+  protected readonly isVehicleView = computed(
+    () => this.ledgerView() === EFuelLedgerView.VEHICLE
+  );
+
+  /** Vehicle filter belongs to the vehicle view; employee and payout filters to the ledger. */
+  private readonly employeeViewHiddenFilterFields = new Set<
+    keyof IFuelExpenseGetFormDto
+  >(['vehicleName']);
+  private readonly vehicleViewHiddenFilterFields = new Set<
+    keyof IFuelExpenseGetFormDto
+  >([
+    'employeeName',
+    'paidFromAccount',
+    'hasPaidFromAccount',
+    'approvalStatus',
+  ]);
+
+  private readonly hiddenFilterFields = computed(() =>
+    this.isVehicleView()
+      ? this.vehicleViewHiddenFilterFields
+      : this.employeeViewHiddenFilterFields
+  );
+
+  protected readonly ledgerFilterVisibleFields = computed(() => {
+    if (!this.searchFilterConfig) {
+      return undefined;
+    }
+
+    const hiddenFields = this.hiddenFilterFields();
+    return Object.keys(this.searchFilterConfig.fields).filter(
+      fieldName => !hiddenFields.has(fieldName as keyof IFuelExpenseGetFormDto)
+    );
+  });
+
+  private defaultEmptyMessage = '';
+  private defaultEmptyMessageDescription = '';
 
   /** False until the assigned-vehicle request finishes. A null detail is also the unloaded state. */
   private readonly assignedVehicleResolved = signal(false);
@@ -151,6 +216,33 @@ export class GetFuelExpenseComponent implements OnInit {
     this.table.updateHeaders(
       revealEmployeeColumnForManagedUsers(this.table.getHeaders(), managedUsers)
     );
+    const { emptyMessage, emptyMessageDescription } = this.table.tableConfig();
+    this.defaultEmptyMessage = emptyMessage;
+    this.defaultEmptyMessageDescription = emptyMessageDescription;
+  }
+
+  protected onLedgerTabChanged(change: ITabChange): void {
+    const view =
+      change.tab.route === EFuelLedgerView.VEHICLE
+        ? EFuelLedgerView.VEHICLE
+        : EFuelLedgerView.EMPLOYEE;
+
+    if (view === this.ledgerView()) {
+      return;
+    }
+
+    this.ledgerView.set(view);
+
+    if (!this.tableFilterData) {
+      return;
+    }
+
+    const table = this.dataTable()?.dt();
+    if (table) {
+      table.first = 0;
+    }
+    this.tableFilterData = { ...this.tableFilterData, first: 0 };
+    this.loadFuelExpenseList();
   }
 
   private resolveAssignedVehicle(): void {
@@ -170,8 +262,18 @@ export class GetFuelExpenseComponent implements OnInit {
   private loadFuelExpenseList(): void {
     this.payNowClosingBalance.set(null);
     this.payNowEmployeeId.set(null);
-    this.table.setLoading(true);
     const paramData = this.prepareParamData();
+
+    if (this.isVehicleView() && !paramData.vehicleName) {
+      this.showSelectVehiclePrompt();
+      return;
+    }
+
+    this.table.updateTableConfig({
+      emptyMessage: this.defaultEmptyMessage,
+      emptyMessageDescription: this.defaultEmptyMessageDescription,
+    });
+    this.table.setLoading(true);
 
     this.fuelExpenseService
       .getFuelExpenseList(paramData)
@@ -191,7 +293,7 @@ export class GetFuelExpenseComponent implements OnInit {
           this.fuelExpenseStats.set(stats);
           const employeeId = paramData.employeeName;
 
-          if (employeeId?.length === 1) {
+          if (!this.isVehicleView() && employeeId?.length === 1) {
             this.payNowClosingBalance.set(stats.balances.closingBalance);
             this.payNowEmployeeId.set(employeeId[0]);
           } else {
@@ -214,10 +316,30 @@ export class GetFuelExpenseComponent implements OnInit {
   }
 
   private prepareParamData(): IFuelExpenseGetFormDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IFuelExpenseGetFormDto>(
-      this.tableFilterData,
-      this.table.getHeaders()
-    );
+    const params =
+      this.tableServerSideFilterAndSortService.buildQueryParams<IFuelExpenseGetFormDto>(
+        this.tableFilterData,
+        this.table.getHeaders()
+      );
+
+    for (const fieldName of this.hiddenFilterFields()) {
+      delete params[fieldName];
+    }
+
+    return params;
+  }
+
+  /** Vehicle view needs a vehicle; without one it would just repeat the employee ledger. */
+  private showSelectVehiclePrompt(): void {
+    this.table.setData([]);
+    this.table.updateTableConfig({
+      totalRecords: 0,
+      emptyMessage: 'Select a vehicle to see its fuel entries.',
+      emptyMessageDescription:
+        'Choose a vehicle in the filter above and press Search.',
+    });
+    this.fuelExpenseStats.set(null);
+    this.table.setLoading(false);
   }
 
   private mapTableData(

@@ -38,7 +38,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { PanelModule } from 'primeng/panel';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { TabsModule } from 'primeng/tabs';
 import {
   IDataTableConfig,
   IDataTableFrozenColumnConfig,
@@ -115,7 +114,6 @@ import {
     PaginatorModule,
     PaginatorComponent,
     SelectButtonModule,
-    TabsModule,
     StatusTagComponent,
     ChipComponent,
     ReadMoreComponent,

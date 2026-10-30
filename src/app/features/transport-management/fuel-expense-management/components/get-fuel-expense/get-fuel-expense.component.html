@@ -5,14 +5,21 @@
 
 <app-metrics-card [metricGroups]="metricGroups()" />
 
-@if (searchFilterConfig) {
-  <div class="search-filter-wrapper">
-    <app-search-filter
-      [tableRef]="dataTable.dt()"
-      [searchFilterConfig]="searchFilterConfig"
-    />
-  </div>
-}
+<app-nav-tabs
+  [tabs]="ledgerTabs"
+  [tabMode]="ledgerTabMode"
+  (tabChanged)="onLedgerTabChanged($event)"
+>
+  @if (searchFilterConfig) {
+    <div class="search-filter-wrapper">
+      <app-search-filter
+        [tableRef]="dataTable.dt()"
+        [searchFilterConfig]="searchFilterConfig"
+        [visibleFieldNames]="ledgerFilterVisibleFields()"
+      />
+    </div>
+  }
+</app-nav-tabs>
 
 <ng-template
   #fuelDetails

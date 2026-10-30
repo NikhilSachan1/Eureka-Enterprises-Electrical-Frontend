@@ -233,6 +233,12 @@ export function buildVehicleTableRowActionsConfig(
       permission: [APP_PERMISSION.VEHICLE.SERVICE_HISTORY],
     },
     {
+      id: EButtonActionType.FUEL_REPORT,
+      icon: ICONS.FUEL.MENU,
+      tooltip: 'View Fuel Report',
+      permission: [APP_PERMISSION.FUEL_EXPENSE.TABLE_VIEW],
+    },
+    {
       id: EButtonActionType.HANDOVER_INITIATE,
       tooltip: 'Handover Vehicle',
       permission: [APP_PERMISSION.VEHICLE.HANDOVER_INITIATE],
