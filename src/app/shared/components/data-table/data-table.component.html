@@ -3,20 +3,26 @@
 @let showToggle = (tableConfig().showViewModeToggle ?? true) && !isCompactViewport();
 
 @if (canSwitchMobileLayout()) {
-  <div class="mobile-layout-tabs">
-    <p-tabs [value]="mobileViewMode()">
-      <p-tablist>
-        @for (option of mobileLayoutOptions; track option.value) {
-          <p-tab
-            [value]="option.value"
-            (click)="mobileViewMode.set(option.value)"
-          >
-            <i [class]="option.icon"></i>
-            <span>{{ option.label }}</span>
-          </p-tab>
-        }
-      </p-tablist>
-    </p-tabs>
+  <div
+    class="mobile-layout-switch"
+    role="tablist"
+    aria-label="Layout"
+    [class.is-table]="mobileViewMode() === 'list'"
+  >
+    <span class="mobile-layout-switch__thumb" aria-hidden="true"></span>
+    @for (option of mobileLayoutOptions; track option.value) {
+      <button
+        type="button"
+        role="tab"
+        class="mobile-layout-switch__option"
+        [class.is-active]="mobileViewMode() === option.value"
+        [attr.aria-selected]="mobileViewMode() === option.value"
+        (click)="mobileViewMode.set(option.value)"
+      >
+        <i [class]="option.icon"></i>
+        <span>{{ option.label }}</span>
+      </button>
+    }
   </div>
 }
 
