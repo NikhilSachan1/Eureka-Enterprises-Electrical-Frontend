@@ -65,9 +65,10 @@ const DOCUMENT_GAP_ICONS: Record<string, string> = {
   'advance-not-settled': ICONS.EXPENSE.MONEY,
 };
 
+import { IndianCurrencyPipe } from '@shared/pipes/indian-currency.pipe';
 @Component({
   selector: 'app-kpm-dashboard',
-  imports: [CurrencyPipe, DecimalPipe, NgTemplateOutlet],
+  imports: [CurrencyPipe, DecimalPipe, IndianCurrencyPipe, NgTemplateOutlet],
   templateUrl: './kpm-dashboard.component.html',
   styleUrl: './kpm-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
