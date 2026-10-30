@@ -81,22 +81,32 @@
       <div
         class="dash-bento__tile dash-celebrations"
         [class.dash-bento__tile--narrow]="showPeopleTime"
-        [class.dash-bento__tile--scroll]="showPeopleTime"
+        [class.dash-celebrations--stack]="showPeopleTime"
         [class.dash-bento__tile--full]="!showPeopleTime"
-        [class.dash-celebrations--row]="!showPeopleTime"
         role="region"
         aria-label="Birthdays, anniversaries and holidays"
       >
-        @defer (on idle) {
-          <app-holiday-dashboard />
-          <app-birthdays-dashboard />
-          <app-anniversary-dashboard />
-        } @placeholder {
-          <div
-            class="dash-bento__defer"
-            aria-hidden="true"
-          ></div>
+        @if (showPeopleTime) {
+          <header class="dash-celebrations__head">
+            <span
+              [class]="ICONS.COMMON.GIFT + ' dash-celebrations__icon'"
+              aria-hidden="true"
+            ></span>
+            <h2 class="dash-celebrations__title">Celebrations &amp; holidays</h2>
+          </header>
         }
+        <div class="dash-celebrations__list">
+          @defer (on idle) {
+            <app-holiday-dashboard />
+            <app-birthdays-dashboard />
+            <app-anniversary-dashboard />
+          } @placeholder {
+            <div
+              class="dash-bento__defer"
+              aria-hidden="true"
+            ></div>
+          }
+        </div>
       </div>
 
       @if (showPeopleTime) {

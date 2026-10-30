@@ -157,22 +157,12 @@
   }
 }
 
-/* —— Celebrations: a stack beside a wide tile, or a row on its own —— */
-.dash-celebrations {
+/* —— Celebrations: one card of colour-coded sections beside attendance, or three cards in a row —— */
+.dash-celebrations__list {
   display: grid;
   gap: 1rem;
   grid-template-columns: minmax(0, 1fr);
   align-content: start;
-
-  &--row {
-    @media (min-width: 740px) {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    @media (min-width: 1100px) {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
 
   > app-birthdays-dashboard,
   > app-anniversary-dashboard,
@@ -181,23 +171,86 @@
     flex-direction: column;
     min-width: 0;
   }
+}
 
-  /* Stacked beside attendance: each card takes its content height (the card shell is built to fill
-     a row, which would squash it here and clip the body), and an empty card stays compact. */
-  &:not(.dash-celebrations--row) {
-    ::ng-deep app-dashboard-celebrations-section,
-    ::ng-deep .dcs-card {
-      flex: 0 0 auto;
+.dash-celebrations:not(.dash-celebrations--stack) .dash-celebrations__list {
+  @media (min-width: 740px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1100px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.dash-celebrations--stack {
+  overflow: hidden;
+  border: 1px solid var(--border-light-color);
+  border-radius: 1rem;
+  background: var(--background-paper-color);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 8px 28px -12px rgb(0 0 0 / 0.12);
+
+  @media (min-width: 1000px) {
+    height: var(--dash-row-h);
+  }
+
+  // Plain block flow: each section is as tall as its content and the list scrolls.
+  // (The section wrappers are built to fill a row with height: 100%, which made them overlap here.)
+  .dash-celebrations__list {
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+
+    > app-birthdays-dashboard,
+    > app-anniversary-dashboard,
+    > app-holiday-dashboard {
+      display: block;
       height: auto;
       min-height: auto;
     }
 
-    ::ng-deep .dcs-empty {
-      min-height: 4.5rem;
-      padding: 1rem;
-      font-size: 0.8125rem;
+    > * + * {
+      border-top: 1px solid var(--border-light-color);
     }
   }
+}
+
+.dash-celebrations__head {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1rem 0.75rem;
+  border-bottom: 1px solid var(--border-light-color);
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, #7c3aed 9%, var(--background-paper-color)),
+    color-mix(in srgb, #ea580c 7%, var(--background-paper-color))
+  );
+}
+
+.dash-celebrations__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.55rem;
+  font-size: 0.9rem;
+  color: #fff;
+  background: linear-gradient(135deg, #f97316, #7c3aed);
+}
+
+.dash-celebrations__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary-color);
 }
 
 /* —— Ledgers side by side —— */
