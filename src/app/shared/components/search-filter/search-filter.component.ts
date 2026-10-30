@@ -203,6 +203,9 @@ export class SearchFilterComponent implements OnInit {
   }
 
   protected onSubmit(): void {
+    // Emit before the table reloads: `_filter()` fires the lazy load synchronously, and pages
+    // that keep the selection in their own state (e.g. event history) must have it set by then.
+    this.onFilterSubmit.emit(this.form.getData());
     const table = this.resolveTable();
     if (table) {
       this.setFilterInTable(table, true);
@@ -211,7 +214,6 @@ export class SearchFilterComponent implements OnInit {
     this.hasSearched = true;
     this.hasPrefillValues = false;
     this.syncFiltersToUrl(this.form.getRawData());
-    this.onFilterSubmit.emit(this.form.getData());
     this.changeDetectorRef.markForCheck();
   }
 
@@ -262,10 +264,10 @@ export class SearchFilterComponent implements OnInit {
     }
 
     this.restoreFromUrlPending = false;
+    // Restored filters count as a submit, so pages can sync their state before the first load.
+    this.onFilterSubmit.emit(this.form.getData());
     if (table) {
       this.setFilterInTable(table, false);
-    } else {
-      this.onFilterSubmit.emit(this.form.getData());
     }
     this.form.formGroup.markAsPristine();
     this.hasSearched = true;
