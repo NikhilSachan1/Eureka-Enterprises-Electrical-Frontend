@@ -9,10 +9,12 @@
     />
   }
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.assetImages"
-  />
+  @if (dialogActionType() !== EButtonActionTypeEnum.RETIRED) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.assetImages"
+    />
+  }
 
   <app-input-field
     [formGroup]="form.formGroup"

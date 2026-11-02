@@ -14,9 +14,44 @@
   />
 </div>
 
+<ng-template
+  #eventRemarks
+  let-row
+>
+  @let info = row.lossDetails;
+  @let isLost = row.eventTypeCode === LOSS_EVENT_TYPES.LOST;
+  @if (info && (isLost || row.eventTypeCode === LOSS_EVENT_TYPES.RECOVERED)) {
+    <!-- Lost / recovered: why, and the money moved. -->
+    <div class="loss-details">
+      @if (info.reason) {
+        <app-read-more [text]="info.reason" />
+      }
+      @if (isLost && info.recoveryAmount) {
+        <p class="loss-details__money loss-details__money--charged">
+          {{ info.recoveryAmount | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }} recovered
+          @if (row.fromUserName) {
+            from {{ row.fromUserName }}
+          }
+        </p>
+      }
+      @if (!isLost && info.refundedAmount) {
+        <p class="loss-details__money loss-details__money--refunded">
+          {{ info.refundedAmount | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }} refunded
+          @if (row.fromUserName) {
+            to {{ row.fromUserName }}
+          }
+        </p>
+      }
+    </div>
+  } @else {
+    <app-read-more [text]="row.remarks" />
+  }
+</ng-template>
+
 <app-data-table
   #dataTable
   [class.hidden]="!hasAssetSelected()"
+  [customBodyTemplates]="{ eventRemarks: eventRemarks }"
   [tableConfig]="table.tableConfig()"
   [tableHeader]="table.headers()"
   [tableData]="table.data()"

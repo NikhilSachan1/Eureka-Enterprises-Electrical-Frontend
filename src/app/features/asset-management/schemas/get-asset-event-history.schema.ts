@@ -61,6 +61,8 @@ export const AssetEventHistoryGetStatsResponseSchema = z.looseObject({
     HANDOVER_ACCEPTED: z.number().int().nonnegative(),
     HANDOVER_REJECTED: z.number().int().nonnegative(),
     HANDOVER_CANCELLED: z.number().int().nonnegative(),
+    LOST: z.number().int().nonnegative(),
+    RECOVERED: z.number().int().nonnegative(),
   }),
 });
 
@@ -80,9 +82,18 @@ export const AssetEventHistoryGetBaseResponseObjectSchema = z.looseObject({
     .object({
       reason: z.string().nullable().optional(),
       remark: z.string().nullable().optional(),
+      // RECOVERED events
+      notes: z.string().nullable().optional(),
+      refundedAmount: z.union([z.string(), z.number()]).nullable().optional(),
+      // LOST events
+      recoveryAmount: z.union([z.string(), z.number()]).nullable().optional(),
     })
-    .transform(({ reason, remark }) => ({
-      reason: reason?.trim() ? reason : (remark ?? null),
+    .transform(metadata => ({
+      reason: metadata.reason?.trim()
+        ? metadata.reason
+        : (metadata.remark ?? metadata.notes ?? null),
+      recoveryAmount: metadata.recoveryAmount,
+      refundedAmount: metadata.refundedAmount,
     }))
     .nullable(),
   assetFiles: z.array(makeFieldsNullable(AssetBaseDocumentsSchema)),

@@ -17,6 +17,9 @@ import {
   IAssetExportReportResponseDto,
   IAssetGetFormDto,
   IAssetGetResponseDto,
+  ILostRecoveryAssetResponseDto,
+  IMarkLostAssetFormDto,
+  IMarkRecoveredAssetFormDto,
 } from '../types/asset.dto';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { API_ROUTES } from '@core/constants';
@@ -36,6 +39,9 @@ import {
   AssetExportReportResponseSchema,
   AssetGetRequestSchema,
   AssetGetResponseSchema,
+  LostRecoveryAssetResponseSchema,
+  MarkLostAssetRequestSchema,
+  MarkRecoveredAssetRequestSchema,
 } from '../schemas';
 
 @Injectable({
@@ -316,6 +322,71 @@ export class AssetService {
             );
           } else {
             this.logger.logUserAction('Export Asset Report Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  markAssetLost(
+    assetId: string,
+    formData: IMarkLostAssetFormDto
+  ): Observable<ILostRecoveryAssetResponseDto> {
+    this.logger.logUserAction('Mark Asset Lost Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.ASSET.MARK_LOST(assetId),
+        {
+          response: LostRecoveryAssetResponseSchema,
+          request: MarkLostAssetRequestSchema,
+        },
+        formData,
+        { multipart: true }
+      )
+      .pipe(
+        tap((response: ILostRecoveryAssetResponseDto) => {
+          this.logger.logUserAction('Mark Asset Lost Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Mark Asset Lost Error', error);
+          } else {
+            this.logger.logUserAction('Mark Asset Lost Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  markAssetRecovered(
+    assetId: string,
+    formData: IMarkRecoveredAssetFormDto
+  ): Observable<ILostRecoveryAssetResponseDto> {
+    this.logger.logUserAction('Mark Asset Recovered Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.ASSET.MARK_RECOVERED(assetId),
+        {
+          response: LostRecoveryAssetResponseSchema,
+          request: MarkRecoveredAssetRequestSchema,
+        },
+        formData,
+        { multipart: true }
+      )
+      .pipe(
+        tap((response: ILostRecoveryAssetResponseDto) => {
+          this.logger.logUserAction('Mark Asset Recovered Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Mark Asset Recovered Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Mark Asset Recovered Error', error);
           }
           return throwError(() => error);
         })

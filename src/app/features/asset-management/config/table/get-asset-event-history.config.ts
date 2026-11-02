@@ -65,6 +65,8 @@ export const ASSET_EVENT_HISTORY_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderCo
       field: 'remarks',
       header: 'Remarks',
       bodyTemplate: EDataType.TEXT_WITH_READ_MORE,
+      // Lost / recovered events also show the amount charged or refunded.
+      customTemplateKey: 'eventRemarks',
       showSort: false,
     },
     {

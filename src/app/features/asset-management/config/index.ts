@@ -9,3 +9,7 @@ export { createAssetTableEnhancedConfig } from './table/get-asset.config';
 export { ACTION_ASSET_FORM_CONFIG } from './form/action-asset.config';
 export { ASSET_EVENT_HISTORY_TABLE_ENHANCED_CONFIG } from './table/get-asset-event-history.config';
 export { SEARCH_FILTER_ASSET_EVENT_HISTORY_FORM_CONFIG } from './form/search-filter-asset-event-history.config';
+export {
+  MARK_LOST_ASSET_FORM_CONFIG,
+  MARK_RECOVERED_ASSET_FORM_CONFIG,
+} from './form/lost-recovery-asset.config';

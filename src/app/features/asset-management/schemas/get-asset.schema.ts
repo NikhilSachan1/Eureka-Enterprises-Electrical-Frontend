@@ -100,6 +100,7 @@ export const AssetGetStatsResponseSchema = z.looseObject({
     underMaintenance: z.number().int().nonnegative(),
     damaged: z.number().int().nonnegative(),
     retired: z.number().int().nonnegative(),
+    lost: z.number().int().nonnegative().optional(),
   }),
   byAssetType: z.object({
     calibrated: z.number().int().nonnegative(),

@@ -1,3 +1,4 @@
+import { EAssetStatus } from '@features/asset-management/types/asset.enum';
 import { IAssetGetFormDto } from '@features/asset-management/types/asset.dto';
 import {
   COMMON_FORM_ACTIONS,
@@ -54,7 +55,13 @@ const SEARCH_FILTER_ASSET_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfi
       },
       optionsDropdown: INITIATED_STATUS_FILTER_DATA,
       filterOptions: {
-        include: ['ASSIGNED', 'AVAILABLE', 'INITIATED'],
+        include: [
+          EAssetStatus.ASSIGNED,
+          EAssetStatus.AVAILABLE,
+          'INITIATED',
+          EAssetStatus.LOST,
+          EAssetStatus.RETIRED,
+        ],
       },
     },
     matchmode: ETableFilterMatchMode.IN,

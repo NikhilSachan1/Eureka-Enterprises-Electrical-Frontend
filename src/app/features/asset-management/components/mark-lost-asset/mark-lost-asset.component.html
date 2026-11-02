@@ -1,0 +1,25 @@
+<form
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.lostReason"
+  />
+
+  @if (assigneeName) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.recoveryAmount"
+    />
+    <p class="text-xs text-content-secondary -mt-2">
+      This amount is charged to the expense ledger of
+      <strong>{{ assigneeName }}</strong>
+    </p>
+  }
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.assetImages"
+  />
+</form>

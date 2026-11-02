@@ -13,6 +13,8 @@ import { DeleteAssetComponent } from '@features/asset-management/components/dele
 import { ActionAssetComponent } from '@features/asset-management/components/action-asset/action-asset.component';
 import { QrCodeAssetComponent } from '@features/asset-management/components/qr-code-asset/qr-code-asset.component';
 import { ExportAssetComponent } from '@features/asset-management/components/export-asset/export-asset.component';
+import { MarkLostAssetComponent } from '@features/asset-management/components/mark-lost-asset/mark-lost-asset.component';
+import { MarkRecoveredAssetComponent } from '@features/asset-management/components/mark-recovered-asset/mark-recovered-asset.component';
 
 export const ASSET_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.DELETE]: {
@@ -74,6 +76,47 @@ export const ASSET_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
     dialogConfig: {
       header: 'Deallocate asset',
       message: 'Remove this asset from the current assignee and free it up?',
+    },
+  },
+  [EButtonActionType.MARK_LOST]: {
+    dynamicComponent: MarkLostAssetComponent,
+    dialogConfig: {
+      header: 'Mark asset as lost',
+      message:
+        'The asset is taken off its assignee and marked lost. Record what happened below.',
+      icon: ICONS.COMMON.EXCLAMATION_TRIANGLE,
+      acceptButtonProps: {
+        label: 'Mark as lost',
+        icon: ICONS.COMMON.EXCLAMATION_TRIANGLE,
+        severity: EButtonSeverity.DANGER,
+      },
+    },
+  },
+  [EButtonActionType.MARK_RECOVERED]: {
+    dynamicComponent: MarkRecoveredAssetComponent,
+    dialogConfig: {
+      header: 'Mark asset as recovered',
+      message: 'The asset becomes available again. Add how it was found.',
+      icon: ICONS.ACTIONS.CHECK_CIRCLE,
+      acceptButtonProps: {
+        label: 'Mark as recovered',
+        icon: ICONS.ACTIONS.CHECK_CIRCLE,
+        severity: EButtonSeverity.SUCCESS,
+      },
+    },
+  },
+  [EButtonActionType.RETIRED]: {
+    dynamicComponent: ActionAssetComponent,
+    dialogConfig: {
+      header: 'Retire asset',
+      message:
+        'The asset is permanently taken out of service. This cannot be undone.',
+      icon: ICONS.COMMON.EXCLAMATION_TRIANGLE,
+      acceptButtonProps: {
+        label: 'Retire asset',
+        icon: ICONS.ACTIONS.TIMES,
+        severity: EButtonSeverity.DANGER,
+      },
     },
   },
   [EButtonActionType.QR_CODE]: {

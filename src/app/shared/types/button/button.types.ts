@@ -80,6 +80,8 @@ export enum EButtonActionType {
   DEALLOCATE = 'deallocate',
   EVENT_HISTORY = 'eventHistory',
   SERVICE_INFO = 'vehicleServiceInfo',
+  MARK_LOST = 'markLost',
+  MARK_RECOVERED = 'markRecovered',
   FUEL_REPORT = 'fuelReport',
   UNDER_MAINTENANCE = 'underMaintenance',
   RETIRED = 'retired',

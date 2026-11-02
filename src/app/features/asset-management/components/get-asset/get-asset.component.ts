@@ -446,6 +446,8 @@ export class GetAssetComponent implements OnInit {
           { label: 'Total', value: stats?.total ?? 0 },
           { label: 'Available', value: stats?.byStatus?.available ?? 0 },
           { label: 'Assigned', value: stats?.byStatus?.assigned ?? 0 },
+          { label: 'Lost', value: stats?.byStatus?.lost ?? 0 },
+          { label: 'Retired', value: stats?.byStatus?.retired ?? 0 },
           {
             label: 'Initiated',
             icon: ICONS.ACTIONS.SEND,
@@ -545,7 +547,8 @@ export class GetAssetComponent implements OnInit {
       actionType === EButtonActionType.HANDOVER_ACCEPTED ||
       actionType === EButtonActionType.HANDOVER_REJECTED ||
       actionType === EButtonActionType.HANDOVER_CANCELLED ||
-      actionType === EButtonActionType.DEALLOCATE
+      actionType === EButtonActionType.DEALLOCATE ||
+      actionType === EButtonActionType.RETIRED
     ) {
       dynamicComponentInputs.dialogActionType = actionType;
     }
