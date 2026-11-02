@@ -13,5 +13,13 @@ export const HolidaysDashboardGetResponseSchema = z
     upcoming: z.array(HolidaysBaseSchema),
   })
   .transform(data => {
-    return [...data.thisMonth, ...data.today, ...data.upcoming];
+    // The lists overlap: a holiday can be in today, upcoming and thisMonth at once.
+    const holidays = [...data.today, ...data.upcoming, ...data.thisMonth];
+    const uniqueHolidays = new Map(
+      holidays.map(holiday => [`${holiday.date}|${holiday.name}`, holiday])
+    );
+
+    return [...uniqueHolidays.values()].sort(
+      (a, b) => a.daysUntil - b.daysUntil
+    );
   });
