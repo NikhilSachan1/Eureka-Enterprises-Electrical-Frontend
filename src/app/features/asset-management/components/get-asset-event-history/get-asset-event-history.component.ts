@@ -238,6 +238,9 @@ export class GetAssetEventHistoryComponent implements OnInit {
         metrics: [
           { label: 'Available', value: stats?.byEventType?.AVAILABLE ?? 0 },
           { label: 'Assigned', value: stats?.byEventType?.ASSIGNED ?? 0 },
+          { label: 'Lost', value: stats?.byEventType?.LOST ?? 0 },
+          { label: 'Recovered', value: stats?.byEventType?.RECOVERED ?? 0 },
+          { label: 'Retired', value: stats?.byEventType?.RETIRED ?? 0 },
         ],
       },
       {

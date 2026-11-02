@@ -61,6 +61,8 @@ export const AssetEventHistoryGetStatsResponseSchema = z.looseObject({
     HANDOVER_ACCEPTED: z.number().int().nonnegative(),
     HANDOVER_REJECTED: z.number().int().nonnegative(),
     HANDOVER_CANCELLED: z.number().int().nonnegative(),
+    LOST: z.number().int().nonnegative(),
+    RECOVERED: z.number().int().nonnegative(),
   }),
 });
 

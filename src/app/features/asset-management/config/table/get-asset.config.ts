@@ -60,7 +60,7 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
   {
     field: 'latestEvent.eventType',
-    header: 'Handover Status',
+    header: 'Last Handover Status',
     customTemplateKey: 'latestEventFlow',
     showSort: false,
   },
