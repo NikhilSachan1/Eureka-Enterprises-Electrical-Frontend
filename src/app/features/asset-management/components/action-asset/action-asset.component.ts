@@ -103,6 +103,8 @@ export class ActionAssetComponent
       actionTypeValue = ETableActionTypeValue.HANDOVER_CANCELLED;
     } else if (this.dialogActionType() === EButtonActionType.DEALLOCATE) {
       actionTypeValue = ETableActionTypeValue.DEALLOCATED;
+    } else if (this.dialogActionType() === EButtonActionType.RETIRED) {
+      actionTypeValue = ETableActionTypeValue.RETIRED;
     }
 
     const { id: assetId } = this.selectedRecord()[0];
@@ -147,6 +149,11 @@ export class ActionAssetComponent
       loadingMessage = {
         title: 'Deallocating asset',
         message: "We're deallocating this asset. This will just take a moment.",
+      };
+    } else if (this.dialogActionType() === EButtonActionType.RETIRED) {
+      loadingMessage = {
+        title: 'Retiring asset',
+        message: "We're retiring this asset. This will just take a moment.",
       };
     }
 

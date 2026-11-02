@@ -105,6 +105,20 @@ export const ASSET_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
       },
     },
   },
+  [EButtonActionType.RETIRED]: {
+    dynamicComponent: ActionAssetComponent,
+    dialogConfig: {
+      header: 'Retire asset',
+      message:
+        'The asset is permanently taken out of service. This cannot be undone.',
+      icon: ICONS.COMMON.EXCLAMATION_TRIANGLE,
+      acceptButtonProps: {
+        label: 'Retire asset',
+        icon: ICONS.ACTIONS.TIMES,
+        severity: EButtonSeverity.DANGER,
+      },
+    },
+  },
   [EButtonActionType.QR_CODE]: {
     dynamicComponent: QrCodeAssetComponent,
     dialogConfig: {

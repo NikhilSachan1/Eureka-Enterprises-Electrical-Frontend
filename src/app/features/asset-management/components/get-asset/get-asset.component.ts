@@ -545,7 +545,8 @@ export class GetAssetComponent implements OnInit {
       actionType === EButtonActionType.HANDOVER_ACCEPTED ||
       actionType === EButtonActionType.HANDOVER_REJECTED ||
       actionType === EButtonActionType.HANDOVER_CANCELLED ||
-      actionType === EButtonActionType.DEALLOCATE
+      actionType === EButtonActionType.DEALLOCATE ||
+      actionType === EButtonActionType.RETIRED
     ) {
       dynamicComponentInputs.dialogActionType = actionType;
     }

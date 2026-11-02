@@ -5,6 +5,7 @@ export enum EAssetType {
 
 export enum EAssetStatus {
   ASSIGNED = 'ASSIGNED',
+  AVAILABLE = 'AVAILABLE',
   LOST = 'LOST',
   RETIRED = 'RETIRED',
 }

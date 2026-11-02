@@ -25,6 +25,7 @@ export const APP_PERMISSION = {
     EVENT_HISTORY: 'asset.event-history-list',
     MARK_LOST: 'asset.mark-lost',
     MARK_RECOVERED: 'asset.mark-recovered',
+    RETIRE: 'asset.retire',
     EXPORT: 'asset.deallocate',
   },
   ATTENDANCE: {
