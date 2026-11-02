@@ -56,6 +56,9 @@ export interface IAssetEventHistory
     | 'toUserDetails'
   > {
   remarks: string;
+  /** Raw event type (e.g. LOST); `eventType` holds the display label. */
+  eventTypeCode: string;
+  lossDetails: IAssetLossDetails | null;
   // From User - who transferred the asset
   fromUserName: string | null;
   fromUserCode: string | null;
@@ -65,4 +68,13 @@ export interface IAssetEventHistory
   // Created By - who created this event
   createdByName: string;
   createdByCode: string;
+}
+
+/** What was recorded when an asset was marked lost or recovered (from the event metadata). */
+export interface IAssetLossDetails {
+  reason: string | null;
+  /** Charged to the previous assignee when marked lost. */
+  recoveryAmount: number | null;
+  /** Credited back to them when recovered. */
+  refundedAmount: number | null;
 }

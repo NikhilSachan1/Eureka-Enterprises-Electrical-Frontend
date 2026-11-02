@@ -1,0 +1,23 @@
+<form
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.recoveryNotes"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.refundRecoveryAmount"
+  />
+  <p class="text-xs text-content-secondary -mt-2">
+    If an amount was charged to the previous assignee when this asset was lost, tick to credit it back to their expense
+    ledger. Nothing happens if nothing was charged.
+  </p>
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.assetImages"
+  />
+</form>

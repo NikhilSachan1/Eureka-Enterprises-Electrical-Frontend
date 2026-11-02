@@ -1,5 +1,6 @@
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IAssetGetResponseDto } from '@features/asset-management/types/asset.dto';
+import { EAssetStatus } from '@features/asset-management/types/asset.enum';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import { ICONS } from '@shared/constants';
 import {
@@ -109,14 +110,31 @@ const TERMINAL_HANDOVER_EVENT_TYPES = new Set<string>([
   ETableActionTypeValue.HANDOVER_CANCELLED,
 ]);
 
+/** A lost asset is with nobody: only recovery (and read-only actions) apply until it is recovered. */
+const LOST_ASSET_ACTION_REASON =
+  'This asset is marked as lost. Mark it as recovered first.';
+
+function getDeleteDisableReason(row: AssetTableRow): string | undefined {
+  if (row.status === EAssetStatus.LOST) {
+    return LOST_ASSET_ACTION_REASON;
+  }
+  if (row.status === EAssetStatus.ASSIGNED) {
+    return 'First deallocate the asset from the assignee before deleting.';
+  }
+  return undefined;
+}
+
 function isHandoverInitiateDisabled(
   row: AssetTableRow,
   loggedInUserId: string | null | undefined
 ): boolean {
+  if (row.status === EAssetStatus.LOST) {
+    return true;
+  }
   if (row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED) {
     return true;
   }
-  if (row.status === 'ASSIGNED') {
+  if (row.status === EAssetStatus.ASSIGNED) {
     return !loggedInUserId || row.assignedTo !== loggedInUserId;
   }
   return false;
@@ -126,10 +144,13 @@ function getHandoverInitiateDisableReason(
   row: AssetTableRow,
   loggedInUserId: string | null | undefined
 ): string | undefined {
+  if (row.status === EAssetStatus.LOST) {
+    return LOST_ASSET_ACTION_REASON;
+  }
   if (row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED) {
     return 'Request is already initiated.';
   }
-  if (row.status === 'ASSIGNED') {
+  if (row.status === EAssetStatus.ASSIGNED) {
     if (!loggedInUserId || row.assignedTo !== loggedInUserId) {
       return 'Only the assigned user can initiate handover for this asset.';
     }
@@ -142,6 +163,7 @@ function isHandoverAcceptRejectDisabled(
   loggedInUserId: string | null | undefined
 ): boolean {
   return (
+    row.status === EAssetStatus.LOST ||
     row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED ||
     !loggedInUserId ||
     row.latestEvent.toUser !== loggedInUserId
@@ -160,6 +182,9 @@ function getHandoverAcceptRejectDisableReason(
   if (!isHandoverAcceptRejectDisabled(row, loggedInUserId)) {
     return undefined;
   }
+  if (row.status === EAssetStatus.LOST) {
+    return LOST_ASSET_ACTION_REASON;
+  }
   const eventType = row.latestEvent?.eventType;
   if (eventType !== ETableActionTypeValue.HANDOVER_INITIATED) {
     return 'No allocation request is pending. The handover must be initiated first.';
@@ -175,6 +200,7 @@ function isHandoverCancelDisabled(
   loggedInUserId: string | null | undefined
 ): boolean {
   return (
+    row.status === EAssetStatus.LOST ||
     row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED ||
     !loggedInUserId ||
     row.latestEvent.fromUser !== loggedInUserId
@@ -193,6 +219,9 @@ function getHandoverCancelDisableReason(
   if (!isHandoverCancelDisabled(row, loggedInUserId)) {
     return undefined;
   }
+  if (row.status === EAssetStatus.LOST) {
+    return LOST_ASSET_ACTION_REASON;
+  }
   const eventType = row.latestEvent?.eventType;
   if (eventType && TERMINAL_HANDOVER_EVENT_TYPES.has(eventType)) {
     return 'This allocation request has already been completed.';
@@ -202,6 +231,20 @@ function getHandoverCancelDisableReason(
   }
   if (!loggedInUserId || row.latestEvent?.fromUser !== loggedInUserId) {
     return 'You are not authorized to cancel this allocation. Only the user who initiated the request can cancel.';
+  }
+  return undefined;
+}
+
+/** Mirrors the backend: a lost or retired asset, or one with a pending handover, cannot be marked lost. */
+function getMarkLostDisableReason(row: AssetTableRow): string | undefined {
+  if (row.status === EAssetStatus.LOST) {
+    return 'This asset is already marked as lost.';
+  }
+  if (row.status === EAssetStatus.RETIRED) {
+    return 'A retired asset cannot be marked as lost.';
+  }
+  if (row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED) {
+    return 'Cancel or complete the pending handover first.';
   }
   return undefined;
 }
@@ -265,24 +308,47 @@ export function buildAssetTableRowActionsConfig(
       id: EButtonActionType.DEALLOCATE,
       tooltip: 'Deallocate Asset',
       permission: [APP_PERMISSION.ASSET.DEALLOCATE],
-      disableWhen: row => row.status !== 'ASSIGNED',
+      disableWhen: row => row.status !== EAssetStatus.ASSIGNED,
+      disableReason: (row): string | undefined => {
+        if (row.status === EAssetStatus.LOST) {
+          return LOST_ASSET_ACTION_REASON;
+        }
+        return row.status !== EAssetStatus.ASSIGNED
+          ? 'Asset is not allocated.'
+          : undefined;
+      },
+    },
+    {
+      id: EButtonActionType.MARK_LOST,
+      tooltip: 'Mark as Lost',
+      permission: [APP_PERMISSION.ASSET.MARK_LOST],
+      disableWhen: row => getMarkLostDisableReason(row) !== undefined,
+      disableReason: row => getMarkLostDisableReason(row),
+    },
+    {
+      id: EButtonActionType.MARK_RECOVERED,
+      tooltip: 'Mark as Recovered',
+      permission: [APP_PERMISSION.ASSET.MARK_RECOVERED],
+      disableWhen: row => row.status !== EAssetStatus.LOST,
       disableReason: row =>
-        row.status !== 'ASSIGNED' ? 'Asset is not allocated.' : undefined,
+        row.status !== EAssetStatus.LOST
+          ? 'Only an asset marked as lost can be recovered.'
+          : undefined,
     },
     {
       ...COMMON_ROW_ACTIONS.EDIT,
       tooltip: 'Edit Asset',
       permission: [APP_PERMISSION.ASSET.EDIT],
+      disableWhen: row => row.status === EAssetStatus.LOST,
+      disableReason: row =>
+        row.status === EAssetStatus.LOST ? LOST_ASSET_ACTION_REASON : undefined,
     },
     {
       ...COMMON_ROW_ACTIONS.DELETE,
       tooltip: 'Delete Asset',
       permission: [APP_PERMISSION.ASSET.DELETE],
-      disableWhen: row => row.status === 'ASSIGNED',
-      disableReason: row =>
-        row.status === 'ASSIGNED'
-          ? 'First deallocate the asset from the assignee before deleting.'
-          : undefined,
+      disableWhen: row => getDeleteDisableReason(row) !== undefined,
+      disableReason: row => getDeleteDisableReason(row),
     },
   ];
 }
@@ -306,9 +372,9 @@ export const ASSET_TABLE_BULK_ACTIONS_CONFIG: Partial<
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Asset',
     permission: [APP_PERMISSION.ASSET.DELETE],
-    disableWhen: row => row.status === 'ASSIGNED',
+    disableWhen: row => row.status === EAssetStatus.ASSIGNED,
     disableReason: row =>
-      row.status === 'ASSIGNED'
+      row.status === EAssetStatus.ASSIGNED
         ? 'First deallocate the asset from the assignee before deleting.'
         : undefined,
   },

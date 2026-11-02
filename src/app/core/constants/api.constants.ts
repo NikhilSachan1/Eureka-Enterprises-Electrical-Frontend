@@ -96,6 +96,8 @@ export const API_ROUTES = {
     ACTION: 'assets/action',
     GET_ASSET_EVENT_HISTORY: (assetId: string) => `asset-events/${assetId}`,
     REPORT_PDF: 'assets/report/pdf',
+    MARK_LOST: (assetId: string) => `assets/${assetId}/mark-lost`,
+    MARK_RECOVERED: (assetId: string) => `assets/${assetId}/mark-recovered`,
   },
   VEHICLE: {
     LIST: 'vehicles',

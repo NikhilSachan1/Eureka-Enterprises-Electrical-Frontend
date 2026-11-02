@@ -30,6 +30,9 @@ import {
   AssetEventHistoryGetStatsResponseSchema,
   AssetExportReportRequestSchema,
   AssetExportReportResponseSchema,
+  LostRecoveryAssetResponseSchema,
+  MarkLostAssetRequestSchema,
+  MarkRecoveredAssetRequestSchema,
 } from '../schemas';
 
 /*
@@ -130,4 +133,15 @@ export type IAssetExportReportFormDto = z.input<
 >;
 export type IAssetExportReportResponseDto = z.infer<
   typeof AssetExportReportResponseSchema
+>;
+
+/*
+  Asset Lost / Recovered
+*/
+export type IMarkLostAssetFormDto = z.input<typeof MarkLostAssetRequestSchema>;
+export type IMarkRecoveredAssetFormDto = z.input<
+  typeof MarkRecoveredAssetRequestSchema
+>;
+export type ILostRecoveryAssetResponseDto = z.infer<
+  typeof LostRecoveryAssetResponseSchema
 >;

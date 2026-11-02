@@ -34,3 +34,8 @@ export {
   AssetExportReportRequestSchema,
   AssetExportReportResponseSchema,
 } from './export-asset-report.schema';
+export {
+  MarkLostAssetRequestSchema,
+  MarkRecoveredAssetRequestSchema,
+  LostRecoveryAssetResponseSchema,
+} from './lost-recovery-asset.schema';

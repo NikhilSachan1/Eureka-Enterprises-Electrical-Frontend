@@ -7,7 +7,9 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
 import {
   ASSET_EVENT_HISTORY_TABLE_ENHANCED_CONFIG,
@@ -28,6 +30,7 @@ import {
   TableService,
 } from '@shared/services';
 import {
+  ETableActionTypeValue,
   IEnhancedTable,
   IEnhancedTableConfig,
   IMetricGroup,
@@ -42,6 +45,7 @@ import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-ca
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
+import { ReadMoreComponent } from '@shared/components/read-more/read-more.component';
 import {
   applyGroupMetricValueLoading,
   getMappedValueFromArrayOfObjects,
@@ -55,6 +59,8 @@ import {
     SearchFilterComponent,
     DataTableComponent,
     EmptyMessagesComponent,
+    ReadMoreComponent,
+    CurrencyPipe,
   ],
   templateUrl: './get-asset-event-history.component.html',
   styleUrl: './get-asset-event-history.component.scss',
@@ -62,6 +68,8 @@ import {
 })
 export class GetAssetEventHistoryComponent implements OnInit {
   protected readonly ICONS = ICONS;
+  protected readonly LOSS_EVENT_TYPES = ETableActionTypeValue;
+  protected readonly APP_CONFIG = APP_CONFIG;
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -161,6 +169,18 @@ export class GetAssetEventHistoryComponent implements OnInit {
           record.eventType
         ),
         remarks: record.metadata?.reason?.trim() || '-',
+        eventTypeCode: record.eventType,
+        lossDetails: record.metadata
+          ? {
+              reason: record.metadata.reason,
+              recoveryAmount: this.toPositiveAmount(
+                record.metadata.recoveryAmount
+              ),
+              refundedAmount: this.toPositiveAmount(
+                record.metadata.refundedAmount
+              ),
+            }
+          : null,
         createdAt: record.createdAt,
         documentKeys: record.documentKeys,
         fromUserName: fromUser
@@ -196,6 +216,14 @@ export class GetAssetEventHistoryComponent implements OnInit {
     this.assetId.set('');
     this.assetEventHistoryStats.set(null);
     this.table.setData([]);
+  }
+
+  /** Event metadata stores amounts as strings, with "0" when nothing was charged. */
+  private toPositiveAmount(
+    value: string | number | null | undefined
+  ): number | null {
+    const amount = Number(value);
+    return Number.isFinite(amount) && amount > 0 ? amount : null;
   }
 
   private getMetricGroups(): IMetricGroup[] {
