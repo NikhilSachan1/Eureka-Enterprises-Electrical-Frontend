@@ -190,6 +190,7 @@ export const APP_PERMISSION = {
   DASHBOARD: {
     ASSET_COMPLIANCE: 'dashboard.asset-compliance',
     VEHICLE_COMPLIANCE: 'dashboard.vehicle-compliance',
+    PETRO_CARD_WALLET: 'dashboard.petro-card-wallet',
     RECEIVABLES_PAYABLES: 'financials.universal-view',
   },
   CRON: {
