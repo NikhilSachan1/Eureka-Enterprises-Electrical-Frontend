@@ -78,6 +78,10 @@ export class MainDashboardComponent {
     this.appPermissionService.hasPermission(
       APP_PERMISSION.DASHBOARD.RECEIVABLES_PAYABLES
     );
+  protected readonly canViewPetroCardWallet =
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.DASHBOARD.PETRO_CARD_WALLET
+    );
   protected readonly showApplyAttendance = this.appPermissionService.hasPermission(
     APP_PERMISSION.ATTENDANCE.APPLY
   );
