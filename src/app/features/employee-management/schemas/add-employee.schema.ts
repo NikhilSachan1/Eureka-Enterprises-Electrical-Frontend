@@ -6,6 +6,23 @@ import { EUserRole } from '@shared/constants';
 
 const { employeeId } = EmployeeUpsertShapeSchema.shape;
 
+const SITE_SECTION_INCHARGE_DESIGNATION = 'site_section_incharge';
+
+const getRolesForDesignation = (designation: string): EUserRole[] => {
+  switch (toLowerCase(designation)) {
+    case toLowerCase(EUserRole.DRIVER):
+      return [EUserRole.DRIVER];
+    case toLowerCase(SITE_SECTION_INCHARGE_DESIGNATION):
+      return [EUserRole.SITE_INCHARGE];
+    case toLowerCase(EUserRole.OPERATION_MANAGER):
+      return [EUserRole.OPERATION_MANAGER, EUserRole.EMPLOYEE];
+    case toLowerCase(EUserRole.HR):
+      return [EUserRole.HR, EUserRole.EMPLOYEE];
+    default:
+      return [EUserRole.EMPLOYEE];
+  }
+};
+
 export const EmployeeAddRequestSchema =
   EmployeeUpsertShapeSchema.strict().transform(
     ({
@@ -60,10 +77,7 @@ export const EmployeeAddRequestSchema =
         employerPf: employeePfContribution,
         foodAllowance,
       },
-      roles:
-        toLowerCase(designation) === toLowerCase(EUserRole.DRIVER)
-          ? [EUserRole.DRIVER]
-          : [EUserRole.EMPLOYEE],
+      roles: getRolesForDesignation(designation),
     })
   );
 
