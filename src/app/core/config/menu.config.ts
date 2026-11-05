@@ -28,6 +28,12 @@ export const appMenu: ApplicationMenu = {
               routerLink: ROUTES.EMPLOYEE.ADD,
               permission: [APP_PERMISSION.EMPLOYEE.ADD],
             },
+            {
+              label: 'Add Non Employee',
+              icon: ICONS.COMMON.ADD,
+              routerLink: `${ROUTES.EMPLOYEE.NON_EMPLOYEE}/${ROUTES.NON_EMPLOYEE.ADD}`,
+              permission: [APP_PERMISSION.SYSTEM_USER.ADD],
+            },
           ],
         },
         {
