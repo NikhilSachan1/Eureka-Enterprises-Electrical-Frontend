@@ -80,6 +80,12 @@ export const APP_PERMISSION = {
     SEND_PASSWORD_LINK: 'employee.send-password-link',
     RESET_PASSWORD: 'employee.reset-password',
   },
+  SYSTEM_USER: {
+    TABLE_VIEW: 'system-user.view',
+    ADD: 'system-user.add',
+    EDIT: 'system-user.edit',
+    DELETE: 'system-user.delete',
+  },
   EXPENSE: {
     VIEW_DETAIL: 'expense.view-detail',
     TABLE_VIEW: 'expense.view-list',

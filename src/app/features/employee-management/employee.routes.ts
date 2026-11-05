@@ -60,4 +60,11 @@ export const EMPLOYEE_MANAGEMENT_ROUTES: Routes = [
       employeeDetail: GetEmployeeDetailResolver,
     },
   },
+  {
+    path: ROUTES.EMPLOYEE.NON_EMPLOYEE,
+    loadChildren: () =>
+      import('@features/non-employee-management/non-employee.routes').then(
+        m => m.NON_EMPLOYEE_MANAGEMENT_ROUTES
+      ),
+  },
 ];

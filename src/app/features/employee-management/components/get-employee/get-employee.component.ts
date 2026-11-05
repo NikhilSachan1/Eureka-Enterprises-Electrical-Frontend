@@ -10,7 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants';
-import { LoggerService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
 import {
   EMPLOYEE_ACTION_CONFIG_MAP,
   EMPLOYEE_TABLE_ENHANCED_CONFIG,
@@ -40,12 +40,15 @@ import {
   EButtonActionType,
   EDataType,
   EDrawerSize,
+  ETabMode,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
   IEnhancedTableConfig,
   IMetricGroup,
   IPageHeaderConfig,
+  ITabChange,
+  ITabItem,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
@@ -61,6 +64,16 @@ import {
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { GetEmployeeDetailComponent } from '../get-employee-detail/get-employee-detail.component';
+import { NgTemplateOutlet } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
+import { GetNonEmployeeComponent } from '@features/non-employee-management/components/get-non-employee/get-non-employee.component';
+import { NON_EMPLOYEE_TAB_QUERY_PARAMS } from '@features/non-employee-management/constants/non-employee.constants';
+
+enum EEmployeeTab {
+  EMPLOYEE = 'employee',
+  NON_EMPLOYEE = 'non-employee',
+}
 
 @Component({
   selector: 'app-get-employee',
@@ -69,6 +82,9 @@ import { GetEmployeeDetailComponent } from '../get-employee-detail/get-employee-
     DataTableComponent,
     MetricsCardComponent,
     SearchFilterComponent,
+    NavTabsComponent,
+    NgTemplateOutlet,
+    GetNonEmployeeComponent,
   ],
   templateUrl: './get-employee.component.html',
   styleUrl: './get-employee.component.scss',
@@ -98,8 +114,47 @@ export class GetEmployeeComponent implements OnInit {
     null
   );
 
+  private readonly route = inject(ActivatedRoute);
+  private readonly appPermissionService = inject(AppPermissionService);
+
+  protected readonly tabMode = ETabMode.CONTENT;
+  protected readonly tabs = computed<ITabItem[]>(() => [
+    {
+      route: EEmployeeTab.EMPLOYEE,
+      label: 'Employee',
+      icon: ICONS.COMMON.USERS,
+      tooltip: 'Employees with salary, leave and attendance',
+    },
+    {
+      route: EEmployeeTab.NON_EMPLOYEE,
+      label: 'Non Employee',
+      icon: ICONS.COMMON.USER,
+      tooltip: 'Users who only log in and work',
+    },
+  ]);
+  /** Without the system-user permission the page stays a plain employee list. */
+  protected readonly showTabs = computed(() =>
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.SYSTEM_USER.TABLE_VIEW
+    )
+  );
+  private readonly activeTab = signal<EEmployeeTab>(
+    this.showTabs() &&
+      this.route.snapshot.queryParamMap.get('tab') ===
+        NON_EMPLOYEE_TAB_QUERY_PARAMS.tab
+      ? EEmployeeTab.NON_EMPLOYEE
+      : EEmployeeTab.EMPLOYEE
+  );
+  protected readonly isNonEmployeeTab = computed(
+    () => this.activeTab() === EEmployeeTab.NON_EMPLOYEE
+  );
+
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricGroups = computed(() => this.getMetricGroups());
+
+  protected onTabChanged(change: ITabChange): void {
+    this.activeTab.set(change.tab.route as EEmployeeTab);
+  }
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -348,6 +403,13 @@ export class GetEmployeeComponent implements OnInit {
     if (actionName === 'addEmployee') {
       navigationRoute = [ROUTE_BASE_PATHS.EMPLOYEE, ROUTES.EMPLOYEE.ADD];
     }
+    if (actionName === 'addNonEmployee') {
+      navigationRoute = [
+        ROUTE_BASE_PATHS.EMPLOYEE,
+        ROUTES.EMPLOYEE.NON_EMPLOYEE,
+        ROUTES.NON_EMPLOYEE.ADD,
+      ];
+    }
     const success =
       this.routerNavigationService.navigateToRoute(navigationRoute);
 
@@ -365,13 +427,21 @@ export class GetEmployeeComponent implements OnInit {
       subtitle: 'Manage employee records',
       showHeaderButton: true,
       headerButtonConfig: [
-        {
-          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
-          label: 'Add Employee',
-          icon: ICONS.COMMON.ADD,
-          actionName: 'addEmployee',
-          permission: [APP_PERMISSION.EMPLOYEE.ADD],
-        },
+        this.isNonEmployeeTab()
+          ? {
+              ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
+              label: 'Add Non Employee',
+              icon: ICONS.COMMON.ADD,
+              actionName: 'addNonEmployee',
+              permission: [APP_PERMISSION.SYSTEM_USER.ADD],
+            }
+          : {
+              ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
+              label: 'Add Employee',
+              icon: ICONS.COMMON.ADD,
+              actionName: 'addEmployee',
+              permission: [APP_PERMISSION.EMPLOYEE.ADD],
+            },
       ],
     };
   }
