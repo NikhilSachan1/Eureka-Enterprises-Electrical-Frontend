@@ -9,6 +9,8 @@
       [class.payment-sheet-amounts__tile--payable]="leftVariant() === 'payable'"
       [class.payment-sheet-amounts__tile--paid]="leftVariant() === 'paid'"
       [class.payment-sheet-amounts__tile--due]="leftVariant() === 'due'"
+      [class.payment-sheet-amounts__tile--advance]="leftVariant() === 'advance'"
+      [class.payment-sheet-amounts__tile--neutral]="leftVariant() === 'neutral'"
     >
       <span class="payment-sheet-amounts__tile-label">{{ leftLabel() }}</span>
       <span class="payment-sheet-amounts__tile-value">{{ leftAmount() | currency: cur : 'symbol' : fmt : loc }}</span>
@@ -19,6 +21,8 @@
       [class.payment-sheet-amounts__tile--payable]="rightVariant() === 'payable'"
       [class.payment-sheet-amounts__tile--paid]="rightVariant() === 'paid'"
       [class.payment-sheet-amounts__tile--due]="rightVariant() === 'due'"
+      [class.payment-sheet-amounts__tile--advance]="rightVariant() === 'advance'"
+      [class.payment-sheet-amounts__tile--neutral]="rightVariant() === 'neutral'"
     >
       <span class="payment-sheet-amounts__tile-label">{{ rightLabel() }}</span>
       <span class="payment-sheet-amounts__tile-value">{{ rightAmount() | currency: cur : 'symbol' : fmt : loc }}</span>
@@ -28,6 +32,7 @@
   <div
     class="payment-sheet-amounts__footer"
     [class.payment-sheet-amounts__footer--settled]="isSettled()"
+    [class.payment-sheet-amounts__footer--advance]="isAdvanceFooter()"
   >
     @if (isSettled()) {
       <span class="payment-sheet-amounts__settled">{{ settledLabel() }}</span>

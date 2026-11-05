@@ -146,6 +146,28 @@ export function getPaymentSheetWorkflowOwnerLabel(
   return 'the assigned reviewer';
 }
 
+/** Only an advance line can go up. Admin review is decrease-only, apart from its first amount. */
+export function canIncreasePaymentSheetItemAmount(
+  row: PaymentSheetTableActionRow
+): boolean {
+  return (
+    !!row.isAdvancePayment &&
+    (!isPaymentSheetAdminReview(row) || row.payableAmount <= 0)
+  );
+}
+
+export function hasPaymentSheetAdvanceWithoutAmount(
+  items: { isAdvance?: boolean; payableAmount: number; itemStatus: string }[]
+): boolean {
+  return items.some(
+    item =>
+      item.isAdvance &&
+      item.payableAmount <= 0 &&
+      normalizePaymentSheetItemStatus(item.itemStatus) !==
+        EPaymentSheetItemStatus.REJECTED
+  );
+}
+
 export function disablePaymentSheetEdit(
   row: PaymentSheetTableActionRow,
   activeRole: ActiveRole

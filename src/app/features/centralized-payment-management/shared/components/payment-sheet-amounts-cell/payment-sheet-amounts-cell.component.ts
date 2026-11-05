@@ -23,6 +23,7 @@ export class PaymentSheetAmountsCellComponent {
 
   footerLabel = input.required<string>();
   footerAmount = input.required<number>();
+  isAdvanceFooter = input<boolean>(false);
   settledLabel = input<string>('Fully paid');
   isSettled = input<boolean>(false);
 }

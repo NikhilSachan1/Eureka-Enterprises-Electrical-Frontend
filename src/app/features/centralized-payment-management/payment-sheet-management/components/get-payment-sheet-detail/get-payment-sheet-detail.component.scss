@@ -47,6 +47,63 @@
   }
 }
 
+.ps-advance-note {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-light-color);
+  border-radius: 0.75rem;
+  background: var(--background-paper-color);
+}
+
+.ps-advance-note__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary-color);
+}
+
+.ps-advance-note__terms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.5rem 1rem;
+  margin: 0;
+}
+
+.ps-advance-note__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+
+  &--advance {
+    color: color-mix(in srgb, #6d28d9 72%, var(--text-primary-color));
+  }
+
+  &--payable {
+    color: color-mix(in srgb, #0e7490 72%, var(--text-primary-color));
+  }
+
+  &--neutral {
+    color: var(--text-secondary-color);
+  }
+}
+
+.ps-advance-note__text {
+  margin: 0.1rem 0 0;
+  font-size: 0.72rem;
+  color: var(--text-secondary-color);
+}
+
+:host-context(.dark-theme) .ps-advance-note {
+  border-color: var(--border-dark-color);
+}
+
+:host-context(.dark-theme) .ps-advance-note__label--advance {
+  color: color-mix(in srgb, #a78bfa 78%, var(--text-primary-color));
+}
+
+:host-context(.dark-theme) .ps-advance-note__label--payable {
+  color: color-mix(in srgb, #22d3ee 78%, var(--text-primary-color));
+}
+
 .ps-detail {
   display: flex;
   flex-direction: column;

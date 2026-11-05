@@ -36,6 +36,7 @@ export interface IPaymentSheetDetailItemRow {
   actualDue: number;
   payableAmount: number;
   remainingAmount: number;
+  isAdvancePayment?: boolean;
   paidAt: string | null;
   utrNumber: string | null;
   paidByUserName: string | null;

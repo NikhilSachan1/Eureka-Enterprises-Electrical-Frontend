@@ -102,6 +102,33 @@
     </section>
   }
 
+  @if (hasAdvanceLines()) {
+    <aside
+      class="ps-advance-note"
+      aria-label="Advance payment terms"
+    >
+      <h4 class="ps-advance-note__title">Advance payment terms</h4>
+      <dl class="ps-advance-note__terms">
+        <div class="ps-advance-note__term">
+          <dt class="ps-advance-note__label ps-advance-note__label--advance">Advance Given</dt>
+          <dd class="ps-advance-note__text">Advance the employee already holds.</dd>
+        </div>
+        <div class="ps-advance-note__term">
+          <dt class="ps-advance-note__label ps-advance-note__label--neutral">No Due</dt>
+          <dd class="ps-advance-note__text">The employee's balance is ₹0: nothing due and no advance held.</dd>
+        </div>
+        <div class="ps-advance-note__term">
+          <dt class="ps-advance-note__label ps-advance-note__label--payable">Advance Payable</dt>
+          <dd class="ps-advance-note__text">Extra advance being paid on this sheet.</dd>
+        </div>
+        <div class="ps-advance-note__term">
+          <dt class="ps-advance-note__label ps-advance-note__label--advance">Total Advance</dt>
+          <dd class="ps-advance-note__text">Advance Given + Advance Payable: the advance held after this payment.</dd>
+        </div>
+      </dl>
+    </aside>
+  }
+
   <section class="ps-detail">
     @if (!sourceGroups().length) {
       <app-empty-messages
@@ -122,13 +149,14 @@
         >
           <app-payment-sheet-amounts-cell
             [leftLabel]="amountLeftLabel(row)"
-            [leftAmount]="row.actualDue"
-            leftVariant="due"
-            rightLabel="Payable"
+            [leftAmount]="amountLeftValue(row)"
+            [leftVariant]="amountLeftVariant(row)"
+            [rightLabel]="row.isAdvancePayment ? 'Advance Payable' : 'Payable'"
             [rightAmount]="row.payableAmount"
             rightVariant="payable"
             [footerLabel]="amountFooterLabel(row)"
             [footerAmount]="amountFooterValue(row)"
+            [isAdvanceFooter]="!!row.isAdvancePayment"
             [settledLabel]="amountSettledLabel(row)"
             [isSettled]="isFullyCovered(row)"
           />
@@ -381,10 +409,7 @@
                 <i [class]="ICONS.COMMON.CALENDAR"></i>
                 {{
                   row.invoiceDate
-                    | date
-                      : APP_CONFIG.DATE_FORMATS.DEFAULT
-                      : undefined
-                      : APP_CONFIG.DATE_FORMATS.DISPLAY_LOCALE
+                    | date: APP_CONFIG.DATE_FORMATS.DEFAULT : undefined : APP_CONFIG.DATE_FORMATS.DISPLAY_LOCALE
                 }}
               </span>
             }
