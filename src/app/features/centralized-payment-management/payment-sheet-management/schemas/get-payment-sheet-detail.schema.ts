@@ -144,6 +144,7 @@ export const PaymentSheetItemDetailSchema = z.looseObject({
   vendorId: uuidField.nullable(),
   rechargeId: uuidField.nullable().optional(),
   sourceType: z.enum(EPaymentSheetSourceType),
+  isAdvance: z.boolean().optional(),
   pendingSnapshot: z.coerce.number(),
   requestedAmount: z.coerce.number().optional(),
   currentAmount: z.coerce.number(),

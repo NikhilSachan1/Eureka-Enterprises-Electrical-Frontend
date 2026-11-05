@@ -14,18 +14,19 @@ export function buildPaymentSheetItemsFromOutstanding(
   vendorBookPayments: IVendorBookPaymentTableRow[] = [],
   walletRecords: IWalletOutstandingGetBaseResponseDto[] = []
 ): IAddPaymentSheetItemsFormDto['items'] {
+  // A balance <= 0 starts as a 0 line: the advance amount is set by editing it on the sheet.
   const expenseItems = expenseRecords.map(record => ({
     beneficiaryType: EPaymentSheetBeneficiaryType.USER,
     userId: record.userId,
     sourceType: EPaymentSheetSourceType.EXPENSE,
-    requestedAmount: record.pendingAmount,
+    requestedAmount: Math.max(0, record.pendingAmount),
   }));
 
   const fuelItems = fuelRecords.map(record => ({
     beneficiaryType: EPaymentSheetBeneficiaryType.USER,
     userId: record.userId,
     sourceType: EPaymentSheetSourceType.FUEL_EXPENSE,
-    requestedAmount: record.pendingAmount,
+    requestedAmount: Math.max(0, record.pendingAmount),
   }));
 
   const vendorGroups = new Map<string, IVendorBookPaymentTableRow[]>();

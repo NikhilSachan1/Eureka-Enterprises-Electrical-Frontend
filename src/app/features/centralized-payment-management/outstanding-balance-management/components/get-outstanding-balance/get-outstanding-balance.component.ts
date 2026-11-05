@@ -78,9 +78,7 @@ export class GetOutstandingBalanceComponent {
     )
   );
 
-  protected readonly isWalletTab = computed(
-    () => this.activeTabIndex() === 3
-  );
+  protected readonly isWalletTab = computed(() => this.activeTabIndex() === 3);
 
   protected readonly selectedExpenseRecords = signal<
     IExpenseOutstandingGetBaseResponseDto[]
@@ -353,15 +351,18 @@ export class GetOutstandingBalanceComponent {
 
   private getSelectedAmount(tabIndex: number): number {
     if (tabIndex === 0) {
+      // A balance <= 0 is an advance, whose amount is only known in the create dialog.
       return this.selectedExpenseRecords().reduce(
-        (total, record) => total + Number(record.pendingAmount ?? 0),
+        (total, record) =>
+          total + Math.max(0, Number(record.pendingAmount ?? 0)),
         0
       );
     }
 
     if (tabIndex === 1) {
       return this.selectedFuelRecords().reduce(
-        (total, record) => total + Number(record.pendingAmount ?? 0),
+        (total, record) =>
+          total + Math.max(0, Number(record.pendingAmount ?? 0)),
         0
       );
     }

@@ -292,7 +292,11 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
             reviewStageDetail,
             {
               icon: ICONS.EXPENSE.MONEY,
-              label: 'Payable amount',
+              // Only an advance line is added at <= 0: it logs the balance, not a payable.
+              label:
+                (entry.newAmount ?? 0) > 0
+                  ? 'Payable amount'
+                  : 'Current balance',
               value: this.formatPaymentAmount(entry.newAmount),
               variant: 'emphasis',
             },

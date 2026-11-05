@@ -1,1 +1,6 @@
-export type TPaymentSheetAmountTileVariant = 'payable' | 'paid' | 'due';
+export type TPaymentSheetAmountTileVariant =
+  | 'payable'
+  | 'paid'
+  | 'due'
+  | 'advance'
+  | 'neutral';

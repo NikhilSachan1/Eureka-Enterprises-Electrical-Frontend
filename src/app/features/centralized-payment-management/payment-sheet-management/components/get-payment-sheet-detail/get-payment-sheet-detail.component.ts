@@ -16,6 +16,7 @@ import { APP_CONFIG } from '@core/config';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
+import { TPaymentSheetAmountTileVariant } from '@features/centralized-payment-management/shared/types/payment-sheet-amounts-cell.interface';
 import { PaymentOutstandingSectionComponent } from '@features/centralized-payment-management/shared/components/payment-outstanding-section/payment-outstanding-section.component';
 import {
   EPaymentOutstandingSectionContext,
@@ -95,6 +96,7 @@ import {
 } from '../../utils/payment-sheet-verification.util';
 import {
   isPaymentSheetItemPaid,
+  hasPaymentSheetAdvanceWithoutAmount,
   isPaymentSheetItemRejected,
 } from '../../utils/payment-sheet-table-row.util';
 
@@ -238,6 +240,10 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       return [];
     }
 
+    const hasAdvanceWithoutAmount = hasPaymentSheetAdvanceWithoutAmount(
+      detail.items
+    );
+
     return Object.values(
       this.appPermissionService.filterRecordByPermission(
         PAYMENT_SHEET_DETAIL_WORKFLOW_BUTTONS_CONFIG
@@ -250,14 +256,21 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
         return {
           ...button,
-          disabled: !isPaymentSheetForwardActionAllowed(detail, workflowAction),
-          disabledTooltip: getPaymentSheetForwardDisableReason(
-            detail,
-            workflowAction
-          ),
+          disabled:
+            hasAdvanceWithoutAmount ||
+            !isPaymentSheetForwardActionAllowed(detail, workflowAction),
+          disabledTooltip:
+            getPaymentSheetForwardDisableReason(detail, workflowAction) ??
+            (hasAdvanceWithoutAmount
+              ? 'Edit the ₹0 advance beneficiaries and enter an amount before forwarding.'
+              : undefined),
         };
       });
   });
+
+  protected readonly hasAdvanceLines = computed(
+    () => this.detail()?.items.some(item => item.isAdvance) ?? false
+  );
 
   ngOnInit(): void {
     for (const sourceType of this.sourceSectionOrder) {
@@ -288,6 +301,10 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   protected isFullyCovered(row: IPaymentSheetDetailItemRow): boolean {
+    if (row.isAdvancePayment) {
+      return false;
+    }
+
     if (row.documentKind === 'Advance') {
       return (row.settledAmount ?? 0) >= row.actualDue && row.actualDue > 0;
     }
@@ -296,14 +313,41 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   protected amountLeftLabel(row: IPaymentSheetDetailItemRow): string {
+    if (row.isAdvancePayment) {
+      return row.actualDue < 0 ? 'Advance Given' : 'No Due';
+    }
+
     return row.documentKind === 'Advance' ? 'Amount' : 'Actual Due';
   }
 
+  protected amountLeftVariant(
+    row: IPaymentSheetDetailItemRow
+  ): TPaymentSheetAmountTileVariant {
+    if (!row.isAdvancePayment) {
+      return 'due';
+    }
+
+    return row.actualDue < 0 ? 'advance' : 'neutral';
+  }
+
+  /** A negative balance is advance the employee already holds, so it reads as a plain amount. */
+  protected amountLeftValue(row: IPaymentSheetDetailItemRow): number {
+    return row.isAdvancePayment ? Math.abs(row.actualDue) : row.actualDue;
+  }
+
   protected amountFooterLabel(row: IPaymentSheetDetailItemRow): string {
+    if (row.isAdvancePayment) {
+      return 'Total Advance';
+    }
+
     return row.documentKind === 'Advance' ? 'Settled' : 'Remaining';
   }
 
   protected amountFooterValue(row: IPaymentSheetDetailItemRow): number {
+    if (row.isAdvancePayment) {
+      return Math.abs(row.actualDue) + row.payableAmount;
+    }
+
     if (row.documentKind === 'Advance') {
       return row.settledAmount ?? 0;
     }
@@ -700,6 +744,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       actualDue: item.actualDueAmount,
       payableAmount: item.payableAmount,
       remainingAmount: item.remainingAmount,
+      isAdvancePayment: item.isAdvance ?? false,
       beneficiaryName: item.user
         ? `${item.user.firstName} ${item.user.lastName}`.trim()
         : item.vendor?.name
@@ -821,7 +866,10 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           invoiceNumber:
             invoice?.invoiceNumber ?? advance?.advanceNumber ?? '-',
           invoiceDate: invoice?.invoiceDate ?? advance?.advanceDate ?? null,
-          actualDue: advance?.advanceAmount ?? invoice?.actualDueAmount ?? item.actualDueAmount,
+          actualDue:
+            advance?.advanceAmount ??
+            invoice?.actualDueAmount ??
+            item.actualDueAmount,
           payableAmount:
             advance?.payableAmount ??
             invoice?.payableAmount ??

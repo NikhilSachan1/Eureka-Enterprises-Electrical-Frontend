@@ -9,7 +9,8 @@ import {
 import { IUpdatePaymentSheetItemFormDto } from '../../types/payment-sheet.dto';
 
 export function createEditPaymentSheetItemFormConfig(
-  originalPayableAmount: number
+  originalPayableAmount: number,
+  allowIncrease = false
 ): IFormConfig<IUpdatePaymentSheetItemFormDto> {
   const fields: IFormInputFieldsConfig<IUpdatePaymentSheetItemFormDto> = {
     amount: {
@@ -20,12 +21,14 @@ export function createEditPaymentSheetItemFormConfig(
       numberConfig: {
         mode: EInputNumberMode.Currency,
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-        maximumBoundaryValue: originalPayableAmount,
+        ...(allowIncrease
+          ? {}
+          : { maximumBoundaryValue: originalPayableAmount }),
       },
       validators: [
         Validators.required,
         Validators.min(1),
-        Validators.max(originalPayableAmount),
+        ...(allowIncrease ? [] : [Validators.max(originalPayableAmount)]),
       ],
     },
     reason: {
