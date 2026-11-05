@@ -75,6 +75,12 @@ export const ROUTES = {
     ADD: `add`,
     EDIT: `edit`,
     MY_PROFILE: 'my-profile',
+    NON_EMPLOYEE: 'non-employee',
+  },
+
+  NON_EMPLOYEE: {
+    ADD: 'add',
+    EDIT: 'edit',
   },
 
   ATTENDANCE: {

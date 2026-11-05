@@ -15,6 +15,7 @@ import { finalize } from 'rxjs';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { EUserRole } from '@shared/constants/role.constants';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { AppConfigurationService, DrawerService } from '@shared/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
@@ -86,9 +87,10 @@ export class KpmDashboardComponent implements OnInit {
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly authService = inject(AuthService);
 
-  /** Payment sheets stay off the self-service dashboard. */
+  /** Payment sheets stay off the self-service and site incharge dashboards. */
   protected readonly showPaymentSheets =
-    !this.authService.isActiveRoleEmployeeLike();
+    !this.authService.isActiveRoleEmployeeLike() &&
+    this.authService.getCurrentUser()?.activeRole !== EUserRole.SITE_INCHARGE;
   protected readonly showKpmCards = this.appPermissionService.hasPermission(
     APP_PERMISSION.UI.DASHBOARD.METRIC_CARDS
   );

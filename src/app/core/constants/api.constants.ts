@@ -31,6 +31,10 @@ export const API_ROUTES = {
     DELETE: 'user',
     SEND_PASSWORD_LINK: 'user/resend-password-link',
   },
+  SYSTEM_USER: {
+    LIST: 'system-users',
+    BY_ID: (id: string) => `system-users/${id}`,
+  },
   ATTACHMENTS: {
     GET_FILE_URL: 'files',
     FINANCIAL_UPLOAD: 'files/financial-upload',
