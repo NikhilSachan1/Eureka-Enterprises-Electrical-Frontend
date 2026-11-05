@@ -176,6 +176,13 @@ export class GetNonEmployeeComponent implements OnInit {
   }
 
   private roleNames(row: INonEmployeeGetBaseResponseDto): string {
-    return row.roles.map(role => toTitleCase(role.name)).join(', ');
+    return row.roles
+      .map(role =>
+        getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.roleList(),
+          role.name
+        )
+      )
+      .join(', ');
   }
 }
