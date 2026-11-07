@@ -14,7 +14,9 @@ import { AppPermissionService, LoggerService } from '@core/services';
 import {
   ASSET_ACTION_CONFIG_MAP,
   createAssetTableEnhancedConfig,
+  getAssetActionDialogConfig,
   getAssetQrDialogActionConfig,
+  isReturnPending,
   SEARCH_FILTER_ASSET_FORM_CONFIG,
 } from '@features/asset-management/config';
 import { AuthService } from '@features/auth-management/services/auth.service';
@@ -91,6 +93,10 @@ export class GetAssetComponent implements OnInit {
     ETableActionTypeValue.HANDOVER_CANCELLED,
     ETableActionTypeValue.HANDOVER_INITIATED,
     ETableActionTypeValue.HANDOVER_REJECTED,
+    ETableActionTypeValue.RETURN_INITIATED,
+    ETableActionTypeValue.RETURN_ACCEPTED,
+    ETableActionTypeValue.RETURN_REJECTED,
+    ETableActionTypeValue.RETURN_CANCELLED,
   ]);
 
   private readonly logger = inject(LoggerService);
@@ -142,8 +148,8 @@ export class GetAssetComponent implements OnInit {
         label: ownPending ? 'Your Pending' : 'Handover Pending',
         icon: ICONS.ACTIONS.SEND,
         tooltip: ownPending
-          ? 'Handovers waiting for you'
-          : 'Assets with handover initiated',
+          ? 'Handovers and returns waiting for you'
+          : 'Assets with a handover or return initiated',
         badge: counts[EAssetScope.PENDING],
         visible: this.canSeeAssetTab(EAssetScope.PENDING),
       },
@@ -189,6 +195,7 @@ export class GetAssetComponent implements OnInit {
 
   private static readonly HANDOVER_DIALOG_ACTIONS = new Set<EButtonActionType>([
     EButtonActionType.HANDOVER_INITIATE,
+    EButtonActionType.RETURN_TO_OFFICE,
     EButtonActionType.HANDOVER_ACCEPTED,
     EButtonActionType.HANDOVER_REJECTED,
     EButtonActionType.HANDOVER_CANCELLED,
@@ -236,7 +243,9 @@ export class GetAssetComponent implements OnInit {
   ngOnInit(): void {
     const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
-      createAssetTableEnhancedConfig(loggedInUserId)
+      createAssetTableEnhancedConfig(loggedInUserId, permission =>
+        this.appPermissionService.hasPermission(permission)
+      )
     );
     this.searchFilterConfig = SEARCH_FILTER_ASSET_FORM_CONFIG;
     this.loadAssetScopeCounts();
@@ -386,6 +395,9 @@ export class GetAssetComponent implements OnInit {
             : '-',
           toUserName: record.latestEvent.toUserUser
             ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
+            : '-',
+          createdByName: record.latestEvent.createdByUser
+            ? `${record.latestEvent.createdByUser.firstName} ${record.latestEvent.createdByUser.lastName}`
             : '-',
         }
         : null;
@@ -543,11 +555,7 @@ export class GetAssetComponent implements OnInit {
     };
 
     if (
-      actionType === EButtonActionType.HANDOVER_INITIATE ||
-      actionType === EButtonActionType.HANDOVER_ACCEPTED ||
-      actionType === EButtonActionType.HANDOVER_REJECTED ||
-      actionType === EButtonActionType.HANDOVER_CANCELLED ||
-      actionType === EButtonActionType.DEALLOCATE ||
+      GetAssetComponent.HANDOVER_DIALOG_ACTIONS.has(actionType) ||
       actionType === EButtonActionType.RETIRED
     ) {
       dynamicComponentInputs.dialogActionType = actionType;
@@ -560,7 +568,7 @@ export class GetAssetComponent implements OnInit {
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      ASSET_ACTION_CONFIG_MAP[actionType],
+      getAssetActionDialogConfig(actionType, selectedFirstRow),
       recordDetail,
       isBulk,
       !isBulk,
@@ -592,12 +600,15 @@ export class GetAssetComponent implements OnInit {
 
     if (
       GetAssetComponent.HANDOVER_DIALOG_ACTIONS.has(actionType) &&
-      actionType !== EButtonActionType.HANDOVER_INITIATE
+      actionType !== EButtonActionType.HANDOVER_INITIATE &&
+      actionType !== EButtonActionType.RETURN_TO_OFFICE
     ) {
       const eventFileKeys = this.getLatestEventFileKeys(selectedRow);
       if (eventFileKeys.length > 0) {
         entryData.push({
-          label: 'Handover attachments',
+          label: isReturnPending(selectedRow)
+            ? 'Return attachments'
+            : 'Handover attachments',
           value: eventFileKeys,
           type: EDataType.ATTACHMENTS,
         });

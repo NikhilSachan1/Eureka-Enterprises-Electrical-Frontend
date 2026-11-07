@@ -35,6 +35,7 @@
   @let eventTypeCode = $any(row).latestEvent?.eventTypeCode;
   @let fromUser = $any(row).latestEvent?.fromUserName ?? '-';
   @let toUser = $any(row).latestEvent?.toUserName ?? '-';
+  @let createdBy = $any(row).latestEvent?.createdByName ?? '-';
 
   @if (eventType) {
     <div class="handover-min">
@@ -53,6 +54,42 @@
             →
           </span>
           <span class="handover-min__name">{{ toUser }}</span>
+        </p>
+      } @else if (eventTypeCode === HANDOVER_EVENT_TYPES.RETURN_INITIATED) {
+        <p
+          class="handover-min__transfer"
+          [title]="fromUser + ' → Office'"
+        >
+          <span class="handover-min__name">{{ fromUser }}</span>
+          <span
+            class="handover-min__sep"
+            aria-hidden="true"
+          >
+            →
+          </span>
+          <span class="handover-min__name">Office</span>
+        </p>
+      } @else if (eventTypeCode === HANDOVER_EVENT_TYPES.RETURN_ACCEPTED) {
+        <!-- A return has no target user: name whoever accepted it at the office. -->
+        <p
+          class="handover-min__meta"
+          [title]="createdBy"
+        >
+          <i
+            [class]="ICONS.COMMON.CHECK_TICK + ' handover-min__meta-icon'"
+            aria-hidden="true"
+          ></i>
+          <span class="handover-min__meta-text">{{ createdBy }}</span>
+        </p>
+      } @else if (
+        eventTypeCode === HANDOVER_EVENT_TYPES.RETURN_REJECTED ||
+        eventTypeCode === HANDOVER_EVENT_TYPES.RETURN_CANCELLED
+      ) {
+        <p
+          class="handover-min__meta"
+          [title]="createdBy"
+        >
+          <span class="handover-min__meta-text">{{ createdBy }}</span>
         </p>
       } @else if (eventTypeCode === HANDOVER_EVENT_TYPES.HANDOVER_ACCEPTED) {
         <p

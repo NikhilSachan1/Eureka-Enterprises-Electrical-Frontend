@@ -16,6 +16,7 @@ import {
 } from '@shared/services';
 import { VehicleService } from '../../services/vehicle.service';
 import {
+  ETableActionTypeValue,
   IEnhancedTable,
   IEnhancedTableConfig,
   IMetricGroup,
@@ -167,7 +168,13 @@ export class GetVehicleEventHistoryComponent implements OnInit {
           ? `${fromUser.firstName} ${fromUser.lastName}`
           : null,
         fromUserCode: fromUser?.employeeId ?? null,
-        toUserName: toUser ? `${toUser.firstName} ${toUser.lastName}` : null,
+        // A deallocated vehicle has no new holder: it goes back to the office.
+        toUserName:
+          record.eventType === ETableActionTypeValue.DEALLOCATED
+            ? 'Office'
+            : toUser
+              ? `${toUser.firstName} ${toUser.lastName}`
+              : null,
         toUserCode: toUser?.employeeId ?? null,
         createdByName: `${createdBy.firstName} ${createdBy.lastName}`,
         createdByCode: createdBy.employeeId,

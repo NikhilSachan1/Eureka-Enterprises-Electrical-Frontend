@@ -103,12 +103,34 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
 
 type AssetTableRow = IAssetGetResponseDto['records'][number];
 
-/** Handover is no longer in a pending “initiated” state (accepted / rejected / cancelled). */
-const TERMINAL_HANDOVER_EVENT_TYPES = new Set<string>([
+/** Checks a permission of the logged-in user. The table config is plain data, so the component passes this in. */
+export type AssetPermissionChecker = (permission: string) => boolean;
+
+/** Request types that are finished, so nothing is pending any more. */
+const TERMINAL_REQUEST_EVENT_TYPES = new Set<string>([
   ETableActionTypeValue.HANDOVER_ACCEPTED,
   ETableActionTypeValue.HANDOVER_REJECTED,
   ETableActionTypeValue.HANDOVER_CANCELLED,
+  ETableActionTypeValue.RETURN_ACCEPTED,
+  ETableActionTypeValue.RETURN_REJECTED,
+  ETableActionTypeValue.RETURN_CANCELLED,
 ]);
+
+function isHandoverPending(row: AssetTableRow): boolean {
+  return (
+    row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED
+  );
+}
+
+/** The holder asked to return the asset to the office and nobody has answered yet. */
+export function isReturnPending(row: AssetTableRow): boolean {
+  return row.latestEvent?.eventType === ETableActionTypeValue.RETURN_INITIATED;
+}
+
+/** Only one request at a time: a pending handover or return blocks every other change of holder. */
+function hasPendingRequest(row: AssetTableRow): boolean {
+  return isHandoverPending(row) || isReturnPending(row);
+}
 
 /** Lost and retired assets take no changes: a lost one only recovery, a retired one nothing at all. */
 function getClosedAssetReason(row: AssetTableRow): string | undefined {
@@ -132,22 +154,6 @@ function getDeleteDisableReason(row: AssetTableRow): string | undefined {
   return undefined;
 }
 
-function isHandoverInitiateDisabled(
-  row: AssetTableRow,
-  loggedInUserId: string | null | undefined
-): boolean {
-  if (getClosedAssetReason(row)) {
-    return true;
-  }
-  if (row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED) {
-    return true;
-  }
-  if (row.status === EAssetStatus.ASSIGNED) {
-    return !loggedInUserId || row.assignedTo !== loggedInUserId;
-  }
-  return false;
-}
-
 function getHandoverInitiateDisableReason(
   row: AssetTableRow,
   loggedInUserId: string | null | undefined
@@ -156,7 +162,7 @@ function getHandoverInitiateDisableReason(
   if (closedReason) {
     return closedReason;
   }
-  if (row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED) {
+  if (hasPendingRequest(row)) {
     return 'Request is already initiated.';
   }
   if (row.status === EAssetStatus.ASSIGNED) {
@@ -167,86 +173,107 @@ function getHandoverInitiateDisableReason(
   return undefined;
 }
 
-function isHandoverAcceptRejectDisabled(
-  row: AssetTableRow,
-  loggedInUserId: string | null | undefined
-): boolean {
-  return (
-    !!getClosedAssetReason(row) ||
-    row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED ||
-    !loggedInUserId ||
-    row.latestEvent.toUser !== loggedInUserId
-  );
-}
-
-/**
- * 1) Terminal status — allocation already completed.
- * 2) No pending initiated request.
- * 3) Current user is not the assignee (cannot accept/reject).
- */
-function getHandoverAcceptRejectDisableReason(
+function getReturnToOfficeDisableReason(
   row: AssetTableRow,
   loggedInUserId: string | null | undefined
 ): string | undefined {
-  if (!isHandoverAcceptRejectDisabled(row, loggedInUserId)) {
-    return undefined;
-  }
   const closedReason = getClosedAssetReason(row);
   if (closedReason) {
     return closedReason;
   }
-  const eventType = row.latestEvent?.eventType;
-  if (eventType !== ETableActionTypeValue.HANDOVER_INITIATED) {
-    return 'No allocation request is pending. The handover must be initiated first.';
+  if (hasPendingRequest(row)) {
+    return 'Request is already initiated.';
   }
-  if (!loggedInUserId || row.latestEvent?.toUser !== loggedInUserId) {
+  if (row.status !== EAssetStatus.ASSIGNED) {
+    return 'Only an assigned asset can be returned to the office.';
+  }
+  if (!loggedInUserId || row.assignedTo !== loggedInUserId) {
+    return 'Only the assigned user can return this asset to the office.';
+  }
+  return undefined;
+}
+
+/**
+ * Accept and reject are the same buttons for both requests:
+ * - Handover: only the target user, with the handover permission.
+ * - Return to office: office staff with the return permission, but not the person returning it.
+ */
+function getRequestResponseDisableReason(
+  row: AssetTableRow,
+  loggedInUserId: string | null | undefined,
+  can: AssetPermissionChecker,
+  permissions: { handover: string; return: string }
+): string | undefined {
+  const closedReason = getClosedAssetReason(row);
+  if (closedReason) {
+    return closedReason;
+  }
+  if (isReturnPending(row)) {
+    if (!can(permissions.return)) {
+      return 'You are not authorized to respond to this return. Only office staff with return permission can respond.';
+    }
+    if (!loggedInUserId || row.latestEvent?.fromUser === loggedInUserId) {
+      return 'You cannot respond to a return you initiated yourself.';
+    }
+    return undefined;
+  }
+  if (!isHandoverPending(row)) {
+    return 'No handover or return request is pending.';
+  }
+  if (
+    !can(permissions.handover) ||
+    !loggedInUserId ||
+    row.latestEvent?.toUser !== loggedInUserId
+  ) {
     return 'You are not authorized to accept or reject this allocation. Only the assigned user can respond.';
   }
   return undefined;
 }
 
-function isHandoverCancelDisabled(
+/** Only the person who started the handover or the return can cancel it. */
+function getRequestCancelDisableReason(
   row: AssetTableRow,
-  loggedInUserId: string | null | undefined
-): boolean {
-  return (
-    !!getClosedAssetReason(row) ||
-    row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED ||
-    !loggedInUserId ||
-    row.latestEvent.fromUser !== loggedInUserId
-  );
-}
-
-/**
- * 1) Terminal status — allocation already completed.
- * 2) No pending initiated request.
- * 3) Current user is not the initiator (cannot cancel).
- */
-function getHandoverCancelDisableReason(
-  row: AssetTableRow,
-  loggedInUserId: string | null | undefined
+  loggedInUserId: string | null | undefined,
+  can: AssetPermissionChecker
 ): string | undefined {
-  if (!isHandoverCancelDisabled(row, loggedInUserId)) {
-    return undefined;
-  }
   const closedReason = getClosedAssetReason(row);
   if (closedReason) {
     return closedReason;
   }
-  const eventType = row.latestEvent?.eventType;
-  if (eventType && TERMINAL_HANDOVER_EVENT_TYPES.has(eventType)) {
-    return 'This allocation request has already been completed.';
+  if (!hasPendingRequest(row)) {
+    const eventType = row.latestEvent?.eventType;
+    return eventType && TERMINAL_REQUEST_EVENT_TYPES.has(eventType)
+      ? 'This request has already been completed.'
+      : 'No handover or return request is pending.';
   }
-  if (eventType !== ETableActionTypeValue.HANDOVER_INITIATED) {
-    return 'No allocation request is pending. The handover must be initiated first.';
-  }
-  if (!loggedInUserId || row.latestEvent?.fromUser !== loggedInUserId) {
-    return 'You are not authorized to cancel this allocation. Only the user who initiated the request can cancel.';
+  const permission = isReturnPending(row)
+    ? APP_PERMISSION.ASSET.RETURN_CANCELLED
+    : APP_PERMISSION.ASSET.HANDOVER_CANCELLED;
+  if (
+    !can(permission) ||
+    !loggedInUserId ||
+    row.latestEvent?.fromUser !== loggedInUserId
+  ) {
+    return 'You are not authorized to cancel this request. Only the user who initiated the request can cancel.';
   }
   return undefined;
 }
 
-/** Mirrors the backend: a lost or retired asset, or one with a pending handover, cannot be marked lost. */
+function getDeallocateDisableReason(row: AssetTableRow): string | undefined {
+  const closedReason = getClosedAssetReason(row);
+  if (closedReason) {
+    return closedReason;
+  }
+  if (row.status !== EAssetStatus.ASSIGNED) {
+    return 'Asset is not allocated.';
+  }
+  if (isReturnPending(row)) {
+    return 'A return to office is pending. Accept, reject or cancel it first.';
+  }
+  return undefined;
+}
+
+/** Mirrors the backend: a lost or retired asset, or one with a pending request, cannot be marked lost. */
 function getMarkLostDisableReason(row: AssetTableRow): string | undefined {
   if (row.status === EAssetStatus.LOST) {
     return 'This asset is already marked as lost.';
@@ -254,8 +281,8 @@ function getMarkLostDisableReason(row: AssetTableRow): string | undefined {
   if (row.status === EAssetStatus.RETIRED) {
     return 'A retired asset cannot be marked as lost.';
   }
-  if (row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED) {
-    return 'Cancel or complete the pending handover first.';
+  if (hasPendingRequest(row)) {
+    return 'Cancel or complete the pending handover or return first.';
   }
   return undefined;
 }
@@ -266,8 +293,8 @@ function getRetireDisableReason(row: AssetTableRow): string | undefined {
   if (closedReason) {
     return closedReason;
   }
-  if (row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED) {
-    return 'Cancel or complete the pending handover first.';
+  if (hasPendingRequest(row)) {
+    return 'Cancel or complete the pending handover or return first.';
   }
   if (row.status === EAssetStatus.ASSIGNED) {
     return 'First deallocate the asset from the assignee before retiring.';
@@ -276,7 +303,8 @@ function getRetireDisableReason(row: AssetTableRow): string | undefined {
 }
 
 export function buildAssetTableRowActionsConfig(
-  loggedInUserId: string | undefined | null
+  loggedInUserId: string | undefined | null,
+  can: AssetPermissionChecker
 ): Partial<ITableActionConfig<IAssetGetResponseDto['records'][number]>>[] {
   return [
     {
@@ -303,47 +331,73 @@ export function buildAssetTableRowActionsConfig(
       id: EButtonActionType.HANDOVER_INITIATE,
       tooltip: 'Handover Asset',
       permission: [APP_PERMISSION.ASSET.HANDOVER_INITIATE],
-      disableWhen: row => isHandoverInitiateDisabled(row, loggedInUserId),
+      disableWhen: row =>
+        getHandoverInitiateDisableReason(row, loggedInUserId) !== undefined,
       disableReason: row =>
         getHandoverInitiateDisableReason(row, loggedInUserId),
     },
     {
+      id: EButtonActionType.RETURN_TO_OFFICE,
+      tooltip: 'Return to Office',
+      permission: [APP_PERMISSION.ASSET.RETURN_INITIATE],
+      disableWhen: row =>
+        getReturnToOfficeDisableReason(row, loggedInUserId) !== undefined,
+      disableReason: row => getReturnToOfficeDisableReason(row, loggedInUserId),
+    },
+    {
       id: EButtonActionType.HANDOVER_ACCEPTED,
-      tooltip: 'Accept Allocation',
-      permission: [APP_PERMISSION.ASSET.HANDOVER_ACCEPTED],
-      disableWhen: row => isHandoverAcceptRejectDisabled(row, loggedInUserId),
+      tooltip: 'Accept Request',
+      permission: [
+        APP_PERMISSION.ASSET.HANDOVER_ACCEPTED,
+        APP_PERMISSION.ASSET.RETURN_ACCEPTED,
+      ],
+      disableWhen: row =>
+        getRequestResponseDisableReason(row, loggedInUserId, can, {
+          handover: APP_PERMISSION.ASSET.HANDOVER_ACCEPTED,
+          return: APP_PERMISSION.ASSET.RETURN_ACCEPTED,
+        }) !== undefined,
       disableReason: row =>
-        getHandoverAcceptRejectDisableReason(row, loggedInUserId),
+        getRequestResponseDisableReason(row, loggedInUserId, can, {
+          handover: APP_PERMISSION.ASSET.HANDOVER_ACCEPTED,
+          return: APP_PERMISSION.ASSET.RETURN_ACCEPTED,
+        }),
     },
     {
       id: EButtonActionType.HANDOVER_REJECTED,
-      tooltip: 'Reject Allocation',
-      permission: [APP_PERMISSION.ASSET.HANDOVER_REJECTED],
-      disableWhen: row => isHandoverAcceptRejectDisabled(row, loggedInUserId),
+      tooltip: 'Reject Request',
+      permission: [
+        APP_PERMISSION.ASSET.HANDOVER_REJECTED,
+        APP_PERMISSION.ASSET.RETURN_REJECTED,
+      ],
+      disableWhen: row =>
+        getRequestResponseDisableReason(row, loggedInUserId, can, {
+          handover: APP_PERMISSION.ASSET.HANDOVER_REJECTED,
+          return: APP_PERMISSION.ASSET.RETURN_REJECTED,
+        }) !== undefined,
       disableReason: row =>
-        getHandoverAcceptRejectDisableReason(row, loggedInUserId),
+        getRequestResponseDisableReason(row, loggedInUserId, can, {
+          handover: APP_PERMISSION.ASSET.HANDOVER_REJECTED,
+          return: APP_PERMISSION.ASSET.RETURN_REJECTED,
+        }),
     },
     {
       id: EButtonActionType.HANDOVER_CANCELLED,
-      tooltip: 'Cancel Allocation',
-      permission: [APP_PERMISSION.ASSET.HANDOVER_CANCELLED],
-      disableWhen: row => isHandoverCancelDisabled(row, loggedInUserId),
-      disableReason: row => getHandoverCancelDisableReason(row, loggedInUserId),
+      tooltip: 'Cancel Request',
+      permission: [
+        APP_PERMISSION.ASSET.HANDOVER_CANCELLED,
+        APP_PERMISSION.ASSET.RETURN_CANCELLED,
+      ],
+      disableWhen: row =>
+        getRequestCancelDisableReason(row, loggedInUserId, can) !== undefined,
+      disableReason: row =>
+        getRequestCancelDisableReason(row, loggedInUserId, can),
     },
     {
       id: EButtonActionType.DEALLOCATE,
       tooltip: 'Deallocate Asset',
       permission: [APP_PERMISSION.ASSET.DEALLOCATE],
-      disableWhen: row => row.status !== EAssetStatus.ASSIGNED,
-      disableReason: (row): string | undefined => {
-        const closedReason = getClosedAssetReason(row);
-        if (closedReason) {
-          return closedReason;
-        }
-        return row.status !== EAssetStatus.ASSIGNED
-          ? 'Asset is not allocated.'
-          : undefined;
-      },
+      disableWhen: row => getDeallocateDisableReason(row) !== undefined,
+      disableReason: row => getDeallocateDisableReason(row),
     },
     {
       id: EButtonActionType.MARK_LOST,
@@ -411,12 +465,13 @@ export const ASSET_TABLE_BULK_ACTIONS_CONFIG: Partial<
 ];
 
 export function createAssetTableEnhancedConfig(
-  loggedInUserId: string | undefined | null
+  loggedInUserId: string | undefined | null,
+  can: AssetPermissionChecker
 ): IEnhancedTableConfig<IAssetGetResponseDto['records'][number]> {
   return {
     tableConfig: ASSET_TABLE_CONFIG,
     headers: ASSET_TABLE_HEADER_CONFIG,
-    rowActions: buildAssetTableRowActionsConfig(loggedInUserId),
+    rowActions: buildAssetTableRowActionsConfig(loggedInUserId, can),
     bulkActions: ASSET_TABLE_BULK_ACTIONS_CONFIG,
   };
 }

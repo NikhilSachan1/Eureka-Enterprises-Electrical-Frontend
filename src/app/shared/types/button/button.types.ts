@@ -77,6 +77,7 @@ export enum EButtonActionType {
   HANDOVER_ACCEPTED = 'handoverAccepted',
   HANDOVER_REJECTED = 'handoverRejected',
   HANDOVER_CANCELLED = 'handoverCancelled',
+  RETURN_TO_OFFICE = 'returnToOffice',
   DEALLOCATE = 'deallocate',
   EVENT_HISTORY = 'eventHistory',
   SERVICE_INFO = 'vehicleServiceInfo',

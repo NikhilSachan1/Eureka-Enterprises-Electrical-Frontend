@@ -15,6 +15,8 @@ import { QrCodeAssetComponent } from '@features/asset-management/components/qr-c
 import { ExportAssetComponent } from '@features/asset-management/components/export-asset/export-asset.component';
 import { MarkLostAssetComponent } from '@features/asset-management/components/mark-lost-asset/mark-lost-asset.component';
 import { MarkRecoveredAssetComponent } from '@features/asset-management/components/mark-recovered-asset/mark-recovered-asset.component';
+import { IAssetGetBaseResponseDto } from '@features/asset-management/types/asset.dto';
+import { isReturnPending } from '../table/get-asset.config';
 
 export const ASSET_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.DELETE]: {
@@ -69,6 +71,15 @@ export const ASSET_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
       header: 'Cancel handover',
       message:
         'Cancel this handover? The asset will stay with the current holder.',
+    },
+  },
+  [EButtonActionType.RETURN_TO_OFFICE]: {
+    dynamicComponent: ActionAssetComponent,
+    dialogConfig: {
+      header: 'Return asset to office',
+      message:
+        'Send a return request to the office? The asset stays with you until the office accepts it.',
+      icon: ICONS.SITE.BUILDING,
     },
   },
   [EButtonActionType.DEALLOCATE]: {
@@ -139,6 +150,46 @@ export const ASSET_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
     },
   },
 };
+
+/** Accept, reject and cancel are shared with handover; these texts are used when the pending request is a return. */
+const ASSET_RETURN_ACTION_CONFIG_MAP: Partial<
+  Record<EButtonActionType, IDialogActionConfig>
+> = {
+  [EButtonActionType.HANDOVER_ACCEPTED]: {
+    dynamicComponent: ActionAssetComponent,
+    dialogConfig: {
+      header: 'Accept return',
+      message:
+        'Confirm the asset has been received at the office? It will become available again.',
+    },
+  },
+  [EButtonActionType.HANDOVER_REJECTED]: {
+    dynamicComponent: ActionAssetComponent,
+    dialogConfig: {
+      header: 'Reject return',
+      message:
+        'Reject this return request? The asset stays with the current holder.',
+    },
+  },
+  [EButtonActionType.HANDOVER_CANCELLED]: {
+    dynamicComponent: ActionAssetComponent,
+    dialogConfig: {
+      header: 'Cancel return',
+      message: 'Cancel this return request? The asset will stay with you.',
+    },
+  },
+};
+
+export function getAssetActionDialogConfig(
+  actionType: EButtonActionType,
+  row: IAssetGetBaseResponseDto | undefined
+): IDialogActionConfig {
+  const returnConfig = ASSET_RETURN_ACTION_CONFIG_MAP[actionType];
+  if (returnConfig && row && isReturnPending(row)) {
+    return returnConfig;
+  }
+  return ASSET_ACTION_CONFIG_MAP[actionType];
+}
 
 export function getAssetQrDialogActionConfig(
   isBulk: boolean,

@@ -75,6 +75,7 @@ export const AssetGetBaseResponseSchema = z
         fromUserUser: makeFieldsNullable(UserSchema).nullable(),
         toUserUser: makeFieldsNullable(UserSchema).nullable(),
         createdBy: uuidField,
+        createdByUser: makeFieldsNullable(UserSchema).nullish(),
         assetFiles: z.array(AssetBaseDocumentsSchema).optional().nullable(),
       })
       .nullable(),
