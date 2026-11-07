@@ -45,8 +45,9 @@ import {
 } from '../../types/vehicle.dto';
 import {
   createVehicleTableEnhancedConfig,
+  getVehicleActionDialogConfig,
+  isVehicleReturnPending,
   SEARCH_FILTER_VEHICLE_FORM_CONFIG,
-  VEHICLE_ACTION_CONFIG_MAP,
 } from '../../config';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { finalize, forkJoin, map } from 'rxjs';
@@ -93,12 +94,17 @@ export class GetVehicleComponent implements OnInit {
     ETableActionTypeValue.HANDOVER_CANCELLED,
     ETableActionTypeValue.HANDOVER_INITIATED,
     ETableActionTypeValue.HANDOVER_REJECTED,
+    ETableActionTypeValue.RETURN_INITIATED,
+    ETableActionTypeValue.RETURN_ACCEPTED,
+    ETableActionTypeValue.RETURN_REJECTED,
+    ETableActionTypeValue.RETURN_CANCELLED,
   ]);
 
   protected readonly HANDOVER_EVENT_TYPES = ETableActionTypeValue;
   protected readonly ICONS = ICONS;
   private static readonly HANDOVER_DIALOG_ACTIONS = new Set<EButtonActionType>([
     EButtonActionType.HANDOVER_INITIATE,
+    EButtonActionType.RETURN_TO_OFFICE,
     EButtonActionType.HANDOVER_ACCEPTED,
     EButtonActionType.HANDOVER_REJECTED,
     EButtonActionType.HANDOVER_CANCELLED,
@@ -154,8 +160,8 @@ export class GetVehicleComponent implements OnInit {
         label: ownPending ? 'Your Pending' : 'Handover Pending',
         icon: ICONS.ACTIONS.SEND,
         tooltip: ownPending
-          ? 'Handovers waiting for you'
-          : 'Vehicles with handover initiated',
+          ? 'Handovers and returns waiting for you'
+          : 'Vehicles with a handover or return initiated',
         badge: counts[EVehicleScope.PENDING],
         visible: this.canSeeVehicleTab(EVehicleScope.PENDING),
       },
@@ -245,7 +251,9 @@ export class GetVehicleComponent implements OnInit {
   ngOnInit(): void {
     const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
-      createVehicleTableEnhancedConfig(loggedInUserId)
+      createVehicleTableEnhancedConfig(loggedInUserId, permission =>
+        this.appPermissionService.hasPermission(permission)
+      )
     );
     this.searchFilterConfig = SEARCH_FILTER_VEHICLE_FORM_CONFIG;
     this.loadVehicleScopeCounts();
@@ -398,6 +406,9 @@ export class GetVehicleComponent implements OnInit {
             toUserName: record.latestEvent.toUserUser
               ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
               : '-',
+            createdByName: record.latestEvent.createdByUser
+              ? `${record.latestEvent.createdByUser.firstName} ${record.latestEvent.createdByUser.lastName}`
+              : '-',
           }
         : null;
 
@@ -541,11 +552,7 @@ export class GetVehicleComponent implements OnInit {
     };
 
     if (
-      actionType === EButtonActionType.HANDOVER_INITIATE ||
-      actionType === EButtonActionType.HANDOVER_ACCEPTED ||
-      actionType === EButtonActionType.HANDOVER_REJECTED ||
-      actionType === EButtonActionType.HANDOVER_CANCELLED ||
-      actionType === EButtonActionType.DEALLOCATE ||
+      GetVehicleComponent.HANDOVER_DIALOG_ACTIONS.has(actionType) ||
       actionType === EButtonActionType.UNLINK ||
       actionType === EButtonActionType.LINK
     ) {
@@ -566,7 +573,7 @@ export class GetVehicleComponent implements OnInit {
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      VEHICLE_ACTION_CONFIG_MAP[actionType],
+      getVehicleActionDialogConfig(actionType, selectedFirstRow),
       recordDetail,
       isBulk,
       !isBulk,
@@ -602,12 +609,15 @@ export class GetVehicleComponent implements OnInit {
 
     if (
       GetVehicleComponent.HANDOVER_DIALOG_ACTIONS.has(actionType) &&
-      actionType !== EButtonActionType.HANDOVER_INITIATE
+      actionType !== EButtonActionType.HANDOVER_INITIATE &&
+      actionType !== EButtonActionType.RETURN_TO_OFFICE
     ) {
       const eventFileKeys = this.getLatestEventFileKeys(selectedRow);
       if (eventFileKeys.length > 0) {
         entryData.push({
-          label: 'Handover attachments',
+          label: isVehicleReturnPending(selectedRow)
+            ? 'Return attachments'
+            : 'Handover attachments',
           value: eventFileKeys,
           type: EDataType.ATTACHMENTS,
         });

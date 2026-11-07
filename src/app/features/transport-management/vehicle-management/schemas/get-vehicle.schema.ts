@@ -99,6 +99,7 @@ export const VehicleGetBaseResponseSchema = z
         fromUserUser: makeFieldsNullable(UserSchema).nullable(),
         toUserUser: makeFieldsNullable(UserSchema).nullable(),
         createdBy: uuidField,
+        createdByUser: makeFieldsNullable(UserSchema).nullish(),
         vehicleFiles: z.array(VehicleBaseDocumentsSchema).optional().nullable(),
       })
       .nullable(),

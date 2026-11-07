@@ -109,31 +109,40 @@ export const VEHICLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
 
 type VehicleTableRow = IVehicleGetResponseDto['records'][number];
 
-/** Handover is no longer in a pending “initiated” state (accepted / rejected / cancelled). */
-const TERMINAL_HANDOVER_EVENT_TYPES = new Set<string>([
+/** Checks a permission of the logged-in user. The table config is plain data, so the component passes this in. */
+export type VehiclePermissionChecker = (permission: string) => boolean;
+
+/** Request types that are finished, so nothing is pending any more. */
+const TERMINAL_REQUEST_EVENT_TYPES = new Set<string>([
   ETableActionTypeValue.HANDOVER_ACCEPTED,
   ETableActionTypeValue.HANDOVER_REJECTED,
   ETableActionTypeValue.HANDOVER_CANCELLED,
+  ETableActionTypeValue.RETURN_ACCEPTED,
+  ETableActionTypeValue.RETURN_REJECTED,
+  ETableActionTypeValue.RETURN_CANCELLED,
 ]);
 
-function isHandoverInitiateDisabled(
-  row: VehicleTableRow,
-  loggedInUserId: string | null | undefined
-): boolean {
-  if (row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED) {
-    return true;
-  }
-  if (row.status === 'ASSIGNED') {
-    return !loggedInUserId || row.assignedTo !== loggedInUserId;
-  }
-  return false;
+function isHandoverPending(row: VehicleTableRow): boolean {
+  return (
+    row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED
+  );
+}
+
+/** The holder asked to return the vehicle to the office and nobody has answered yet. */
+export function isVehicleReturnPending(row: VehicleTableRow): boolean {
+  return row.latestEvent?.eventType === ETableActionTypeValue.RETURN_INITIATED;
+}
+
+/** Only one request at a time: a pending handover or return blocks every other change of holder. */
+function hasPendingRequest(row: VehicleTableRow): boolean {
+  return isHandoverPending(row) || isVehicleReturnPending(row);
 }
 
 function getHandoverInitiateDisableReason(
   row: VehicleTableRow,
   loggedInUserId: string | null | undefined
 ): string | undefined {
-  if (row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED) {
+  if (hasPendingRequest(row)) {
     return 'Request is already initiated.';
   }
   if (row.status === 'ASSIGNED') {
@@ -144,77 +153,93 @@ function getHandoverInitiateDisableReason(
   return undefined;
 }
 
-function isHandoverAcceptRejectDisabled(
-  row: VehicleTableRow,
-  loggedInUserId: string | null | undefined
-): boolean {
-  return (
-    row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED ||
-    !loggedInUserId ||
-    row.latestEvent.toUser !== loggedInUserId
-  );
-}
-
-/**
- * 1) Terminal status — allocation already completed.
- * 2) No pending initiated request.
- * 3) Current user is not the assignee (cannot accept/reject).
- */
-function getHandoverAcceptRejectDisableReason(
+function getReturnToOfficeDisableReason(
   row: VehicleTableRow,
   loggedInUserId: string | null | undefined
 ): string | undefined {
-  if (!isHandoverAcceptRejectDisabled(row, loggedInUserId)) {
+  if (hasPendingRequest(row)) {
+    return 'Request is already initiated.';
+  }
+  if (row.status !== 'ASSIGNED') {
+    return 'Only an assigned vehicle can be returned to the office.';
+  }
+  if (!loggedInUserId || row.assignedTo !== loggedInUserId) {
+    return 'Only the assigned user can return this vehicle to the office.';
+  }
+  return undefined;
+}
+
+/**
+ * Accept and reject are the same buttons for both requests:
+ * - Handover: only the target user, with the handover permission.
+ * - Return to office: office staff with the return permission, but not the person returning it.
+ */
+function getRequestResponseDisableReason(
+  row: VehicleTableRow,
+  loggedInUserId: string | null | undefined,
+  can: VehiclePermissionChecker,
+  permissions: { handover: string; return: string }
+): string | undefined {
+  if (isVehicleReturnPending(row)) {
+    if (!can(permissions.return)) {
+      return 'You are not authorized to respond to this return. Only office staff with return permission can respond.';
+    }
+    if (!loggedInUserId || row.latestEvent?.fromUser === loggedInUserId) {
+      return 'You cannot respond to a return you initiated yourself.';
+    }
     return undefined;
   }
-  const eventType = row.latestEvent?.eventType;
-  if (eventType !== ETableActionTypeValue.HANDOVER_INITIATED) {
-    return 'No allocation request is pending. The handover must be initiated first.';
+  if (!isHandoverPending(row)) {
+    return 'No handover or return request is pending.';
   }
-  if (!loggedInUserId || row.latestEvent?.toUser !== loggedInUserId) {
+  if (
+    !can(permissions.handover) ||
+    !loggedInUserId ||
+    row.latestEvent?.toUser !== loggedInUserId
+  ) {
     return 'You are not authorized to accept or reject this allocation. Only the assigned user can respond.';
   }
   return undefined;
 }
 
-function isHandoverCancelDisabled(
+/** Only the person who started the handover or the return can cancel it. */
+function getRequestCancelDisableReason(
   row: VehicleTableRow,
-  loggedInUserId: string | null | undefined
-): boolean {
-  return (
-    row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED ||
+  loggedInUserId: string | null | undefined,
+  can: VehiclePermissionChecker
+): string | undefined {
+  if (!hasPendingRequest(row)) {
+    const eventType = row.latestEvent?.eventType;
+    return eventType && TERMINAL_REQUEST_EVENT_TYPES.has(eventType)
+      ? 'This request has already been completed.'
+      : 'No handover or return request is pending.';
+  }
+  const permission = isVehicleReturnPending(row)
+    ? APP_PERMISSION.VEHICLE.RETURN_CANCELLED
+    : APP_PERMISSION.VEHICLE.HANDOVER_CANCELLED;
+  if (
+    !can(permission) ||
     !loggedInUserId ||
-    row.latestEvent.fromUser !== loggedInUserId
-  );
+    row.latestEvent?.fromUser !== loggedInUserId
+  ) {
+    return 'You are not authorized to cancel this request. Only the user who initiated the request can cancel.';
+  }
+  return undefined;
 }
 
-/**
- * 1) Terminal status — allocation already completed.
- * 2) No pending initiated request.
- * 3) Current user is not the initiator (cannot cancel).
- */
-function getHandoverCancelDisableReason(
-  row: VehicleTableRow,
-  loggedInUserId: string | null | undefined
-): string | undefined {
-  if (!isHandoverCancelDisabled(row, loggedInUserId)) {
-    return undefined;
+function getDeallocateDisableReason(row: VehicleTableRow): string | undefined {
+  if (row.status !== 'ASSIGNED') {
+    return 'Vehicle is not allocated.';
   }
-  const eventType = row.latestEvent?.eventType;
-  if (eventType && TERMINAL_HANDOVER_EVENT_TYPES.has(eventType)) {
-    return 'This allocation request has already been completed.';
-  }
-  if (eventType !== ETableActionTypeValue.HANDOVER_INITIATED) {
-    return 'No allocation request is pending. The handover must be initiated first.';
-  }
-  if (!loggedInUserId || row.latestEvent?.fromUser !== loggedInUserId) {
-    return 'You are not authorized to cancel this allocation. Only the user who initiated the request can cancel.';
+  if (isVehicleReturnPending(row)) {
+    return 'A return to office is pending. Accept, reject or cancel it first.';
   }
   return undefined;
 }
 
 export function buildVehicleTableRowActionsConfig(
-  loggedInUserId: string | undefined | null
+  loggedInUserId: string | undefined | null,
+  can: VehiclePermissionChecker
 ): Partial<ITableActionConfig<IVehicleGetResponseDto['records'][number]>>[] {
   return [
     {
@@ -242,52 +267,73 @@ export function buildVehicleTableRowActionsConfig(
       id: EButtonActionType.HANDOVER_INITIATE,
       tooltip: 'Handover Vehicle',
       permission: [APP_PERMISSION.VEHICLE.HANDOVER_INITIATE],
-      disableWhen: row => isHandoverInitiateDisabled(row, loggedInUserId),
+      disableWhen: row =>
+        getHandoverInitiateDisableReason(row, loggedInUserId) !== undefined,
       disableReason: row =>
         getHandoverInitiateDisableReason(row, loggedInUserId),
     },
     {
-      id: EButtonActionType.HANDOVER_ACCEPTED,
-      tooltip: 'Accept Allocation',
-      permission: [APP_PERMISSION.VEHICLE.HANDOVER_ACCEPTED],
+      id: EButtonActionType.RETURN_TO_OFFICE,
+      tooltip: 'Return to Office',
+      permission: [APP_PERMISSION.VEHICLE.RETURN_INITIATE],
       disableWhen: row =>
-        row.latestEvent?.eventType !==
-          ETableActionTypeValue.HANDOVER_INITIATED ||
-        !loggedInUserId ||
-        row.latestEvent.toUser !== loggedInUserId,
+        getReturnToOfficeDisableReason(row, loggedInUserId) !== undefined,
+      disableReason: row => getReturnToOfficeDisableReason(row, loggedInUserId),
+    },
+    {
+      id: EButtonActionType.HANDOVER_ACCEPTED,
+      tooltip: 'Accept Request',
+      permission: [
+        APP_PERMISSION.VEHICLE.HANDOVER_ACCEPTED,
+        APP_PERMISSION.VEHICLE.RETURN_ACCEPTED,
+      ],
+      disableWhen: row =>
+        getRequestResponseDisableReason(row, loggedInUserId, can, {
+          handover: APP_PERMISSION.VEHICLE.HANDOVER_ACCEPTED,
+          return: APP_PERMISSION.VEHICLE.RETURN_ACCEPTED,
+        }) !== undefined,
       disableReason: row =>
-        getHandoverAcceptRejectDisableReason(row, loggedInUserId),
+        getRequestResponseDisableReason(row, loggedInUserId, can, {
+          handover: APP_PERMISSION.VEHICLE.HANDOVER_ACCEPTED,
+          return: APP_PERMISSION.VEHICLE.RETURN_ACCEPTED,
+        }),
     },
     {
       id: EButtonActionType.HANDOVER_REJECTED,
-      tooltip: 'Reject Allocation',
-      permission: [APP_PERMISSION.VEHICLE.HANDOVER_REJECTED],
+      tooltip: 'Reject Request',
+      permission: [
+        APP_PERMISSION.VEHICLE.HANDOVER_REJECTED,
+        APP_PERMISSION.VEHICLE.RETURN_REJECTED,
+      ],
       disableWhen: row =>
-        row.latestEvent?.eventType !==
-          ETableActionTypeValue.HANDOVER_INITIATED ||
-        !loggedInUserId ||
-        row.latestEvent.toUser !== loggedInUserId,
+        getRequestResponseDisableReason(row, loggedInUserId, can, {
+          handover: APP_PERMISSION.VEHICLE.HANDOVER_REJECTED,
+          return: APP_PERMISSION.VEHICLE.RETURN_REJECTED,
+        }) !== undefined,
       disableReason: row =>
-        getHandoverAcceptRejectDisableReason(row, loggedInUserId),
+        getRequestResponseDisableReason(row, loggedInUserId, can, {
+          handover: APP_PERMISSION.VEHICLE.HANDOVER_REJECTED,
+          return: APP_PERMISSION.VEHICLE.RETURN_REJECTED,
+        }),
     },
     {
       id: EButtonActionType.HANDOVER_CANCELLED,
-      tooltip: 'Cancel Allocation',
-      permission: [APP_PERMISSION.VEHICLE.HANDOVER_CANCELLED],
+      tooltip: 'Cancel Request',
+      permission: [
+        APP_PERMISSION.VEHICLE.HANDOVER_CANCELLED,
+        APP_PERMISSION.VEHICLE.RETURN_CANCELLED,
+      ],
       disableWhen: row =>
-        row.latestEvent?.eventType !==
-          ETableActionTypeValue.HANDOVER_INITIATED ||
-        !loggedInUserId ||
-        row.latestEvent.fromUser !== loggedInUserId,
-      disableReason: row => getHandoverCancelDisableReason(row, loggedInUserId),
+        getRequestCancelDisableReason(row, loggedInUserId, can) !== undefined,
+      disableReason: row =>
+        getRequestCancelDisableReason(row, loggedInUserId, can),
     },
     {
       id: EButtonActionType.DEALLOCATE,
       tooltip: 'Deallocate Vehicle',
       permission: [APP_PERMISSION.VEHICLE.DEALLOCATE],
-      disableWhen: row => row.status !== 'ASSIGNED',
-      disableReason: row =>
-        row.status !== 'ASSIGNED' ? 'Vehicle is not allocated.' : undefined,
+      disableWhen: row => getDeallocateDisableReason(row) !== undefined,
+      disableReason: row => getDeallocateDisableReason(row),
     },
     {
       ...COMMON_ROW_ACTIONS.EDIT,
@@ -337,12 +383,13 @@ export const VEHICLE_TABLE_BULK_ACTIONS_CONFIG: Partial<
 ];
 
 export function createVehicleTableEnhancedConfig(
-  loggedInUserId: string | undefined | null
+  loggedInUserId: string | undefined | null,
+  can: VehiclePermissionChecker
 ): IEnhancedTableConfig<IVehicleGetResponseDto['records'][number]> {
   return {
     tableConfig: VEHICLE_TABLE_CONFIG,
     headers: VEHICLE_TABLE_HEADER_CONFIG,
-    rowActions: buildVehicleTableRowActionsConfig(loggedInUserId),
+    rowActions: buildVehicleTableRowActionsConfig(loggedInUserId, can),
     bulkActions: VEHICLE_TABLE_BULK_ACTIONS_CONFIG,
   };
 }

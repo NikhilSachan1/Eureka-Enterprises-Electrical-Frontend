@@ -154,6 +154,13 @@ export class GetVehicleEventHistoryComponent implements OnInit {
       const fromUser = record.fromUserDetails;
       const toUser = record.toUserDetails;
       const createdBy = record.createdByUser;
+      const newHolder = this.resolveNewHolder(
+        record.eventType,
+        toUser ? `${toUser.firstName} ${toUser.lastName}` : null,
+        toUser?.employeeId ?? null,
+        fromUser ? `${fromUser.firstName} ${fromUser.lastName}` : null,
+        fromUser?.employeeId ?? null
+      );
 
       return {
         eventDate: record.createdAt,
@@ -168,14 +175,8 @@ export class GetVehicleEventHistoryComponent implements OnInit {
           ? `${fromUser.firstName} ${fromUser.lastName}`
           : null,
         fromUserCode: fromUser?.employeeId ?? null,
-        // A deallocated vehicle has no new holder: it goes back to the office.
-        toUserName:
-          record.eventType === ETableActionTypeValue.DEALLOCATED
-            ? 'Office'
-            : toUser
-              ? `${toUser.firstName} ${toUser.lastName}`
-              : null,
-        toUserCode: toUser?.employeeId ?? null,
+        toUserName: newHolder.name,
+        toUserCode: newHolder.code,
         createdByName: `${createdBy.firstName} ${createdBy.lastName}`,
         createdByCode: createdBy.employeeId,
       };
@@ -203,6 +204,31 @@ export class GetVehicleEventHistoryComponent implements OnInit {
     this.vehicleId.set('');
     this.vehicleEventHistoryStats.set(null);
     this.table.setData([]);
+  }
+
+  /**
+   * A return has no target user, so the backend leaves `toUser` empty and `fromUser` is always the
+   * holder. Mirrors handover: initiated / accepted go to the office, rejected / cancelled stay with
+   * the holder. A deallocated vehicle also goes back to the office.
+   */
+  private resolveNewHolder(
+    eventType: string,
+    toUserName: string | null,
+    toUserCode: string | null,
+    holderName: string | null,
+    holderCode: string | null
+  ): { name: string | null; code: string | null } {
+    switch (eventType) {
+      case ETableActionTypeValue.RETURN_INITIATED:
+      case ETableActionTypeValue.RETURN_ACCEPTED:
+      case ETableActionTypeValue.DEALLOCATED:
+        return { name: 'Office', code: null };
+      case ETableActionTypeValue.RETURN_REJECTED:
+      case ETableActionTypeValue.RETURN_CANCELLED:
+        return { name: holderName, code: holderCode };
+      default:
+        return { name: toUserName, code: toUserCode };
+    }
   }
 
   private getMetricGroups(): IMetricGroup[] {
@@ -243,6 +269,29 @@ export class GetVehicleEventHistoryComponent implements OnInit {
           {
             label: 'Deallocated',
             value: stats?.byEventType?.DEALLOCATED ?? 0,
+          },
+        ],
+      },
+      {
+        id: 'return-to-office',
+        title: 'Return to Office Events',
+        icon: ICONS.SITE.BUILDING,
+        metrics: [
+          {
+            label: 'Return Initiated',
+            value: stats?.byEventType?.RETURN_INITIATED ?? 0,
+          },
+          {
+            label: 'Return Accepted',
+            value: stats?.byEventType?.RETURN_ACCEPTED ?? 0,
+          },
+          {
+            label: 'Return Rejected',
+            value: stats?.byEventType?.RETURN_REJECTED ?? 0,
+          },
+          {
+            label: 'Return Cancelled',
+            value: stats?.byEventType?.RETURN_CANCELLED ?? 0,
           },
         ],
       },

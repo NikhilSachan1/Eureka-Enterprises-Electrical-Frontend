@@ -23,7 +23,10 @@ import {
   IVehicleGetBaseResponseDto,
 } from '../../types/vehicle.dto';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { ACTION_VEHICLE_FORM_CONFIG } from '../../config';
+import {
+  ACTION_VEHICLE_FORM_CONFIG,
+  isVehicleReturnPending,
+} from '../../config';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -52,6 +55,48 @@ export class ActionVehicleComponent
   protected readonly onSuccess = input.required<() => void>();
 
   protected readonly EButtonActionTypeEnum = EButtonActionType;
+
+  private static readonly LOADING_MESSAGES: Partial<
+    Record<ETableActionTypeValue, { title: string; message: string }>
+  > = {
+    [ETableActionTypeValue.HANDOVER_INITIATED]: {
+      title: 'Initiating Handover',
+      message: "We're starting the handover. This will just take a moment.",
+    },
+    [ETableActionTypeValue.HANDOVER_ACCEPTED]: {
+      title: 'Accepting Handover',
+      message: "We're accepting the handover. This will just take a moment.",
+    },
+    [ETableActionTypeValue.HANDOVER_REJECTED]: {
+      title: 'Rejecting Handover',
+      message: "We're rejecting the handover. This will just take a moment.",
+    },
+    [ETableActionTypeValue.HANDOVER_CANCELLED]: {
+      title: 'Cancelling Handover',
+      message: "We're cancelling the handover. This will just take a moment.",
+    },
+    [ETableActionTypeValue.RETURN_INITIATED]: {
+      title: 'Starting return',
+      message:
+        "We're sending the return request to the office. This will just take a moment.",
+    },
+    [ETableActionTypeValue.RETURN_ACCEPTED]: {
+      title: 'Accepting return',
+      message: "We're accepting the return. This will just take a moment.",
+    },
+    [ETableActionTypeValue.RETURN_REJECTED]: {
+      title: 'Rejecting return',
+      message: "We're rejecting the return. This will just take a moment.",
+    },
+    [ETableActionTypeValue.RETURN_CANCELLED]: {
+      title: 'Cancelling return',
+      message: "We're cancelling the return. This will just take a moment.",
+    },
+    [ETableActionTypeValue.DEALLOCATED]: {
+      title: 'Deallocating Vehicle',
+      message: "We're deallocating the vehicle. This will just take a moment.",
+    },
+  };
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -89,70 +134,44 @@ export class ActionVehicleComponent
   private prepareFormData(): IvehicleActionFormDto {
     const formData = this.form.getData();
 
-    let actionTypeValue!: ETableActionTypeValue;
-
-    if (this.dialogActionType() === EButtonActionType.HANDOVER_INITIATE) {
-      actionTypeValue = ETableActionTypeValue.HANDOVER_INITIATED;
-    } else if (
-      this.dialogActionType() === EButtonActionType.HANDOVER_ACCEPTED
-    ) {
-      actionTypeValue = ETableActionTypeValue.HANDOVER_ACCEPTED;
-    } else if (
-      this.dialogActionType() === EButtonActionType.HANDOVER_REJECTED
-    ) {
-      actionTypeValue = ETableActionTypeValue.HANDOVER_REJECTED;
-    } else if (
-      this.dialogActionType() === EButtonActionType.HANDOVER_CANCELLED
-    ) {
-      actionTypeValue = ETableActionTypeValue.HANDOVER_CANCELLED;
-    } else if (this.dialogActionType() === EButtonActionType.DEALLOCATE) {
-      actionTypeValue = ETableActionTypeValue.DEALLOCATED;
-    }
-
     const { id: vehicleId } = this.selectedRecord()[0];
     return {
       ...formData,
       vehicleId,
-      actionType: actionTypeValue,
+      actionType: this.resolveActionTypeValue(),
     };
   }
 
-  private executeVehicleAction(formData: IvehicleActionFormDto): void {
-    let loadingMessage;
+  /** Accept, reject and cancel are shared with handover: on a pending return they send the return event instead. */
+  private resolveActionTypeValue(): ETableActionTypeValue {
+    const forReturn = isVehicleReturnPending(this.selectedRecord()[0]);
+    const actionTypeValues: Partial<
+      Record<EButtonActionType, ETableActionTypeValue>
+    > = {
+      [EButtonActionType.HANDOVER_INITIATE]:
+        ETableActionTypeValue.HANDOVER_INITIATED,
+      [EButtonActionType.RETURN_TO_OFFICE]:
+        ETableActionTypeValue.RETURN_INITIATED,
+      [EButtonActionType.HANDOVER_ACCEPTED]: forReturn
+        ? ETableActionTypeValue.RETURN_ACCEPTED
+        : ETableActionTypeValue.HANDOVER_ACCEPTED,
+      [EButtonActionType.HANDOVER_REJECTED]: forReturn
+        ? ETableActionTypeValue.RETURN_REJECTED
+        : ETableActionTypeValue.HANDOVER_REJECTED,
+      [EButtonActionType.HANDOVER_CANCELLED]: forReturn
+        ? ETableActionTypeValue.RETURN_CANCELLED
+        : ETableActionTypeValue.HANDOVER_CANCELLED,
+      [EButtonActionType.DEALLOCATE]: ETableActionTypeValue.DEALLOCATED,
+    };
 
-    if (this.dialogActionType() === EButtonActionType.HANDOVER_INITIATE) {
-      loadingMessage = {
-        title: 'Initiating Handover',
-        message: "We're starting the handover. This will just take a moment.",
-      };
-    } else if (
-      this.dialogActionType() === EButtonActionType.HANDOVER_ACCEPTED
-    ) {
-      loadingMessage = {
-        title: 'Accepting Handover',
-        message: "We're accepting the handover. This will just take a moment.",
-      };
-    } else if (
-      this.dialogActionType() === EButtonActionType.HANDOVER_REJECTED
-    ) {
-      loadingMessage = {
-        title: 'Rejecting Handover',
-        message: "We're rejecting the handover. This will just take a moment.",
-      };
-    } else if (
-      this.dialogActionType() === EButtonActionType.HANDOVER_CANCELLED
-    ) {
-      loadingMessage = {
-        title: 'Cancelling Handover',
-        message: "We're cancelling the handover. This will just take a moment.",
-      };
-    } else if (this.dialogActionType() === EButtonActionType.DEALLOCATE) {
-      loadingMessage = {
-        title: 'Deallocating Vehicle',
-        message:
-          "We're deallocating the vehicle. This will just take a moment.",
-      };
-    }
+    return actionTypeValues[this.dialogActionType()] as ETableActionTypeValue;
+  }
+
+  private executeVehicleAction(formData: IvehicleActionFormDto): void {
+    const loadingMessage =
+      ActionVehicleComponent.LOADING_MESSAGES[
+        formData.actionType as ETableActionTypeValue
+      ];
 
     this.loadingService.show(loadingMessage);
     this.form.disable();
@@ -171,6 +190,7 @@ export class ActionVehicleComponent
         next: (response: IVehicleActionResponseDto) => {
           this.notificationService.success(response.message);
           const action = this.dialogActionType();
+          // Covers an accepted return as well: it shares the accept button and frees the holder.
           if (
             action === EButtonActionType.HANDOVER_ACCEPTED ||
             action === EButtonActionType.DEALLOCATE
