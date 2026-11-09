@@ -56,6 +56,8 @@ import { IVehicle } from '../../types/vehicle.interface';
 import {
   applyGroupMetricValueLoading,
   getMappedValueFromArrayOfObjects,
+  canRespondToReturns,
+  canSeeHandoverScopeTab,
 } from '@shared/utility';
 import { GetVehicleDetailComponent } from '../get-vehicle-detail/get-vehicle-detail.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
@@ -137,7 +139,6 @@ export class GetVehicleComponent implements OnInit {
   protected readonly vehicleScopeTabs = computed<ITabItem[]>(() => {
     const counts = this.vehicleScopeCounts();
     const ownPending = this.canSeeVehicleTab(EVehicleScope.MY);
-    const personalPending = ownPending || this.canRespondToReturns();
 
     return [
       {
@@ -158,11 +159,9 @@ export class GetVehicleComponent implements OnInit {
       },
       {
         route: EVehicleScope.PENDING,
-        label: personalPending ? 'Your Pending' : 'Handover Pending',
+        label: 'Your Pending',
         icon: ICONS.ACTIONS.SEND,
-        tooltip: personalPending
-          ? 'Handovers and returns waiting for you'
-          : 'Vehicles with a handover or return initiated',
+        tooltip: 'Handovers and returns waiting for you',
         badge: counts[EVehicleScope.PENDING],
         visible: this.canSeeVehicleTab(EVehicleScope.PENDING),
       },
@@ -262,10 +261,9 @@ export class GetVehicleComponent implements OnInit {
 
   /** Office staff who may answer a return to office. Returns wait on them, so they get a pending tab too. */
   private canRespondToReturns(): boolean {
-    return this.appPermissionService.hasAnyPermission([
-      APP_PERMISSION.VEHICLE.RETURN_ACCEPTED,
-      APP_PERMISSION.VEHICLE.RETURN_REJECTED,
-    ]);
+    return canRespondToReturns('vehicle', permission =>
+      this.appPermissionService.hasPermission(permission)
+    );
   }
 
   /**
@@ -279,32 +277,19 @@ export class GetVehicleComponent implements OnInit {
     if (!loggedInUserId) {
       return;
     }
-    const respondsToReturns = this.canRespondToReturns();
-    if (this.authService.isActiveRoleEmployeeLike() || respondsToReturns) {
-      params.handoverToUser = loggedInUserId;
-    }
-    if (respondsToReturns) {
+    // Only users who may respond see the pending tab, and it always narrows to them.
+    params.handoverToUser = loggedInUserId;
+    if (this.canRespondToReturns()) {
       params.includePendingReturns = true;
     }
   }
 
+  /** Shared with the dashboard links that open this list by tab index; see canSeeHandoverScopeTab. */
   private canSeeVehicleTab(scope: EVehicleScope): boolean {
     this.appPermissionService.getPermissions();
-    const permission = {
-      [EVehicleScope.MY]: APP_PERMISSION.UI.VEHICLE.TAB_MY,
-      [EVehicleScope.ALL]: APP_PERMISSION.UI.VEHICLE.TAB_ALL,
-      [EVehicleScope.PENDING]: APP_PERMISSION.UI.VEHICLE.TAB_PENDING,
-    }[scope];
-
-    // Return responders (office roles) had no tabs before and saw every record. They now get a
-    // pending tab, so they keep "All" next to it instead of a lone pending tab over the full list.
-    if (
-      (scope === EVehicleScope.PENDING || scope === EVehicleScope.ALL) &&
-      this.canRespondToReturns()
-    ) {
-      return true;
-    }
-    return this.appPermissionService.hasPermission(permission);
+    return canSeeHandoverScopeTab('vehicle', scope, permission =>
+      this.appPermissionService.hasPermission(permission)
+    );
   }
 
   private resolveDefaultVehicleScope(): EVehicleScope {
@@ -409,14 +394,10 @@ export class GetVehicleComponent implements OnInit {
       params.vehicleStatus = 'INITIATED';
     }
 
+    // Only the pending tab narrows to the user. On the other tabs an INITIATED status filter
+    // shows every pending request.
     if (this.vehicleScope() === EVehicleScope.PENDING) {
       this.applyPendingForUser(params, loggedInUserId);
-    } else if (
-      params.vehicleStatus === 'INITIATED' &&
-      this.authService.isActiveRoleEmployeeLike() &&
-      loggedInUserId
-    ) {
-      params.handoverToUser = loggedInUserId;
     }
 
     return params;

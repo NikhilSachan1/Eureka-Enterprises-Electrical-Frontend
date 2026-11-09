@@ -10,15 +10,18 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { APP_CONFIG } from '@core/config';
-import { APP_PERMISSION } from '@core/constants';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
-import { scopeTabQuery } from '@features/dashboard/utils/kpm-dropdown-link.util';
 import { AssetService } from '@features/asset-management/services/asset.service';
 import { IAssetGetFormDto } from '@features/asset-management/types/asset.dto';
 import { VehicleService } from '@features/transport-management/vehicle-management/services/vehicle.service';
 import { IvehicleGetFormDto } from '@features/transport-management/vehicle-management/types/vehicle.dto';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import {
+  canRespondToReturns,
+  canSeeHandoverScopeTab,
+  handoverScopeTabQuery,
+} from '@shared/utility';
 import { catchError, finalize, map, of } from 'rxjs';
 
 @Component({
@@ -39,32 +42,30 @@ export class HandoverPendingDashboardComponent implements OnInit {
 
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ICONS = ICONS;
-  /** Office staff who may answer a return to office; returns wait on them. */
-  private readonly respondsToAssetReturns =
-    this.appPermissionService.hasAnyPermission([
-      APP_PERMISSION.ASSET.RETURN_ACCEPTED,
-      APP_PERMISSION.ASSET.RETURN_REJECTED,
-    ]);
-  private readonly respondsToVehicleReturns =
-    this.appPermissionService.hasAnyPermission([
-      APP_PERMISSION.VEHICLE.RETURN_ACCEPTED,
-      APP_PERMISSION.VEHICLE.RETURN_REJECTED,
-    ]);
+  private readonly hasPermission = (permission: string): boolean =>
+    this.appPermissionService.hasPermission(permission);
 
-  protected readonly canViewAssetPending =
-    this.appPermissionService.hasPermission(
-      APP_PERMISSION.UI.ASSET.TAB_PENDING
-    ) || this.respondsToAssetReturns;
-  protected readonly canViewVehiclePending =
-    this.appPermissionService.hasPermission(
-      APP_PERMISSION.UI.VEHICLE.TAB_PENDING
-    ) || this.respondsToVehicleReturns;
-  protected readonly title =
-    this.authService.isActiveRoleEmployeeLike() ||
-    this.respondsToAssetReturns ||
-    this.respondsToVehicleReturns
-      ? 'Your pending'
-      : 'Handover pending';
+  /** Office staff who may answer a return to office; returns wait on them. */
+  private readonly respondsToAssetReturns = canRespondToReturns(
+    'asset',
+    this.hasPermission
+  );
+  private readonly respondsToVehicleReturns = canRespondToReturns(
+    'vehicle',
+    this.hasPermission
+  );
+
+  protected readonly canViewAssetPending = canSeeHandoverScopeTab(
+    'asset',
+    'PENDING',
+    this.hasPermission
+  );
+  protected readonly canViewVehiclePending = canSeeHandoverScopeTab(
+    'vehicle',
+    'PENDING',
+    this.hasPermission
+  );
+  protected readonly title = 'Your pending';
 
   protected readonly assetCount = signal<number | null>(null);
   protected readonly vehicleCount = signal<number | null>(null);
@@ -107,11 +108,7 @@ export class HandoverPendingDashboardComponent implements OnInit {
       assetStatus: 'INITIATED',
     };
 
-    if (
-      (this.authService.isActiveRoleEmployeeLike() ||
-        this.respondsToAssetReturns) &&
-      loggedInUserId
-    ) {
+    if (loggedInUserId) {
       params.handoverToUser = loggedInUserId;
     }
     if (this.respondsToAssetReturns) {
@@ -143,11 +140,7 @@ export class HandoverPendingDashboardComponent implements OnInit {
       vehicleStatus: 'INITIATED',
     };
 
-    if (
-      (this.authService.isActiveRoleEmployeeLike() ||
-        this.respondsToVehicleReturns) &&
-      loggedInUserId
-    ) {
+    if (loggedInUserId) {
       params.handoverToUser = loggedInUserId;
     }
     if (this.respondsToVehicleReturns) {
@@ -171,33 +164,10 @@ export class HandoverPendingDashboardComponent implements OnInit {
       .subscribe(count => this.vehicleCount.set(count));
   }
 
+  /** Same tab index the list computes, so the link lands on the pending tab. */
   private pendingTabQuery(
     kind: 'asset' | 'vehicle'
   ): { tab: string } | undefined {
-    const permissions =
-      kind === 'asset' ? APP_PERMISSION.UI.ASSET : APP_PERMISSION.UI.VEHICLE;
-    const canViewPending =
-      kind === 'asset' ? this.canViewAssetPending : this.canViewVehiclePending;
-
-    const respondsToReturns =
-      kind === 'asset'
-        ? this.respondsToAssetReturns
-        : this.respondsToVehicleReturns;
-
-    // The list shows the All and Pending tabs to return responders as well, so count them the same
-    // way here or the link opens the wrong tab.
-    return scopeTabQuery(
-      permission => {
-        if (permission === permissions.TAB_PENDING) {
-          return canViewPending;
-        }
-        if (permission === permissions.TAB_ALL && respondsToReturns) {
-          return true;
-        }
-        return this.appPermissionService.hasPermission(permission);
-      },
-      permissions,
-      'PENDING'
-    );
+    return handoverScopeTabQuery(kind, 'PENDING', this.hasPermission);
   }
 }

@@ -42,9 +42,9 @@ import {
 } from '@features/dashboard/types/dashboard.interface';
 import {
   pickDropdownValue,
-  scopeTabQuery,
   statusFilterQuery,
 } from '@features/dashboard/utils/kpm-dropdown-link.util';
+import { handoverScopeTabQuery } from '@shared/utility';
 
 /** List-status filter for a configured payment-sheet stage. */
 const PAYMENT_SHEET_STATUS_BY_STAGE: Record<string, string> = {
@@ -327,14 +327,10 @@ export class KpmDashboardComponent implements OnInit {
     kind: 'asset' | 'vehicle',
     statusQuery: Record<string, string[]> | undefined
   ): Record<string, string | readonly string[]> | undefined {
-    const permissions =
-      kind === 'asset' ? APP_PERMISSION.UI.ASSET : APP_PERMISSION.UI.VEHICLE;
     const queryParams = {
       ...(statusQuery ?? {}),
-      ...(scopeTabQuery(
-        permission => this.appPermissionService.hasPermission(permission),
-        permissions,
-        'ALL'
+      ...(handoverScopeTabQuery(kind, 'ALL', permission =>
+        this.appPermissionService.hasPermission(permission)
       ) ?? {}),
     };
 
