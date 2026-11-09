@@ -60,6 +60,8 @@ export class NavTabsComponent implements OnInit {
   syncUrl = input<boolean>(true);
   /** Content mode only. When set, the parent owns which tab is active. */
   activeRoute = input<string | undefined>(undefined);
+  /** Content mode only. Tab opened when the URL has no valid `tab` param. */
+  defaultTabIndex = input<number>(0);
   allTabMode = ETabMode;
   protected readonly tabLayout = ETabLayout;
   protected readonly tabTier = ETabTier;
@@ -203,12 +205,12 @@ export class NavTabsComponent implements OnInit {
       tabIndexParam === null ||
       tabIndexParam === ''
     ) {
-      return 0;
+      return this.defaultTabIndex();
     }
 
     const tabIndex = parseInt(String(tabIndexParam), 10);
     if (isNaN(tabIndex) || tabIndex < 0 || tabIndex >= tabCount) {
-      return 0;
+      return this.defaultTabIndex();
     }
 
     return tabIndex;
