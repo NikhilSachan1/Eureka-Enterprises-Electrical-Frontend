@@ -9,7 +9,7 @@ export const UserDelegationManagedUsersRequestSchema = z
 
 export const UserDelegationManagedUserSchema = z.looseObject({
   id: uuidField,
-  employeeId: z.string(),
+  employeeId: z.string().nullable(),
   name: z.string(),
   designation: z.string().nullable().optional(),
   isSelf: z.boolean(),
