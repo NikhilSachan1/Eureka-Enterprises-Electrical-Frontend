@@ -1,4 +1,5 @@
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { LOGIN_AS_ROW_ACTION } from '@features/auth-management/config/impersonate.config';
 import { IEmployeeGetResponseDto } from '@features/employee-management/types/employee.dto';
 import { EEmployeeStatus } from '@features/employee-management/types/employee.types';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
@@ -86,6 +87,7 @@ const EMPLOYEE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     tooltip: 'View Employee profile',
     permission: [APP_PERMISSION.EMPLOYEE.VIEW_DETAIL],
   },
+  LOGIN_AS_ROW_ACTION,
   {
     id: EButtonActionType.SEND_PASSWORD_LINK,
     tooltip: 'Send Password Link',

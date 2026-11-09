@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 
 @Component({
@@ -9,4 +10,6 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
   styleUrl: './private-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PrivateLayoutComponent {}
+export class PrivateLayoutComponent {
+  protected readonly authService = inject(AuthService);
+}

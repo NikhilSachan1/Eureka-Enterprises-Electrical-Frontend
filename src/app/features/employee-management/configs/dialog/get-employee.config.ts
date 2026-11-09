@@ -1,3 +1,4 @@
+import { LOGIN_AS_DIALOG_ACTION } from '@features/auth-management/config/impersonate.config';
 import { ChangeStatusEmployeeComponent } from '@features/employee-management/components/change-status-employee/change-status-employee.component';
 import { DeleteEmployeeComponent } from '@features/employee-management/components/delete-employee/delete-employee.component';
 import { ResetPasswordEmployeeComponent } from '../../components/reset-password-employee/reset-password-employee.component';
@@ -26,6 +27,7 @@ export const EMPLOYEE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
     },
     dynamicComponent: ResetPasswordEmployeeComponent,
   },
+  [EButtonActionType.LOGIN_AS]: LOGIN_AS_DIALOG_ACTION,
   [EButtonActionType.CHANGE_STATUS]: {
     dialogConfig: {
       header: 'Change employee status',

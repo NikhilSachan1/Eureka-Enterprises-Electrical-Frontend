@@ -1,3 +1,4 @@
+import { LOGIN_AS_DIALOG_ACTION } from '@features/auth-management/config/impersonate.config';
 import { ChangeStatusNonEmployeeComponent } from '@features/non-employee-management/components/change-status-non-employee/change-status-non-employee.component';
 import { DeleteNonEmployeeComponent } from '@features/non-employee-management/components/delete-non-employee/delete-non-employee.component';
 import { SendPasswordLinkEmployeeComponent } from '@features/employee-management/components/send-password-link-employee/send-password-link-employee.component';
@@ -20,6 +21,7 @@ export const NON_EMPLOYEE_ACTION_CONFIG_MAP: Record<
     },
     dynamicComponent: SendPasswordLinkEmployeeComponent,
   },
+  [EButtonActionType.LOGIN_AS]: LOGIN_AS_DIALOG_ACTION,
   [EButtonActionType.CHANGE_STATUS]: {
     dialogConfig: {
       header: 'Change status',

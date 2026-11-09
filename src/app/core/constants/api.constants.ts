@@ -49,6 +49,7 @@ export const API_ROUTES = {
     RESET_USER_PASSWORD: (userId: string) =>
       `auth/users/${userId}/reset-password`,
     SWITCH_ACTIVE_ROLE: 'auth/switch-role',
+    IMPERSONATE: (userId: string) => `auth/impersonate/${userId}`,
   },
   ATTENDANCE: {
     LIST: 'attendance',

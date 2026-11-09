@@ -378,6 +378,7 @@ export const APP_PERMISSION = {
     },
     COMMON: {
       SIDEBAR_INITIALS: 'ui_common_sidebar_initials',
+      LOGIN_AS_USER: 'ui_common_login_as_user',
     },
     ATTENDANCE: {
       TABLE_EMPLOYEE_NAME: 'ui_attendance_table_employee_name',
@@ -458,6 +459,16 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
+      [EUserRole.SITE_INCHARGE]: false,
+    },
+    LOGIN_AS_USER: {
+      [EUserRole.ADMIN]: false,
+      [EUserRole.DRIVER]: false,
+      [EUserRole.EMPLOYEE]: false,
+      [EUserRole.OPERATION_MANAGER]: false,
+      [EUserRole.SUPER_ADMIN]: true,
+      [EUserRole.HR]: false,
       [EUserRole.ACCOUNTS]: false,
       [EUserRole.SITE_INCHARGE]: false,
     },

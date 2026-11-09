@@ -67,6 +67,7 @@ export enum EButtonActionType {
   CHECK_OUT = 'checkOut',
   SEND_PASSWORD_LINK = 'sendPasswordLink',
   RESET_PASSWORD = 'resetPassword',
+  LOGIN_AS = 'loginAs',
   ALLOCATE_DEALLOCATE_EMPLOYEE = 'allocateDeallocateEmployee',
   ALLOCATE = 'allocate',
   TRANSFER = 'transfer',
