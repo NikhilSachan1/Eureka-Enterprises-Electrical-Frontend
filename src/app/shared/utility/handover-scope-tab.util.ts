@@ -1,7 +1,7 @@
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
-export type HandoverScopeKind = 'asset' | 'vehicle';
-export type HandoverScope = 'MY' | 'ALL' | 'PENDING';
+type HandoverScopeKind = 'asset' | 'vehicle';
+type HandoverScope = 'MY' | 'ALL' | 'PENDING';
 
 type PermissionCheck = (permission: string) => boolean;
 
@@ -28,36 +28,26 @@ export function canRespondToReturns(
 }
 
 /**
- * Which list tabs (My / All / Pending) a user sees for assets or vehicles. The lists and every
- * dashboard link that opens them by tab index must agree, so they all ask this one function.
- *
- * - My and Pending: anyone who may accept or reject a handover or a return. Pending holds what
- *   waits on them: handovers sent to them and, for return responders, returns to office.
- * - All: shown next to them. A user with neither sees no tab bar, just the full list.
+ * Whether a user sees the My / All / Pending tabs on the asset or vehicle list. They come as a set:
+ * anyone who may accept or reject a handover or a return gets all three (Pending holds what waits on
+ * them), everyone else gets no tab bar and just the full list. The lists and every dashboard link
+ * that opens them by tab index ask this one function, so they always agree.
  */
-export function canSeeHandoverScopeTab(
+export function canSeeHandoverScopeTabs(
   kind: HandoverScopeKind,
-  scope: HandoverScope,
   hasPermission: PermissionCheck
 ): boolean {
   const { handoverResponse, returnResponse } = permissionsOf(kind);
-  const respondsToRequests = [...handoverResponse, ...returnResponse].some(
-    hasPermission
-  );
-
-  // All only matters as a tab beside My / Pending, so all three share one rule.
-  return SCOPE_ORDER.includes(scope) && respondsToRequests;
+  return [...handoverResponse, ...returnResponse].some(hasPermission);
 }
 
-/** `?tab=` for a link that should open `scope`, or undefined when the user does not see that tab. */
+/** `?tab=` for a link that should open `scope`, or undefined when the user has no tab bar. */
 export function handoverScopeTabQuery(
   kind: HandoverScopeKind,
   scope: HandoverScope,
   hasPermission: PermissionCheck
 ): { tab: string } | undefined {
-  const visible = SCOPE_ORDER.filter(s =>
-    canSeeHandoverScopeTab(kind, s, hasPermission)
-  );
-  const index = visible.indexOf(scope);
-  return index < 0 ? undefined : { tab: String(index) };
+  return canSeeHandoverScopeTabs(kind, hasPermission)
+    ? { tab: String(SCOPE_ORDER.indexOf(scope)) }
+    : undefined;
 }

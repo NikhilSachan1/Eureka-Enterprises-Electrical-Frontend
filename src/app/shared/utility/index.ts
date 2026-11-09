@@ -86,10 +86,6 @@ export {
 } from './search-filter-query-params.util';
 export {
   canRespondToReturns,
-  canSeeHandoverScopeTab,
+  canSeeHandoverScopeTabs,
   handoverScopeTabQuery,
-} from './handover-scope-tab.util';
-export type {
-  HandoverScope,
-  HandoverScopeKind,
 } from './handover-scope-tab.util';

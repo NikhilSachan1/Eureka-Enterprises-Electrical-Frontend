@@ -57,7 +57,7 @@ import {
   applyGroupMetricValueLoading,
   getMappedValueFromArrayOfObjects,
   canRespondToReturns,
-  canSeeHandoverScopeTab,
+  canSeeHandoverScopeTabs,
 } from '@shared/utility';
 import { GetVehicleDetailComponent } from '../get-vehicle-detail/get-vehicle-detail.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
@@ -138,7 +138,7 @@ export class GetVehicleComponent implements OnInit {
   >({});
   protected readonly vehicleScopeTabs = computed<ITabItem[]>(() => {
     const counts = this.vehicleScopeCounts();
-    const ownPending = this.canSeeVehicleTab(EVehicleScope.MY);
+    const showTabs = this.canSeeScopeTabs();
 
     return [
       {
@@ -147,7 +147,7 @@ export class GetVehicleComponent implements OnInit {
         icon: ICONS.COMMON.USER,
         tooltip: 'Vehicles assigned to you',
         badge: counts[EVehicleScope.MY],
-        visible: ownPending,
+        visible: showTabs,
       },
       {
         route: EVehicleScope.ALL,
@@ -155,7 +155,7 @@ export class GetVehicleComponent implements OnInit {
         icon: ICONS.COMMON.USERS,
         tooltip: 'Every vehicle record',
         badge: counts[EVehicleScope.ALL],
-        visible: this.canSeeVehicleTab(EVehicleScope.ALL),
+        visible: showTabs,
       },
       {
         route: EVehicleScope.PENDING,
@@ -163,7 +163,7 @@ export class GetVehicleComponent implements OnInit {
         icon: ICONS.ACTIONS.SEND,
         tooltip: 'Handovers and returns waiting for you',
         badge: counts[EVehicleScope.PENDING],
-        visible: this.canSeeVehicleTab(EVehicleScope.PENDING),
+        visible: showTabs,
       },
     ];
   });
@@ -284,31 +284,26 @@ export class GetVehicleComponent implements OnInit {
     }
   }
 
-  /** Shared with the dashboard links that open this list by tab index; see canSeeHandoverScopeTab. */
-  private canSeeVehicleTab(scope: EVehicleScope): boolean {
+  /** My / All / Pending come as a set; shared with the dashboard links, see canSeeHandoverScopeTabs. */
+  private canSeeScopeTabs(): boolean {
     this.appPermissionService.getPermissions();
-    return canSeeHandoverScopeTab('vehicle', scope, permission =>
+    return canSeeHandoverScopeTabs('vehicle', permission =>
       this.appPermissionService.hasPermission(permission)
     );
   }
 
   private resolveDefaultVehicleScope(): EVehicleScope {
-    if (this.canSeeVehicleTab(EVehicleScope.MY)) {
+    if (this.canSeeScopeTabs()) {
       return EVehicleScope.MY;
     }
     return EVehicleScope.ALL;
   }
 
   private loadVehicleScopeCounts(): void {
-    const scopes = [
-      EVehicleScope.MY,
-      EVehicleScope.ALL,
-      EVehicleScope.PENDING,
-    ].filter(scope => this.canSeeVehicleTab(scope));
-
-    if (!scopes.length) {
+    if (!this.canSeeScopeTabs()) {
       return;
     }
+    const scopes = [EVehicleScope.MY, EVehicleScope.ALL, EVehicleScope.PENDING];
 
     forkJoin(
       scopes.map(scope =>

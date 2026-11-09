@@ -19,7 +19,7 @@ import { IvehicleGetFormDto } from '@features/transport-management/vehicle-manag
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   canRespondToReturns,
-  canSeeHandoverScopeTab,
+  canSeeHandoverScopeTabs,
   handoverScopeTabQuery,
 } from '@shared/utility';
 import { catchError, finalize, map, of } from 'rxjs';
@@ -55,14 +55,12 @@ export class HandoverPendingDashboardComponent implements OnInit {
     this.hasPermission
   );
 
-  protected readonly canViewAssetPending = canSeeHandoverScopeTab(
+  protected readonly canViewAssetPending = canSeeHandoverScopeTabs(
     'asset',
-    'PENDING',
     this.hasPermission
   );
-  protected readonly canViewVehiclePending = canSeeHandoverScopeTab(
+  protected readonly canViewVehiclePending = canSeeHandoverScopeTabs(
     'vehicle',
-    'PENDING',
     this.hasPermission
   );
   protected readonly title = 'Your pending';

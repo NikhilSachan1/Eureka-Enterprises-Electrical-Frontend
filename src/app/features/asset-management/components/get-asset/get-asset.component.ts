@@ -67,7 +67,7 @@ import {
   applyGroupMetricValueLoading,
   getMappedValueFromArrayOfObjects,
   canRespondToReturns,
-  canSeeHandoverScopeTab,
+  canSeeHandoverScopeTabs,
 } from '@shared/utility';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -126,7 +126,7 @@ export class GetAssetComponent implements OnInit {
   >({});
   protected readonly assetScopeTabs = computed<ITabItem[]>(() => {
     const counts = this.assetScopeCounts();
-    const ownPending = this.canSeeAssetTab(EAssetScope.MY);
+    const showTabs = this.canSeeScopeTabs();
 
     return [
       {
@@ -135,7 +135,7 @@ export class GetAssetComponent implements OnInit {
         icon: ICONS.COMMON.USER,
         tooltip: 'Assets assigned to you',
         badge: counts[EAssetScope.MY],
-        visible: ownPending,
+        visible: showTabs,
       },
       {
         route: EAssetScope.ALL,
@@ -143,7 +143,7 @@ export class GetAssetComponent implements OnInit {
         icon: ICONS.COMMON.USERS,
         tooltip: 'Every asset record',
         badge: counts[EAssetScope.ALL],
-        visible: this.canSeeAssetTab(EAssetScope.ALL),
+        visible: showTabs,
       },
       {
         route: EAssetScope.PENDING,
@@ -151,7 +151,7 @@ export class GetAssetComponent implements OnInit {
         icon: ICONS.ACTIONS.SEND,
         tooltip: 'Handovers and returns waiting for you',
         badge: counts[EAssetScope.PENDING],
-        visible: this.canSeeAssetTab(EAssetScope.PENDING),
+        visible: showTabs,
       },
     ];
   });
@@ -276,31 +276,26 @@ export class GetAssetComponent implements OnInit {
     }
   }
 
-  /** Shared with the dashboard links that open this list by tab index; see canSeeHandoverScopeTab. */
-  private canSeeAssetTab(scope: EAssetScope): boolean {
+  /** My / All / Pending come as a set; shared with the dashboard links, see canSeeHandoverScopeTabs. */
+  private canSeeScopeTabs(): boolean {
     this.appPermissionService.getPermissions();
-    return canSeeHandoverScopeTab('asset', scope, permission =>
+    return canSeeHandoverScopeTabs('asset', permission =>
       this.appPermissionService.hasPermission(permission)
     );
   }
 
   private resolveDefaultAssetScope(): EAssetScope {
-    if (this.canSeeAssetTab(EAssetScope.MY)) {
+    if (this.canSeeScopeTabs()) {
       return EAssetScope.MY;
     }
     return EAssetScope.ALL;
   }
 
   private loadAssetScopeCounts(): void {
-    const scopes = [
-      EAssetScope.MY,
-      EAssetScope.ALL,
-      EAssetScope.PENDING,
-    ].filter(scope => this.canSeeAssetTab(scope));
-
-    if (!scopes.length) {
+    if (!this.canSeeScopeTabs()) {
       return;
     }
+    const scopes = [EAssetScope.MY, EAssetScope.ALL, EAssetScope.PENDING];
 
     forkJoin(
       scopes.map(scope =>

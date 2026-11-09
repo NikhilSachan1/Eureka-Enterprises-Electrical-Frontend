@@ -353,22 +353,6 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
     icon: ICONS.ACTIONS.BAN,
     severity: 'success',
   },
-  'times marked return initiated': {
-    icon: ICONS.SITE.BUILDING,
-    severity: 'warning',
-  },
-  'times marked return accepted': {
-    icon: ICONS.ACTIONS.CHECK_CIRCLE,
-    severity: 'success',
-  },
-  'times marked return rejected': {
-    icon: ICONS.ACTIONS.TIMES,
-    severity: 'danger',
-  },
-  'times marked return cancelled': {
-    icon: ICONS.ACTIONS.BAN,
-    severity: 'success',
-  },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PROJECT STATUS
