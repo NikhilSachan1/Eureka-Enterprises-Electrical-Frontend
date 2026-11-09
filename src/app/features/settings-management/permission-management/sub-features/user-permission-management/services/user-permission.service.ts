@@ -11,6 +11,10 @@ import {
 } from '@core/constants/app-permission.constant';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import {
+  readImpersonationSession,
+  writeImpersonationSession,
+} from '@features/auth-management/utils/impersonation-session.util';
+import {
   Observable,
   tap,
   catchError,
@@ -189,6 +193,17 @@ export class UserPermissionService {
         const uiPermissions = this.getUIPermissionsByRole();
 
         const allPermissions = [...backendPermissions, ...uiPermissions];
+
+        const impersonation = readImpersonationSession();
+        if (impersonation) {
+          this.permissions$.next(allPermissions);
+          writeImpersonationSession({
+            ...impersonation,
+            user: { ...impersonation.user, permissions: allPermissions },
+          });
+          this.appPermisisonService.setPermissions(allPermissions);
+          return;
+        }
 
         const storage = localStorage.getItem('user_data')
           ? localStorage

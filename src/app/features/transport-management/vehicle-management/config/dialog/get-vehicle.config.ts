@@ -1,4 +1,7 @@
 import { EButtonActionType, IDialogActionConfig } from '@shared/types';
+import { ICONS } from '@shared/constants';
+import { IVehicleGetResponseDto } from '../../types/vehicle.dto';
+import { isVehicleReturnPending } from '../table/get-vehicle.config';
 import { DELETE_CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
 import { DeleteVehicleComponent } from '../../components/delete-vehicle/delete-vehicle.component';
 import { ActionVehicleComponent } from '../../components/action-vehicle/action-vehicle.component';
@@ -37,6 +40,15 @@ export const VEHICLE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
       header: 'Cancel handover',
       message:
         'Cancel this handover? The vehicle will stay with the current holder.',
+    },
+  },
+  [EButtonActionType.RETURN_TO_OFFICE]: {
+    dynamicComponent: ActionVehicleComponent,
+    dialogConfig: {
+      header: 'Return vehicle to office',
+      message:
+        'Send a return request to the office? The vehicle stays with you until the office accepts it.',
+      icon: ICONS.SITE.BUILDING,
     },
   },
   [EButtonActionType.DEALLOCATE]: {
@@ -78,3 +90,43 @@ export const VEHICLE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
     },
   },
 };
+
+/** Accept, reject and cancel are shared with handover; these texts are used when the pending request is a return. */
+const VEHICLE_RETURN_ACTION_CONFIG_MAP: Partial<
+  Record<EButtonActionType, IDialogActionConfig>
+> = {
+  [EButtonActionType.HANDOVER_ACCEPTED]: {
+    dynamicComponent: ActionVehicleComponent,
+    dialogConfig: {
+      header: 'Accept return',
+      message:
+        'Confirm the vehicle has been received at the office? It will become available again.',
+    },
+  },
+  [EButtonActionType.HANDOVER_REJECTED]: {
+    dynamicComponent: ActionVehicleComponent,
+    dialogConfig: {
+      header: 'Reject return',
+      message:
+        'Reject this return request? The vehicle stays with the current holder.',
+    },
+  },
+  [EButtonActionType.HANDOVER_CANCELLED]: {
+    dynamicComponent: ActionVehicleComponent,
+    dialogConfig: {
+      header: 'Cancel return',
+      message: 'Cancel this return request? The vehicle will stay with you.',
+    },
+  },
+};
+
+export function getVehicleActionDialogConfig(
+  actionType: EButtonActionType,
+  row: IVehicleGetResponseDto['records'][number] | undefined
+): IDialogActionConfig {
+  const returnConfig = VEHICLE_RETURN_ACTION_CONFIG_MAP[actionType];
+  if (returnConfig && row && isVehicleReturnPending(row)) {
+    return returnConfig;
+  }
+  return VEHICLE_ACTION_CONFIG_MAP[actionType];
+}

@@ -1,4 +1,5 @@
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { LOGIN_AS_ROW_ACTION } from '@features/auth-management/config/impersonate.config';
 import { EEmployeeStatus } from '@features/employee-management/types/employee.types';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
@@ -53,6 +54,7 @@ const NON_EMPLOYEE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
 const NON_EMPLOYEE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   ITableActionConfig<INonEmployeeGetBaseResponseDto>
 >[] = [
+  LOGIN_AS_ROW_ACTION,
   {
     id: EButtonActionType.SEND_PASSWORD_LINK,
     tooltip: 'Send Password Link',

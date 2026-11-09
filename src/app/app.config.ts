@@ -165,9 +165,14 @@ export const appConfig: ApplicationConfig = {
         return;
       }
 
-      announcementService.startPeriodicUnacknowledgedCheck();
       notificationInboxService.startUnreadPolling();
-      pushNotificationService.registerIfPermitted().subscribe();
+
+      // Acknowledging announcements or registering this browser for push would
+      // act on the real user's account while a super admin is signed in as them.
+      if (!authService.isImpersonating()) {
+        announcementService.startPeriodicUnacknowledgedCheck();
+        pushNotificationService.registerIfPermitted().subscribe();
+      }
     }),
   ],
 };

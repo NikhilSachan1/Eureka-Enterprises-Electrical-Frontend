@@ -21,6 +21,10 @@ export const APP_PERMISSION = {
     HANDOVER_ACCEPTED: 'asset.handover-accepted',
     HANDOVER_REJECTED: 'asset.handover-rejected',
     HANDOVER_CANCELLED: 'asset.handover-cancelled',
+    RETURN_INITIATE: 'asset.return-initiate',
+    RETURN_ACCEPTED: 'asset.return-accepted',
+    RETURN_REJECTED: 'asset.return-rejected',
+    RETURN_CANCELLED: 'asset.return-cancelled',
     DEALLOCATE: 'asset.deallocate',
     EVENT_HISTORY: 'asset.event-history-list',
     MARK_LOST: 'asset.mark-lost',
@@ -173,6 +177,10 @@ export const APP_PERMISSION = {
     HANDOVER_ACCEPTED: 'vehicle.handover-accepted',
     HANDOVER_REJECTED: 'vehicle.handover-rejected',
     HANDOVER_CANCELLED: 'vehicle.handover-cancelled',
+    RETURN_INITIATE: 'vehicle.return-initiate',
+    RETURN_ACCEPTED: 'vehicle.return-accepted',
+    RETURN_REJECTED: 'vehicle.return-rejected',
+    RETURN_CANCELLED: 'vehicle.return-cancelled',
     DEALLOCATE: 'vehicle.deallocate',
     EVENT_HISTORY: 'vehicle.event-history-list',
     SERVICE_HISTORY: 'vehicle.service-history',
@@ -370,6 +378,7 @@ export const APP_PERMISSION = {
     },
     COMMON: {
       SIDEBAR_INITIALS: 'ui_common_sidebar_initials',
+      LOGIN_AS_USER: 'ui_common_login_as_user',
     },
     ATTENDANCE: {
       TABLE_EMPLOYEE_NAME: 'ui_attendance_table_employee_name',
@@ -410,16 +419,6 @@ export const APP_PERMISSION = {
       TABLE_EMPLOYEE_NAME: 'ui_dsr_table_employee_name',
       SEARCH_FILTER_EMPLOYEE_NAME: 'ui_dsr_search_filter_employee_name',
     },
-    ASSET: {
-      TAB_MY: 'ui_asset_tab_my',
-      TAB_ALL: 'ui_asset_tab_all',
-      TAB_PENDING: 'ui_asset_tab_pending',
-    },
-    VEHICLE: {
-      TAB_MY: 'ui_vehicle_tab_my',
-      TAB_ALL: 'ui_vehicle_tab_all',
-      TAB_PENDING: 'ui_vehicle_tab_pending',
-    },
     DASHBOARD: {
       LEDGER_SPEND: 'ui_dashboard_ledger_spend',
       METRIC_CARDS: 'ui_dashboard_metric_cards',
@@ -428,17 +427,6 @@ export const APP_PERMISSION = {
     },
   },
 } as const;
-
-const UI_TAB_OWN_ROLES = {
-  [EUserRole.ADMIN]: false,
-  [EUserRole.DRIVER]: true,
-  [EUserRole.EMPLOYEE]: true,
-  [EUserRole.OPERATION_MANAGER]: false,
-  [EUserRole.SUPER_ADMIN]: false,
-  [EUserRole.HR]: false,
-  [EUserRole.ACCOUNTS]: false,
-  [EUserRole.SITE_INCHARGE]: false,
-} as const satisfies UIRolePermissionAccess;
 
 export const UI_PERMISSIONS_ROLE_MAP = {
   SALARY_STRUCTURE: {
@@ -471,6 +459,16 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.OPERATION_MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
+      [EUserRole.ACCOUNTS]: false,
+      [EUserRole.SITE_INCHARGE]: false,
+    },
+    LOGIN_AS_USER: {
+      [EUserRole.ADMIN]: false,
+      [EUserRole.DRIVER]: false,
+      [EUserRole.EMPLOYEE]: false,
+      [EUserRole.OPERATION_MANAGER]: false,
+      [EUserRole.SUPER_ADMIN]: true,
+      [EUserRole.HR]: false,
       [EUserRole.ACCOUNTS]: false,
       [EUserRole.SITE_INCHARGE]: false,
     },
@@ -680,16 +678,6 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.ACCOUNTS]: false,
       [EUserRole.SITE_INCHARGE]: false,
     },
-  },
-  ASSET: {
-    TAB_MY: UI_TAB_OWN_ROLES,
-    TAB_ALL: UI_TAB_OWN_ROLES,
-    TAB_PENDING: UI_TAB_OWN_ROLES,
-  },
-  VEHICLE: {
-    TAB_MY: UI_TAB_OWN_ROLES,
-    TAB_ALL: UI_TAB_OWN_ROLES,
-    TAB_PENDING: UI_TAB_OWN_ROLES,
   },
   DASHBOARD: {
     LEDGER_SPEND: {

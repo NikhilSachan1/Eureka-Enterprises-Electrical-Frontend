@@ -12,3 +12,9 @@ export interface ILoggedInUserDetails {
   roles: string[];
   activeRole: string;
 }
+
+export interface IImpersonationSession {
+  accessToken: string;
+  refreshToken: string;
+  user: ILoggedInUserDetails;
+}

@@ -165,6 +165,10 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   },
   'handover rejected': { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   'handover cancelled': { icon: ICONS.ACTIONS.BAN, severity: 'warning' },
+  'return initiated': { icon: ICONS.SITE.BUILDING, severity: 'warning' },
+  'return accepted': { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
+  'return rejected': { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
+  'return cancelled': { icon: ICONS.ACTIONS.BAN, severity: 'warning' },
   deallocated: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   lost: { icon: ICONS.COMMON.EXCLAMATION_TRIANGLE, severity: 'danger' },
   recovered: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
@@ -217,6 +221,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   handoveraccepted: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   handoverrejected: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   handovercancelled: { icon: ICONS.ACTIONS.TIMES, severity: 'warning' },
+  returntooffice: { icon: ICONS.SITE.BUILDING, severity: 'info' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PAYROLL / SALARY

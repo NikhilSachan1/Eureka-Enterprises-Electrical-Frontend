@@ -45,8 +45,9 @@ import {
 } from '../../types/vehicle.dto';
 import {
   createVehicleTableEnhancedConfig,
+  getVehicleActionDialogConfig,
+  isVehicleReturnPending,
   SEARCH_FILTER_VEHICLE_FORM_CONFIG,
-  VEHICLE_ACTION_CONFIG_MAP,
 } from '../../config';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { finalize, forkJoin, map } from 'rxjs';
@@ -55,6 +56,8 @@ import { IVehicle } from '../../types/vehicle.interface';
 import {
   applyGroupMetricValueLoading,
   getMappedValueFromArrayOfObjects,
+  canRespondToReturns,
+  canSeeHandoverScopeTabs,
 } from '@shared/utility';
 import { GetVehicleDetailComponent } from '../get-vehicle-detail/get-vehicle-detail.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
@@ -93,12 +96,17 @@ export class GetVehicleComponent implements OnInit {
     ETableActionTypeValue.HANDOVER_CANCELLED,
     ETableActionTypeValue.HANDOVER_INITIATED,
     ETableActionTypeValue.HANDOVER_REJECTED,
+    ETableActionTypeValue.RETURN_INITIATED,
+    ETableActionTypeValue.RETURN_ACCEPTED,
+    ETableActionTypeValue.RETURN_REJECTED,
+    ETableActionTypeValue.RETURN_CANCELLED,
   ]);
 
   protected readonly HANDOVER_EVENT_TYPES = ETableActionTypeValue;
   protected readonly ICONS = ICONS;
   private static readonly HANDOVER_DIALOG_ACTIONS = new Set<EButtonActionType>([
     EButtonActionType.HANDOVER_INITIATE,
+    EButtonActionType.RETURN_TO_OFFICE,
     EButtonActionType.HANDOVER_ACCEPTED,
     EButtonActionType.HANDOVER_REJECTED,
     EButtonActionType.HANDOVER_CANCELLED,
@@ -130,7 +138,7 @@ export class GetVehicleComponent implements OnInit {
   >({});
   protected readonly vehicleScopeTabs = computed<ITabItem[]>(() => {
     const counts = this.vehicleScopeCounts();
-    const ownPending = this.canSeeVehicleTab(EVehicleScope.MY);
+    const showTabs = this.canSeeScopeTabs();
 
     return [
       {
@@ -139,7 +147,7 @@ export class GetVehicleComponent implements OnInit {
         icon: ICONS.COMMON.USER,
         tooltip: 'Vehicles assigned to you',
         badge: counts[EVehicleScope.MY],
-        visible: ownPending,
+        visible: showTabs,
       },
       {
         route: EVehicleScope.ALL,
@@ -147,17 +155,15 @@ export class GetVehicleComponent implements OnInit {
         icon: ICONS.COMMON.USERS,
         tooltip: 'Every vehicle record',
         badge: counts[EVehicleScope.ALL],
-        visible: this.canSeeVehicleTab(EVehicleScope.ALL),
+        visible: showTabs,
       },
       {
         route: EVehicleScope.PENDING,
-        label: ownPending ? 'Your Pending' : 'Handover Pending',
+        label: 'Your Pending',
         icon: ICONS.ACTIONS.SEND,
-        tooltip: ownPending
-          ? 'Handovers waiting for you'
-          : 'Vehicles with handover initiated',
+        tooltip: 'Handovers and returns waiting for you',
         badge: counts[EVehicleScope.PENDING],
-        visible: this.canSeeVehicleTab(EVehicleScope.PENDING),
+        visible: showTabs,
       },
     ];
   });
@@ -245,40 +251,59 @@ export class GetVehicleComponent implements OnInit {
   ngOnInit(): void {
     const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
-      createVehicleTableEnhancedConfig(loggedInUserId)
+      createVehicleTableEnhancedConfig(loggedInUserId, permission =>
+        this.appPermissionService.hasPermission(permission)
+      )
     );
     this.searchFilterConfig = SEARCH_FILTER_VEHICLE_FORM_CONFIG;
     this.loadVehicleScopeCounts();
   }
 
-  private canSeeVehicleTab(scope: EVehicleScope): boolean {
-    this.appPermissionService.getPermissions();
-    const permission = {
-      [EVehicleScope.MY]: APP_PERMISSION.UI.VEHICLE.TAB_MY,
-      [EVehicleScope.ALL]: APP_PERMISSION.UI.VEHICLE.TAB_ALL,
-      [EVehicleScope.PENDING]: APP_PERMISSION.UI.VEHICLE.TAB_PENDING,
-    }[scope];
+  /** Office staff who may answer a return to office. Returns wait on them, so they get a pending tab too. */
+  private canRespondToReturns(): boolean {
+    return canRespondToReturns('vehicle', permission =>
+      this.appPermissionService.hasPermission(permission)
+    );
+  }
 
-    return this.appPermissionService.hasPermission(permission);
+  /**
+   * Pending means waiting on this user: handovers sent to them and, for office staff who may answer
+   * returns, returns to office started by someone else.
+   */
+  private applyPendingForUser(
+    params: IvehicleGetFormDto,
+    loggedInUserId: string | null | undefined
+  ): void {
+    if (!loggedInUserId) {
+      return;
+    }
+    // Only users who may respond see the pending tab, and it always narrows to them.
+    params.handoverToUser = loggedInUserId;
+    if (this.canRespondToReturns()) {
+      params.includePendingReturns = true;
+    }
+  }
+
+  /** My / All / Pending come as a set; shared with the dashboard links, see canSeeHandoverScopeTabs. */
+  private canSeeScopeTabs(): boolean {
+    this.appPermissionService.getPermissions();
+    return canSeeHandoverScopeTabs('vehicle', permission =>
+      this.appPermissionService.hasPermission(permission)
+    );
   }
 
   private resolveDefaultVehicleScope(): EVehicleScope {
-    if (this.canSeeVehicleTab(EVehicleScope.MY)) {
+    if (this.canSeeScopeTabs()) {
       return EVehicleScope.MY;
     }
     return EVehicleScope.ALL;
   }
 
   private loadVehicleScopeCounts(): void {
-    const scopes = [
-      EVehicleScope.MY,
-      EVehicleScope.ALL,
-      EVehicleScope.PENDING,
-    ].filter(scope => this.canSeeVehicleTab(scope));
-
-    if (!scopes.length) {
+    if (!this.canSeeScopeTabs()) {
       return;
     }
+    const scopes = [EVehicleScope.MY, EVehicleScope.ALL, EVehicleScope.PENDING];
 
     forkJoin(
       scopes.map(scope =>
@@ -312,10 +337,7 @@ export class GetVehicleComponent implements OnInit {
 
     if (scope === EVehicleScope.PENDING) {
       params.vehicleStatus = 'INITIATED';
-
-      if (this.authService.isActiveRoleEmployeeLike() && loggedInUserId) {
-        params.handoverToUser = loggedInUserId;
-      }
+      this.applyPendingForUser(params, loggedInUserId);
     }
 
     return params;
@@ -367,12 +389,10 @@ export class GetVehicleComponent implements OnInit {
       params.vehicleStatus = 'INITIATED';
     }
 
-    if (
-      params.vehicleStatus === 'INITIATED' &&
-      this.authService.isActiveRoleEmployeeLike() &&
-      loggedInUserId
-    ) {
-      params.handoverToUser = loggedInUserId;
+    // Only the pending tab narrows to the user. On the other tabs an INITIATED status filter
+    // shows every pending request.
+    if (this.vehicleScope() === EVehicleScope.PENDING) {
+      this.applyPendingForUser(params, loggedInUserId);
     }
 
     return params;
@@ -397,6 +417,9 @@ export class GetVehicleComponent implements OnInit {
               : '-',
             toUserName: record.latestEvent.toUserUser
               ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
+              : '-',
+            createdByName: record.latestEvent.createdByUser
+              ? `${record.latestEvent.createdByUser.firstName} ${record.latestEvent.createdByUser.lastName}`
               : '-',
           }
         : null;
@@ -541,11 +564,7 @@ export class GetVehicleComponent implements OnInit {
     };
 
     if (
-      actionType === EButtonActionType.HANDOVER_INITIATE ||
-      actionType === EButtonActionType.HANDOVER_ACCEPTED ||
-      actionType === EButtonActionType.HANDOVER_REJECTED ||
-      actionType === EButtonActionType.HANDOVER_CANCELLED ||
-      actionType === EButtonActionType.DEALLOCATE ||
+      GetVehicleComponent.HANDOVER_DIALOG_ACTIONS.has(actionType) ||
       actionType === EButtonActionType.UNLINK ||
       actionType === EButtonActionType.LINK
     ) {
@@ -566,7 +585,7 @@ export class GetVehicleComponent implements OnInit {
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      VEHICLE_ACTION_CONFIG_MAP[actionType],
+      getVehicleActionDialogConfig(actionType, selectedFirstRow),
       recordDetail,
       isBulk,
       !isBulk,
@@ -602,12 +621,15 @@ export class GetVehicleComponent implements OnInit {
 
     if (
       GetVehicleComponent.HANDOVER_DIALOG_ACTIONS.has(actionType) &&
-      actionType !== EButtonActionType.HANDOVER_INITIATE
+      actionType !== EButtonActionType.HANDOVER_INITIATE &&
+      actionType !== EButtonActionType.RETURN_TO_OFFICE
     ) {
       const eventFileKeys = this.getLatestEventFileKeys(selectedRow);
       if (eventFileKeys.length > 0) {
         entryData.push({
-          label: 'Handover attachments',
+          label: isVehicleReturnPending(selectedRow)
+            ? 'Return attachments'
+            : 'Handover attachments',
           value: eventFileKeys,
           type: EDataType.ATTACHMENTS,
         });

@@ -61,6 +61,11 @@ export const AssetEventHistoryGetStatsResponseSchema = z.looseObject({
     HANDOVER_ACCEPTED: z.number().int().nonnegative(),
     HANDOVER_REJECTED: z.number().int().nonnegative(),
     HANDOVER_CANCELLED: z.number().int().nonnegative(),
+    // Optional until every backend environment sends the return-to-office counts.
+    RETURN_INITIATED: z.number().int().nonnegative().optional(),
+    RETURN_ACCEPTED: z.number().int().nonnegative().optional(),
+    RETURN_REJECTED: z.number().int().nonnegative().optional(),
+    RETURN_CANCELLED: z.number().int().nonnegative().optional(),
     LOST: z.number().int().nonnegative(),
     RECOVERED: z.number().int().nonnegative(),
   }),

@@ -14,7 +14,9 @@ import { AppPermissionService, LoggerService } from '@core/services';
 import {
   ASSET_ACTION_CONFIG_MAP,
   createAssetTableEnhancedConfig,
+  getAssetActionDialogConfig,
   getAssetQrDialogActionConfig,
+  isReturnPending,
   SEARCH_FILTER_ASSET_FORM_CONFIG,
 } from '@features/asset-management/config';
 import { AuthService } from '@features/auth-management/services/auth.service';
@@ -64,6 +66,8 @@ import { StatusTagComponent } from '@shared/components/status-tag/status-tag.com
 import {
   applyGroupMetricValueLoading,
   getMappedValueFromArrayOfObjects,
+  canRespondToReturns,
+  canSeeHandoverScopeTabs,
 } from '@shared/utility';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -91,6 +95,10 @@ export class GetAssetComponent implements OnInit {
     ETableActionTypeValue.HANDOVER_CANCELLED,
     ETableActionTypeValue.HANDOVER_INITIATED,
     ETableActionTypeValue.HANDOVER_REJECTED,
+    ETableActionTypeValue.RETURN_INITIATED,
+    ETableActionTypeValue.RETURN_ACCEPTED,
+    ETableActionTypeValue.RETURN_REJECTED,
+    ETableActionTypeValue.RETURN_CANCELLED,
   ]);
 
   private readonly logger = inject(LoggerService);
@@ -118,7 +126,7 @@ export class GetAssetComponent implements OnInit {
   >({});
   protected readonly assetScopeTabs = computed<ITabItem[]>(() => {
     const counts = this.assetScopeCounts();
-    const ownPending = this.canSeeAssetTab(EAssetScope.MY);
+    const showTabs = this.canSeeScopeTabs();
 
     return [
       {
@@ -127,7 +135,7 @@ export class GetAssetComponent implements OnInit {
         icon: ICONS.COMMON.USER,
         tooltip: 'Assets assigned to you',
         badge: counts[EAssetScope.MY],
-        visible: ownPending,
+        visible: showTabs,
       },
       {
         route: EAssetScope.ALL,
@@ -135,17 +143,15 @@ export class GetAssetComponent implements OnInit {
         icon: ICONS.COMMON.USERS,
         tooltip: 'Every asset record',
         badge: counts[EAssetScope.ALL],
-        visible: this.canSeeAssetTab(EAssetScope.ALL),
+        visible: showTabs,
       },
       {
         route: EAssetScope.PENDING,
-        label: ownPending ? 'Your Pending' : 'Handover Pending',
+        label: 'Your Pending',
         icon: ICONS.ACTIONS.SEND,
-        tooltip: ownPending
-          ? 'Handovers waiting for you'
-          : 'Assets with handover initiated',
+        tooltip: 'Handovers and returns waiting for you',
         badge: counts[EAssetScope.PENDING],
-        visible: this.canSeeAssetTab(EAssetScope.PENDING),
+        visible: showTabs,
       },
     ];
   });
@@ -189,6 +195,7 @@ export class GetAssetComponent implements OnInit {
 
   private static readonly HANDOVER_DIALOG_ACTIONS = new Set<EButtonActionType>([
     EButtonActionType.HANDOVER_INITIATE,
+    EButtonActionType.RETURN_TO_OFFICE,
     EButtonActionType.HANDOVER_ACCEPTED,
     EButtonActionType.HANDOVER_REJECTED,
     EButtonActionType.HANDOVER_CANCELLED,
@@ -236,40 +243,59 @@ export class GetAssetComponent implements OnInit {
   ngOnInit(): void {
     const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
-      createAssetTableEnhancedConfig(loggedInUserId)
+      createAssetTableEnhancedConfig(loggedInUserId, permission =>
+        this.appPermissionService.hasPermission(permission)
+      )
     );
     this.searchFilterConfig = SEARCH_FILTER_ASSET_FORM_CONFIG;
     this.loadAssetScopeCounts();
   }
 
-  private canSeeAssetTab(scope: EAssetScope): boolean {
-    this.appPermissionService.getPermissions();
-    const permission = {
-      [EAssetScope.MY]: APP_PERMISSION.UI.ASSET.TAB_MY,
-      [EAssetScope.ALL]: APP_PERMISSION.UI.ASSET.TAB_ALL,
-      [EAssetScope.PENDING]: APP_PERMISSION.UI.ASSET.TAB_PENDING,
-    }[scope];
+  /** Office staff who may answer a return to office. Returns wait on them, so they get a pending tab too. */
+  private canRespondToReturns(): boolean {
+    return canRespondToReturns('asset', permission =>
+      this.appPermissionService.hasPermission(permission)
+    );
+  }
 
-    return this.appPermissionService.hasPermission(permission);
+  /**
+   * Pending means waiting on this user: handovers sent to them and, for office staff who may answer
+   * returns, returns to office started by someone else.
+   */
+  private applyPendingForUser(
+    params: IAssetGetFormDto,
+    loggedInUserId: string | null | undefined
+  ): void {
+    if (!loggedInUserId) {
+      return;
+    }
+    // Only users who may respond see the pending tab, and it always narrows to them.
+    params.handoverToUser = loggedInUserId;
+    if (this.canRespondToReturns()) {
+      params.includePendingReturns = true;
+    }
+  }
+
+  /** My / All / Pending come as a set; shared with the dashboard links, see canSeeHandoverScopeTabs. */
+  private canSeeScopeTabs(): boolean {
+    this.appPermissionService.getPermissions();
+    return canSeeHandoverScopeTabs('asset', permission =>
+      this.appPermissionService.hasPermission(permission)
+    );
   }
 
   private resolveDefaultAssetScope(): EAssetScope {
-    if (this.canSeeAssetTab(EAssetScope.MY)) {
+    if (this.canSeeScopeTabs()) {
       return EAssetScope.MY;
     }
     return EAssetScope.ALL;
   }
 
   private loadAssetScopeCounts(): void {
-    const scopes = [
-      EAssetScope.MY,
-      EAssetScope.ALL,
-      EAssetScope.PENDING,
-    ].filter(scope => this.canSeeAssetTab(scope));
-
-    if (!scopes.length) {
+    if (!this.canSeeScopeTabs()) {
       return;
     }
+    const scopes = [EAssetScope.MY, EAssetScope.ALL, EAssetScope.PENDING];
 
     forkJoin(
       scopes.map(scope =>
@@ -301,10 +327,7 @@ export class GetAssetComponent implements OnInit {
 
     if (scope === EAssetScope.PENDING) {
       params.assetStatus = 'INITIATED';
-
-      if (this.authService.isActiveRoleEmployeeLike() && loggedInUserId) {
-        params.handoverToUser = loggedInUserId;
-      }
+      this.applyPendingForUser(params, loggedInUserId);
     }
 
     return params;
@@ -356,12 +379,10 @@ export class GetAssetComponent implements OnInit {
       params.assetStatus = 'INITIATED';
     }
 
-    if (
-      params.assetStatus === 'INITIATED' &&
-      this.authService.isActiveRoleEmployeeLike() &&
-      loggedInUserId
-    ) {
-      params.handoverToUser = loggedInUserId;
+    // Only the pending tab narrows to the user. On the other tabs an INITIATED status filter
+    // shows every pending request.
+    if (this.assetScope() === EAssetScope.PENDING) {
+      this.applyPendingForUser(params, loggedInUserId);
     }
 
     return params;
@@ -386,6 +407,9 @@ export class GetAssetComponent implements OnInit {
             : '-',
           toUserName: record.latestEvent.toUserUser
             ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
+            : '-',
+          createdByName: record.latestEvent.createdByUser
+            ? `${record.latestEvent.createdByUser.firstName} ${record.latestEvent.createdByUser.lastName}`
             : '-',
         }
         : null;
@@ -543,11 +567,7 @@ export class GetAssetComponent implements OnInit {
     };
 
     if (
-      actionType === EButtonActionType.HANDOVER_INITIATE ||
-      actionType === EButtonActionType.HANDOVER_ACCEPTED ||
-      actionType === EButtonActionType.HANDOVER_REJECTED ||
-      actionType === EButtonActionType.HANDOVER_CANCELLED ||
-      actionType === EButtonActionType.DEALLOCATE ||
+      GetAssetComponent.HANDOVER_DIALOG_ACTIONS.has(actionType) ||
       actionType === EButtonActionType.RETIRED
     ) {
       dynamicComponentInputs.dialogActionType = actionType;
@@ -560,7 +580,7 @@ export class GetAssetComponent implements OnInit {
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      ASSET_ACTION_CONFIG_MAP[actionType],
+      getAssetActionDialogConfig(actionType, selectedFirstRow),
       recordDetail,
       isBulk,
       !isBulk,
@@ -592,12 +612,15 @@ export class GetAssetComponent implements OnInit {
 
     if (
       GetAssetComponent.HANDOVER_DIALOG_ACTIONS.has(actionType) &&
-      actionType !== EButtonActionType.HANDOVER_INITIATE
+      actionType !== EButtonActionType.HANDOVER_INITIATE &&
+      actionType !== EButtonActionType.RETURN_TO_OFFICE
     ) {
       const eventFileKeys = this.getLatestEventFileKeys(selectedRow);
       if (eventFileKeys.length > 0) {
         entryData.push({
-          label: 'Handover attachments',
+          label: isReturnPending(selectedRow)
+            ? 'Return attachments'
+            : 'Handover attachments',
           value: eventFileKeys,
           type: EDataType.ATTACHMENTS,
         });

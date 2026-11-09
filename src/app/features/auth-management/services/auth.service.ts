@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
+import { EMPTY, Observable, of, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import {
   ApiService,
@@ -14,6 +14,11 @@ import {
 } from '@shared/services';
 import { API_ROUTES } from '@core/constants';
 import { ILoggedInUserDetails } from '../types/login.interface';
+import {
+  clearImpersonationSession,
+  readImpersonationSession,
+  writeImpersonationSession,
+} from '../utils/impersonation-session.util';
 import {
   IForgetPasswordFormDto,
   IForgetPasswordResponseDto,
@@ -96,6 +101,10 @@ export class AuthService {
   public readonly user = this._user.asReadonly();
   public readonly accessToken = this._accessToken.asReadonly();
   public readonly refreshToken = this._refreshToken.asReadonly();
+  /** True in a tab where a super admin is signed in as another user. */
+  public readonly isImpersonating = signal<boolean>(
+    readImpersonationSession() !== null
+  ).asReadonly();
 
   constructor() {
     this.initializeAuthState();
@@ -217,7 +226,63 @@ export class AuthService {
       );
   }
 
+  /** Signs this tab in as another user. Reloads so no state from the admin session carries over. */
+  startImpersonation(userId: string): Observable<ILoginResponseDto> {
+    this.logger.logUserAction('Start Impersonation', { userId });
+
+    return this.apiService
+      .postValidated(API_ROUTES.AUTH.IMPERSONATE(userId), {
+        response: LoginResponseSchema,
+      })
+      .pipe(
+        tap((response: ILoginResponseDto) => {
+          writeImpersonationSession({
+            accessToken: response.accessToken,
+            refreshToken: response.refreshToken,
+            user: this.toLoggedInUser(response),
+          });
+          this.reloadApp();
+        })
+      );
+  }
+
+  /** Ends the session on the server and returns this tab to the super admin's own account. */
+  stopImpersonation(): void {
+    const formData: ILogoutFormDto = {
+      refreshToken: this.getRefreshToken() ?? '',
+    };
+
+    this.apiService
+      .postValidated(
+        API_ROUTES.AUTH.LOGOUT,
+        {
+          response: LogoutResponseSchema,
+          request: LogoutRequestSchema,
+        },
+        formData,
+        { silent: true }
+      )
+      .subscribe({
+        next: () => this.leaveImpersonation(),
+        error: () => this.leaveImpersonation(),
+      });
+  }
+
+  private leaveImpersonation(): void {
+    clearImpersonationSession();
+    this.reloadApp();
+  }
+
+  private reloadApp(): void {
+    window.location.assign(document.baseURI);
+  }
+
   logout(): Observable<ILogoutResponseDto> {
+    if (this.isImpersonating()) {
+      this.stopImpersonation();
+      return EMPTY;
+    }
+
     const currentRefreshToken = this.getRefreshToken();
 
     if (!currentRefreshToken) {
@@ -353,6 +418,12 @@ export class AuthService {
   }
 
   forceLogout(): void {
+    if (this.isImpersonating()) {
+      this.logger.warn('Impersonation session ended, returning to admin account');
+      this.leaveImpersonation();
+      return;
+    }
+
     this.logger.warn('Force logout: Session expired, redirecting to login');
     // Best-effort: drop FCM registration while the access token may still work.
     this.pushNotificationService.unregisterOnLogout().subscribe({
@@ -375,32 +446,8 @@ export class AuthService {
 
   setAuthState(loginResponse: ILoginResponseDto, rememberMe: boolean): void {
     try {
-      const {
-        accessToken,
-        refreshToken,
-        userId,
-        firstName,
-        lastName,
-        email,
-        name,
-        designation,
-        profilePicture,
-        roles,
-        activeRole,
-      } = loginResponse;
-
-      const user: ILoggedInUserDetails = {
-        userId,
-        firstName,
-        lastName,
-        email,
-        fullName: name,
-        designation: designation?.trim() ?? '',
-        profilePicture: profilePicture ?? '',
-        permissions: [],
-        roles,
-        activeRole,
-      };
+      const { accessToken, refreshToken } = loginResponse;
+      const user = this.toLoggedInUser(loginResponse);
 
       this._accessToken.set(accessToken);
       this._refreshToken.set(refreshToken);
@@ -415,6 +462,21 @@ export class AuthService {
       this.clearAuthState();
       throw error;
     }
+  }
+
+  private toLoggedInUser(response: ILoginResponseDto): ILoggedInUserDetails {
+    return {
+      userId: response.userId,
+      firstName: response.firstName,
+      lastName: response.lastName,
+      email: response.email,
+      fullName: response.name,
+      designation: response.designation?.trim() ?? '',
+      profilePicture: response.profilePicture ?? '',
+      permissions: [],
+      roles: response.roles,
+      activeRole: response.activeRole,
+    };
   }
 
   /**
@@ -501,6 +563,7 @@ export class AuthService {
    */
   private getStoredToken(): string | null {
     return (
+      readImpersonationSession()?.accessToken ??
       localStorage.getItem('access_token') ??
       sessionStorage.getItem('access_token')
     );
@@ -508,6 +571,7 @@ export class AuthService {
 
   private getStoredRefreshToken(): string | null {
     return (
+      readImpersonationSession()?.refreshToken ??
       localStorage.getItem('refresh_token') ??
       sessionStorage.getItem('refresh_token')
     );
@@ -519,6 +583,11 @@ export class AuthService {
 
   private getStoredUser(): ILoggedInUserDetails | null {
     try {
+      const impersonation = readImpersonationSession();
+      if (impersonation) {
+        return impersonation.user;
+      }
+
       const userData =
         localStorage.getItem('user_data') ??
         sessionStorage.getItem('user_data');
@@ -540,6 +609,16 @@ export class AuthService {
     userData?: ILoggedInUserDetails,
     useLocalStorage?: boolean
   ): void {
+    const impersonation = readImpersonationSession();
+    if (impersonation) {
+      writeImpersonationSession({
+        accessToken,
+        refreshToken: refreshToken ?? impersonation.refreshToken,
+        user: userData ?? impersonation.user,
+      });
+      return;
+    }
+
     // For login, use the specified storage; otherwise detect from existing token
     const storage =
       useLocalStorage !== undefined
@@ -687,6 +766,12 @@ export class AuthService {
 
     // Update signal
     this._user.set(updatedUser);
+
+    const impersonation = readImpersonationSession();
+    if (impersonation) {
+      writeImpersonationSession({ ...impersonation, user: updatedUser });
+      return;
+    }
 
     // Update storage
     const storage = localStorage.getItem('user_data')

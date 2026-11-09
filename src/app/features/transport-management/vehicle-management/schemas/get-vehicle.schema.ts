@@ -25,6 +25,7 @@ export const VehicleGetRequestSchema = z
     vehicleServiceDueStatus: z.array(z.string()).optional(),
     vehicleFuelType: z.array(z.string()).optional(),
     handoverToUser: z.string().optional(),
+    includePendingReturns: z.boolean().optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -99,6 +100,7 @@ export const VehicleGetBaseResponseSchema = z
         fromUserUser: makeFieldsNullable(UserSchema).nullable(),
         toUserUser: makeFieldsNullable(UserSchema).nullable(),
         createdBy: uuidField,
+        createdByUser: makeFieldsNullable(UserSchema).nullish(),
         vehicleFiles: z.array(VehicleBaseDocumentsSchema).optional().nullable(),
       })
       .nullable(),

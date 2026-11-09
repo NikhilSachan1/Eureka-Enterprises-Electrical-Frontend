@@ -52,6 +52,7 @@ const ACTION_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IActionAssetUIForm
             const { actionType } = context;
             return (
               actionType === EButtonActionType.HANDOVER_INITIATE ||
+              actionType === EButtonActionType.RETURN_TO_OFFICE ||
               actionType === EButtonActionType.HANDOVER_REJECTED
             );
           },

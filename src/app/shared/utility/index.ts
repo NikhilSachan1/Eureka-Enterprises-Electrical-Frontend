@@ -84,3 +84,8 @@ export {
   serializeSearchFilterQueryParams,
   serializeTablePaginationQueryParams,
 } from './search-filter-query-params.util';
+export {
+  canRespondToReturns,
+  canSeeHandoverScopeTabs,
+  handoverScopeTabQuery,
+} from './handover-scope-tab.util';
