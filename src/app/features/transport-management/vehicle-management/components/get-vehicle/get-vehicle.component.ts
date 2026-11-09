@@ -137,6 +137,7 @@ export class GetVehicleComponent implements OnInit {
   protected readonly vehicleScopeTabs = computed<ITabItem[]>(() => {
     const counts = this.vehicleScopeCounts();
     const ownPending = this.canSeeVehicleTab(EVehicleScope.MY);
+    const personalPending = ownPending || this.canRespondToReturns();
 
     return [
       {
@@ -157,9 +158,9 @@ export class GetVehicleComponent implements OnInit {
       },
       {
         route: EVehicleScope.PENDING,
-        label: ownPending ? 'Your Pending' : 'Handover Pending',
+        label: personalPending ? 'Your Pending' : 'Handover Pending',
         icon: ICONS.ACTIONS.SEND,
-        tooltip: ownPending
+        tooltip: personalPending
           ? 'Handovers and returns waiting for you'
           : 'Vehicles with a handover or return initiated',
         badge: counts[EVehicleScope.PENDING],
@@ -259,6 +260,34 @@ export class GetVehicleComponent implements OnInit {
     this.loadVehicleScopeCounts();
   }
 
+  /** Office staff who may answer a return to office. Returns wait on them, so they get a pending tab too. */
+  private canRespondToReturns(): boolean {
+    return this.appPermissionService.hasAnyPermission([
+      APP_PERMISSION.VEHICLE.RETURN_ACCEPTED,
+      APP_PERMISSION.VEHICLE.RETURN_REJECTED,
+    ]);
+  }
+
+  /**
+   * Pending means waiting on this user: handovers sent to them and, for office staff who may answer
+   * returns, returns to office started by someone else.
+   */
+  private applyPendingForUser(
+    params: IvehicleGetFormDto,
+    loggedInUserId: string | null | undefined
+  ): void {
+    if (!loggedInUserId) {
+      return;
+    }
+    const respondsToReturns = this.canRespondToReturns();
+    if (this.authService.isActiveRoleEmployeeLike() || respondsToReturns) {
+      params.handoverToUser = loggedInUserId;
+    }
+    if (respondsToReturns) {
+      params.includePendingReturns = true;
+    }
+  }
+
   private canSeeVehicleTab(scope: EVehicleScope): boolean {
     this.appPermissionService.getPermissions();
     const permission = {
@@ -267,6 +296,14 @@ export class GetVehicleComponent implements OnInit {
       [EVehicleScope.PENDING]: APP_PERMISSION.UI.VEHICLE.TAB_PENDING,
     }[scope];
 
+    // Return responders (office roles) had no tabs before and saw every record. They now get a
+    // pending tab, so they keep "All" next to it instead of a lone pending tab over the full list.
+    if (
+      (scope === EVehicleScope.PENDING || scope === EVehicleScope.ALL) &&
+      this.canRespondToReturns()
+    ) {
+      return true;
+    }
     return this.appPermissionService.hasPermission(permission);
   }
 
@@ -320,10 +357,7 @@ export class GetVehicleComponent implements OnInit {
 
     if (scope === EVehicleScope.PENDING) {
       params.vehicleStatus = 'INITIATED';
-
-      if (this.authService.isActiveRoleEmployeeLike() && loggedInUserId) {
-        params.handoverToUser = loggedInUserId;
-      }
+      this.applyPendingForUser(params, loggedInUserId);
     }
 
     return params;
@@ -375,7 +409,9 @@ export class GetVehicleComponent implements OnInit {
       params.vehicleStatus = 'INITIATED';
     }
 
-    if (
+    if (this.vehicleScope() === EVehicleScope.PENDING) {
+      this.applyPendingForUser(params, loggedInUserId);
+    } else if (
       params.vehicleStatus === 'INITIATED' &&
       this.authService.isActiveRoleEmployeeLike() &&
       loggedInUserId

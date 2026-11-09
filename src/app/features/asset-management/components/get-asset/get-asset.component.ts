@@ -125,6 +125,7 @@ export class GetAssetComponent implements OnInit {
   protected readonly assetScopeTabs = computed<ITabItem[]>(() => {
     const counts = this.assetScopeCounts();
     const ownPending = this.canSeeAssetTab(EAssetScope.MY);
+    const personalPending = ownPending || this.canRespondToReturns();
 
     return [
       {
@@ -145,9 +146,9 @@ export class GetAssetComponent implements OnInit {
       },
       {
         route: EAssetScope.PENDING,
-        label: ownPending ? 'Your Pending' : 'Handover Pending',
+        label: personalPending ? 'Your Pending' : 'Handover Pending',
         icon: ICONS.ACTIONS.SEND,
-        tooltip: ownPending
+        tooltip: personalPending
           ? 'Handovers and returns waiting for you'
           : 'Assets with a handover or return initiated',
         badge: counts[EAssetScope.PENDING],
@@ -251,6 +252,34 @@ export class GetAssetComponent implements OnInit {
     this.loadAssetScopeCounts();
   }
 
+  /** Office staff who may answer a return to office. Returns wait on them, so they get a pending tab too. */
+  private canRespondToReturns(): boolean {
+    return this.appPermissionService.hasAnyPermission([
+      APP_PERMISSION.ASSET.RETURN_ACCEPTED,
+      APP_PERMISSION.ASSET.RETURN_REJECTED,
+    ]);
+  }
+
+  /**
+   * Pending means waiting on this user: handovers sent to them and, for office staff who may answer
+   * returns, returns to office started by someone else.
+   */
+  private applyPendingForUser(
+    params: IAssetGetFormDto,
+    loggedInUserId: string | null | undefined
+  ): void {
+    if (!loggedInUserId) {
+      return;
+    }
+    const respondsToReturns = this.canRespondToReturns();
+    if (this.authService.isActiveRoleEmployeeLike() || respondsToReturns) {
+      params.handoverToUser = loggedInUserId;
+    }
+    if (respondsToReturns) {
+      params.includePendingReturns = true;
+    }
+  }
+
   private canSeeAssetTab(scope: EAssetScope): boolean {
     this.appPermissionService.getPermissions();
     const permission = {
@@ -259,6 +288,14 @@ export class GetAssetComponent implements OnInit {
       [EAssetScope.PENDING]: APP_PERMISSION.UI.ASSET.TAB_PENDING,
     }[scope];
 
+    // Return responders (office roles) had no tabs before and saw every record. They now get a
+    // pending tab, so they keep "All" next to it instead of a lone pending tab over the full list.
+    if (
+      (scope === EAssetScope.PENDING || scope === EAssetScope.ALL) &&
+      this.canRespondToReturns()
+    ) {
+      return true;
+    }
     return this.appPermissionService.hasPermission(permission);
   }
 
@@ -310,10 +347,7 @@ export class GetAssetComponent implements OnInit {
 
     if (scope === EAssetScope.PENDING) {
       params.assetStatus = 'INITIATED';
-
-      if (this.authService.isActiveRoleEmployeeLike() && loggedInUserId) {
-        params.handoverToUser = loggedInUserId;
-      }
+      this.applyPendingForUser(params, loggedInUserId);
     }
 
     return params;
@@ -365,7 +399,9 @@ export class GetAssetComponent implements OnInit {
       params.assetStatus = 'INITIATED';
     }
 
-    if (
+    if (this.assetScope() === EAssetScope.PENDING) {
+      this.applyPendingForUser(params, loggedInUserId);
+    } else if (
       params.assetStatus === 'INITIATED' &&
       this.authService.isActiveRoleEmployeeLike() &&
       loggedInUserId

@@ -22,6 +22,7 @@ export const AssetGetRequestSchema = z
     assetType: z.string().optional(),
     assetCategory: z.array(z.string()).optional(),
     handoverToUser: z.string().optional(),
+    includePendingReturns: z.boolean().optional(),
     sortOrder,
     sortField,
     pageSize,
