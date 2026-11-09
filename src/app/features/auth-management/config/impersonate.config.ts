@@ -21,7 +21,7 @@ export const LOGIN_AS_ROW_ACTION: Partial<
   label: 'Login as User',
   tooltip: 'Login as User',
   icon: ICONS.ATTENDANCE.CHECK_IN,
-  permission: [APP_PERMISSION.UI.COMMON.LOGIN_AS_USER],
+  permission: [APP_PERMISSION.AUTH.IMPERSONATE],
   hideWhen: row =>
     row.roles.some(role => role.name.toUpperCase() === EUserRole.SUPER_ADMIN),
   disableWhen: row => row.status !== EEmployeeStatus.ACTIVE,
