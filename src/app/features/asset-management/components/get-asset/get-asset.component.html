@@ -9,6 +9,7 @@
   <app-nav-tabs
     [tabs]="assetScopeTabs()"
     [tabMode]="assetTabMode"
+    [defaultTabIndex]="1"
     (tabChanged)="onAssetScopeTabChanged($event)"
   >
     <ng-container [ngTemplateOutlet]="assetSearchFilter" />

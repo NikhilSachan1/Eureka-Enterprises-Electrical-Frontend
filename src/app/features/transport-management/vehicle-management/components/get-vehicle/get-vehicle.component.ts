@@ -173,9 +173,7 @@ export class GetVehicleComponent implements OnInit {
   );
 
   /** Active tab. Filter values stay; the list reloads for the new scope. */
-  protected readonly vehicleScope = signal<EVehicleScope>(
-    this.resolveDefaultVehicleScope()
-  );
+  protected readonly vehicleScope = signal<EVehicleScope>(EVehicleScope.ALL);
 
   /** On My Vehicles every record is assigned to the logged-in user, so these add nothing. */
   private readonly myVehiclesHiddenFilterFields = new Set([
@@ -290,13 +288,6 @@ export class GetVehicleComponent implements OnInit {
     return canSeeHandoverScopeTabs('vehicle', permission =>
       this.appPermissionService.hasPermission(permission)
     );
-  }
-
-  private resolveDefaultVehicleScope(): EVehicleScope {
-    if (this.canSeeScopeTabs()) {
-      return EVehicleScope.MY;
-    }
-    return EVehicleScope.ALL;
   }
 
   private loadVehicleScopeCounts(): void {

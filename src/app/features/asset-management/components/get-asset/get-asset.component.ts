@@ -161,9 +161,7 @@ export class GetAssetComponent implements OnInit {
   );
 
   /** Active tab. Filter values stay; the list reloads for the new scope. */
-  protected readonly assetScope = signal<EAssetScope>(
-    this.resolveDefaultAssetScope()
-  );
+  protected readonly assetScope = signal<EAssetScope>(EAssetScope.ALL);
 
   /** On My Assets every record is assigned to the logged-in user, so these add nothing. */
   private readonly myAssetsHiddenFilterFields = new Set([
@@ -282,13 +280,6 @@ export class GetAssetComponent implements OnInit {
     return canSeeHandoverScopeTabs('asset', permission =>
       this.appPermissionService.hasPermission(permission)
     );
-  }
-
-  private resolveDefaultAssetScope(): EAssetScope {
-    if (this.canSeeScopeTabs()) {
-      return EAssetScope.MY;
-    }
-    return EAssetScope.ALL;
   }
 
   private loadAssetScopeCounts(): void {
