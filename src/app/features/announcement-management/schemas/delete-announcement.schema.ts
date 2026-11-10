@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { AnnouncementBaseSchema } from './base-announcement.schema';
 import { uuidField } from '@shared/schemas';
 import { CompanyDeleteResultSchema } from '@features/site-management/company-management/schemas/delete-company.schema';

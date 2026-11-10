@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { VehicleUpsertShapeSchema } from './base-vehicle.schema';
 import { transformDateFormat } from '@shared/utility';
 

@@ -1,5 +1,5 @@
 import { fileField, uuidField } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 
 export const MyFilesUploadRequestSchema = z
   .object({

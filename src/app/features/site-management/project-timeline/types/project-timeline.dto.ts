@@ -2,7 +2,7 @@ import {
   ProjectTimelineGetRequestSchema,
   ProjectTimelineGetResponseSchema,
 } from '../schemas/get-project-timeline.schema';
-import { z } from 'zod';
+import * as z from 'zod';
 
 export type IProjectTimelineGetRequestDto = z.infer<
   typeof ProjectTimelineGetRequestSchema

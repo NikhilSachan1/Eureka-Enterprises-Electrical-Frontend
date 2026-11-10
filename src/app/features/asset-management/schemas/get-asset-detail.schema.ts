@@ -4,7 +4,7 @@ import {
   UserSchema,
   uuidField,
 } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 import { AssetBaseDocumentsSchema, AssetBaseSchema } from './base-asset.schema';
 import { makeFieldsNullable } from '@shared/utility';
 import { splitLabeledFileKeys } from '../utility/asset-files.util';

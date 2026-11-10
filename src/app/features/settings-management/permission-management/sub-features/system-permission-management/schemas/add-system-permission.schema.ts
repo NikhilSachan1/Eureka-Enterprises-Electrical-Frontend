@@ -1,6 +1,6 @@
 import { SystemPermissionUpsertShapeSchema } from './base-system-permission.schema';
 import { toLowerCase } from '@shared/utility';
-import { z } from 'zod';
+import * as z from 'zod';
 
 export const SystemPermissionAddRequestSchema =
   SystemPermissionUpsertShapeSchema.strict().transform(data => {

@@ -1,5 +1,5 @@
 import { AuditSchema, FilterSchema } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 import { EmployeeBaseSchema } from './base-employee.schema';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;

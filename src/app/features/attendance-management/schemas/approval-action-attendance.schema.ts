@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
 
 const { id, approvalStatus, approvalComment } = AttendanceBaseSchema.shape;

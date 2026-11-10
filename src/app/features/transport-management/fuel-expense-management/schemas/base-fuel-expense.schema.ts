@@ -5,7 +5,7 @@ import {
   uuidField,
 } from '@shared/schemas';
 import { EApprovalStatus, EEntrySourceType, EEntryType } from '@shared/types';
-import z from 'zod';
+import * as z from 'zod';
 
 export const approvalStatusSchema = z.enum(EApprovalStatus);
 export const expenseEntryTypeSchema = z.enum(EEntryType);

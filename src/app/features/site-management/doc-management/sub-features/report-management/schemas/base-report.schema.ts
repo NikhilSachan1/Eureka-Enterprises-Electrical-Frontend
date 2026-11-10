@@ -1,5 +1,5 @@
 import { dateField, onlyDateStringField, uuidField } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 
 export const ReportBaseSchema = z.looseObject({

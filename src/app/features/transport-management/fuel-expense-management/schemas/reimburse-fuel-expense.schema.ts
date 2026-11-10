@@ -1,6 +1,6 @@
 import { uuidField } from '@shared/schemas';
 import { FuelExpenseUpsertShapeSchema } from './base-fuel-expense.schema';
-import z from 'zod';
+import * as z from 'zod';
 import { transformDateFormat } from '@shared/utility';
 
 const { transactionId } = FuelExpenseUpsertShapeSchema.shape;

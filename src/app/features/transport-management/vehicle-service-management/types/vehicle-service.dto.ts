@@ -9,7 +9,7 @@ import {
   VehicleServiceDetailGetRequestSchema,
   VehicleServiceDetailGetResponseSchema,
 } from '../schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 import {
   VehicleServiceGetBaseResponseSchema,
   VehicleServiceGetResponseSchema,

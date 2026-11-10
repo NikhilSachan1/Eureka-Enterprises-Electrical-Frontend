@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { DsrUpsertShapeSchema } from './base-dsr.schema';
 import { transformDateFormat } from '@shared/utility';
 

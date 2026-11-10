@@ -14,7 +14,7 @@ import {
   MyFilesMoveRequestSchema,
   MyFilesMoveResponseSchema,
 } from '../schemas';
-import z from 'zod';
+import * as z from 'zod';
 
 /**
  * My Files List

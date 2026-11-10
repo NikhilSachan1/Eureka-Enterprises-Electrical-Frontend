@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { AnnouncementBaseSchema } from './base-announcement.schema';
 import { AnnouncementGetBaseResponseSchema } from './get-announcement.schema';
 import { isoDateTimeField, UserSchema, uuidField } from '@shared/schemas';

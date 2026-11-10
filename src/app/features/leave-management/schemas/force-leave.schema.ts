@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { uuidField } from '@shared/schemas';
 import { LeaveUpsertShapeSchema } from './base-leave.schema';
 import { transformDateFormat } from '@shared/utility';

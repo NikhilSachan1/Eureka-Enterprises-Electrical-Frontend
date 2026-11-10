@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { EVendorStatus } from '../types/vendor.enum';
 import { VendorEditResponseSchema } from './edit-vendor.schema';
 

@@ -1,5 +1,5 @@
 import { AuditSchema, FilterSchema, uuidField } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 
 export const { createdAt, updatedAt } = AuditSchema.shape;
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;

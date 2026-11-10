@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { onlyDateStringField, UserSchema, uuidField } from '@shared/schemas';
 import { makeFieldsNullable } from '@shared/utility';
 import { ProjectGetBaseResponseSchema } from '@features/site-management/project-management/schemas/get-project.schema';

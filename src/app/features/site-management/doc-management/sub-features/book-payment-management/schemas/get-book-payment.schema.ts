@@ -9,7 +9,7 @@ import {
   uuidField,
 } from '@shared/schemas';
 import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
-import z from 'zod';
+import * as z from 'zod';
 
 const { sortOrder, sortField, pageSize, page } = FilterSchema.shape;
 const { createdBy } = AuditSchema.shape;

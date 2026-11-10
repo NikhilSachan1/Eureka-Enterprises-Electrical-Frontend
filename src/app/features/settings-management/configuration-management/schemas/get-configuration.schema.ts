@@ -1,5 +1,5 @@
 import { FilterSchema } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 import { ConfigurationBaseSchema } from './base-configuration.schema';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;

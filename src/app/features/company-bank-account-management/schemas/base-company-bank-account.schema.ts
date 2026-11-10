@@ -1,5 +1,5 @@
 import { uuidField } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 
 export const CompanyBankAccountBaseSchema = z.looseObject({
   id: uuidField,

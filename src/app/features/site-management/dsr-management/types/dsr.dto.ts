@@ -14,7 +14,7 @@ import {
   DsrGetRequestSchema,
   DsrGetResponseSchema,
 } from '../schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 
 /*
   Dsr Get

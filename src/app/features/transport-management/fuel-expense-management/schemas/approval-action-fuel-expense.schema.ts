@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { FuelExpenseBaseSchema } from './base-fuel-expense.schema';
 
 const { id, approvalStatus, approvalReason } = FuelExpenseBaseSchema.shape;

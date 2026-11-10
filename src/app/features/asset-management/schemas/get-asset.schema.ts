@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { AssetBaseDocumentsSchema, AssetBaseSchema } from './base-asset.schema';
 import {
   AuditSchema,

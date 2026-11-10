@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { VendorUpsertShapeSchema } from './base-vendor.schema';
 
 export const VendorAddRequestSchema =

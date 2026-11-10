@@ -1,6 +1,6 @@
 import { FinancialYearService } from '@core/services/financial-year.service';
 import { uuidField } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 
 export const LeaveBalanceGetRequestSchema = z
   .object({

@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { UserSchema, uuidField } from '@shared/schemas';
 import { makeFieldsNullable } from '@shared/utility';
 import { ExpenseBaseSchema } from './base-expense.schema';

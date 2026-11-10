@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { VehicleServiceBaseSchema } from './base-vehicle-service.schema';
 
 const { id } = VehicleServiceBaseSchema.shape;

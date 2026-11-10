@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { NotificationListItemSchema } from './base-notification.schema';
 
 export const NotificationGetRequestSchema = z

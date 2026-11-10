@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { AssetBaseSchema } from './base-asset.schema';
 import { fileField, uuidField } from '@shared/schemas';
 

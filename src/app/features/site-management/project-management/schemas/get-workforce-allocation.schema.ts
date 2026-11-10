@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { FilterSchema, isoDateTimeField, uuidField } from '@shared/schemas';
 
 const { sortOrder, pageSize, page } = FilterSchema.shape;

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { PetroCardUpsertShapeSchema } from './base-petro-card.schema';
 
 export const PetroCardEditRequestSchema =

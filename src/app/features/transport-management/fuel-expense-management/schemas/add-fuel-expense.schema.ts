@@ -1,13 +1,11 @@
 import { uuidField } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 import { FuelExpenseUpsertShapeSchema } from './base-fuel-expense.schema';
 import { transformDateFormat } from '@shared/utility';
 
-export const FuelExpenseAddRequestSchema = FuelExpenseUpsertShapeSchema.extend(
-  {
-    employeeName: uuidField.nullable(),
-  }
-)
+export const FuelExpenseAddRequestSchema = FuelExpenseUpsertShapeSchema.extend({
+  employeeName: uuidField.nullable(),
+})
   .strict()
   .transform(data => {
     return {

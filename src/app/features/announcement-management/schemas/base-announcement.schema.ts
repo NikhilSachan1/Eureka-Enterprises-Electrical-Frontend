@@ -1,5 +1,5 @@
 import { dateField, isoDateTimeField, uuidField } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 
 export const AnnouncementBaseSchema = z.looseObject({
   id: uuidField,

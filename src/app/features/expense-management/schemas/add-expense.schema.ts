@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { uuidField } from '@shared/schemas';
 import { ExpenseUpsertShapeSchema } from './base-expense.schema';
 import { transformDateFormat } from '@shared/utility';

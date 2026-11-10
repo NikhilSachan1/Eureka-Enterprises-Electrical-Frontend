@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { AnnouncementUpsertShapeSchema } from './base-announcement.schema';
 import { transformDateTimeFormat } from '@shared/utility';
 

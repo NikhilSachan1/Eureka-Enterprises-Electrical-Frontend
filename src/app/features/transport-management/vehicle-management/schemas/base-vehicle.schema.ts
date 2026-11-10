@@ -5,7 +5,7 @@ import {
   isoDateTimeField,
   uuidField,
 } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 
 const { createdBy, updatedBy, deletedBy, createdAt, updatedAt, deletedAt } =
   AuditSchema.shape;

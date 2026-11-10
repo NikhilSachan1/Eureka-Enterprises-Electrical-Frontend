@@ -6,7 +6,7 @@ import {
   UserSchema,
   uuidField,
 } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 import { InvoiceBaseSchema } from './base-invoice.schema';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { makeFieldsNullable, transformDateFormat } from '@shared/utility';

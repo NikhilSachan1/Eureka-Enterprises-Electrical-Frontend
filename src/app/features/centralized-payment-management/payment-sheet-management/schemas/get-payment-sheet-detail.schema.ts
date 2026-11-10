@@ -1,6 +1,6 @@
 import { isoDateTimeField, uuidField } from '@shared/schemas';
 import { UserSchema } from '@shared/schemas/user.schema';
-import z from 'zod';
+import * as z from 'zod';
 import { EPaymentSheetSourceType } from '../types/payment-sheet.enum';
 
 export const PaymentSheetDetailGetRequestSchema = z

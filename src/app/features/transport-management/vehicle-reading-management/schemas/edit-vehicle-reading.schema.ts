@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { VehicleReadingUpsertShapeSchema } from './base-vehicle-reading.schema';
 import { transformTimeFormat } from '@shared/utility';
 

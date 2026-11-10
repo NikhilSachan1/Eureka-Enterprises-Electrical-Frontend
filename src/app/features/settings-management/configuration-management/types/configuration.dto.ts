@@ -7,7 +7,7 @@ import {
   ConfigurationGetRequestSchema,
   ConfigurationGetResponseSchema,
 } from '../schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 import {
   ConfigurationEditRequestSchema,
   ConfigurationEditResponseSchema,

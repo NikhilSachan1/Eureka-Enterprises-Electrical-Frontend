@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { dateField, onlyDateStringField, uuidField } from '@shared/schemas';
 
 export const ConfigurationBaseSchema = z.looseObject({

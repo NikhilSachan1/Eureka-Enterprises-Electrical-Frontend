@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { AuditSchema, UserSchema, uuidField } from '@shared/schemas';
 import { makeFieldsNullable } from '@shared/utility';
 import { BookPaymentGetBaseResponseSchema } from './get-book-payment.schema';

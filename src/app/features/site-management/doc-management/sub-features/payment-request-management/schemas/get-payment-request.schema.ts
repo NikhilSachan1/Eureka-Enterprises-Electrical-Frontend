@@ -1,9 +1,5 @@
-import {
-  FilterSchema,
-  onlyDateStringField,
-  uuidField,
-} from '@shared/schemas';
-import z from 'zod';
+import { FilterSchema, onlyDateStringField, uuidField } from '@shared/schemas';
+import * as z from 'zod';
 
 const { pageSize, page, search } = FilterSchema.shape;
 

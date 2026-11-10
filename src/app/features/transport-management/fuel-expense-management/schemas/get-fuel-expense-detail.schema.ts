@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { FuelExpenseBaseSchema } from './base-fuel-expense.schema';
 import { FuelExpenseGetBaseResponseSchema } from './get-fuel-expense.schema';
 import { UserSchema, uuidField } from '@shared/schemas';

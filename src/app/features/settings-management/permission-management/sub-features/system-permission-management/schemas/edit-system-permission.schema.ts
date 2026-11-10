@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { toLowerCase } from '@shared/utility';
 import { SystemPermissionUpsertShapeSchema } from './base-system-permission.schema';
 

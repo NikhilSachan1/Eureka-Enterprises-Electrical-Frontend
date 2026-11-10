@@ -6,7 +6,7 @@ import {
 import { inject, Injectable } from '@angular/core';
 import { MonoTypeOperatorFunction, Observable, throwError, timer } from 'rxjs';
 import { retry, timeout, map, tap, catchError } from 'rxjs/operators';
-import { z } from 'zod';
+import * as z from 'zod';
 import { EnvironmentService } from '@core/services/environment.service';
 import { LoggerService } from '@core/services/logger.service';
 import { NotificationService } from '@shared/services';

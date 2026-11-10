@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { uuidField } from '@shared/schemas';
 
 const money = z.number();
@@ -15,7 +15,14 @@ const ReceivablesPayablesPartySchema = z.looseObject({
     .string()
     .nullable()
     .optional()
-    .transform(value => value?.trim() || 'Unnamed'),
+    // Blank names (empty after trim) fall back too, so not `??`.
+    .transform(value => {
+      const name = value?.trim();
+      if (name) {
+        return name;
+      }
+      return 'Unnamed';
+    }),
   invoiceCount: count.default(0),
   invoiced: money.default(0),
   settled: money.default(0),

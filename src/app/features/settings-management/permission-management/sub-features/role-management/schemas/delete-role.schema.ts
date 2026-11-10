@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { RoleBaseSchema } from './base-role.schema';
 
 const { id } = RoleBaseSchema.shape;

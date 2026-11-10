@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { ExpenseBaseSchema } from './base-expense.schema';
 
 const { id, approvalStatus } = ExpenseBaseSchema.shape;

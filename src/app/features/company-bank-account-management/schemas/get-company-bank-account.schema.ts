@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { AuditSchema, FilterSchema } from '@shared/schemas';
 import { CompanyBankAccountBaseSchema } from './base-company-bank-account.schema';
 

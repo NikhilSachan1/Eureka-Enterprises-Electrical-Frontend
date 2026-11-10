@@ -5,7 +5,7 @@ import {
   onlyDateStringField,
   uuidField,
 } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 
 export const EmployeeBaseSchema = z.looseObject({
   id: uuidField,

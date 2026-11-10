@@ -4,7 +4,7 @@ import {
   onlyDateStringField,
   uuidField,
 } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 
 export const DsrBaseSchema = z.looseObject({
   id: uuidField,

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { RolePermissionsBaseSchema } from './base-role-permission.schema';
 import { AuditSchema, uuidField } from '@shared/schemas';
 

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 export const ALL_INVOICE_ADVANCE_SETTLEMENTS = '__all__';
 

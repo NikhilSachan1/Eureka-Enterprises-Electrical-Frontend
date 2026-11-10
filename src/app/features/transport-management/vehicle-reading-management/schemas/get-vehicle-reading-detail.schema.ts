@@ -1,5 +1,5 @@
 import { uuidField } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 import { VehicleReadingGetBaseResponseSchema } from './get-vehicle-reading.schema';
 
 export const VehicleReadingDetailGetRequestSchema = z

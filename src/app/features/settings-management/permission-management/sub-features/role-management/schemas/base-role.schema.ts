@@ -1,5 +1,5 @@
 import { uuidField } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 
 export const RoleBaseSchema = z.looseObject({
   id: uuidField,

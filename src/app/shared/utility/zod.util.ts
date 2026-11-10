@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 
 export const makeFieldsNullable = <T extends z.ZodRawShape>(
   schema: z.ZodObject<T>

@@ -3,7 +3,7 @@ import {
   AttachmentsGetResponseSchema,
   FinancialFileUploadResponseSchema,
 } from '@shared/schemas/';
-import z from 'zod';
+import * as z from 'zod';
 
 export type IAttachmentsGetRequestDto = z.infer<
   typeof AttachmentsGetRequestSchema

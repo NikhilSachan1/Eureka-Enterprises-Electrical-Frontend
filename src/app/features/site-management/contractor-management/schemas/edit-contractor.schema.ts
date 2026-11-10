@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { ContractorUpsertShapeSchema } from './base-contractor.schema';
 
 export const ContractorEditRequestSchema =

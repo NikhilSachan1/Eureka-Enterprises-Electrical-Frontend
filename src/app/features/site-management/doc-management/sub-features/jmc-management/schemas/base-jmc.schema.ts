@@ -1,5 +1,5 @@
 import { dateField, onlyDateStringField, uuidField } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 import { EApprovalStatus, EEntrySourceType, EEntryType } from '@shared/types';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 

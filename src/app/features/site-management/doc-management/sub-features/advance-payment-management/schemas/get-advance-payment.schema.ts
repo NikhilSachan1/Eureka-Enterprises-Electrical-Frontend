@@ -1,6 +1,11 @@
-import { FilterSchema, isoDateTimeField, UserSchema, uuidField } from '@shared/schemas';
+import {
+  FilterSchema,
+  isoDateTimeField,
+  UserSchema,
+  uuidField,
+} from '@shared/schemas';
 import { makeFieldsNullable } from '@shared/utility';
-import z from 'zod';
+import * as z from 'zod';
 
 const { pageSize, page, search } = FilterSchema.shape;
 

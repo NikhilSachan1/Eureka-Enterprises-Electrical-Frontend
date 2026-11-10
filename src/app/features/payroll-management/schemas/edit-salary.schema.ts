@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { SalaryBaseSchema } from './base-salary.schema';
 
 export const SalaryEditRequestSchema = z

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { ConfigurationBaseSchema } from './base-configuration.schema';
 
 const { id } = ConfigurationBaseSchema.shape;
