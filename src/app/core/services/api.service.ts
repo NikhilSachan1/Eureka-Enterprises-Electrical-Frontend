@@ -182,7 +182,7 @@ export class ApiService {
     endpoint: string,
     schema: ApiSchema<TRequest, TResponse>,
     input?: TInput,
-    options: { multipart?: boolean; silent?: boolean } = {}
+    options: { multipart?: boolean; silent?: boolean; skipClean?: boolean } = {}
   ): Observable<TResponse> {
     const silent = options.silent ?? false;
     try {

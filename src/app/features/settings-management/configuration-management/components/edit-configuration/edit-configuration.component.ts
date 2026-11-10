@@ -6,15 +6,15 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { Location } from '@angular/common';
 import { FormBase } from '@shared/base/form.base';
 import {
   IConfigurationDetailGetResponseDto,
-  IConfigurationEditFormDto,
   IConfigurationEditUIFormDto,
-  IConfigurationGetBaseResponseDto,
 } from '../../types/configuration.dto';
-import { ConfigurationService } from '../../services/configuration.service';
+import {
+  ConfigurationService,
+  IConfigurationUpdatePayload,
+} from '../../services/configuration.service';
 import {
   AppConfigurationService,
   RouterNavigationService,
@@ -46,6 +46,15 @@ import {
 } from '../../shared/utils/config-value.util';
 import { IConfigValueNode } from '../../shared/types/config-value-node.model';
 
+type TConfigSetting =
+  IConfigurationDetailGetResponseDto['configSettings'][number];
+
+const CONFIGURATION_LIST_ROUTE = [
+  ROUTE_BASE_PATHS.SETTINGS.BASE,
+  ROUTE_BASE_PATHS.SETTINGS.CONFIGURATION.BASE,
+  ROUTES.SETTINGS.CONFIGURATION.LIST,
+];
+
 @Component({
   selector: 'app-edit-configuration',
   imports: [
@@ -67,7 +76,6 @@ export class EditConfigurationComponent
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly location = inject(Location);
 
   private trackedFormFields!: ITrackedFields<IConfigurationEditUIFormDto>;
 
@@ -80,9 +88,9 @@ export class EditConfigurationComponent
     return type !== null && type !== undefined && String(type).trim() !== '';
   });
 
-  /** Snapshot of the row passed via router state (used for reset + value tree). */
+  /** Configuration loaded by the resolver (used for reset + value tree). */
   protected readonly prefilledRow =
-    signal<IConfigurationGetBaseResponseDto | null>(null);
+    signal<IConfigurationDetailGetResponseDto | null>(null);
 
   protected readonly initialConfigurationData =
     signal<IConfigurationEditUIFormDto | null>(null);
@@ -101,13 +109,10 @@ export class EditConfigurationComponent
     this.loadConfigurationDataFromRoute();
 
     if (!this.initialConfigurationData()) {
-      this.logger.warn('Edit configuration: no prefilled data in router state');
-      const routeSegments = [
-        ROUTE_BASE_PATHS.SETTINGS.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.CONFIGURATION.BASE,
-        ROUTES.SETTINGS.CONFIGURATION.LIST,
-      ];
-      void this.routerNavigationService.navigateToRoute(routeSegments);
+      this.logger.warn('Edit configuration: no configuration detail resolved');
+      void this.routerNavigationService.navigateToRoute(
+        CONFIGURATION_LIST_ROUTE
+      );
       return;
     }
 
@@ -126,14 +131,7 @@ export class EditConfigurationComponent
         this.destroyRef
       );
 
-    const row = this.prefilledRow();
-    if (row) {
-      const setting =
-        row.configSettings?.find(s => s.isActive) ?? row.configSettings?.[0];
-      this.valueRoot.set(
-        parseUnknownToConfigValueNode(setting?.value, row.valueType)
-      );
-    }
+    this.resetValueRootFromRow();
 
     this.form.formGroup
       .get('configurationType')
@@ -150,12 +148,6 @@ export class EditConfigurationComponent
 
     if (!configurationDetailFromResolver) {
       this.logger.logUserAction('No configuration data found in route');
-      const routeSegments = [
-        ROUTE_BASE_PATHS.SETTINGS.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.CONFIGURATION.BASE,
-        ROUTES.SETTINGS.CONFIGURATION.LIST,
-      ];
-      void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
     }
 
@@ -168,8 +160,7 @@ export class EditConfigurationComponent
   private buildEditFormDefaults(
     row: IConfigurationDetailGetResponseDto
   ): IConfigurationEditUIFormDto {
-    const setting =
-      row.configSettings?.find(s => s.isActive) ?? row.configSettings?.[0];
+    const setting = getActiveSetting(row);
 
     const configEffectiveDate: Date[] = [];
     if (setting?.effectiveFrom) {
@@ -223,22 +214,44 @@ export class EditConfigurationComponent
       return;
     }
 
-    const formData = this.prepareFormData();
-    this.executeEditConfiguration(formData, configurationId);
+    this.executeEditConfiguration(this.prepareUpdatePayload(configurationId));
   }
 
-  private prepareFormData(): IConfigurationEditFormDto {
-    const formData = this.form.getData();
-    return {
-      ...formData,
-      configValue: serializeConfigValue(this.valueRoot()),
-    } as IConfigurationEditFormDto;
-  }
-
-  private executeEditConfiguration(
-    formData: IConfigurationEditFormDto,
+  /**
+   * Splits the form into the two backend resources: configuration metadata
+   * (PATCH /configurations/:id) and its active setting (PATCH /config-settings/:id,
+   * or POST /config-settings when the configuration has no setting yet).
+   */
+  private prepareUpdatePayload(
     configurationId: string
-  ): void {
+  ): IConfigurationUpdatePayload {
+    const {
+      moduleName,
+      configurationName,
+      configurationType,
+      description,
+      configContextKey,
+      configEffectiveDate,
+    } = this.form.getData();
+
+    return {
+      configurationId,
+      configSettingId: getActiveSetting(this.prefilledRow())?.id ?? null,
+      metadata: {
+        moduleName,
+        configurationName,
+        configurationType,
+        description,
+      },
+      setting: {
+        configContextKey,
+        configEffectiveDate,
+        configValue: serializeConfigValue(this.valueRoot()),
+      },
+    };
+  }
+
+  private executeEditConfiguration(payload: IConfigurationUpdatePayload): void {
     this.loadingService.show({
       title: 'Updating configuration',
       message: "We're updating configuration. This will just take a moment.",
@@ -246,7 +259,7 @@ export class EditConfigurationComponent
     this.form.disable();
 
     this.configurationService
-      .editConfiguration(formData, configurationId)
+      .updateConfiguration(payload)
       .pipe(
         finalize(() => {
           this.isSubmitting.set(false);
@@ -268,12 +281,9 @@ export class EditConfigurationComponent
           } else {
             this.appConfigurationService.invalidateConfigurationDropdowns();
           }
-          const routeSegments = [
-            ROUTE_BASE_PATHS.SETTINGS.BASE,
-            ROUTE_BASE_PATHS.SETTINGS.CONFIGURATION.BASE,
-            ROUTES.SETTINGS.CONFIGURATION.LIST,
-          ];
-          void this.routerNavigationService.navigateToRoute(routeSegments);
+          void this.routerNavigationService.navigateToRoute(
+            CONFIGURATION_LIST_ROUTE
+          );
         },
         error: () => {
           this.notificationService.error('Failed to update configuration');
@@ -284,16 +294,18 @@ export class EditConfigurationComponent
   protected onReset(): void {
     const defaults = this.initialConfigurationData();
     this.onResetSingleForm(defaults ?? {});
+    this.resetValueRootFromRow();
+  }
+
+  private resetValueRootFromRow(): void {
     const row = this.prefilledRow();
-    if (row) {
-      const setting =
-        row.configSettings?.find(s => s.isActive) ?? row.configSettings?.[0];
-      this.valueRoot.set(
-        parseUnknownToConfigValueNode(setting?.value, row.valueType)
-      );
-    } else {
+    if (!row) {
       this.valueRoot.set(createEmptyNode('string'));
+      return;
     }
+    this.valueRoot.set(
+      parseUnknownToConfigValueNode(getActiveSetting(row)?.value, row.valueType)
+    );
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
@@ -302,4 +314,11 @@ export class EditConfigurationComponent
       subtitle: 'Edit a configuration',
     };
   }
+}
+
+/** The setting currently in effect (the same one the list page shows). */
+function getActiveSetting(
+  row: IConfigurationDetailGetResponseDto | null
+): TConfigSetting | undefined {
+  return row?.configSettings?.find(s => s.isActive) ?? row?.configSettings?.[0];
 }

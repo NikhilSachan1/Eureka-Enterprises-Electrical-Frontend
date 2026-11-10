@@ -205,6 +205,11 @@ export const API_ROUTES = {
       EDIT: (configurationId: string) => `configurations/${configurationId}`,
       GET_CONFIGURATION_BY_ID: (configurationId: string) =>
         `configurations/${configurationId}`,
+      DELETE: (configurationId: string) => `configurations/${configurationId}`,
+      SETTING: {
+        ADD: 'config-settings',
+        EDIT: (configSettingId: string) => `config-settings/${configSettingId}`,
+      },
     },
   },
   DOCUMENT_STATUS: {

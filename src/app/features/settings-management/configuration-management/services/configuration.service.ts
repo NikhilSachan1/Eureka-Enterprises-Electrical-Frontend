@@ -1,10 +1,21 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@core/services/api.service';
 import { LoggerService } from '@core/services/logger.service';
-import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
+  catchError,
+  MonoTypeOperatorFunction,
+  Observable,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
+import {
+  IConfigSettingAddFormDto,
+  IConfigSettingEditFormDto,
+  IConfigSettingUpsertResponseDto,
   IConfigurationAddFormDto,
   IConfigurationAddResponseDto,
+  IConfigurationDeleteResponseDto,
   IConfigurationDetailGetFormDto,
   IConfigurationDetailGetResponseDto,
   IConfigurationEditFormDto,
@@ -14,16 +25,26 @@ import {
 } from '../types/configuration.dto';
 import { API_ROUTES } from '@core/constants/api.constants';
 import {
+  ConfigSettingAddRequestSchema,
+  ConfigSettingEditRequestSchema,
+  ConfigSettingUpsertResponseSchema,
   ConfigurationAddRequestSchema,
   ConfigurationAddResponseSchema,
+  ConfigurationDeleteResponseSchema,
   ConfigurationDetailGetResponseSchema,
+  ConfigurationEditRequestSchema,
+  ConfigurationEditResponseSchema,
   ConfigurationGetRequestSchema,
   ConfigurationGetResponseSchema,
 } from '../schemas';
-import {
-  ConfigurationEditRequestSchema,
-  ConfigurationEditResponseSchema,
-} from '../schemas/edit-configuration.schema';
+
+export interface IConfigurationUpdatePayload {
+  configurationId: string;
+  /** Setting being edited; `null` creates the first setting for the configuration. */
+  configSettingId: string | null;
+  metadata: IConfigurationEditFormDto;
+  setting: IConfigSettingEditFormDto;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -44,24 +65,31 @@ export class ConfigurationService {
           response: ConfigurationAddResponseSchema,
           request: ConfigurationAddRequestSchema,
         },
-        formData
+        formData,
+        // Keep empty arrays/objects/strings inside the config value intact.
+        { skipClean: true }
       )
-      .pipe(
-        tap((response: IConfigurationAddResponseDto) => {
-          this.logger.logUserAction('Add Configuration Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Add Configuration Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Add Configuration Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(this.logResult('Add Configuration'));
+  }
+
+  /**
+   * Updates configuration metadata, then the setting that holds its value.
+   * Metadata goes first so a changed valueType is in place before the backend
+   * validates the new value against it.
+   */
+  updateConfiguration({
+    configurationId,
+    configSettingId,
+    metadata,
+    setting,
+  }: IConfigurationUpdatePayload): Observable<IConfigSettingUpsertResponseDto> {
+    return this.editConfiguration(metadata, configurationId).pipe(
+      switchMap(() =>
+        configSettingId
+          ? this.editConfigSetting(setting, configSettingId)
+          : this.addConfigSetting({ ...setting, configurationId })
+      )
+    );
   }
 
   editConfiguration(
@@ -77,25 +105,63 @@ export class ConfigurationService {
           response: ConfigurationEditResponseSchema,
           request: ConfigurationEditRequestSchema,
         },
-        formData,
-        { multipart: true }
+        formData
       )
-      .pipe(
-        tap((response: IConfigurationEditResponseDto) => {
-          this.logger.logUserAction('Edit Configuration Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Edit Configuration Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Edit Configuration Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(this.logResult('Edit Configuration'));
+  }
+
+  editConfigSetting(
+    formData: IConfigSettingEditFormDto,
+    configSettingId: string
+  ): Observable<IConfigSettingUpsertResponseDto> {
+    this.logger.logUserAction('Edit Config Setting Request');
+
+    return this.apiService
+      .patchValidated(
+        API_ROUTES.SETTINGS.CONFIGURATION.SETTING.EDIT(configSettingId),
+        {
+          response: ConfigSettingUpsertResponseSchema,
+          request: ConfigSettingEditRequestSchema,
+        },
+        formData,
+        { skipClean: true }
+      )
+      .pipe(this.logResult('Edit Config Setting'));
+  }
+
+  addConfigSetting(
+    formData: IConfigSettingAddFormDto
+  ): Observable<IConfigSettingUpsertResponseDto> {
+    this.logger.logUserAction('Add Config Setting Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SETTINGS.CONFIGURATION.SETTING.ADD,
+        {
+          response: ConfigSettingUpsertResponseSchema,
+          request: ConfigSettingAddRequestSchema,
+        },
+        formData,
+        { skipClean: true }
+      )
+      .pipe(this.logResult('Add Config Setting'));
+  }
+
+  deleteConfiguration(
+    configurationId: string
+  ): Observable<IConfigurationDeleteResponseDto> {
+    this.logger.logUserAction('Delete Configuration Request', {
+      configurationId,
+    });
+
+    return this.apiService
+      .deleteValidated(
+        API_ROUTES.SETTINGS.CONFIGURATION.DELETE(configurationId),
+        {
+          response: ConfigurationDeleteResponseSchema,
+        }
+      )
+      .pipe(this.logResult('Delete Configuration'));
   }
 
   getConfigurationList(
@@ -112,25 +178,7 @@ export class ConfigurationService {
         },
         params
       )
-      .pipe(
-        tap((response: IConfigurationGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Configuration List Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Configuration List Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Configuration List Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(this.logResult('Get Configuration List'));
   }
 
   getConfigurationDetailById(
@@ -147,24 +195,20 @@ export class ConfigurationService {
           response: ConfigurationDetailGetResponseSchema,
         }
       )
-      .pipe(
-        tap((response: IConfigurationDetailGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Configuration Detail By Id Response',
-            response
-          );
+      .pipe(this.logResult('Get Configuration Detail By Id'));
+  }
+
+  private logResult<T>(action: string): MonoTypeOperatorFunction<T> {
+    return source =>
+      source.pipe(
+        tap(response => {
+          this.logger.logUserAction(`${action} Response`, response);
         }),
         catchError(error => {
           if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Configuration Detail By Id Error',
-              error
-            );
+            this.logger.logDtoValidationErrors(`${action} Error`, error);
           } else {
-            this.logger.logUserAction(
-              'Get Configuration Detail By Id Error',
-              error
-            );
+            this.logger.logUserAction(`${action} Error`, error);
           }
           return throwError(() => error);
         })

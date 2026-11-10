@@ -1,14 +1,13 @@
 import * as z from 'zod';
-import { ConfigurationUpsertShapeSchema } from './base-configuration.schema';
+import { uuidField } from '@shared/schemas';
 import {
-  replaceTextWithSeparator,
-  transformDateFormat,
-  toLowerCase,
-} from '@shared/utility';
+  ConfigurationUpsertShapeSchema,
+  toEffectiveDateRange,
+} from './base-configuration.schema';
+import { replaceTextWithSeparator, toLowerCase } from '@shared/utility';
 
 export const ConfigurationAddRequestSchema =
   ConfigurationUpsertShapeSchema.strict().transform(data => {
-    const [fromDate, toDate] = data.configEffectiveDate;
     return {
       module: data.moduleName,
       label: data.configurationName,
@@ -22,14 +21,14 @@ export const ConfigurationAddRequestSchema =
         {
           contextKey: data.configContextKey,
           value: data.configValue,
-          effectiveFrom: transformDateFormat(fromDate),
-          effectiveTo: transformDateFormat(toDate),
+          ...toEffectiveDateRange(data.configEffectiveDate),
           isActive: true,
         },
       ],
     };
   });
 
+/** Backend returns the created configuration entity (no `message`). */
 export const ConfigurationAddResponseSchema = z.looseObject({
-  message: z.string(),
+  id: uuidField,
 });

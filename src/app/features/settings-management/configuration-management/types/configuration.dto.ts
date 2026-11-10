@@ -1,17 +1,20 @@
 import {
+  ConfigSettingAddRequestSchema,
+  ConfigSettingEditRequestSchema,
+  ConfigSettingUpsertResponseSchema,
   ConfigurationAddRequestSchema,
   ConfigurationAddResponseSchema,
+  ConfigurationDeleteResponseSchema,
   ConfigurationDetailGetRequestSchema,
   ConfigurationDetailGetResponseSchema,
+  ConfigurationEditRequestSchema,
+  ConfigurationEditResponseSchema,
   ConfigurationGetBaseResponseSchema,
   ConfigurationGetRequestSchema,
   ConfigurationGetResponseSchema,
+  ConfigurationUpsertShapeSchema,
 } from '../schemas';
 import * as z from 'zod';
-import {
-  ConfigurationEditRequestSchema,
-  ConfigurationEditResponseSchema,
-} from '../schemas/edit-configuration.schema';
 
 /*
   Configuration Get
@@ -47,7 +50,7 @@ export type IConfigurationAddResponseDto = z.infer<
 >;
 
 /*
-  Configuration Edit
+  Configuration Edit (metadata PATCH + active setting PATCH/POST)
 */
 export type IConfigurationEditRequestDto = z.infer<
   typeof ConfigurationEditRequestSchema
@@ -55,12 +58,30 @@ export type IConfigurationEditRequestDto = z.infer<
 export type IConfigurationEditFormDto = z.input<
   typeof ConfigurationEditRequestSchema
 >;
+/** Full edit form: metadata + active setting fields (value is edited separately). */
 export type IConfigurationEditUIFormDto = Omit<
-  IConfigurationEditFormDto,
+  z.input<typeof ConfigurationUpsertShapeSchema>,
   'configValue'
 >;
 export type IConfigurationEditResponseDto = z.infer<
   typeof ConfigurationEditResponseSchema
+>;
+
+export type IConfigSettingEditFormDto = z.input<
+  typeof ConfigSettingEditRequestSchema
+>;
+export type IConfigSettingAddFormDto = z.input<
+  typeof ConfigSettingAddRequestSchema
+>;
+export type IConfigSettingUpsertResponseDto = z.infer<
+  typeof ConfigSettingUpsertResponseSchema
+>;
+
+/*
+  Configuration Delete
+*/
+export type IConfigurationDeleteResponseDto = z.infer<
+  typeof ConfigurationDeleteResponseSchema
 >;
 
 /*
