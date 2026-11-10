@@ -107,6 +107,38 @@
               "namedChunks": false,
               "aot": true
             },
+            "uat": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2200kB",
+                  "maximumError": "2400kB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "10kB",
+                  "maximumError": "15kB"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.ts"
+                }
+              ],
+              "outputHashing": "all",
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true
+                },
+                "fonts": true
+              },
+              "extractLicenses": true,
+              "sourceMap": false,
+              "namedChunks": false,
+              "aot": true
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
@@ -131,6 +163,9 @@
           "configurations": {
             "production": {
               "buildTarget": "Eureka-Enterprises-Electrical-Frontend:build:production"
+            },
+            "uat": {
+              "buildTarget": "Eureka-Enterprises-Electrical-Frontend:build:uat"
             },
             "development": {
               "buildTarget": "Eureka-Enterprises-Electrical-Frontend:build:development"
