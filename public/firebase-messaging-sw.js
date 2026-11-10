@@ -32,7 +32,7 @@ messaging.onBackgroundMessage(payload => {
 
   return self.registration.showNotification(title, {
     body,
-    icon: '/favicon.ico',
+    icon: '/favicons/android-chrome-192x192.png',
     data: { url: link, ...payload.data },
   });
 });

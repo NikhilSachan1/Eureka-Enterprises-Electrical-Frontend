@@ -4,7 +4,9 @@ import packageJson from '../../../../package.json';
 export const APP_CONFIG = {
   // Application Information
   name: 'Eureka Enterprises',
-  logoPath: '/assets/logo.png',
+  // 256px WebP: covers every on-screen use (largest is the 65px QR overlay)
+  // at 3x density. The original 1024px logo.png is ~370KB.
+  logoPath: '/assets/logo-256.webp',
   version: packageJson.version,
   description: 'Electrical Management System',
 
