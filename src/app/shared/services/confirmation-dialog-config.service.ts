@@ -9,7 +9,7 @@ import {
 } from '@shared/types';
 import { StatusUtil, deepMerge } from '@shared/utility';
 import { CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
-import { clearActiveBulkTableSelection } from '@shared/components/data-table/data-table.component';
+import { clearActiveBulkTableSelection } from '@shared/components/data-table/active-bulk-table';
 
 @Injectable({
   providedIn: 'root',
