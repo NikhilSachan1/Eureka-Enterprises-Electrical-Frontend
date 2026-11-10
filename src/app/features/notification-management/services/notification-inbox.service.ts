@@ -1,21 +1,24 @@
+import { DOCUMENT } from '@angular/common';
 import { computed, inject, Injectable, NgZone, signal } from '@angular/core';
 import { APP_CONFIG } from '@core/config';
 import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
 import { ICONS } from '@shared/constants';
 import { ConfirmationDialogService } from '@shared/services';
-import {
-  EButtonActionType,
-  EButtonSeverity,
-  EDialogSize,
-} from '@shared/types';
+import { EButtonActionType, EButtonSeverity, EDialogSize } from '@shared/types';
 import {
   catchError,
+  distinctUntilChanged,
+  EMPTY,
   exhaustMap,
   forkJoin,
+  fromEvent,
+  map,
   Observable,
   of,
+  startWith,
   Subscription,
+  switchMap,
   tap,
   throwError,
   timer,
@@ -57,6 +60,7 @@ export class NotificationInboxService {
   private readonly apiService = inject(ApiService);
   private readonly confirmationDialog = inject(ConfirmationDialogService);
   private readonly ngZone = inject(NgZone);
+  private readonly document = inject(DOCUMENT);
 
   /** Open bell panel (registered by NotificationBellComponent). */
   private viewNotificationsHandler?: () => void;
@@ -102,6 +106,8 @@ export class NotificationInboxService {
   );
 
   private pollSubscription?: Subscription;
+  /** When the last poll tick fired (ms epoch); 0 before the first one. */
+  private lastPollAt = 0;
 
   /** Badge label for a menu item `basePath`, or empty when none. */
   menuBadgeLabel(menuKey: string | undefined | null): string {
@@ -169,6 +175,10 @@ export class NotificationInboxService {
    * Bootstrap: fetch all + unread once (badge loader).
    * Then silently refresh both on the poll interval — including when
    * unread/total is 0, so newly created notifications are still picked up.
+   *
+   * Polling pauses while the tab is hidden. When the tab comes back, the next
+   * refresh runs once the interval since the last one has elapsed (immediately
+   * if it already has), so quick tab switches don't each fire a request.
    */
   startUnreadPolling(): void {
     if (this.pollSubscription && !this.pollSubscription.closed) {
@@ -178,8 +188,22 @@ export class NotificationInboxService {
     const intervalMs =
       APP_CONFIG.BELL_NOTIFICATION_CONFIG.UNREAD_POLL_INTERVAL_MS;
 
-    this.pollSubscription = timer(0, intervalMs)
+    const isVisible$ = fromEvent(this.document, 'visibilitychange').pipe(
+      startWith(null),
+      map(() => this.document.visibilityState !== 'hidden'),
+      distinctUntilChanged()
+    );
+
+    this.pollSubscription = isVisible$
       .pipe(
+        switchMap(isVisible => {
+          if (!isVisible) {
+            return EMPTY;
+          }
+          const sinceLastPoll = Date.now() - this.lastPollAt;
+          return timer(Math.max(0, intervalMs - sinceLastPoll), intervalMs);
+        }),
+        tap(() => (this.lastPollAt = Date.now())),
         exhaustMap(() =>
           this.refreshBothLists(!this._bootstrapped()).pipe(
             catchError(error => {
@@ -198,6 +222,7 @@ export class NotificationInboxService {
   stopUnreadPolling(): void {
     this.pollSubscription?.unsubscribe();
     this.pollSubscription = undefined;
+    this.lastPollAt = 0;
     this.clearAlertDialogTimer();
     this._allBucket.set(EMPTY_BUCKET);
     this._unreadBucket.set(EMPTY_BUCKET);
