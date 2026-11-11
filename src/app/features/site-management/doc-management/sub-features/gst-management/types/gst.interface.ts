@@ -10,6 +10,8 @@ export interface IGstEntry
   > {
   invoiceDate: string;
   verificationStatusLabel: string;
+  /** Held GST settlement: With payment / Release pending / Released / Receipt pending / Received. */
+  settlementStatusLabel: string;
   verifyFileKeys: string[];
   docWorkspaceContext: IDocWorkspaceContextView;
   documentReferenceHierarchy: IDocReferenceHierarchyNode | null;

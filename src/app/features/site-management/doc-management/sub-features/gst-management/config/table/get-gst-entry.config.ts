@@ -8,6 +8,10 @@ import {
   ITableActionConfig,
 } from '@shared/types';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import {
+  getGstRevertDisableReason,
+  getGstSettleDisableReason,
+} from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
 import { IGstEntryGetBaseResponseDto } from '../../types/gst.dto';
 
 export const GST_ENTRY_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -52,7 +56,13 @@ export const GST_ENTRY_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] =
     },
     {
       field: 'verificationStatusLabel',
-      header: 'Verification',
+      header: 'Portal verification',
+      bodyTemplate: EDataType.STATUS,
+      showSort: false,
+    },
+    {
+      field: 'settlementStatusLabel',
+      header: 'Held GST',
       bodyTemplate: EDataType.STATUS,
       showSort: false,
     },
@@ -68,35 +78,29 @@ const buildGstEntryTableRowActionsConfig = (): Partial<
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
-    tooltip: 'Approve GST entry',
+    tooltip: 'Verify on GST portal (GSTR-2B / GSTR-1)',
     disableWhen: (row: IGstEntryGetBaseResponseDto) => row.isVerified,
     disableReason: (row: IGstEntryGetBaseResponseDto) =>
-      row.isVerified ? 'This entry is already approved.' : undefined,
+      row.isVerified ? 'This entry is already verified.' : undefined,
     permission: [APP_PERMISSION.GST.APPROVE],
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Revert verification',
-    disableWhen: (row: IGstEntryGetBaseResponseDto) => !row.isVerified,
+    disableWhen: (row: IGstEntryGetBaseResponseDto) =>
+      !!getGstRevertDisableReason(row),
     disableReason: (row: IGstEntryGetBaseResponseDto) =>
-      !row.isVerified ? 'Only verified entries can be reverted.' : undefined,
+      getGstRevertDisableReason(row),
     permission: [APP_PERMISSION.GST.REJECT],
   },
   {
     id: EButtonActionType.PAID,
-    tooltip: 'Release payment',
+    tooltip: 'Settle held GST (release to vendor / mark received)',
     permission: [APP_PERMISSION.GST.RELEASE],
     disableWhen: (row: IGstEntryGetBaseResponseDto) =>
-      !row.isVerified || !!row.gstPaymentId,
-    disableReason: (row: IGstEntryGetBaseResponseDto): string | undefined => {
-      if (!row.isVerified) {
-        return 'This entry is not verified yet.';
-      }
-      if (row.gstPaymentId) {
-        return 'Payment already released for this entry.';
-      }
-      return undefined;
-    },
+      !!getGstSettleDisableReason(row),
+    disableReason: (row: IGstEntryGetBaseResponseDto) =>
+      getGstSettleDisableReason(row),
   },
 ];
 
@@ -105,19 +109,17 @@ const buildGstEntryTableBulkActionsConfig = (): Partial<
 >[] => [
   {
     id: EButtonActionType.PAID,
-    label: 'Release Payment',
-    tooltip: 'Release payment for selected entries',
+    label: 'Settle Held GST',
+    tooltip:
+      'Release held GST to the vendor / mark it received from the client',
     permission: [APP_PERMISSION.GST.RELEASE],
     disableWhen: (row: IGstEntryGetBaseResponseDto) =>
-      !row.isVerified || !!row.gstPaymentId,
+      !!getGstSettleDisableReason(row),
     disableReason: (row: IGstEntryGetBaseResponseDto): string | undefined => {
-      if (!row.isVerified) {
-        return 'Some selected entries are not verified yet.';
-      }
-      if (row.gstPaymentId) {
-        return 'Some selected entries already have payment released.';
-      }
-      return undefined;
+      const reason = getGstSettleDisableReason(row);
+      return reason
+        ? `Some selected entries cannot be settled: ${reason}`
+        : undefined;
     },
   },
 ];

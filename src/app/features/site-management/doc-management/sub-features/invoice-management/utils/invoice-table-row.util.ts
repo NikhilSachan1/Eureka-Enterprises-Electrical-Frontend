@@ -205,7 +205,68 @@ export function buildInvoiceBookedPaidSegments(
       value: invoiceAdvanceRemainingAmount(source),
     }
   );
+  segments.push(...buildInvoiceTaxSettlementSegments(source, isSales));
   return segments;
+}
+
+/**
+ * What happened to the tax after the invoice was paid. Shown next to Paid — never folded into it,
+ * because Paid is the cash rollup the payment ceilings are built on.
+ *   Held GST  → released to vendor / received from client (or still pending)
+ *   TDS       → purchase: challan deposited? · sale: credited in Form 26AS?
+ */
+export function buildInvoiceTaxSettlementSegments(
+  row: IInvoiceGetBaseResponseDto,
+  isSales: boolean
+): IDocAmountSegment[] {
+  const segments: IDocAmountSegment[] = [];
+  const gst = row.gstStatus;
+  const tds = row.tdsStatus;
+
+  if (gst?.isGstHold) {
+    const settled = gst.settlementStatus === 'SETTLED';
+    const settledWord = isSales ? 'Received' : 'Released';
+    const pendingWord = isSales ? 'Receipt pending' : 'Release pending';
+    segments.push({
+      dataType: EDataType.CURRENCY,
+      label: isSales ? 'Held GST (by client)' : 'Held GST',
+      value: gst.gstAmount,
+      suffix: settled
+        ? `${settledWord}${gst.settledAt ? ` · ${formatInvoiceShortDate(gst.settledAt)}` : ''}`
+        : pendingWord,
+    });
+  }
+
+  if (tds && tds.tdsAmount > 0) {
+    const suffix = isSales
+      ? tds.isVerified
+        ? '26AS verified'
+        : '26AS pending'
+      : tds.isDeposited
+        ? tds.isVerified
+          ? 'Deposited · 26Q filed'
+          : 'Deposited'
+        : 'Challan pending';
+    segments.push({
+      dataType: EDataType.CURRENCY,
+      label: 'TDS',
+      value: tds.tdsAmount,
+      suffix,
+    });
+  }
+
+  return segments;
+}
+
+function formatInvoiceShortDate(value: string): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
 }
 
 export function buildInvoiceAdvanceSettlementFlowSegments(

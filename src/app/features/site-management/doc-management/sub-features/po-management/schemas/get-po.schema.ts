@@ -79,6 +79,16 @@ export const PoGetBaseResponseSchema = z.looseObject({
   bookedTotal: z.string(),
   paidTotal: z.string(),
   advancePaidTotal: z.string(),
+  /** GST / TDS settled on this PO's invoices — reported beside the cash rollups, not inside them. */
+  taxTotals: z
+    .looseObject({
+      gstHeldTotal: z.number(),
+      gstSettledTotal: z.number(),
+      tdsTotal: z.number(),
+      tdsClearedTotal: z.number(),
+    })
+    .nullable()
+    .optional(),
   lastInvoiceAt: isoDateTimeField.nullable(),
   lastPaymentAt: isoDateTimeField.nullable(),
   remarks: z.string().nullable(),

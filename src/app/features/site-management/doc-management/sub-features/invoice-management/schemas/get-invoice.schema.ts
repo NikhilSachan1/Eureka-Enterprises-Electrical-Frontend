@@ -64,8 +64,31 @@ export const InvoiceAdvanceSettlementSchema = z.looseObject({
   settledAt: z.string().nullable().optional(),
 });
 
+/** GST register status of the invoice (null until approved / when there is no GST). */
+export const InvoiceGstStatusSchema = z.looseObject({
+  entryId: uuidField,
+  gstAmount: z.number(),
+  isGstHold: z.boolean(),
+  isVerified: z.boolean(),
+  settlementStatus: z.enum(['NOT_HELD', 'PENDING', 'SETTLED']),
+  settledAmount: z.number(),
+  settledAt: z.string().nullable(),
+});
+
+/** TDS register status of the invoice (null until approved / when there is no TDS). */
+export const InvoiceTdsStatusSchema = z.looseObject({
+  tdsAmount: z.number(),
+  depositedAmount: z.number(),
+  verifiedAmount: z.number(),
+  isDeposited: z.boolean(),
+  isVerified: z.boolean(),
+  lastDepositedAt: z.string().nullable(),
+});
+
 export const InvoiceGetBaseResponseSchema = z.looseObject({
   ...InvoiceBaseSchema.shape,
+  gstStatus: InvoiceGstStatusSchema.nullable().optional(),
+  tdsStatus: InvoiceTdsStatusSchema.nullable().optional(),
   isLocked: z.boolean(),
   unlockRequestedAt: isoDateTimeField.nullable(),
   unlockRequestedByUser: makeFieldsNullable(UserSchema).nullable(),
