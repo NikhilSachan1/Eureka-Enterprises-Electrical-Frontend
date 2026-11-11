@@ -12,7 +12,7 @@ const CHALLAN_CONFIG: IDialogActionConfig = {
   dialogConfig: {
     header: 'Record TDS challan?',
     message:
-      'Record the challan (ITNS 281) with which the TDS deducted from these vendor payments was deposited with the government.',
+      'Record the challan with which the TDS deducted from these vendor payments was deposited with the government.',
     labels: {
       actionWord: 'record the TDS challan for',
       singleLabel: 'Record Challan',

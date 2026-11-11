@@ -164,24 +164,10 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
           format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
-          label: 'BSR code',
-          value: challan.bsrCode ?? '—',
+          label: 'UTR / Reference No.',
+          value: challan.utrNumber ?? '—',
           type: EDataType.TEXT,
         },
-        {
-          label: 'Challan serial no.',
-          value: challan.challanSerialNumber ?? '—',
-          type: EDataType.TEXT,
-        },
-        ...(challan.utrNumber
-          ? [
-              {
-                label: 'Bank reference / UTR',
-                value: challan.utrNumber,
-                type: EDataType.TEXT,
-              },
-            ]
-          : []),
         {
           label: 'Challan copy',
           value: challan.fileKey ? [challan.fileKey] : [],
