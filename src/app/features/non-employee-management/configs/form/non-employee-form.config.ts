@@ -40,7 +40,7 @@ const ADD_NON_EMPLOYEE_FORM_FIELDS_CONFIG = {
       },
       // These two mean attendance and leave, which a non employee does not have.
       filterOptions: {
-        exclude: [EUserRole.EMPLOYEE, EUserRole.DRIVER],
+        exclude: [EUserRole.EMPLOYEE, EUserRole.DRIVER, EUserRole.SUPER_ADMIN],
       },
     },
     validators: [Validators.required],
@@ -53,14 +53,14 @@ const buttons = (label: string, tooltip: string): IFormButtonConfig => ({
 });
 
 export const ADD_NON_EMPLOYEE_FORM_CONFIG: IFormConfig<INonEmployeeAddFormDto> =
-  {
-    fields: ADD_NON_EMPLOYEE_FORM_FIELDS_CONFIG,
-    buttons: buttons('Add Non Employee', 'Add non employee'),
-  };
+{
+  fields: ADD_NON_EMPLOYEE_FORM_FIELDS_CONFIG,
+  buttons: buttons('Add Non Employee', 'Add non employee'),
+};
 
 export const EDIT_NON_EMPLOYEE_FORM_CONFIG: IFormConfig<INonEmployeeEditFormDto> =
-  {
-    fields:
-      NON_EMPLOYEE_BASE_FIELDS as unknown as IFormInputFieldsConfig<INonEmployeeEditFormDto>,
-    buttons: buttons('Update Non Employee', 'Update non employee details'),
-  };
+{
+  fields:
+    NON_EMPLOYEE_BASE_FIELDS as unknown as IFormInputFieldsConfig<INonEmployeeEditFormDto>,
+  buttons: buttons('Update Non Employee', 'Update non employee details'),
+};

@@ -22,7 +22,7 @@ const SEARCH_FILTER_NON_EMPLOYEE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFiel
       },
       // Same roles the non employee form leaves out.
       filterOptions: {
-        exclude: [EUserRole.EMPLOYEE, EUserRole.DRIVER],
+        exclude: [EUserRole.EMPLOYEE, EUserRole.DRIVER, EUserRole.SUPER_ADMIN],
       },
     },
   },
@@ -33,7 +33,7 @@ const SEARCH_FILTER_NON_EMPLOYEE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFiel
 };
 
 export const SEARCH_FILTER_NON_EMPLOYEE_FORM_CONFIG: ITableSearchFilterFormConfig<IEmployeeGetFormDto> =
-  {
-    fields: SEARCH_FILTER_NON_EMPLOYEE_FORM_FIELDS_CONFIG,
-    buttons,
-  };
+{
+  fields: SEARCH_FILTER_NON_EMPLOYEE_FORM_FIELDS_CONFIG,
+  buttons,
+};
