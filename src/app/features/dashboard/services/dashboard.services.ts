@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@core/services/api.service';
 import { LoggerService } from '@core/services/logger.service';
 import { catchError, Observable, shareReplay, tap, throwError } from 'rxjs';
-import { z } from 'zod';
+import * as z from 'zod';
 import { API_ROUTES } from '@core/constants';
 import {
   AnniversariesDashboardGetResponseSchema,
@@ -168,7 +168,10 @@ export class DashboardService {
     );
   }
 
-  private rethrowDashboardError(action: string, error: unknown) {
+  private rethrowDashboardError(
+    action: string,
+    error: unknown
+  ): Observable<never> {
     if (error instanceof z.ZodError) {
       this.logger.logDtoValidationErrors(`${action} Error`, error);
     } else {

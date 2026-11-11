@@ -2,6 +2,10 @@
   <router-outlet />
 </app-sidebar>
 
+@if (!authService.isImpersonating()) {
+  <app-install-app-banner />
+}
+
 @if (authService.isImpersonating()) {
   <div
     role="status"

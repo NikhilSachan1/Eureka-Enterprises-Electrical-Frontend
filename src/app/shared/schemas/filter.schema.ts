@@ -1,5 +1,5 @@
 import { APP_CONFIG } from '@core/config';
-import { z } from 'zod';
+import * as z from 'zod';
 
 export const FilterSchema = z.object({
   sortOrder: z.enum(['ASC', 'DESC']).default('DESC').optional(),

@@ -1,6 +1,6 @@
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { FilterSchema, uuidField } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 
 const { pageSize, page } = FilterSchema.shape;
 

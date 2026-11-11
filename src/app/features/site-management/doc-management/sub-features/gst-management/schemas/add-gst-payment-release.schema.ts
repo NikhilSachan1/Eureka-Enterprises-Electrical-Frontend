@@ -1,6 +1,6 @@
 import { dateField, uuidField } from '@shared/schemas';
 import { transformDateFormat } from '@shared/utility';
-import z from 'zod';
+import * as z from 'zod';
 
 export const AddGstPaymentReleaseRequestSchema = z
   .object({

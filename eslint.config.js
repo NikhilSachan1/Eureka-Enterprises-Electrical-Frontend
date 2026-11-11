@@ -121,7 +121,25 @@ module.exports = tseslint.config(
       'no-shadow': 'error',
       'no-undef': 'error',
       'max-classes-per-file': ['warn', 1],
-      'no-restricted-syntax': ['error', 'WithStatement'],
+      'no-restricted-syntax': [
+        'error',
+        'WithStatement',
+        // `{ z }` and the default import keep zod's whole namespace, including
+        // every locale (~215KB extra in the initial bundle).
+        // `\x2F` is `/`: esquery regexes can't contain a literal slash.
+        {
+          selector:
+            "ImportDeclaration[source.value=/^zod(\\x2F.*)?$/] > ImportSpecifier[imported.name='z']",
+          message:
+            "Import zod as `import * as z from 'zod'` — `{ z }` bundles all of zod's locales (~215KB).",
+        },
+        {
+          selector:
+            'ImportDeclaration[source.value=/^zod(\\x2F.*)?$/] > ImportDefaultSpecifier',
+          message:
+            "Import zod as `import * as z from 'zod'` — the default import bundles all of zod's locales (~215KB).",
+        },
+      ],
       'no-continue': 'warn',
     },
   },

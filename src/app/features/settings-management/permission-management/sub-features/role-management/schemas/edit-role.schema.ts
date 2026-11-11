@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { toLowerCase } from '@shared/utility';
 import { RoleUpsertShapeSchema } from './base-role.schema';
 

@@ -4,7 +4,7 @@ import {
   isoDateTimeField,
   uuidField,
 } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 import { EExpenseTransactionType } from '../types/expense.enum';
 import { EApprovalStatus, EEntrySourceType, EEntryType } from '@shared/types';
 

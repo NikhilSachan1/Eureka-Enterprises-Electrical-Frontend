@@ -35,6 +35,17 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 const TODAY_ATTENDANCE_PAGE_SIZE = 200;
 
+/** Ring radius 42 in a 100×100 viewBox. */
+const DONUT_CIRCUMFERENCE = 2 * Math.PI * 42;
+/** Same hues as the count tones below the ring. */
+const DONUT_COLORS = {
+  present: '#059669',
+  absent: '#dc2626',
+  leave: '#f59e0b',
+  holiday: '#7c3aed',
+  notIn: '#94a3b8',
+} as const;
+
 function attendanceInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) {
@@ -92,13 +103,74 @@ export class AttendanceDashboardComponent implements OnInit {
     }
 
     return [
-      { key: 'present', label: 'Present', value: stats.present, tone: 'success' },
+      {
+        key: 'present',
+        label: 'Present',
+        value: stats.present,
+        tone: 'success',
+      },
       { key: 'absent', label: 'Absent', value: stats.absent, tone: 'danger' },
       { key: 'leave', label: 'Leave', value: stats.leave, tone: 'warning' },
-      { key: 'holiday', label: 'Holiday', value: stats.holiday, tone: 'purple' },
-      { key: 'checked-in', label: 'Checked in', value: stats.checkedIn, tone: 'info' },
-      { key: 'not-in', label: 'Not in yet', value: stats.notCheckedInYet, tone: 'neutral' },
+      {
+        key: 'holiday',
+        label: 'Holiday',
+        value: stats.holiday,
+        tone: 'purple',
+      },
+      {
+        key: 'checked-in',
+        label: 'Checked in',
+        value: stats.checkedIn,
+        tone: 'info',
+      },
+      {
+        key: 'not-in',
+        label: 'Not in yet',
+        value: stats.notCheckedInYet,
+        tone: 'neutral',
+      },
     ];
+  });
+
+  /** Donut ring: one arc per status; checked-in is left out since it is a subset of present. */
+  protected readonly donut = computed(() => {
+    const stats = this.summary()?.attendance;
+    if (!stats) {
+      return null;
+    }
+    const parts = [
+      { key: 'present', value: stats.present, color: DONUT_COLORS.present },
+      { key: 'absent', value: stats.absent, color: DONUT_COLORS.absent },
+      { key: 'leave', value: stats.leave, color: DONUT_COLORS.leave },
+      { key: 'holiday', value: stats.holiday, color: DONUT_COLORS.holiday },
+      {
+        key: 'not-in',
+        value: stats.notCheckedInYet,
+        color: DONUT_COLORS.notIn,
+      },
+    ];
+    const sum = parts.reduce((total, part) => total + part.value, 0);
+    let offset = 0;
+    const segments = parts
+      .filter(part => part.value > 0)
+      .map(part => {
+        const length = sum > 0 ? (part.value / sum) * DONUT_CIRCUMFERENCE : 0;
+        const segment = {
+          key: part.key,
+          color: part.color,
+          dash: `${length} ${DONUT_CIRCUMFERENCE - length}`,
+          offset: -offset,
+        };
+        offset += length;
+        return segment;
+      });
+    const presentPct =
+      stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
+    return {
+      segments,
+      presentPct,
+      label: `${stats.present} present, ${stats.absent} absent, ${stats.leave} on leave, ${stats.notCheckedInYet} not checked in, of ${stats.total}`,
+    };
   });
 
   protected readonly filteredRows = computed(

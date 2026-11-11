@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 
 const ExpiryCountSchema = z.looseObject({
   expired: z.number().int().nonnegative().default(0),
@@ -45,20 +45,18 @@ export const AssetFleetAlertsDashboardGetResponseSchema = z
       ...response.warning,
       ...response.info,
     ]) {
-      if (item.type !== 'vehicleDocExpiry') {
-        continue;
-      }
+      if (item.type === 'vehicleDocExpiry') {
+        const documentType = item.data.documentType?.trim().toLowerCase();
+        const isExpired =
+          item.severity.trim().toLowerCase() === 'critical' ||
+          item.data.severity?.trim().toLowerCase() === 'expired';
+        const bucket = isExpired ? 'expired' : 'expiringSoon';
 
-      const documentType = item.data.documentType?.trim().toLowerCase();
-      const isExpired =
-        item.severity.trim().toLowerCase() === 'critical' ||
-        item.data.severity?.trim().toLowerCase() === 'expired';
-      const bucket = isExpired ? 'expired' : 'expiringSoon';
-
-      if (documentType === 'puc') {
-        puc[bucket] += 1;
-      } else if (documentType === 'insurance') {
-        insurance[bucket] += 1;
+        if (documentType === 'puc') {
+          puc[bucket] += 1;
+        } else if (documentType === 'insurance') {
+          insurance[bucket] += 1;
+        }
       }
     }
 

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { EmployeeDetailGetResponseSchema } from './get-employee-detail.schema';
 
 export const EmployeeChangeStatusRequestSchema = z

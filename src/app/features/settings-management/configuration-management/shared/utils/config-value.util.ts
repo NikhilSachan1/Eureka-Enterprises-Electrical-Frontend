@@ -3,6 +3,7 @@ import {
   IConfigValueNode,
 } from '../types/config-value-node.model';
 import { TConfigurationValueKind } from '../../types/configuration.types';
+import { transformDateFormat } from '@shared/utility';
 
 /**
  * Returns true when the value tree satisfies required-field rules (non-empty
@@ -213,7 +214,8 @@ export function serializeConfigValue(node: IConfigValueNode): unknown {
     case 'date': {
       const dv = node.dateValue;
       if (dv instanceof Date && !Number.isNaN(dv.getTime())) {
-        return dv.toISOString().split('T')[0];
+        // Local calendar date; toISOString() would shift to the previous day in IST.
+        return transformDateFormat(dv);
       }
       return '';
     }

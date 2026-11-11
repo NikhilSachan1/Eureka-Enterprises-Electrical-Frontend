@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { dateField, uuidField } from '@shared/schemas';
 
 export const GeneratePayrollRequestSchema = z

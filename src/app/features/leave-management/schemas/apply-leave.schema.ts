@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { ELeaveCategory, ELeaveDayType } from '../types/leave.type';
 import { LeaveUpsertShapeSchema } from './base-leave.schema';
 import { transformDateFormat } from '@shared/utility';

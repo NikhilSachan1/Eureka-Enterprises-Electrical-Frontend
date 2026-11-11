@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { SystemPermissionBaseSchema } from './base-system-permission.schema';
 
 const { id } = SystemPermissionBaseSchema.shape;

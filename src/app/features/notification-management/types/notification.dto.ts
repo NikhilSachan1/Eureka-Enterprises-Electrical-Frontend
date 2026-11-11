@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import {
   NotificationGetRequestSchema,
   NotificationGetResponseSchema,
@@ -10,8 +10,12 @@ import {
   NotificationUnregisterDeviceResponseSchema,
 } from '../schemas';
 
-export type INotificationListItemDto = z.infer<typeof NotificationListItemSchema>;
-export type INotificationGetFormDto = z.infer<typeof NotificationGetRequestSchema>;
+export type INotificationListItemDto = z.infer<
+  typeof NotificationListItemSchema
+>;
+export type INotificationGetFormDto = z.infer<
+  typeof NotificationGetRequestSchema
+>;
 export type INotificationGetResponseDto = z.infer<
   typeof NotificationGetResponseSchema
 >;

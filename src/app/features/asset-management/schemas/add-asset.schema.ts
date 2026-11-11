@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { AssetUpsertShapeSchema } from './base-asset.schema';
 import { transformDateFormat } from '@shared/utility';
 import { getCalibrationEndDateFromStartAndFrequency } from '../utility/calibration-date.util';
@@ -34,10 +34,7 @@ export const AssetAddRequestSchema = AssetUpsertShapeSchema.strict().transform(
       warrantyStartDate: transformDateFormat(warrantyStartDate),
       warrantyEndDate: transformDateFormat(warrantyEndDate),
       remarks: data.remarks,
-      ...mergeAssetFilesWithLabels(
-        data.assetFiles,
-        data.assetCalibrationFiles
-      ),
+      ...mergeAssetFilesWithLabels(data.assetFiles, data.assetCalibrationFiles),
     };
   }
 );

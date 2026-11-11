@@ -71,6 +71,7 @@ import { AppPermissionService, LoggerService } from '@core/services';
 import { ChipComponent } from '../chip/chip.component';
 import { ReadMoreComponent } from '../read-more/read-more.component';
 import { PaginatorComponent } from '../paginator/paginator.component';
+import { registerActiveBulkTable } from './active-bulk-table';
 import {
   DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
   DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
@@ -652,7 +653,9 @@ export class DataTableComponent {
     this.syncPaginationToUrl(newFirst, newRows);
   }
 
-  private withCurrentTableFilters(event: TableLazyLoadEvent): TableLazyLoadEvent {
+  private withCurrentTableFilters(
+    event: TableLazyLoadEvent
+  ): TableLazyLoadEvent {
     const table = this.dt();
     const filters = {
       ...(event.filters ?? {}),
@@ -687,7 +690,7 @@ export class DataTableComponent {
       return true;
     }
 
-    const {filters} = event;
+    const { filters } = event;
     if (!filters) {
       return false;
     }
@@ -1063,16 +1066,4 @@ export class DataTableComponent {
       this.attachmentClick.emit(rowData ?? {});
     }
   }
-}
-
-let activeBulkTable: DataTableComponent | null = null;
-
-function registerActiveBulkTable(table: DataTableComponent): void {
-  activeBulkTable = table;
-}
-
-/** Called after bulk confirmation onSuccess — clears the table that opened the dialog. */
-export function clearActiveBulkTableSelection(): void {
-  activeBulkTable?.clearSelection();
-  activeBulkTable = null;
 }

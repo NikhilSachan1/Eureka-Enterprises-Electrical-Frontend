@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { dateField, uuidField } from '@shared/schemas';
 import { ESalaryIncrementType } from '../types/payroll.enum';
 import { transformDateFormat } from '@shared/utility';

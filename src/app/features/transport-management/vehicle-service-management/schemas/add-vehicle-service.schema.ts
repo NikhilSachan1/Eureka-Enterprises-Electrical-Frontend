@@ -1,7 +1,7 @@
 import { transformDateFormat } from '@shared/utility';
 import { VehicleServiceUpsertShapeSchema } from './base-vehicle-service.schema';
 import { EVehicleServiceStatus } from '../types/vehicle-service.enum';
-import z from 'zod';
+import * as z from 'zod';
 
 export const VehicleServiceAddRequestSchema =
   VehicleServiceUpsertShapeSchema.strict().transform(data => {

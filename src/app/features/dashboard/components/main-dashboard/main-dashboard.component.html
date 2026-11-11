@@ -14,14 +14,14 @@
             [class]="ICONS.COMMON.CALENDAR"
             aria-hidden="true"
           ></span>
-          {{ today | date: 'EEEE, d MMMM y' }}
+          {{ today | date: 'EEEE, d MMMM y' }} · Here’s what needs your attention today
         </p>
       </div>
 
-      @if (canViewReceivablesPayables || canViewLedgerSpend) {
+      @if (canViewReceivablesPayables || canViewLedgerSpend || canAddExpense || showApplyAttendance) {
         <nav
           class="dash-hero__links"
-          aria-label="Jump to section"
+          aria-label="Quick actions"
         >
           @if (canViewReceivablesPayables) {
             <button
@@ -48,6 +48,30 @@
               ></span>
               Ledger &amp; spend
             </button>
+          }
+          @if (canAddExpense) {
+            <a
+              class="dash-hero__link dash-hero__link--outline"
+              [routerLink]="addExpenseLink"
+            >
+              <span
+                [class]="ICONS.COMMON.PLUS"
+                aria-hidden="true"
+              ></span>
+              Add expense
+            </a>
+          }
+          @if (showApplyAttendance) {
+            <a
+              class="dash-hero__link dash-hero__link--primary"
+              [routerLink]="markAttendanceLink"
+            >
+              <span
+                [class]="ICONS.ATTENDANCE.CHECK_IN"
+                aria-hidden="true"
+              ></span>
+              Mark attendance
+            </a>
           }
         </nav>
       }

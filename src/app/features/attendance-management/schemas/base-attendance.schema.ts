@@ -4,7 +4,7 @@ import {
   isoDateTimeField,
   onlyDateStringField,
 } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 import { EEntrySourceType, EEntryType } from '@shared/types';
 
 export const AttendanceAssignedDriverSchema = z.looseObject({

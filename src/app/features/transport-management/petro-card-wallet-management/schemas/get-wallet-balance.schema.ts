@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 
 export const WalletBalanceResponseSchema = z.looseObject({
   balance: z.coerce.number(),

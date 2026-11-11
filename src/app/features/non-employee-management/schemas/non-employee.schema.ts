@@ -1,5 +1,5 @@
 import { fileField, uuidField } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 
 /**
  * A non-employee only logs in and works: no employee code, salary, leave or payroll. Everything
@@ -44,8 +44,7 @@ export const NonEmployeeAddResponseSchema = z.looseObject({
   message: z.string(),
 });
 
-export const NonEmployeeEditRequestSchema =
-  NonEmployeeFormShapeSchema.strict();
+export const NonEmployeeEditRequestSchema = NonEmployeeFormShapeSchema.strict();
 
 export const NonEmployeeDeleteResponseSchema = z.looseObject({
   message: z.string(),

@@ -8,7 +8,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { CurrencyPipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
@@ -37,6 +37,8 @@ import {
 } from '@shared/types';
 import { DocumentGapDetailComponent } from '@features/dashboard/components/document-gap-detail/document-gap-detail.component';
 import {
+  IDashboardDuesPair,
+  IDashboardKpiTile,
   IDashboardKpmMetricLink,
   IDashboardKpmMetricRow,
 } from '@features/dashboard/types/dashboard.interface';
@@ -69,7 +71,7 @@ const DOCUMENT_GAP_ICONS: Record<string, string> = {
 import { IndianCurrencyPipe } from '@shared/pipes/indian-currency.pipe';
 @Component({
   selector: 'app-kpm-dashboard',
-  imports: [CurrencyPipe, DecimalPipe, IndianCurrencyPipe, NgTemplateOutlet],
+  imports: [DecimalPipe, IndianCurrencyPipe, NgTemplateOutlet],
   templateUrl: './kpm-dashboard.component.html',
   styleUrl: './kpm-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -111,6 +113,7 @@ export class KpmDashboardComponent implements OnInit {
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ICONS = ICONS;
   protected readonly KpmRowState = EKpmDashboardSeverity;
+  private readonly indianCurrency = new IndianCurrencyPipe();
 
   private readonly approvalPending =
     signal<IApprovalPendingDashboardGetResponseDto | null>(null);
@@ -167,28 +170,32 @@ export class KpmDashboardComponent implements OnInit {
   protected readonly paymentSheetTotal = computed(() =>
     this.metricTotal(this.paymentSheetRows())
   );
-  protected readonly documentGapRows = computed<IDashboardKpmMetricRow[]>(() => {
-    const loading = this.documentGapsLoading();
-    const data = this.documentGaps();
+  protected readonly documentGapRows = computed<IDashboardKpmMetricRow[]>(
+    () => {
+      const loading = this.documentGapsLoading();
+      const data = this.documentGaps();
 
-    return [
-      ...this.buildDocumentGaps(data?.gaps ?? [], loading),
-      ...this.buildDocumentGaps(data?.info ?? [], loading, true),
-    ];
-  });
+      return [
+        ...this.buildDocumentGaps(data?.gaps ?? [], loading),
+        ...this.buildDocumentGaps(data?.info ?? [], loading, true),
+      ];
+    }
+  );
   protected readonly ledgerBalanceRows = computed<IDashboardKpmMetricRow[]>(
     () =>
       this.buildLedgerBalance(this.ledgerBalance(), this.ledgerBalanceLoading())
   );
-  protected readonly duesBalanceRows = computed<IDashboardKpmMetricRow[]>(() => [
-    ...(this.canViewReceivablesPayables
-      ? this.buildReceivablesPayables(
-        this.receivablesPayables(),
-        this.receivablesPayablesLoading()
-      )
-      : []),
-    ...this.ledgerBalanceRows(),
-  ]);
+  protected readonly duesBalanceRows = computed<IDashboardKpmMetricRow[]>(
+    () => [
+      ...(this.canViewReceivablesPayables
+        ? this.buildReceivablesPayables(
+            this.receivablesPayables(),
+            this.receivablesPayablesLoading()
+          )
+        : []),
+      ...this.ledgerBalanceRows(),
+    ]
+  );
   protected readonly assetAlertsRows = computed<IDashboardKpmMetricRow[]>(() =>
     this.buildAssetAlerts(
       this.assetFleetAlerts(),
@@ -204,6 +211,212 @@ export class KpmDashboardComponent implements OnInit {
         this.vehicleReadingsAlertsLoading()
       )
   );
+
+  // ── Overview: KPI tiles + chart cards (built from the rows above) ──
+
+  /** Big-number tiles at the top of the dashboard. */
+  protected readonly kpiTiles = computed<IDashboardKpiTile[]>(() => {
+    const tiles: IDashboardKpiTile[] = [];
+    const approvals = this.approvalPendingRows();
+    const approvalTotal = this.metricTotal(approvals);
+
+    tiles.push({
+      key: 'approvals',
+      label: this.approvalHeading(),
+      icon: ICONS.COMMON.INBOX,
+      tone: 'teal',
+      value: approvalTotal,
+      format: 'number',
+      foot: this.breakdown(approvals, 'Nothing pending'),
+      fill: this.fillPct(approvalTotal, 20),
+      targetId: 'kpm-approvals',
+    });
+
+    const docRows = this.siteDocumentRows();
+    const docTotal = this.siteDocTotal();
+    tiles.push({
+      key: 'docs',
+      label: 'Project docs',
+      icon: ICONS.SITE.BUILDING,
+      tone: 'purple',
+      value: docTotal,
+      format: 'number',
+      foot: this.breakdown(docRows, 'No documents waiting'),
+      fill: this.fillPct(docTotal, 20),
+      targetId: 'kpm-site-docs',
+    });
+
+    const pairs = this.duesPairs();
+    const duesLoading = pairs.some(
+      pair =>
+        pair.inRow.valueLoading === true || pair.outRow.valueLoading === true
+    );
+    const payable = pairs.reduce((sum, pair) => sum + pair.outRow.value, 0);
+    const receivable = pairs.reduce((sum, pair) => sum + pair.inRow.value, 0);
+    tiles.push({
+      key: 'dues',
+      label: 'Total payable',
+      icon: ICONS.PAYROLL.WALLET,
+      tone: 'orange',
+      value: duesLoading ? null : payable,
+      format: 'currency',
+      foot: duesLoading ? '' : `Receivable ${this.shortCurrency(receivable)}`,
+      fill:
+        payable + receivable > 0
+          ? Math.round((payable / (payable + receivable)) * 100)
+          : 0,
+      targetId: 'kpm-dues',
+    });
+
+    if (this.canViewAssetCompliance || this.canViewVehicleCompliance) {
+      const alertRows = this.complianceRows();
+      const alertTotal = this.metricTotal(alertRows);
+      const urgent = alertRows
+        .filter(row => this.isUrgentAlert(row))
+        .reduce((sum, row) => sum + row.value, 0);
+      tiles.push({
+        key: 'alerts',
+        label: 'Compliance alerts',
+        icon: ICONS.COMMON.EXCLAMATION_TRIANGLE,
+        tone: 'red',
+        value: alertTotal,
+        format: 'number',
+        foot:
+          alertTotal === null
+            ? ''
+            : alertTotal === 0
+              ? 'All clear'
+              : `${urgent} overdue · ${alertTotal - urgent} due soon`,
+        fill: this.fillPct(alertTotal, 20),
+        targetId: 'kpm-alerts',
+      });
+    }
+
+    return tiles;
+  });
+
+  /** Approval queues as horizontal bars, scaled to the largest queue. */
+  protected readonly approvalBars = computed(() =>
+    this.withBarPct(this.approvalPendingRows())
+  );
+
+  /** Receivable vs payable, side by side per ledger. */
+  protected readonly duesPairs = computed<IDashboardDuesPair[]>(() => {
+    const pairs: IDashboardDuesPair[] = [];
+    if (this.canViewReceivablesPayables) {
+      const [receivable, payable] = this.buildReceivablesPayables(
+        this.receivablesPayables(),
+        this.receivablesPayablesLoading()
+      );
+      pairs.push({
+        label: 'Contractors / vendors',
+        inRow: receivable,
+        outRow: payable,
+      });
+    }
+    const [expensePayable, expenseReceivable, fuelPayable, fuelReceivable] =
+      this.ledgerBalanceRows();
+    pairs.push(
+      {
+        label: 'Employee expenses',
+        inRow: expenseReceivable,
+        outRow: expensePayable,
+      },
+      { label: 'Fuel', inRow: fuelReceivable, outRow: fuelPayable }
+    );
+    return pairs;
+  });
+
+  protected readonly duesMax = computed(() =>
+    Math.max(
+      1,
+      ...this.duesPairs().flatMap(pair => [pair.inRow.value, pair.outRow.value])
+    )
+  );
+
+  protected readonly duesNet = computed<number | null>(() => {
+    const pairs = this.duesPairs();
+    if (
+      pairs.some(
+        pair =>
+          pair.inRow.valueLoading === true || pair.outRow.valueLoading === true
+      )
+    ) {
+      return null;
+    }
+    return pairs.reduce(
+      (sum, pair) => sum + pair.inRow.value - pair.outRow.value,
+      0
+    );
+  });
+
+  /** Asset + vehicle compliance rows this user may see. */
+  private readonly complianceRows = computed<IDashboardKpmMetricRow[]>(() => [
+    ...(this.canViewAssetCompliance ? this.assetAlertsRows() : []),
+    ...(this.canViewVehicleCompliance ? this.vehicleAlertsRows() : []),
+  ]);
+
+  /** Only alerts that need action, urgent first. */
+  protected readonly activeAlerts = computed(() =>
+    this.complianceRows()
+      .filter(row => !row.valueLoading && row.value > 0)
+      .map(row => ({ row, urgent: this.isUrgentAlert(row) }))
+      .sort(
+        (a, b) =>
+          Number(b.urgent) - Number(a.urgent) || b.row.value - a.row.value
+      )
+  );
+
+  protected readonly alertsLoading = computed(() =>
+    this.complianceRows().some(row => row.valueLoading)
+  );
+
+  protected scrollToCard(id: string): void {
+    document
+      .getElementById(id)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  protected barPct(value: number, max: number): number {
+    return max > 0
+      ? Math.max(value > 0 ? 3 : 0, Math.round((value / max) * 100))
+      : 0;
+  }
+
+  private withBarPct(
+    rows: readonly IDashboardKpmMetricRow[]
+  ): { row: IDashboardKpmMetricRow; pct: number }[] {
+    const max = Math.max(0, ...rows.map(row => row.value));
+    return rows.map(row => ({ row, pct: this.barPct(row.value, max) }));
+  }
+
+  /** "Attendance 5 · Leave 3" from the non-zero rows. */
+  private breakdown(
+    rows: readonly IDashboardKpmMetricRow[],
+    emptyText: string
+  ): string {
+    if (rows.some(row => row.valueLoading)) {
+      return '';
+    }
+    const parts = rows
+      .filter(row => row.value > 0)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 3)
+      .map(row => `${row.label.replace(/ approvals$/i, '')} ${row.value}`);
+    return parts.length ? parts.join(' · ') : emptyText;
+  }
+
+  private fillPct(value: number | null, scale: number): number {
+    return value ? Math.min(100, Math.round((value / scale) * 100)) : 0;
+  }
+
+  private isUrgentAlert(row: IDashboardKpmMetricRow): boolean {
+    return /overdue|expired|lapsed|silent/i.test(row.label);
+  }
+
+  private shortCurrency(value: number): string {
+    return this.indianCurrency.transform(value);
+  }
 
   ngOnInit(): void {
     this.loadApprovalPending();
@@ -464,52 +677,52 @@ export class KpmDashboardComponent implements OnInit {
       icon: string;
       link: IDashboardKpmMetricLink;
     }[] = [
-        {
-          key: 'attendance',
-          icon: ICONS.ATTENDANCE.CHECK_IN,
-          label: 'Attendance approvals',
-          hint: 'Check-ins, regularisation, or corrections awaiting approval',
-          link: this.linkTo(
-            ['/', ROUTE_BASE_PATHS.ATTENDANCE, ROUTES.ATTENDANCE.LIST],
-            this.pendingQuery()
-          ),
-        },
-        {
-          key: 'leave',
-          icon: ICONS.LEAVE.CALENDAR_PLUS,
-          label: 'Leave approvals',
-          hint: 'Leave requests still in the approval workflow',
-          link: this.linkTo(
-            ['/', ROUTE_BASE_PATHS.LEAVE, ROUTES.LEAVE.LIST],
-            this.pendingQuery()
-          ),
-        },
-        {
-          key: 'expense',
-          icon: ICONS.EXPENSE.MONEY,
-          label: 'Expense approvals',
-          hint: 'Submitted expense claims not yet approved or rejected',
-          link: this.linkTo(
-            ['/', ROUTE_BASE_PATHS.EXPENSE, ROUTES.EXPENSE.LEDGER],
-            this.pendingQuery()
-          ),
-        },
-        {
-          key: 'fuel',
-          icon: ICONS.EXPENSE.CAR,
-          label: 'Fuel expense approvals',
-          hint: 'Vehicle fuel entries pending approval',
-          link: this.linkTo(
-            [
-              '/',
-              ROUTE_BASE_PATHS.TRANSPORT,
-              ROUTE_BASE_PATHS.FUEL,
-              ROUTES.FUEL.LEDGER,
-            ],
-            this.pendingQuery()
-          ),
-        },
-      ];
+      {
+        key: 'attendance',
+        icon: ICONS.ATTENDANCE.CHECK_IN,
+        label: 'Attendance approvals',
+        hint: 'Check-ins, regularisation, or corrections awaiting approval',
+        link: this.linkTo(
+          ['/', ROUTE_BASE_PATHS.ATTENDANCE, ROUTES.ATTENDANCE.LIST],
+          this.pendingQuery()
+        ),
+      },
+      {
+        key: 'leave',
+        icon: ICONS.LEAVE.CALENDAR_PLUS,
+        label: 'Leave approvals',
+        hint: 'Leave requests still in the approval workflow',
+        link: this.linkTo(
+          ['/', ROUTE_BASE_PATHS.LEAVE, ROUTES.LEAVE.LIST],
+          this.pendingQuery()
+        ),
+      },
+      {
+        key: 'expense',
+        icon: ICONS.EXPENSE.MONEY,
+        label: 'Expense approvals',
+        hint: 'Submitted expense claims not yet approved or rejected',
+        link: this.linkTo(
+          ['/', ROUTE_BASE_PATHS.EXPENSE, ROUTES.EXPENSE.LEDGER],
+          this.pendingQuery()
+        ),
+      },
+      {
+        key: 'fuel',
+        icon: ICONS.EXPENSE.CAR,
+        label: 'Fuel expense approvals',
+        hint: 'Vehicle fuel entries pending approval',
+        link: this.linkTo(
+          [
+            '/',
+            ROUTE_BASE_PATHS.TRANSPORT,
+            ROUTE_BASE_PATHS.FUEL,
+            ROUTES.FUEL.LEDGER,
+          ],
+          this.pendingQuery()
+        ),
+      },
+    ];
 
     return rows.map(row => {
       const value = this.pendingCount(data, row.key);
@@ -521,9 +734,7 @@ export class KpmDashboardComponent implements OnInit {
         value,
         format: EDataType.NUMBER,
         state:
-          value > 0
-            ? EKpmDashboardSeverity.WARN
-            : EKpmDashboardSeverity.NORMAL,
+          value > 0 ? EKpmDashboardSeverity.WARN : EKpmDashboardSeverity.NORMAL,
         valueLoading,
         link: row.link,
       };
@@ -542,55 +753,55 @@ export class KpmDashboardComponent implements OnInit {
       docPath: string;
       hint: string;
     }[] = [
-        {
-          key: 'purchase-orders',
-          label: 'Purchase Orders',
-          icon: ICONS.COMMON.FILE,
-          hint: 'Approval pending',
-          contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
-          docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.PO,
-        },
-        {
-          key: 'jmcs',
-          label: 'JMCs',
-          icon: ICONS.COMMON.LIST,
-          hint: 'Approval pending',
-          contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
-          docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.JMC,
-        },
-        {
-          key: 'invoices',
-          label: 'Invoices',
-          icon: ICONS.COMMON.FILE,
-          hint: 'Approval pending',
-          contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
-          docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.INVOICE,
-        },
-        {
-          key: 'advance-payments',
-          label: 'Advance Payments',
-          icon: ICONS.EXPENSE.MONEY,
-          hint: 'Approval pending',
-          contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
-          docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.ADVANCE_PAYMENT,
-        },
-        {
-          key: 'payment-requests',
-          label: 'Payment Requests',
-          icon: ICONS.PAYMENT.RECORD,
-          hint: 'Approval pending',
-          contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
-          docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.PAYMENT_REQUEST,
-        },
-        {
-          key: 'bank-transfers',
-          label: 'Bank Transfers',
-          icon: ICONS.BANK.ACCOUNT,
-          hint: 'Approval pending',
-          contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
-          docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.BANK_TRANSFER,
-        },
-      ];
+      {
+        key: 'purchase-orders',
+        label: 'Purchase Orders',
+        icon: ICONS.COMMON.FILE,
+        hint: 'Approval pending',
+        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.PO,
+      },
+      {
+        key: 'jmcs',
+        label: 'JMCs',
+        icon: ICONS.COMMON.LIST,
+        hint: 'Approval pending',
+        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.JMC,
+      },
+      {
+        key: 'invoices',
+        label: 'Invoices',
+        icon: ICONS.COMMON.FILE,
+        hint: 'Approval pending',
+        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.INVOICE,
+      },
+      {
+        key: 'advance-payments',
+        label: 'Advance Payments',
+        icon: ICONS.EXPENSE.MONEY,
+        hint: 'Approval pending',
+        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.ADVANCE_PAYMENT,
+      },
+      {
+        key: 'payment-requests',
+        label: 'Payment Requests',
+        icon: ICONS.PAYMENT.RECORD,
+        hint: 'Approval pending',
+        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.PAYMENT_REQUEST,
+      },
+      {
+        key: 'bank-transfers',
+        label: 'Bank Transfers',
+        icon: ICONS.BANK.ACCOUNT,
+        hint: 'Approval pending',
+        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.BANK_TRANSFER,
+      },
+    ];
 
     return rows.map(row => {
       const value = this.pendingCount(data, row.key);
@@ -640,10 +851,10 @@ export class KpmDashboardComponent implements OnInit {
     const source = fromConfig.length
       ? fromConfig
       : (data?.paymentSheets?.byStage ?? []).map(item => ({
-        stage: item.stage,
-        label: item.stage,
-        icon: ICONS.COMMON.FILE,
-      }));
+          stage: item.stage,
+          label: item.stage,
+          icon: ICONS.COMMON.FILE,
+        }));
 
     return source.map(stage => {
       const value =

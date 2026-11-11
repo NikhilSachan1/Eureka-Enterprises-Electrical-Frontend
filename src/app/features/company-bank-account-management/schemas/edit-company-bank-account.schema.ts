@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { CompanyBankAccountUpsertShapeSchema } from './base-company-bank-account.schema';
 
 export const CompanyBankAccountEditRequestSchema =

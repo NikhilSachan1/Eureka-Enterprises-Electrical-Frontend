@@ -1,7 +1,7 @@
 import { transformDateFormat } from '@shared/utility';
 import { EmployeeUpsertShapeSchema } from './base-employee.schema';
 import { EmployeeDetailGetResponseSchema } from './get-employee-detail.schema';
-import z from 'zod';
+import * as z from 'zod';
 
 export const EmployeeEditRequestSchema = EmployeeUpsertShapeSchema.omit({
   basicSalary: true,

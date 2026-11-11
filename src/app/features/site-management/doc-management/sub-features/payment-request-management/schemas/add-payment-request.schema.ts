@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { PaymentRequestUpsertShapeSchema } from './base-payment-request.schema';
 import { roundCurrencyAmount } from '@shared/utility';
 

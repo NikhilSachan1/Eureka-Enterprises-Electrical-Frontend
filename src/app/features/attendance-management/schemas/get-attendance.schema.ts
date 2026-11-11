@@ -5,7 +5,7 @@ import {
   dateField,
 } from '@shared/schemas';
 import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
-import { z } from 'zod';
+import * as z from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
 
 const {

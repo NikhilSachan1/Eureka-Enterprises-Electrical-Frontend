@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { PoUpsertShapeSchema } from './base-po.schema';
 
 export const RejectPoRequestSchema = PoUpsertShapeSchema.pick({

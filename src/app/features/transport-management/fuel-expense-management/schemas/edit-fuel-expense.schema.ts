@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { FuelExpenseUpsertShapeSchema } from './base-fuel-expense.schema';
 import { transformDateFormat } from '@shared/utility';
 

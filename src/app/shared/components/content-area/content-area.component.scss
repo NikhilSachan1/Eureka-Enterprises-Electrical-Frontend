@@ -87,7 +87,25 @@
 
 // Media query optimization
 @media (max-width: 768px) {
+  :host {
+    // dvh tracks the mobile browser toolbar so the page doesn't jump/clip.
+    height: 100dvh;
+  }
+
   .content-area {
     margin-left: 0 !important;
+  }
+}
+
+// Phones: reclaim horizontal space (content-area + page-content + form
+// padding used to eat ~52px per side on a 360px screen).
+@media (max-width: 640px) {
+  .content-area {
+    padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .page-content {
+    padding: 0.5rem;
+    min-height: calc(100dvh - 1rem);
   }
 }

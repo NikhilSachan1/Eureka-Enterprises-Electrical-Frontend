@@ -3,14 +3,11 @@ import { APP_CONFIG } from '@core/config';
 import { API_ROUTES } from '@core/constants';
 import { ApiService, EnvironmentService, LoggerService } from '@core/services';
 import { NotificationService } from '@shared/services';
-import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
-import {
-  deleteToken,
-  getMessaging,
-  getToken,
-  isSupported,
-  Messaging,
-} from 'firebase/messaging';
+// Type-only imports: the Firebase SDK itself is loaded on demand in
+// initialize() so it stays out of the initial bundle.
+import type { Messaging } from 'firebase/messaging';
+
+type FirebaseMessagingModule = typeof import('firebase/messaging');
 
 const FIREBASE_MESSAGING_SW_URL = '/firebase-messaging-sw.js';
 import {
@@ -47,6 +44,7 @@ export class PushNotificationService {
   private readonly notificationService = inject(NotificationService);
 
   private messaging: Messaging | null = null;
+  private firebaseMessaging: FirebaseMessagingModule | null = null;
   private currentToken: string | null = null;
   private initPromise: Promise<boolean> | null = null;
 
@@ -77,20 +75,18 @@ export class PushNotificationService {
       return of(false);
     }
 
+    // Check permission before loading the Firebase SDK, so browsers that
+    // never granted push don't download it on every load.
+    if (
+      typeof Notification === 'undefined' ||
+      Notification.permission !== 'granted'
+    ) {
+      this.syncPermissionState();
+      return of(false);
+    }
+
     return from(this.ensureReady()).pipe(
-      switchMap(ready => {
-        if (!ready) {
-          return of(false);
-        }
-        if (typeof Notification === 'undefined') {
-          return of(false);
-        }
-        if (Notification.permission !== 'granted') {
-          this.syncPermissionState();
-          return of(false);
-        }
-        return this.registerCurrentToken();
-      }),
+      switchMap(ready => (ready ? this.registerCurrentToken() : of(false))),
       catchError(error => {
         this.logger.logUserAction('Push registerIfPermitted failed', error);
         return of(false);
@@ -136,7 +132,9 @@ export class PushNotificationService {
       }),
       catchError(error => {
         this.logger.logUserAction('Push enablePush failed', error);
-        this.notificationService.error('Could not enable browser notifications');
+        this.notificationService.error(
+          'Could not enable browser notifications'
+        );
         return of(false);
       }),
       finalize(() => this._enabling.set(false))
@@ -158,7 +156,9 @@ export class PushNotificationService {
       switchMap(() => of(true)),
       catchError(error => {
         this.logger.logUserAction('Push disablePush failed', error);
-        this.notificationService.error('Could not turn off browser notifications');
+        this.notificationService.error(
+          'Could not turn off browser notifications'
+        );
         return of(false);
       }),
       finalize(() => this._disabling.set(false))
@@ -241,7 +241,7 @@ export class PushNotificationService {
     }
   }
 
-  private async ensureReady(): Promise<boolean> {
+  private ensureReady(): Promise<boolean> {
     if (this.initPromise) {
       return this.initPromise;
     }
@@ -257,16 +257,27 @@ export class PushNotificationService {
       return false;
     }
 
-    const supported = await isSupported().catch(() => false);
-    if (!supported) {
-      this._permissionState.set('unsupported');
-      return false;
-    }
-
     try {
-      const env = this.environmentService.environment;
-      const app = this.getOrInitApp(env.FIREBASE);
-      this.messaging = getMessaging(app);
+      const [firebaseApp, firebaseMessaging] = await Promise.all([
+        import('firebase/app'),
+        import('firebase/messaging'),
+      ]);
+
+      const supported = await firebaseMessaging
+        .isSupported()
+        .catch(() => false);
+      if (!supported) {
+        this._permissionState.set('unsupported');
+        return false;
+      }
+
+      const { FIREBASE } = this.environmentService.environment;
+      const app =
+        firebaseApp.getApps().length > 0
+          ? firebaseApp.getApp()
+          : firebaseApp.initializeApp(FIREBASE);
+      this.firebaseMessaging = firebaseMessaging;
+      this.messaging = firebaseMessaging.getMessaging(app);
       this.syncPermissionState();
       return true;
     } catch (error) {
@@ -288,44 +299,26 @@ export class PushNotificationService {
     );
   }
 
-  private getOrInitApp(config: {
-    apiKey: string;
-    authDomain: string;
-    projectId: string;
-    storageBucket: string;
-    messagingSenderId: string;
-    appId: string;
-  }): FirebaseApp {
-    return getApps().length > 0 ? getApp() : initializeApp(config);
-  }
-
   private registerCurrentToken(): Observable<boolean> {
-    if (!this.messaging) {
+    if (!this.messaging || !this.firebaseMessaging) {
       return of(false);
     }
 
-    const vapidKey = this.environmentService.environment.FIREBASE_VAPID_KEY;
-    const messaging = this.messaging;
-
     return from(this.ensureMessagingServiceWorker()).pipe(
       switchMap(serviceWorkerRegistration =>
-        from(
-          getToken(messaging, {
-            vapidKey,
-            serviceWorkerRegistration,
-          })
-        )
+        from(this.registerInstallationId(serviceWorkerRegistration))
       ),
-      switchMap(token => {
-        if (!token) {
-          this.logger.warn('Push getToken returned empty token');
+      switchMap(fid => {
+        if (!fid) {
+          this.logger.warn('Push register returned no installation ID');
           return of(false);
         }
-        this.currentToken = token;
-        this.logger.logUserAction('Push FCM token obtained', {
-          tokenLength: token.length,
+        this.currentToken = fid;
+        this.logger.logUserAction('Push FCM installation ID obtained', {
+          tokenLength: fid.length,
         });
-        return this.postDevice(token);
+        // The backend sends to an FID via FCM's `fid` target.
+        return this.postDevice(fid);
       }),
       tap(ok => {
         this._isPushActive.set(ok);
@@ -334,11 +327,40 @@ export class PushNotificationService {
         }
       }),
       catchError(error => {
-        this.logger.logUserAction('Push getToken/register failed', error);
+        this.logger.logUserAction('Push register failed', error);
         this._isPushActive.set(false);
         return of(false);
       })
     );
+  }
+
+  /**
+   * Register this browser with FCM by its Firebase Installation ID (FID).
+   * `register()` hands the FID to the `onRegistered` handler before its
+   * promise resolves, so the FID is ready once the await finishes.
+   */
+  private async registerInstallationId(
+    serviceWorkerRegistration: ServiceWorkerRegistration
+  ): Promise<string | null> {
+    if (!this.messaging || !this.firebaseMessaging) {
+      return null;
+    }
+
+    const { messaging } = this;
+    const { register, onRegistered } = this.firebaseMessaging;
+    const vapidKey = this.environmentService.environment.FIREBASE_VAPID_KEY;
+
+    let fid: string | null = null;
+    const stopListening = onRegistered(messaging, value => {
+      fid = value;
+    });
+
+    try {
+      await register(messaging, { vapidKey, serviceWorkerRegistration });
+      return fid;
+    } finally {
+      stopListening();
+    }
   }
 
   /**
@@ -366,7 +388,7 @@ export class PushNotificationService {
         scope: '/',
       }));
 
-    // Wait until a worker is ready so getToken can bind to it.
+    // Wait until a worker is ready so register() can bind to it.
     await navigator.serviceWorker.ready;
     return registration;
   }
@@ -409,11 +431,12 @@ export class PushNotificationService {
   }
 
   private async deleteLocalToken(): Promise<void> {
-    if (!this.messaging) {
+    if (!this.messaging || !this.firebaseMessaging) {
       return;
     }
-    // Pair with getToken (legacy FCM token). unregister() is for FID register().
-    await deleteToken(this.messaging);
+    // Pairs with register(): deletes the FID registration on FCM and also
+    // clears any legacy getToken() details left in local storage.
+    await this.firebaseMessaging.unregister(this.messaging);
   }
 
   private syncPermissionState(): void {

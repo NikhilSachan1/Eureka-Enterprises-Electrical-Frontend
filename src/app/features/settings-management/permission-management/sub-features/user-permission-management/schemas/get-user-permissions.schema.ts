@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { ModulePermissionsBaseSchema } from './base-user-permissions.schema';
 
 export const UserPermissionsGetRequestSchema = z

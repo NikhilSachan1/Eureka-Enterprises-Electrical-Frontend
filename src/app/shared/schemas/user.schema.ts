@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { uuidField } from './common.schema';
 
 export const UserSchema = z.looseObject({

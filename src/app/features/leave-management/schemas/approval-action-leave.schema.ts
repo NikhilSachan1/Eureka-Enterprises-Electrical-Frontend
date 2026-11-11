@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { LeaveBaseSchema } from './base-leave.schema';
 
 const { id, approvalStatus, approvalReason } = LeaveBaseSchema.shape;

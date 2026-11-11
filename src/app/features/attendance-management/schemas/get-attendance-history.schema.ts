@@ -1,5 +1,5 @@
 import { UserSchema } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
 import { makeFieldsNullable } from '@shared/utility/zod.util';
 

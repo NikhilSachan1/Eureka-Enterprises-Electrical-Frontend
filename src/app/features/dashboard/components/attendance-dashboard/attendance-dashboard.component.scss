@@ -24,40 +24,78 @@ $-tx2: var(--text-secondary-color, #64748b);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 0.85rem;
-  margin-bottom: 0.75rem;
+  gap: 1.1rem;
+  margin-bottom: 0.85rem;
   flex-shrink: 0;
-  padding: 0.7rem 0.8rem;
-  border-radius: 0.85rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
   border: 1px solid var(--border-light-color);
-  background: var(--background-paper-color, #f8fafc);
+  background: var(--background-default-color);
 }
 
-.att-board__total {
+// Donut: share of today's people by status; present % in the middle.
+.att-donut {
+  position: relative;
+  flex-shrink: 0;
+  width: 7.5rem;
+  height: 7.5rem;
+}
+
+.att-donut__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  circle {
+    transition: stroke-dasharray 0.5s ease;
+  }
+}
+
+.att-donut__track {
+  stroke: var(--surface-100);
+}
+
+.att-donut__center {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 4.1rem;
-  padding-right: 0.85rem;
-  border-right: 1px solid var(--border-light-color);
+  text-align: center;
 }
 
-.att-board__total-value {
-  font-size: 1.55rem;
-  font-weight: 700;
+.att-donut__pct {
+  font-size: 1.45rem;
+  font-weight: 800;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   color: var(--text-primary-color);
 }
 
-.att-board__total-label {
+.att-donut__sub {
+  max-width: 5rem;
   margin-top: 0.2rem;
-  font-size: 0.65rem;
+  font-size: 0.625rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  line-height: 1.2;
   color: #{$-tx2};
+}
+
+.att-count__dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: 0.35rem;
+  border-radius: 0.15rem;
+  vertical-align: middle;
+  background: var(--att-dot, currentColor);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .att-donut__svg circle {
+    transition: none;
+  }
 }
 
 .att-board__counts {
@@ -72,12 +110,30 @@ $-tx2: var(--text-secondary-color, #64748b);
   flex-direction: column;
   min-width: 0;
 
-  &--success { --att-count: color-mix(in srgb, #047857 70%, var(--text-primary-color)); }
-  &--danger { --att-count: color-mix(in srgb, #b91c1c 70%, var(--text-primary-color)); }
-  &--warning { --att-count: color-mix(in srgb, #b45309 70%, var(--text-primary-color)); }
-  &--purple { --att-count: color-mix(in srgb, #6d28d9 70%, var(--text-primary-color)); }
-  &--info { --att-count: color-mix(in srgb, #1d4ed8 70%, var(--text-primary-color)); }
-  &--neutral { --att-count: var(--text-secondary-color); }
+  &--success {
+    --att-count: color-mix(in srgb, #047857 70%, var(--text-primary-color));
+    --att-dot: #059669;
+  }
+  &--danger {
+    --att-count: color-mix(in srgb, #b91c1c 70%, var(--text-primary-color));
+    --att-dot: #dc2626;
+  }
+  &--warning {
+    --att-count: color-mix(in srgb, #b45309 70%, var(--text-primary-color));
+    --att-dot: #f59e0b;
+  }
+  &--purple {
+    --att-count: color-mix(in srgb, #6d28d9 70%, var(--text-primary-color));
+    --att-dot: #7c3aed;
+  }
+  &--info {
+    --att-count: color-mix(in srgb, #1d4ed8 70%, var(--text-primary-color));
+    --att-dot: #2563eb;
+  }
+  &--neutral {
+    --att-count: var(--text-secondary-color);
+    --att-dot: #94a3b8;
+  }
 }
 
 .att-count__value {
@@ -90,10 +146,8 @@ $-tx2: var(--text-secondary-color, #64748b);
 
 .att-count__label {
   margin-top: 0.1rem;
-  font-size: 0.625rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 500;
   color: #{$-tx2};
   line-height: 1.25;
 }
@@ -269,11 +323,9 @@ $-tx2: var(--text-secondary-color, #64748b);
 .att-status {
   flex-shrink: 0;
   text-align: center;
-  font-size: 0.625rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  padding: 0.32rem 0.55rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
   border-radius: 999px;
   line-height: 1.2;
 

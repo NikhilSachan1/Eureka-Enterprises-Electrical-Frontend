@@ -5,7 +5,7 @@ import {
   uuidField,
 } from '@shared/schemas';
 import { roundCurrencyAmount } from '@shared/utility/number.util';
-import z from 'zod';
+import * as z from 'zod';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 
 export const BankTransferBaseSchema = z.looseObject({

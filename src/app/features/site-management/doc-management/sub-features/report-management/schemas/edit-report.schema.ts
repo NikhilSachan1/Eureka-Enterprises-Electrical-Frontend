@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { ReportUpsertShapeSchema } from './base-report.schema';
 import { transformDateFormat } from '@shared/utility/date-time.util';
 

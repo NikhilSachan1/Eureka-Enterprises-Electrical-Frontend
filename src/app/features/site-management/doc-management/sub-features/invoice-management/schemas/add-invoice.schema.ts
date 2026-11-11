@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { InvoiceUpsertShapeSchema } from './base-invoice.schema';
 import { roundCurrencyAmount } from '@shared/utility';
 import { transformDateFormat } from '@shared/utility/date-time.util';

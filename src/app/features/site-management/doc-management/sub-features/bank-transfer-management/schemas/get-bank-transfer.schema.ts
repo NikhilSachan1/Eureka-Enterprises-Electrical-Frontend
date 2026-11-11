@@ -5,7 +5,7 @@ import {
   isoDateTimeField,
   uuidField,
 } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 
 import { BankTransferBaseSchema } from './base-bank-transfer.schema';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';

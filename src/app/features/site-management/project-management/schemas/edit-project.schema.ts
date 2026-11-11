@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { ProjectUpsertShapeSchema } from './base-project.schema';
 import { transformDateFormat } from '@shared/utility';
 

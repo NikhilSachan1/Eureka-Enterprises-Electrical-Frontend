@@ -5,7 +5,7 @@ import {
   UserSchema,
   uuidField,
 } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 import { VehicleDetailGetBaseResponseSchema } from './get-vehicle-detail.schema';
 import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
 import { VehicleBaseDocumentsSchema } from './base-vehicle.schema';

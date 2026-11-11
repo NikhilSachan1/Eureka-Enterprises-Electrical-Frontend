@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 
 const HolidaysBaseSchema = z.looseObject({
   name: z.string(),

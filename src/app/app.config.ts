@@ -34,6 +34,7 @@ import {
 import {
   CriticalStartupStateService,
   HealthCheckService,
+  PwaInstallService,
   ThemeService,
   TimezoneService,
 } from '@core/services';
@@ -89,6 +90,8 @@ export const appConfig: ApplicationConfig = {
 
     provideAppInitializer(() => {
       inject(ThemeService);
+      // Eager so the one-time `beforeinstallprompt` event is captured.
+      inject(PwaInstallService);
     }),
     provideAppInitializer(() => {
       // Angular ngsw is not used. Unregister leftover workers from older deploys,

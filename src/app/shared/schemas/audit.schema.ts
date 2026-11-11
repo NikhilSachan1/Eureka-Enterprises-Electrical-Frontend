@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 export const AuditSchema = z.object({
   createdBy: z.string().trim().min(1).nullable(),

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 export const SendEmailBankTransferRequestSchema = z.object({
   to: z.array(z.string()).min(1),

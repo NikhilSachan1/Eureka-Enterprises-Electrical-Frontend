@@ -6,10 +6,11 @@ import {
   viewChild,
 } from '@angular/core';
 import { DatePipe, NgStyle } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { APP_PERMISSION } from '@core/constants';
 import { AppPermissionService } from '@core/services';
 import { SEVERITY_STYLES } from '@shared/config';
-import { ICONS } from '@shared/constants';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { KpmDashboardComponent } from '@features/dashboard/components/kpm-dashboard/kpm-dashboard.component';
 import { OpsAttentionDashboardComponent } from '@features/dashboard/components/ops-attention-dashboard/ops-attention-dashboard.component';
 import { AttendanceDashboardComponent } from '@features/dashboard/components/attendance-dashboard/attendance-dashboard.component';
@@ -30,6 +31,7 @@ import { ReceivablesPayablesDashboardComponent } from '../receivables-payables-d
   imports: [
     DatePipe,
     NgStyle,
+    RouterLink,
     KpmDashboardComponent,
     PetroCardWalletDashboardComponent,
     OpsAttentionDashboardComponent,
@@ -53,8 +55,9 @@ export class MainDashboardComponent {
   private readonly authService = inject(AuthService);
   private readonly ledgerSpendSection =
     viewChild<ElementRef<HTMLElement>>('ledgerSpend');
-  private readonly receivablesSection =
-    viewChild<ElementRef<HTMLElement>>('receivablesPayables');
+  private readonly receivablesSection = viewChild<ElementRef<HTMLElement>>(
+    'receivablesPayables'
+  );
 
   protected scrollToSection(sectionId: string): void {
     const target =
@@ -71,9 +74,10 @@ export class MainDashboardComponent {
   }
 
   protected readonly ICONS = ICONS;
-  protected readonly canViewLedgerSpend = this.appPermissionService.hasPermission(
-    APP_PERMISSION.UI.DASHBOARD.LEDGER_SPEND
-  );
+  protected readonly canViewLedgerSpend =
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.UI.DASHBOARD.LEDGER_SPEND
+    );
   protected readonly canViewReceivablesPayables =
     this.appPermissionService.hasPermission(
       APP_PERMISSION.DASHBOARD.RECEIVABLES_PAYABLES
@@ -82,9 +86,22 @@ export class MainDashboardComponent {
     this.appPermissionService.hasPermission(
       APP_PERMISSION.DASHBOARD.PETRO_CARD_WALLET
     );
-  protected readonly showApplyAttendance = this.appPermissionService.hasPermission(
-    APP_PERMISSION.ATTENDANCE.APPLY
+  protected readonly showApplyAttendance =
+    this.appPermissionService.hasPermission(APP_PERMISSION.ATTENDANCE.APPLY);
+  protected readonly canAddExpense = this.appPermissionService.hasPermission(
+    APP_PERMISSION.EXPENSE.ADD
   );
+  /** Quick actions in the hero, for field staff. */
+  protected readonly markAttendanceLink = [
+    '/',
+    ROUTE_BASE_PATHS.ATTENDANCE,
+    ROUTES.ATTENDANCE.APPLY,
+  ];
+  protected readonly addExpenseLink = [
+    '/',
+    ROUTE_BASE_PATHS.EXPENSE,
+    ROUTES.EXPENSE.ADD,
+  ];
   protected readonly showPeopleTime = this.appPermissionService.hasPermission(
     APP_PERMISSION.UI.DASHBOARD.ATTENDANCE_LEAVE
   );

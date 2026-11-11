@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { fileField } from '@shared/schemas';
 
 /** POST assets/:assetMasterId/mark-lost (multipart). */

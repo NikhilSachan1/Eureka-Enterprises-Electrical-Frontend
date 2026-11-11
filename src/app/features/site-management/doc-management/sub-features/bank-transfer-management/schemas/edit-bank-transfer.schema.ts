@@ -1,5 +1,5 @@
 import { transformDateFormat } from '@shared/utility/date-time.util';
-import z from 'zod';
+import * as z from 'zod';
 import { BankTransferUpsertShapeSchema } from './base-bank-transfer.schema';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 

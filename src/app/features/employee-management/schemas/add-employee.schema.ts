@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { EmployeeUpsertShapeSchema } from './base-employee.schema';
 import { uuidField } from '@shared/schemas';
 import { toLowerCase, transformDateFormat } from '@shared/utility';

@@ -1,5 +1,5 @@
 import { UserSchema, uuidField } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 import { makeFieldsNullable } from '@shared/utility';
 import { VendorGetBaseResponseSchema } from './get-vendor.schema';
 

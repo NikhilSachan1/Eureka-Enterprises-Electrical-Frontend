@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { EContractorStatus } from '../types/contractor.enum';
 import { ContractorEditResponseSchema } from './edit-contractor.schema';
 

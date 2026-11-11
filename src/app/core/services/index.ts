@@ -10,3 +10,4 @@ export { AppPermissionService } from './app-permission.service';
 export { NetworkMonitorService } from './network-monitor.service';
 export { CriticalStartupStateService } from './critical-startup-state.service';
 export { HealthCheckService } from './health-check.service';
+export { PwaInstallService } from './pwa-install.service';

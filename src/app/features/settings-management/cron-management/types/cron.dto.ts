@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { CronGetResponseSchema } from '../schemas/get-cron.schema';
 import {
   CronRunRequestSchema,

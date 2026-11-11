@@ -1,5 +1,5 @@
 import { dateField, uuidField } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 
 export const WalletRechargeStatusSchema = z.enum(['PENDING', 'PAID']);
 

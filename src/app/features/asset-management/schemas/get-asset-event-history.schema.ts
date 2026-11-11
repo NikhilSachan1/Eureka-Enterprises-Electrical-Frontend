@@ -5,7 +5,7 @@ import {
   UserSchema,
   uuidField,
 } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 import { AssetDetailGetBaseResponseSchema } from './get-asset-detail.schema';
 import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
 import { AssetBaseDocumentsSchema } from './base-asset.schema';

@@ -12,7 +12,7 @@ import {
   PetroCardLinkResponseSchema,
   PetroCardLinkRequestSchema,
 } from '../schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 
 /*
  * Add Petro Card

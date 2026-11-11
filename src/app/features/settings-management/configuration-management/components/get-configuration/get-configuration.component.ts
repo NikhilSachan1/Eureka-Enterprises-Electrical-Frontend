@@ -291,7 +291,7 @@ export class GetConfigurationComponent {
     if (actionName !== 'addConfiguration') {
       return;
     }
-    this.router.navigateToRoute([
+    void this.router.navigateToRoute([
       ROUTE_BASE_PATHS.SETTINGS.BASE,
       ROUTE_BASE_PATHS.SETTINGS.CONFIGURATION.BASE,
       ROUTES.SETTINGS.CONFIGURATION.ADD,

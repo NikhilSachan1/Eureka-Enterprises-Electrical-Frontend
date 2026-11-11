@@ -5,7 +5,7 @@ import {
   UserSchema,
   uuidField,
 } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 import { FuelExpenseBaseSchema } from './base-fuel-expense.schema';
 import {
   makeFieldsNullable,

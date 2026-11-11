@@ -1,7 +1,14 @@
+// Receivable = brand teal, payable = orange — same meaning as the overview chart.
 .ledger-panel__lead-icon--receivable {
-  background: linear-gradient(145deg, #4ade80, #15803d);
+  color: color-mix(in srgb, var(--primary-color) 80%, var(--text-primary-color));
+  background: color-mix(in srgb, var(--primary-color) 13%, transparent);
 }
 
 .ledger-panel__lead-icon--payable {
-  background: linear-gradient(145deg, #fdba74, #c2410c);
+  color: #c2410c;
+  background: color-mix(in srgb, #ea580c 14%, transparent);
+}
+
+:host-context(.dark-theme) .ledger-panel__lead-icon--payable {
+  color: #fdba74;
 }

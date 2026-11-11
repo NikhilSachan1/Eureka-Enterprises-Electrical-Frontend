@@ -1,5 +1,5 @@
 import { onlyDateStringField, UserSchema, uuidField } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 import { VehicleServiceBaseSchema } from './base-vehicle-service.schema';
 import { makeFieldsNullable } from '@shared/utility';
 

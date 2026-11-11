@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { ECompanyStatus } from '../types/company.enum';
 import { CompanyEditResponseSchema } from './edit-company.schema';
 

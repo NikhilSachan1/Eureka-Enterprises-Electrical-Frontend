@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { roundCurrencyAmount } from '@shared/utility';
 
 export const ApprovePaymentRequestRequestSchema = z

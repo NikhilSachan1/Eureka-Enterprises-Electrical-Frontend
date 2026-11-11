@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { PoUpsertShapeSchema } from './base-po.schema';
 import { transformDateFormat } from '@shared/utility/date-time.util';
 
@@ -10,7 +10,8 @@ export const EditPoRequestSchema = PoUpsertShapeSchema.omit({
 })
   .strict()
   .transform(data => {
-    const isSystemGenerated = Array.isArray(data.items) && data.items.length > 0;
+    const isSystemGenerated =
+      Array.isArray(data.items) && data.items.length > 0;
 
     if (isSystemGenerated) {
       return {

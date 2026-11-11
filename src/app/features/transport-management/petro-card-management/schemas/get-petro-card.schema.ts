@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { AuditSchema, FilterSchema, UserSchema } from '@shared/schemas';
 import { PetroCardBaseSchema } from './base-petro-card.schema';
 import { makeFieldsNullable } from '@shared/utility';

@@ -1,5 +1,5 @@
 import { FilterSchema, uuidField } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 

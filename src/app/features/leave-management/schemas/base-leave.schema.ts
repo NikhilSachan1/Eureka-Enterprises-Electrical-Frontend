@@ -5,7 +5,7 @@ import {
   UserSchema,
   uuidField,
 } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 import { EApprovalStatus, EEntrySourceType, EEntryType } from '@shared/types';
 import { makeFieldsNullable } from '@shared/utility';
 

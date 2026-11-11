@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { PaymentSheetItemInputSchema } from './payment-sheet-item.schema';
 
 export const AddPaymentSheetItemsRequestSchema = z

@@ -1,6 +1,6 @@
 import { replaceTextWithSeparator, toLowerCase } from '@shared/utility';
 import { RoleUpsertShapeSchema } from './base-role.schema';
-import { z } from 'zod';
+import * as z from 'zod';
 
 export const RoleAddRequestSchema = RoleUpsertShapeSchema.strict().transform(
   data => {

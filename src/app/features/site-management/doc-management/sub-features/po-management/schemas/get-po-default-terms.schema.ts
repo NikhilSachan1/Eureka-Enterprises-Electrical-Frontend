@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 export const PoDefaultTermsGetResponseSchema = z.object({
   content: z.string(),

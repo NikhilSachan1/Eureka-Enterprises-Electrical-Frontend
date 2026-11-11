@@ -90,6 +90,29 @@ export interface IDashboardKpmMetricRow {
   readonly gapKey?: string;
 }
 
+/** Big-number tile at the top of the dashboard. */
+export interface IDashboardKpiTile {
+  readonly key: string;
+  readonly label: string;
+  readonly icon: string;
+  readonly tone: 'teal' | 'blue' | 'orange' | 'red' | 'purple';
+  /** `null` while its API is still loading. */
+  readonly value: number | null;
+  readonly format: 'number' | 'currency';
+  readonly foot: string;
+  /** 0–100, drawn as the small bar under the number. */
+  readonly fill: number;
+  /** Id of the card the tile scrolls to. */
+  readonly targetId: string;
+}
+
+/** One ledger's receivable and payable, drawn as a pair of bars. */
+export interface IDashboardDuesPair {
+  readonly label: string;
+  readonly inRow: IDashboardKpmMetricRow;
+  readonly outRow: IDashboardKpmMetricRow;
+}
+
 /** Row for a Birthday, Anniversary or Holiday in the dashboard. */
 export interface IDashboardCelebrationRow {
   readonly label: string;

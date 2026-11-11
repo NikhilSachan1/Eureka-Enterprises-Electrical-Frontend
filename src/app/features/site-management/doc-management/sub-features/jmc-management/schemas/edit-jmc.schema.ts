@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { JmcUpsertShapeSchema } from './base-jmc.schema';
 import { transformDateFormat } from '@shared/utility/date-time.util';
 

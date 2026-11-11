@@ -1,5 +1,5 @@
 import { onlyDateStringField, uuidField } from '@shared/schemas';
-import { z } from 'zod';
+import * as z from 'zod';
 
 const SiteOverviewCompanySchema = z.looseObject({
   id: uuidField,

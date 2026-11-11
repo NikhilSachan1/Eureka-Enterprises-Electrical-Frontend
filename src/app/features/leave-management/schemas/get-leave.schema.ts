@@ -1,5 +1,5 @@
 import { dateField, FilterSchema, uuidField } from '@shared/schemas';
-import z from 'zod';
+import * as z from 'zod';
 import { LeaveBaseSchema } from './base-leave.schema';
 import { FinancialYearService } from '@core/services/financial-year.service';
 import { toTitleCase, transformDateFormat } from '@shared/utility';

@@ -1,5 +1,5 @@
 import { transformDateFormat } from '@shared/utility/date-time.util';
-import z from 'zod';
+import * as z from 'zod';
 import { BookPaymentUpsertShapeSchema } from './base-book-payment.schema';
 
 export const AddBookPaymentRequestSchema =

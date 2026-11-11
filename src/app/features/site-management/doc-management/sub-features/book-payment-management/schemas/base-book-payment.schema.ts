@@ -1,6 +1,6 @@
 import { dateField, uuidField } from '@shared/schemas';
 import { roundCurrencyAmount } from '@shared/utility/number.util';
-import z from 'zod';
+import * as z from 'zod';
 
 const bookPaymentMoneyFieldSchema = z.coerce
   .number()

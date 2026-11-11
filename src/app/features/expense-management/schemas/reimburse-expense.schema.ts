@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { EExpenseCategory } from '../types/expense.enum';
 import { ExpenseUpsertShapeSchema } from './base-expense.schema';
 import { uuidField } from '@shared/schemas';

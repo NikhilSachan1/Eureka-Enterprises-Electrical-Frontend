@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { VehicleBaseSchema } from './base-vehicle.schema';
 import { fileField, uuidField } from '@shared/schemas';
 
