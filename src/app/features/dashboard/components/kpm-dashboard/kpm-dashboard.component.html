@@ -1,106 +1,278 @@
 @let config = APP_CONFIG.NUMBER_FORMATS;
 
 @if (showKpmCards) {
-<div
-  class="kpm-grid"
-  role="region"
-  aria-label="Key metrics at a glance"
->
-  <!-- ── Pending Approvals ───────────────────────────── -->
-  <div class="kpm-card kpm-card--pending-people">
-    <div class="kpm-card__header">
-      <div class="kpm-card__header-lead">
-        <span
-          [class]="ICONS.COMMON.INBOX + ' kpm-card__hicon'"
-          aria-hidden="true"
-        ></span>
-        <span class="kpm-card__htitle">{{ approvalHeading() }}</span>
-      </div>
-    </div>
-    <div class="kpm-card__body">
-      @for (row of approvalPendingRows(); track row.label) {
-        <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
+  <div class="kpm-overview">
+    <!-- ── KPI tiles ─────────────────────────────────── -->
+    <section
+      class="kpi-row"
+      aria-label="Key numbers"
+    >
+      @for (tile of kpiTiles(); track tile.key) {
+        <button
+          type="button"
+          [class]="'kpi-tile kpi-tile--' + tile.tone"
+          [attr.aria-label]="tile.label + ' — show details'"
+          (click)="scrollToCard(tile.targetId)"
+        >
+          <span class="kpi-tile__top">
+            <span class="kpi-tile__label">{{ tile.label }}</span>
+            <span
+              class="kpi-tile__icon"
+              aria-hidden="true"
+            >
+              <span [class]="tile.icon"></span>
+            </span>
+          </span>
+          <span
+            class="kpi-tile__value"
+            [attr.aria-busy]="tile.value === null ? 'true' : null"
+          >
+            @if (tile.value === null) {
+              <span
+                [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+                aria-hidden="true"
+              ></span>
+            } @else if (tile.format === 'currency') {
+              {{ tile.value | indianCurrency }}
+            } @else {
+              {{ tile.value | number: config.DEFAULT : config.LOCALE }}
+            }
+          </span>
+          <span
+            class="kpi-tile__bar"
+            aria-hidden="true"
+          >
+            <span
+              class="kpi-tile__bar-fill"
+              [style.width.%]="tile.fill"
+            ></span>
+          </span>
+          <span class="kpi-tile__foot">{{ tile.foot }}</span>
+        </button>
       }
-    </div>
-  </div>
+    </section>
 
-  <!-- ── Dues & Balances ─────────────────────────────── -->
-  <div class="kpm-card kpm-card--payments">
-    <div class="kpm-card__header">
-      <div class="kpm-card__header-lead">
-        <span
-          [class]="ICONS.PAYROLL.WALLET + ' kpm-card__hicon'"
-          aria-hidden="true"
-        ></span>
-        <span class="kpm-card__htitle">Dues & Balances</span>
-      </div>
-    </div>
-    <div class="kpm-card__body">
-      @for (row of duesBalanceRows(); track row.label) {
-        <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
-      }
-    </div>
-  </div>
+    <!-- ── Chart cards ───────────────────────────────── -->
+    <div class="chart-row">
+      <!-- Approvals by queue -->
+      <section
+        id="kpm-approvals"
+        class="chart-card"
+        aria-labelledby="kpm-approvals-title"
+      >
+        <header class="chart-card__head">
+          <h2
+            id="kpm-approvals-title"
+            class="chart-card__title"
+          >
+            {{ approvalHeading() }}
+          </h2>
+        </header>
+        <div class="bar-list">
+          @for (bar of approvalBars(); track bar.row.label) {
+            <button
+              type="button"
+              class="bar-list__item"
+              [disabled]="bar.row.valueLoading"
+              (click)="openMetric(bar.row)"
+            >
+              <span class="bar-list__top">
+                <span class="bar-list__label">{{ bar.row.label }}</span>
+                <span class="bar-list__value">
+                  @if (bar.row.valueLoading) {
+                    <span
+                      [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+                      aria-hidden="true"
+                    ></span>
+                  } @else {
+                    {{ bar.row.value | number: config.DEFAULT : config.LOCALE }}
+                  }
+                </span>
+              </span>
+              <span
+                class="bar-track"
+                aria-hidden="true"
+              >
+                <span
+                  class="bar-track__fill bar-track__fill--teal"
+                  [style.width.%]="bar.pct"
+                ></span>
+              </span>
+            </button>
+          }
+        </div>
+      </section>
 
-  <!-- ── Asset calibration renewals ─ -->
-  @if (canViewAssetCompliance) {
-  <div class="kpm-card kpm-card--renewals">
-    <div class="kpm-card__header">
-      <div class="kpm-card__header-lead">
-        <span
-          [class]="ICONS.COMMON.CALENDAR_CLOCK + ' kpm-card__hicon'"
-          aria-hidden="true"
-        ></span>
-        <span class="kpm-card__htitle">Asset Compliance & Renewals</span>
-      </div>
-    </div>
-    <div class="kpm-card__body">
-      @for (row of assetAlertsRows(); track row.label) {
-        <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
-      }
-    </div>
-  </div>
-  }
+      <!-- Receivable vs payable -->
+      <section
+        id="kpm-dues"
+        class="chart-card"
+        aria-labelledby="kpm-dues-title"
+      >
+        <header class="chart-card__head">
+          <h2
+            id="kpm-dues-title"
+            class="chart-card__title"
+          >
+            Receivable vs payable
+          </h2>
+          <span
+            class="chart-legend"
+            aria-hidden="true"
+          >
+            <span class="chart-legend__item">
+              <span class="chart-legend__swatch chart-legend__swatch--in"></span>
+              Receivable
+            </span>
+            <span class="chart-legend__item">
+              <span class="chart-legend__swatch chart-legend__swatch--out"></span>
+              Payable
+            </span>
+          </span>
+        </header>
+        <div class="dues-list">
+          @for (pair of duesPairs(); track pair.label) {
+            <div class="dues-list__group">
+              <span class="dues-list__label">{{ pair.label }}</span>
+              @for (side of [pair.inRow, pair.outRow]; track $index) {
+                <button
+                  type="button"
+                  class="dues-list__bar"
+                  [disabled]="side.valueLoading || !side.link"
+                  [attr.aria-label]="side.label + ': ' + (side.value | indianCurrency)"
+                  (click)="openMetric(side)"
+                >
+                  <span
+                    class="bar-track"
+                    aria-hidden="true"
+                  >
+                    <span
+                      class="bar-track__fill"
+                      [class.bar-track__fill--teal]="$index === 0"
+                      [class.bar-track__fill--orange]="$index === 1"
+                      [style.width.%]="barPct(side.value, duesMax())"
+                    ></span>
+                  </span>
+                  <span class="dues-list__value">
+                    @if (side.valueLoading) {
+                      <span
+                        [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+                        aria-hidden="true"
+                      ></span>
+                    } @else {
+                      {{ side.value | indianCurrency }}
+                    }
+                  </span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+        <footer class="chart-card__foot">
+          <span>Net position</span>
+          @if (duesNet(); as net) {
+            <strong [class.is-negative]="net < 0">{{ net | indianCurrency }}</strong>
+          } @else if (duesNet() === 0) {
+            <strong>{{ 0 | indianCurrency }}</strong>
+          } @else {
+            <span
+              [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+              aria-hidden="true"
+            ></span>
+          }
+        </footer>
+      </section>
 
-  <!-- ── Fleet — service & readings ─────────────────── -->
-  @if (canViewVehicleCompliance) {
-  <div class="kpm-card kpm-card--fleet-service">
-    <div class="kpm-card__header">
-      <div class="kpm-card__header-lead">
-        <span
-          [class]="ICONS.COMMON.CAR + ' kpm-card__hicon'"
-          aria-hidden="true"
-        ></span>
-        <span class="kpm-card__htitle">Vehicle Compliance & Renewals</span>
-      </div>
-    </div>
-    <div class="kpm-card__body">
-      @for (row of vehicleAlertsRows(); track row.label) {
-        <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
+      <!-- Compliance alerts -->
+      @if (canViewAssetCompliance || canViewVehicleCompliance) {
+        <section
+          id="kpm-alerts"
+          class="chart-card"
+          aria-labelledby="kpm-alerts-title"
+        >
+          <header class="chart-card__head">
+            <h2
+              id="kpm-alerts-title"
+              class="chart-card__title"
+            >
+              Assets &amp; vehicles — compliance
+            </h2>
+          </header>
+          <div class="alert-list">
+            @for (alert of activeAlerts(); track alert.row.label) {
+              <button
+                type="button"
+                class="alert-list__item"
+                (click)="openMetric(alert.row)"
+              >
+                <span
+                  class="alert-chip"
+                  [class.alert-chip--urgent]="alert.urgent"
+                >
+                  {{ alert.urgent ? 'Overdue' : 'Due soon' }}
+                </span>
+                <span class="alert-list__label">{{ alert.row.label }}</span>
+                <span class="alert-list__value">{{ alert.row.value | number: config.DEFAULT : config.LOCALE }}</span>
+                <span
+                  [class]="ICONS.COMMON.ARROW_RIGHT + ' alert-list__go'"
+                  aria-hidden="true"
+                ></span>
+              </button>
+            } @empty {
+              @if (alertsLoading()) {
+                <p class="chart-card__empty">
+                  <span
+                    [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+                    aria-hidden="true"
+                  ></span>
+                  Loading alerts…
+                </p>
+              } @else {
+                <p class="chart-card__empty chart-card__empty--ok">
+                  <span
+                    [class]="ICONS.STATUS.AVAILABLE"
+                    aria-hidden="true"
+                  ></span>
+                  All clear — nothing due.
+                </p>
+              }
+            }
+          </div>
+        </section>
       }
     </div>
   </div>
-  }
-</div>
 }
 
 <ng-content />
 
 <section
+  id="kpm-site-docs"
   class="work-section work-section--docs"
   aria-labelledby="kpm-site-docs-title"
 >
   <div class="work-section__head">
-    <span class="work-section__icon" aria-hidden="true">
+    <span
+      class="work-section__icon"
+      aria-hidden="true"
+    >
       <span [class]="ICONS.SITE.BUILDING"></span>
     </span>
     <div>
-      <h2 id="kpm-site-docs-title" class="work-section__title">Project Doc approval</h2>
+      <h2
+        id="kpm-site-docs-title"
+        class="work-section__title"
+      >
+        Project Doc approval
+      </h2>
       <p class="work-section__desc">Documents waiting for approval.</p>
     </div>
     <span class="work-section__total">
       @if (siteDocTotal() == null) {
-        <span [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN" aria-hidden="true"></span>
+        <span
+          [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+          aria-hidden="true"
+        ></span>
       } @else {
         {{ siteDocTotal() | number: config.DEFAULT : config.LOCALE }}
       }
@@ -118,16 +290,27 @@
   aria-labelledby="kpm-doc-gaps-title"
 >
   <div class="work-section__head">
-    <span class="work-section__icon" aria-hidden="true">
+    <span
+      class="work-section__icon"
+      aria-hidden="true"
+    >
       <span [class]="ICONS.COMMON.EXCLAMATION_TRIANGLE"></span>
     </span>
     <div>
-      <h2 id="kpm-doc-gaps-title" class="work-section__title">Document gaps</h2>
+      <h2
+        id="kpm-doc-gaps-title"
+        class="work-section__title"
+      >
+        Document gaps
+      </h2>
       <p class="work-section__desc">Missing files and documents that still need a next step.</p>
     </div>
     <span class="work-section__total">
       @if (documentGapTotal() == null) {
-        <span [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN" aria-hidden="true"></span>
+        <span
+          [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+          aria-hidden="true"
+        ></span>
       } @else {
         {{ documentGapTotal() | number: config.DEFAULT : config.LOCALE }}
       }
@@ -176,35 +359,49 @@
 </section>
 
 @if (showPaymentSheets) {
-<section
-  class="work-section work-section--sheets"
-  aria-labelledby="kpm-payment-sheets-title"
->
-  <div class="work-section__head">
-    <span class="work-section__icon" aria-hidden="true">
-      <span [class]="ICONS.COMMON.FILE"></span>
-    </span>
-    <div>
-      <h2 id="kpm-payment-sheets-title" class="work-section__title">Payment sheet approvals</h2>
-      <p class="work-section__desc">Sheets waiting at each stage.</p>
+  <section
+    class="work-section work-section--sheets"
+    aria-labelledby="kpm-payment-sheets-title"
+  >
+    <div class="work-section__head">
+      <span
+        class="work-section__icon"
+        aria-hidden="true"
+      >
+        <span [class]="ICONS.COMMON.FILE"></span>
+      </span>
+      <div>
+        <h2
+          id="kpm-payment-sheets-title"
+          class="work-section__title"
+        >
+          Payment sheet approvals
+        </h2>
+        <p class="work-section__desc">Sheets waiting at each stage.</p>
+      </div>
+      <span class="work-section__total">
+        @if (paymentSheetTotal() == null) {
+          <span
+            [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+            aria-hidden="true"
+          ></span>
+        } @else {
+          {{ paymentSheetTotal() | number: config.DEFAULT : config.LOCALE }}
+        }
+      </span>
     </div>
-    <span class="work-section__total">
-      @if (paymentSheetTotal() == null) {
-        <span [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN" aria-hidden="true"></span>
-      } @else {
-        {{ paymentSheetTotal() | number: config.DEFAULT : config.LOCALE }}
+    <div class="work-section__grid work-section__grid--sheets">
+      @for (row of paymentSheetRows(); track row.label) {
+        <ng-container *ngTemplateOutlet="statTpl; context: { $implicit: row }"></ng-container>
       }
-    </span>
-  </div>
-  <div class="work-section__grid work-section__grid--sheets">
-    @for (row of paymentSheetRows(); track row.label) {
-      <ng-container *ngTemplateOutlet="statTpl; context: { $implicit: row }"></ng-container>
-    }
-  </div>
-</section>
+    </div>
+  </section>
 }
 
-<ng-template #statTpl let-row>
+<ng-template
+  #statTpl
+  let-row
+>
   <div
     class="stat-tile"
     [class.stat-tile--clickable]="!!row.link && !row.valueLoading"
@@ -230,77 +427,5 @@
       }
     </span>
     <span class="stat-tile__label">{{ row.label }}</span>
-  </div>
-</ng-template>
-
-<!-- ── Shared row template ──────────────────────────── -->
-<ng-template
-  #rowTpl
-  let-row
->
-  <div
-    class="kpm-card__row"
-    [class.kpm-card__row--clickable]="(!!row.link || !!row.gapKey) && !row.valueLoading"
-    [class.kpm-card__row--info]="row.state === KpmRowState.INFO"
-    [class.kpm-card__row--warn]="row.state === KpmRowState.WARN"
-    [class.kpm-card__row--alert]="row.state === KpmRowState.ALERT"
-    [class.kpm-card__row--success]="row.state === KpmRowState.SUCCESS"
-    [attr.role]="row.link || row.gapKey ? 'link' : null"
-    [attr.tabindex]="(row.link || row.gapKey) && !row.valueLoading ? 0 : null"
-    [attr.aria-label]="row.link || row.gapKey ? 'Open ' + row.label : null"
-    (click)="openMetric(row)"
-    (keydown.enter)="openMetric(row)"
-    (keydown.space)="$event.preventDefault(); openMetric(row)"
-  >
-    <span
-      [class]="row.icon + ' kpm-card__ricon'"
-      aria-hidden="true"
-    ></span>
-
-    <span class="kpm-card__rcontent">
-      <span class="kpm-card__rtop">
-        <span class="kpm-card__rlabel-main">{{ row.label }}</span>
-        <span class="kpm-card__rvalue-stack">
-          @let isLargeAmount = row.format === 'currency' && (row.value >= 100000 || row.value <= -100000);
-          <span
-            class="kpm-card__rvalue"
-            [attr.aria-busy]="row.valueLoading ? 'true' : null"
-            [attr.title]="isLargeAmount ? (row.value | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT) : null"
-          >
-            @if (row.valueLoading) {
-              <span
-                [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN + ' kpm-card__rvalue-loader'"
-                aria-hidden="true"
-              ></span>
-              <span class="kpm-card__sr-only">Loading value</span>
-            } @else if (isLargeAmount) {
-              <!-- Lakh / crore figures stay short so the label column keeps its width; full amount on hover. -->
-              {{ row.value | indianCurrency }}
-            } @else if (row.format === 'currency') {
-              {{ row.value | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
-            } @else {
-              {{ row.value | number: config.DEFAULT : config.LOCALE }}
-            }
-          </span>
-          @if (row.valueHint) {
-            <span class="kpm-card__rvalue-hint">{{ row.valueHint }}</span>
-          }
-        </span>
-        @if ((row.link || row.gapKey) && !row.valueLoading) {
-          <span
-            [class]="ICONS.COMMON.ARROW_RIGHT + ' kpm-card__rarrow'"
-            aria-hidden="true"
-          ></span>
-        }
-      </span>
-      @if (row.hint) {
-        <span
-          class="kpm-card__rhint"
-          [attr.title]="row.hint"
-        >
-          {{ row.hint }}
-        </span>
-      }
-    </span>
   </div>
 </ng-template>

@@ -3,30 +3,28 @@
 }
 
 :host:not(:empty) {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
+// Flat card like the KPI tiles: tinted icon chip, big balance, accent turns orange when low.
 .petro-wallet-dash {
-  --pw-accent: #0f766e;
-  --pw-accent-dark: #115e59;
+  --pw-accent: var(--primary-color);
+  --pw-ink: color-mix(in srgb, var(--primary-color) 80%, var(--text-primary-color));
   position: relative;
   overflow: hidden;
-  border-radius: 1rem;
+  border-radius: 0.875rem;
   border: 1px solid var(--border-light-color);
-  box-shadow:
-    0 1px 2px rgb(0 0 0 / 0.04),
-    0 8px 28px -12px rgb(0 0 0 / 0.12);
-  background: var(--background-default-color);
-
-  &--healthy {
-    --pw-accent: #0f766e;
-    --pw-accent-dark: #115e59;
-  }
+  box-shadow: none;
+  background: var(--background-paper-color);
 
   &--low {
-    --pw-accent: #b45309;
-    --pw-accent-dark: #92400e;
+    --pw-accent: #ea580c;
+    --pw-ink: #c2410c;
   }
+}
+
+:host-context(.dark-theme) .petro-wallet-dash--low {
+  --pw-ink: #fdba74;
 }
 
 :host ::ng-deep .petro-wallet-dash > .p-card-body {
@@ -34,108 +32,83 @@
 }
 
 .petro-wallet-dash__shell {
-  min-height: 8.5rem;
+  min-height: 0;
 }
 
 .petro-wallet-dash__spotlight {
-  position: relative;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
-  gap: 1.1rem;
-  padding: 1.25rem 1.4rem 1.35rem;
-  color: #fff;
-  background:
-    radial-gradient(
-      120% 90% at 100% 0%,
-      rgb(255 255 255 / 0.16),
-      transparent 55%
-    ),
-    linear-gradient(145deg, var(--pw-accent) 0%, var(--pw-accent-dark) 100%);
-  overflow: hidden;
-
-  &::after {
-    content: "";
-    position: absolute;
-    inset: auto -20% -45% 35%;
-    height: 9rem;
-    border-radius: 50%;
-    background: rgb(255 255 255 / 0.08);
-    pointer-events: none;
-  }
+  gap: 1rem 1.5rem;
+  padding: 1.15rem 1.25rem;
+  color: var(--text-primary-color);
 }
 
 .petro-wallet-dash__spotlight-top {
-  position: relative;
-  z-index: 1;
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-width: 0;
 }
 
 .petro-wallet-dash__badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.35rem;
-  height: 2.35rem;
-  border-radius: 0.75rem;
-  background: rgb(255 255 255 / 0.16);
-  border: 1px solid rgb(255 255 255 / 0.22);
-  backdrop-filter: blur(4px);
-  font-size: 1.05rem;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
   flex-shrink: 0;
+  font-size: 0.95rem;
+  color: var(--pw-ink);
+  background: color-mix(in srgb, var(--pw-accent) 13%, transparent);
 }
 
 .petro-wallet-dash__titles {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.1rem;
   min-width: 0;
   flex: 1 1 auto;
 }
 
 .petro-wallet-dash__eyebrow {
-  font-size: 0.78rem;
+  font-size: 1rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.92;
+  color: var(--text-primary-color);
 }
 
 .petro-wallet-dash__label {
-  font-size: 0.95rem;
-  font-weight: 600;
-  opacity: 0.95;
+  font-size: 0.8125rem;
+  color: var(--text-secondary-color);
 }
 
 .petro-wallet-dash__action {
   flex-shrink: 0;
-  margin-left: auto;
+  margin-left: 0.5rem;
 }
 
 .petro-wallet-dash__hero {
-  position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  align-items: flex-end;
+  gap: 0.15rem;
+  text-align: right;
 }
 
 .petro-wallet-dash__amount {
-  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-size: 1.85rem;
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 1px 0 rgb(0 0 0 / 0.08);
+  color: var(--pw-ink);
 }
 
 .petro-wallet-dash__amount-note {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   line-height: 1.35;
-  opacity: 0.88;
-  max-width: 22rem;
+  color: var(--text-secondary-color);
 }
 
 .petro-wallet-dash__loading,
@@ -143,22 +116,14 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  min-height: 2.75rem;
-  font-size: 0.95rem;
-  font-weight: 500;
+  min-height: 2.25rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary-color);
 }
 
-.petro-wallet-dash__error {
-  opacity: 0.95;
-}
-
-:host ::ng-deep .petro-wallet-dash__action .p-button {
-  color: #fff;
-  border-color: rgb(255 255 255 / 0.45);
-  background: rgb(255 255 255 / 0.12);
-}
-
-:host ::ng-deep .petro-wallet-dash__action .p-button:hover {
-  background: rgb(255 255 255 / 0.2);
-  border-color: rgb(255 255 255 / 0.65);
+@media (max-width: 640px) {
+  .petro-wallet-dash__hero {
+    align-items: flex-start;
+    text-align: left;
+  }
 }

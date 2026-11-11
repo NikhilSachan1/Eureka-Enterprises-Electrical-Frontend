@@ -167,62 +167,48 @@
 
 .own-leave__ring {
   --used: 0;
-  width: 10.25rem;
-  height: 10.25rem;
+  width: 9rem;
+  height: 9rem;
   border-radius: 50%;
   display: grid;
   place-items: center;
   flex-shrink: 0;
+  // Available in the brand colour, used in orange — same ring style as today's attendance.
   background: conic-gradient(
     from -90deg,
-    #059669 0% calc((100 - var(--used)) * 1%),
-    #f59e0b calc((100 - var(--used)) * 1%) 100%
+    var(--primary-color) 0% calc((100 - var(--used)) * 1%),
+    #ea580c calc((100 - var(--used)) * 1%) 100%
   );
-  box-shadow:
-    0 0 0 0.55rem color-mix(in srgb, #10b981 10%, transparent),
-    0 18px 36px -22px rgb(15 23 42 / 0.45);
-}
-
-.own-leave__ring--spent {
-  box-shadow:
-    0 0 0 0.55rem color-mix(in srgb, #f59e0b 14%, transparent),
-    0 18px 36px -22px rgb(15 23 42 / 0.45);
 }
 
 .own-leave__ring--none {
-  background: color-mix(in srgb, var(--border-light-color) 85%, #fff);
-  box-shadow:
-    0 0 0 0.55rem color-mix(in srgb, var(--border-light-color) 35%, transparent),
-    0 18px 36px -22px rgb(15 23 42 / 0.28);
+  background: var(--surface-100);
 }
 
 .own-leave__ring-core {
-  width: 7.55rem;
-  height: 7.55rem;
+  width: 7rem;
+  height: 7rem;
   border-radius: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background: var(--background-paper-color);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border-light-color) 75%, transparent);
 }
 
 .own-leave__ring-value {
-  font-size: 2.15rem;
+  font-size: 1.9rem;
   font-weight: 800;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.04em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   color: var(--text-primary-color);
 }
 
 .own-leave__ring-label {
-  margin-top: 0.3rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--text-secondary-color);
 }
 
@@ -230,7 +216,7 @@
   min-width: 0;
   width: 100%;
   border: 1px solid var(--border-light-color);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   background: var(--background-default-color);
   overflow: hidden;
 }
@@ -247,23 +233,27 @@
 }
 
 .own-leave__fact-icon {
-  width: 2.45rem;
-  height: 2.45rem;
-  border-radius: 0.7rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
-  color: #fff;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .own-leave__fact-icon--allocated {
-  background: linear-gradient(145deg, #60a5fa 0%, #2563eb 100%);
+  color: color-mix(in srgb, var(--primary-color) 80%, var(--text-primary-color));
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
 }
 
 .own-leave__fact-icon--consumed {
-  background: linear-gradient(145deg, #fbbf24 0%, #d97706 100%);
+  color: #c2410c;
+  background: color-mix(in srgb, #ea580c 14%, transparent);
+}
+
+:host-context(.dark-theme) .own-leave__fact-icon--consumed {
+  color: #fdba74;
 }
 
 .own-leave__fact-copy {
@@ -274,10 +264,8 @@
 }
 
 .own-leave__fact-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: 0.8125rem;
+  font-weight: 600;
   color: var(--text-secondary-color);
 }
 

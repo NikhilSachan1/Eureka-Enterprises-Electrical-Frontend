@@ -3,12 +3,12 @@
 }
 
 .pending-strip {
-  margin-bottom: 1.75rem;
+  margin-bottom: 1rem;
 }
 
 .pending-strip__title {
   margin: 0 0 0.75rem;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary-color);
 }
@@ -30,37 +30,44 @@
   align-items: center;
   gap: 0.85rem;
   width: 100%;
-  padding: 1rem 1.15rem;
+  padding: 1.1rem 1.15rem;
   border: 1px solid var(--border-light-color);
-  border-radius: 1rem;
+  border-radius: 0.875rem;
   background: var(--background-paper-color);
-  box-shadow:
-    0 2px 8px -2px rgb(0 0 0 / 0.1),
-    0 1px 3px -1px rgb(0 0 0 / 0.06);
+  box-shadow: none;
+  font: inherit;
   text-align: left;
   cursor: pointer;
   color: inherit;
+  transition: border-color 0.15s ease;
 
   &:hover {
-    background: color-mix(in srgb, #d97706 7%, var(--background-default-color));
+    border-color: color-mix(in srgb, #ea580c 40%, var(--border-light-color));
   }
 
   &:focus-visible {
-    outline: 2px solid color-mix(in srgb, #d97706 55%, transparent);
+    outline: 2px solid #ea580c;
     outline-offset: 2px;
   }
 }
 
 .pending-tile__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.75rem;
-  font-size: 1.1rem;
-  color: #92400e;
-  background: color-mix(in srgb, #d97706 14%, transparent);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  font-size: 0.95rem;
+  color: #c2410c;
+  background: color-mix(in srgb, #ea580c 14%, transparent);
+}
+
+:host-context(.dark-theme) {
+  .pending-tile__icon,
+  .pending-tile__count {
+    color: #fdba74;
+  }
 }
 
 .pending-tile__copy {
@@ -83,10 +90,11 @@
 }
 
 .pending-tile__count {
-  font-size: 1.65rem;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 800;
   line-height: 1;
-  color: #92400e;
+  letter-spacing: -0.03em;
+  color: #c2410c;
   font-variant-numeric: tabular-nums;
 }
 

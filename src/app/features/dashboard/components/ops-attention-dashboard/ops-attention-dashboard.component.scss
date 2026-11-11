@@ -146,7 +146,7 @@
   font-variant-numeric: tabular-nums;
 
   &::before {
-    content: '';
+    content: "";
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 999px;
@@ -184,13 +184,9 @@
   min-height: 12rem;
   max-height: 24rem;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--lane-tone) 22%, var(--border-light-color));
+  border: 1px solid var(--border-light-color);
   border-radius: 0.75rem;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--lane-tone) 6%, var(--background-paper-color)) 0%,
-    var(--background-paper-color) 3rem
-  );
+  background: var(--background-default-color);
 
   // Inside the dashboard's fixed-height tile the lanes take the remaining card height instead.
   :host-context(.dash-bento__tile--fill) & {
@@ -210,19 +206,18 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.7rem 0.85rem 0.5rem;
+  padding: 0.8rem 0.9rem 0.55rem;
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 .ops-lane__title {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--lane-tone) 70%, var(--text-primary-color));
+  color: var(--text-primary-color);
 }
 
 .ops-lane__icon {
@@ -238,8 +233,8 @@
   font-weight: 700;
   text-align: center;
   font-variant-numeric: tabular-nums;
-  color: #fff;
-  background: var(--lane-tone);
+  color: color-mix(in srgb, var(--lane-tone) 75%, var(--text-primary-color));
+  background: color-mix(in srgb, var(--lane-tone) 14%, transparent);
 }
 
 .ops-lane__list {
@@ -267,31 +262,20 @@
   color: var(--text-secondary-color);
 }
 
-// ── Rows: light list, domain colour on the left edge ───────────────────────────
+// ── Rows: light list; the icon chip carries the domain colour ─────────────────
 .ops-row {
   --ops-tone: var(--primary-color);
 
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.55rem 0.5rem 0.55rem 0.75rem;
+  gap: 0.7rem;
+  padding: 0.6rem 0.5rem;
   border-radius: 0.5rem;
   transition: background 0.15s ease;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0.6rem;
-    bottom: 0.6rem;
-    left: 0.2rem;
-    width: 3px;
-    border-radius: 999px;
-    background: var(--ops-tone);
-  }
-
   & + & {
-    border-top: 1px dashed var(--border-light-color);
+    border-top: 1px solid var(--border-light-color);
   }
 
   &:hover {
@@ -316,12 +300,12 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.55rem;
   font-size: 0.8rem;
   color: var(--ops-tone);
-  background: color-mix(in srgb, var(--ops-tone) 12%, transparent);
+  background: color-mix(in srgb, var(--ops-tone) 13%, transparent);
 }
 
 .ops-row__copy {
@@ -362,15 +346,13 @@
 }
 
 .ops-tag {
-  padding: 0.18rem 0.45rem;
+  padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   line-height: 1.2;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
   color: var(--ops-tone);
-  background: color-mix(in srgb, var(--ops-tone) 10%, var(--background-paper-color));
+  background: color-mix(in srgb, var(--ops-tone) 12%, transparent);
 
   &--calibration,
   &--warranty {

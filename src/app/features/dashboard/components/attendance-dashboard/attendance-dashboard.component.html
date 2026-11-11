@@ -28,16 +28,56 @@
           class="att-board"
           aria-label="Today's attendance totals"
         >
-          <div class="att-board__total">
-            <span class="att-board__total-value">
-              {{ st.attendance.total | number: config.DEFAULT : config.LOCALE }}
-            </span>
-            <span class="att-board__total-label">people</span>
-          </div>
+          @if (donut(); as ring) {
+            <div class="att-donut">
+              <svg
+                class="att-donut__svg"
+                viewBox="0 0 100 100"
+                role="img"
+                [attr.aria-label]="ring.label"
+              >
+                <g
+                  transform="rotate(-90 50 50)"
+                  fill="none"
+                  stroke-width="12"
+                >
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="42"
+                    class="att-donut__track"
+                  ></circle>
+                  @for (seg of ring.segments; track seg.key) {
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="42"
+                      [attr.stroke]="seg.color"
+                      [attr.stroke-dasharray]="seg.dash"
+                      [attr.stroke-dashoffset]="seg.offset"
+                    ></circle>
+                  }
+                </g>
+              </svg>
+              <div
+                class="att-donut__center"
+                aria-hidden="true"
+              >
+                <span class="att-donut__pct">{{ ring.presentPct }}%</span>
+                <span class="att-donut__sub">
+                  of {{ st.attendance.total | number: config.DEFAULT : config.LOCALE }} present
+                </span>
+              </div>
+            </div>
+          }
           <div class="att-board__counts">
             @for (cell of summaryCells(); track cell.key) {
               <div [class]="'att-count att-count--' + cell.tone">
                 <span class="att-count__value">
+                  <span
+                    class="att-count__dot"
+                    aria-hidden="true"
+                  ></span>
                   {{ cell.value | number: config.DEFAULT : config.LOCALE }}
                 </span>
                 <span class="att-count__label">{{ cell.label }}</span>
@@ -75,7 +115,9 @@
                 <span
                   class="att-row__avatar"
                   aria-hidden="true"
-                >{{ row.initials }}</span>
+                >
+                  {{ row.initials }}
+                </span>
                 <div class="att-row__body">
                   <div class="att-row__top">
                     <div class="att-row__who">

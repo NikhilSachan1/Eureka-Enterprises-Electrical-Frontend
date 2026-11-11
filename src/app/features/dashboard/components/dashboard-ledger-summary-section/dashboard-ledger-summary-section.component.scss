@@ -18,12 +18,11 @@ $-tx2: var(--text-secondary-color);
 
 :host ::ng-deep .ledger-surface-card {
   @include flex-col-fill;
-  background: var(--background-default-color);
+  background: var(--background-paper-color);
   color: var(--text-primary-color);
-  border: 1px solid color-mix(in srgb, #{$-pri} 12%, #{$-bd});
-  box-shadow:
-    0 1px 2px rgb(15 23 42 / 0.05),
-    0 10px 24px -18px color-mix(in srgb, #{$-pri} 32%, transparent);
+  border: 1px solid #{$-bd};
+  border-radius: 0.875rem;
+  box-shadow: none;
   .p-card-body {
     @include flex-col-fill;
     padding: 0;
@@ -32,7 +31,7 @@ $-tx2: var(--text-secondary-color);
 
 .ledger-section {
   @include flex-col-fill;
-  padding: 0.72rem 1rem 0.88rem;
+  padding: 1.15rem 1.25rem 1.25rem;
 }
 
 .ledger-panel__head,
@@ -54,26 +53,35 @@ $-tx2: var(--text-secondary-color);
 }
 
 .ledger-panel__lead-icon {
-  width: 2.2rem;
-  height: 2.2rem;
-  border-radius: 0.55rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
-  color: #fff;
-  font-size: 1rem;
+  font-size: 0.95rem;
   &--expense {
-    background: linear-gradient(145deg, #a78bfa, #7c3aed);
+    color: #6d28d9;
+    background: color-mix(in srgb, #7c3aed 13%, transparent);
   }
   &--fuel {
-    background: linear-gradient(145deg, #60a5fa, #2563eb);
+    color: #1d4ed8;
+    background: color-mix(in srgb, #2563eb 13%, transparent);
+  }
+}
+
+:host-context(.dark-theme) .ledger-panel__lead-icon {
+  &--expense {
+    color: #c4b5fd;
+  }
+  &--fuel {
+    color: #93c5fd;
   }
 }
 
 .ledger-panel__title {
-  margin: 0 0 0.2rem;
-  font-size: 1.05rem;
+  margin: 0 0 0.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary-color);
 }
@@ -109,40 +117,29 @@ $-tx2: var(--text-secondary-color);
 
 .ledger-balance-card {
   margin: 0;
-  padding: 0.78rem 0.88rem;
-  border-radius: 0.9rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
   border: 1px solid var(--border-light-color);
-  background: radial-gradient(
-    circle at top left,
-    color-mix(in srgb, #{$-pri} 8%, var(--background-paper-color)),
-    var(--background-default-color)
-  );
-  box-shadow: 0 4px 10px -8px rgb(15 23 42 / 0.22);
-  transition:
-    transform 0.14s ease,
-    box-shadow 0.14s ease,
-    border-color 0.14s ease;
+  background: var(--background-default-color);
+  transition: border-color 0.14s ease;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   gap: 0.35rem;
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 22px -18px rgb(30 41 59 / 30%);
+    border-color: color-mix(in srgb, #{$-pri} 30%, var(--border-light-color));
   }
   &__label {
-    margin: 0 0 0.28rem;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
+    margin: 0 0 0.2rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
     line-height: 1.3;
     color: var(--text-secondary-color);
   }
   &__value {
     margin: 0;
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 1.05rem;
+    font-weight: 800;
     line-height: 1.22;
     color: var(--text-primary-color);
     word-break: break-word;
@@ -151,9 +148,8 @@ $-tx2: var(--text-secondary-color);
 }
 
 .ledger-balance-card__label--sub {
-  margin-bottom: 0.18rem;
-  font-size: 0.68rem;
-  letter-spacing: 0.02em;
+  margin-bottom: 0.15rem;
+  font-size: 0.75rem;
 }
 
 .ledger-balance-pair-card {
@@ -184,22 +180,15 @@ $-tx2: var(--text-secondary-color);
   min-width: 0;
 }
 
+// Payable (we pay out) = orange, receivable (we collect) = brand teal — same as the overview chart.
 .ledger-total-card--pay {
-  background: radial-gradient(
-    circle at top left,
-    color-mix(in srgb, #10b981 16%, var(--background-paper-color)),
-    var(--background-default-color)
-  );
-  border-color: color-mix(in srgb, #10b981 32%, var(--border-light-color));
+  background: color-mix(in srgb, #ea580c 7%, var(--background-default-color));
+  border-color: color-mix(in srgb, #ea580c 30%, var(--border-light-color));
 }
 
 .ledger-total-card--collect {
-  background: radial-gradient(
-    circle at top left,
-    color-mix(in srgb, #ef4444 16%, var(--background-paper-color)),
-    var(--background-default-color)
-  );
-  border-color: color-mix(in srgb, #ef4444 32%, var(--border-light-color));
+  background: color-mix(in srgb, #{$-pri} 7%, var(--background-default-color));
+  border-color: color-mix(in srgb, #{$-pri} 30%, var(--border-light-color));
 }
 
 .ledger-skeleton {
@@ -313,22 +302,20 @@ $-tx2: var(--text-secondary-color);
   }
   .ledger-employee-net__tag {
     flex-shrink: 0;
-    font-size: 0.625rem;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: 0.2rem 0.45rem;
-    border-radius: 0.35rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
     line-height: 1.2;
     &--pay {
-      color: color-mix(in srgb, #047857 72%, var(--text-primary-color));
-      background: color-mix(in srgb, #10b981 16%, var(--background-paper-color));
-      border: 1px solid color-mix(in srgb, #10b981 28%, var(--border-light-color));
+      color: color-mix(in srgb, #c2410c 80%, var(--text-primary-color));
+      background: color-mix(in srgb, #ea580c 14%, transparent);
+      border: 0;
     }
     &--recv {
-      color: color-mix(in srgb, #b91c1c 72%, var(--text-primary-color));
-      background: color-mix(in srgb, #ef4444 16%, var(--background-paper-color));
-      border: 1px solid color-mix(in srgb, #ef4444 28%, var(--border-light-color));
+      color: color-mix(in srgb, #{$-pri} 80%, var(--text-primary-color));
+      background: color-mix(in srgb, #{$-pri} 13%, transparent);
+      border: 0;
     }
     &--zero {
       color: var(--text-secondary-color);
