@@ -93,15 +93,8 @@ $-tx2: var(--text-secondary-color);
   color: #{$-tx2};
 }
 
-.ledger-balances-block__grid {
-  display: grid;
-  gap: 0.7rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: stretch;
-}
-
 .ledger-balances-block__totals {
-  margin-top: 0.85rem;
+  margin-top: 0;
 }
 
 .ledger-balances-block__totals-inner {
@@ -150,34 +143,6 @@ $-tx2: var(--text-secondary-color);
 .ledger-balance-card__label--sub {
   margin-bottom: 0.15rem;
   font-size: 0.75rem;
-}
-
-.ledger-balance-pair-card {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.85rem;
-  align-items: start;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0.2rem;
-    bottom: 0.2rem;
-    left: 50%;
-    width: 1px;
-    transform: translateX(-0.5px);
-    background: var(--border-light-color);
-    pointer-events: none;
-  }
-}
-
-.ledger-balance-pair-card__row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  width: 100%;
-  min-width: 0;
 }
 
 // Payable (we pay out) = orange, receivable (we collect) = brand teal — same as the overview chart.
@@ -374,24 +339,6 @@ $-tx2: var(--text-secondary-color);
   .ledger-panel__title {
     font-size: 1rem;
   }
-  .ledger-balances-block__grid {
-    gap: 0.6rem;
-    grid-template-columns: 1fr;
-  }
-
-  .ledger-balance-pair-card {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-
-    &::before {
-      display: none;
-    }
-  }
-
-  .ledger-balances-block__totals {
-    margin-top: 0.7rem;
-  }
-
   .ledger-balances-block__totals-inner {
     flex-direction: column;
     gap: 0.6rem;
