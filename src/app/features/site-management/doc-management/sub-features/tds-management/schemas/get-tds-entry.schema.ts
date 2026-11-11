@@ -91,8 +91,6 @@ export const TdsEntryGetBaseResponseSchema = z.looseObject({
   tdsPaymentId: uuidField.nullable(),
   tdsPayment: z
     .looseObject({
-      bsrCode: z.string().nullable().optional(),
-      challanSerialNumber: z.string().nullable().optional(),
       utrNumber: z.string().nullable(),
       paymentDate: z.string().nullable(),
       fileKey: z.string().nullable(),

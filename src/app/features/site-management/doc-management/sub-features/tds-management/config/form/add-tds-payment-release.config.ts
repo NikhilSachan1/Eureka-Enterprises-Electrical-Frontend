@@ -4,25 +4,16 @@ import { EDataType, IFormConfig, IFormInputFieldsConfig } from '@shared/types';
 import { IAddTdsPaymentReleaseUIFormDto } from '../../types/tds.dto';
 
 /**
- * TDS challan (ITNS 281). BSR code + date of deposit + challan serial no. identify the challan.
+ * TDS challan deposited with the government, identified by the UTR / reference number.
  */
 const ADD_TDS_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddTdsPaymentReleaseUIFormDto> =
   {
-    bsrCode: {
+    utrNumber: {
       fieldType: EDataType.TEXT,
-      id: 'bsrCode',
-      fieldName: 'bsrCode',
-      label: 'BSR Code',
-      placeholder: 'e.g. 0510308',
-      validators: [Validators.required, Validators.maxLength(20)],
-    },
-    challanSerialNumber: {
-      fieldType: EDataType.TEXT,
-      id: 'challanSerialNumber',
-      fieldName: 'challanSerialNumber',
-      label: 'Challan Serial No.',
-      placeholder: 'e.g. 00123',
-      validators: [Validators.required, Validators.maxLength(20)],
+      id: 'utrNumber',
+      fieldName: 'utrNumber',
+      label: 'UTR / Reference No.',
+      validators: [Validators.required, Validators.maxLength(100)],
     },
     paymentDate: {
       fieldType: EDataType.DATE,
@@ -34,13 +25,6 @@ const ADD_TDS_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddTds
         touchUI: false,
       },
       validators: [Validators.required],
-    },
-    utrNumber: {
-      fieldType: EDataType.TEXT,
-      id: 'utrNumber',
-      fieldName: 'utrNumber',
-      label: 'Bank Reference / UTR (optional)',
-      validators: [Validators.maxLength(100)],
     },
     paymentAttachment: {
       fieldType: EDataType.ATTACHMENTS,
