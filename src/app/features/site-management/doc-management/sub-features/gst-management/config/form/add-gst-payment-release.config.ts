@@ -1,10 +1,18 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
 import { EDataType, IFormConfig, IFormInputFieldsConfig } from '@shared/types';
+import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { IAddGstPaymentReleaseUIFormDto } from '../../types/gst.dto';
 
-const ADD_GST_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddGstPaymentReleaseUIFormDto> =
-  {
+/**
+ * Settle held GST. Purchase: we release it to the vendor. Sale: the client pays it to us.
+ */
+function buildFieldsConfig(
+  partyType: EDocContext
+): IFormInputFieldsConfig<IAddGstPaymentReleaseUIFormDto> {
+  const isPurchase = partyType === EDocContext.PURCHASE;
+
+  return {
     utrNumber: {
       fieldType: EDataType.TEXT,
       id: 'utrNumber',
@@ -16,7 +24,7 @@ const ADD_GST_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddGst
       fieldType: EDataType.DATE,
       id: 'paymentDate',
       fieldName: 'paymentDate',
-      label: 'Payment Date',
+      label: isPurchase ? 'Released On' : 'Received On',
       dateConfig: {
         maxDate: new Date(),
         touchUI: false,
@@ -27,7 +35,7 @@ const ADD_GST_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddGst
       fieldType: EDataType.ATTACHMENTS,
       id: 'paymentAttachment',
       fieldName: 'paymentAttachment',
-      label: 'Payment proof',
+      label: isPurchase ? 'Release proof' : 'Receipt proof',
       fileConfig: {
         fileLimit: 1,
         acceptFileTypes: [
@@ -43,8 +51,10 @@ const ADD_GST_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddGst
       label: 'Remarks',
     },
   };
+}
 
-export const ADD_GST_PAYMENT_RELEASE_FORM_CONFIG: IFormConfig<IAddGstPaymentReleaseUIFormDto> =
-  {
-    fields: ADD_GST_PAYMENT_RELEASE_FORM_FIELDS_CONFIG,
-  };
+export function buildAddGstPaymentReleaseFormConfig(
+  partyType: EDocContext
+): IFormConfig<IAddGstPaymentReleaseUIFormDto> {
+  return { fields: buildFieldsConfig(partyType) };
+}

@@ -3,40 +3,69 @@ import {
   REJECT_CONFIRMATION_DIALOG_CONFIG,
 } from '@shared/config';
 import { EButtonActionType, IDialogActionConfig } from '@shared/types';
+import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { AddTdsPaymentReleaseComponent } from '../../components/add-tds-payment-release/add-tds-payment-release.component';
 import { VerifyTdsEntryComponent } from '../../components/verify-tds-entry/verify-tds-entry.component';
 import { RevertTdsEntryComponent } from '../../components/revert-tds-entry/revert-tds-entry.component';
 
-export const TDS_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
-  [EButtonActionType.PAID]: {
-    dialogConfig: {
-      header: 'Release TDS payment?',
-      message: 'Record TDS payment release for the selected register entries?',
-      labels: {
-        actionWord: 'release payment for',
-        singleLabel: 'Release Payment',
-        bulkLabel: 'Release Payment',
-      },
+const CHALLAN_CONFIG: IDialogActionConfig = {
+  dialogConfig: {
+    header: 'Record TDS challan?',
+    message:
+      'Record the challan (ITNS 281) with which the TDS deducted from these vendor payments was deposited with the government.',
+    labels: {
+      actionWord: 'record the TDS challan for',
+      singleLabel: 'Record Challan',
+      bulkLabel: 'Record Challan',
     },
-    dynamicComponent: AddTdsPaymentReleaseComponent,
   },
+  dynamicComponent: AddTdsPaymentReleaseComponent,
+};
 
-  [EButtonActionType.APPROVE]: {
+const VERIFY_CONFIG: Record<EDocContext, IDialogActionConfig> = {
+  [EDocContext.PURCHASE]: {
     dialogConfig: {
       ...APPROVE_CONFIRMATION_DIALOG_CONFIG,
-      header: 'Approve TDS entry?',
-      message: 'Mark this register entry as verified for TDS filing?',
+      header: 'Verify in 26Q?',
+      message:
+        'Confirm this deduction is reported in our filed 26Q return (and Form 16A is issued to the vendor).',
     },
     dynamicComponent: VerifyTdsEntryComponent,
   },
-
-  [EButtonActionType.REJECT]: {
+  [EDocContext.SALES]: {
     dialogConfig: {
-      ...REJECT_CONFIRMATION_DIALOG_CONFIG,
-      header: 'Revert verification?',
+      ...APPROVE_CONFIRMATION_DIALOG_CONFIG,
+      header: 'Verify in Form 26AS?',
       message:
-        'Set this entry back to pending verification? You can approve it again later.',
+        'Confirm the TDS the client deducted is credited against our PAN in Form 26AS.',
     },
-    dynamicComponent: RevertTdsEntryComponent,
+    dynamicComponent: VerifyTdsEntryComponent,
   },
 };
+
+const REVERT_CONFIG: IDialogActionConfig = {
+  dialogConfig: {
+    ...REJECT_CONFIRMATION_DIALOG_CONFIG,
+    header: 'Revert verification?',
+    message:
+      'Set this entry back to pending verification? A recorded challan stays as it is.',
+  },
+  dynamicComponent: RevertTdsEntryComponent,
+};
+
+/** Dialog for a TDS register action, worded for the side (vendor vs client) of the entry. */
+export function getTdsActionConfig(
+  actionType: string,
+  partyType: EDocContext
+): IDialogActionConfig | undefined {
+  switch (actionType) {
+    case EButtonActionType.PAID:
+      return CHALLAN_CONFIG;
+    case EButtonActionType.APPROVE:
+      return VERIFY_CONFIG[partyType];
+    case EButtonActionType.REJECT:
+      return REVERT_CONFIG;
+    default:
+      return undefined;
+  }
+}

@@ -27,6 +27,11 @@ import { DocWorkspaceContextComponent } from '@features/site-management/doc-mana
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import {
+  getGstSettlementLabel,
+  getGstVerifyPortalName,
+  getVerificationLabel,
+} from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
 
 @Component({
   selector: 'app-get-gst-entry-detail',
@@ -130,13 +135,55 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
         customTemplateKey: 'gstEntryDetailAmounts',
         detailTemplateFullRow: false,
       },
+      {
+        label: `Verified in ${getGstVerifyPortalName(record.partyType)}`,
+        value: getVerificationLabel(record.isVerified),
+        type: EDataType.STATUS,
+      },
+      {
+        label: 'Held GST',
+        value: getGstSettlementLabel(record),
+        type: EDataType.STATUS,
+      },
     ];
 
     entryData.push({
-      label: 'Attachment',
+      label: 'Verification proof',
       value: record.verifyFileKey ? [record.verifyFileKey] : [],
       type: EDataType.ATTACHMENTS,
     });
+
+    const settlement = record.gstPayment;
+    if (record.isGstHold && settlement) {
+      const isPurchase = record.partyType === EDocContext.PURCHASE;
+      entryData.push(
+        {
+          label: isPurchase ? 'Released on' : 'Received on',
+          value: settlement.paymentDate,
+          type: EDataType.DATE,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        },
+        {
+          label: 'UTR / Reference No.',
+          value: settlement.utrNumber ?? '—',
+          type: EDataType.TEXT,
+        },
+        ...(isPurchase && settlement.paymentAdviceReferenceNumber
+          ? [
+              {
+                label: 'GST payment advice',
+                value: settlement.paymentAdviceReferenceNumber,
+                type: EDataType.TEXT,
+              },
+            ]
+          : []),
+        {
+          label: isPurchase ? 'Release proof' : 'Receipt proof',
+          value: settlement.fileKey ? [settlement.fileKey] : [],
+          type: EDataType.ATTACHMENTS,
+        }
+      );
+    }
 
     const detail: IDataViewDetails = {
       status: {

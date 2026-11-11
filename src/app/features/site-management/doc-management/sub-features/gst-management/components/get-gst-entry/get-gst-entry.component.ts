@@ -12,6 +12,7 @@ import { LoggerService } from '@core/services';
 import {
   ConfirmationDialogService,
   DrawerService,
+  NotificationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
@@ -30,7 +31,7 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { APP_CONFIG } from '@core/config';
 import {
   createGstEntryTableEnhancedConfig,
-  GST_ACTION_CONFIG_MAP,
+  getGstActionConfig,
   GST_IS_VERIFIED_FILTER_FIELD_CONFIG,
   GST_PARTY_TYPE_FILTER_FIELD_CONFIG,
 } from '../../config';
@@ -51,6 +52,12 @@ import { DocWorkspaceContextComponent } from '@features/site-management/doc-mana
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import {
+  getBulkSelectionMismatchReason,
+  getGstSettlementLabel,
+  getGstVerifyPortalName,
+  getVerificationLabel,
+} from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { GetGstEntryDetailComponent } from '../get-gst-entry-detail/get-gst-entry-detail.component';
 
@@ -76,6 +83,7 @@ export class GetGstEntryComponent implements OnInit {
     ConfirmationDialogService
   );
   private readonly drawerService = inject(DrawerService);
+  private readonly notificationService = inject(NotificationService);
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
@@ -207,7 +215,8 @@ export class GetGstEntryComponent implements OnInit {
           invoiceDate: record.invoice.invoiceDate,
           taxableAmount: record.taxableAmount,
           gstAmount: record.gstAmount,
-          verificationStatusLabel: record.isVerified ? 'Approved' : 'Pending',
+          verificationStatusLabel: getVerificationLabel(record.isVerified),
+          settlementStatusLabel: getGstSettlementLabel(record),
           verifyFileKeys: record.verifyFileKey ? [record.verifyFileKey] : [],
           docWorkspaceContext: {
             companyName: record.site.company.name,
@@ -254,6 +263,26 @@ export class GetGstEntryComponent implements OnInit {
       return;
     }
 
+    if (actionType === EButtonActionType.PAID) {
+      // One settlement covers one project, one side and one party.
+      const mismatch = getBulkSelectionMismatchReason(selectedRows, {
+        requireSameParty: true,
+      });
+      if (mismatch) {
+        this.notificationService.error(mismatch);
+        return;
+      }
+    }
+
+    const actionConfig = getGstActionConfig(
+      actionType,
+      selectedFirstRow.partyType
+    );
+    if (!actionConfig) {
+      this.logger.error(`GST entry: unsupported action "${actionType}"`);
+      return;
+    }
+
     const dynamicComponentInputs: Record<string, unknown> = {
       selectedRecord: selectedRows,
       onSuccess: () => this.loadGstEntryList(),
@@ -263,7 +292,7 @@ export class GetGstEntryComponent implements OnInit {
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      GST_ACTION_CONFIG_MAP[actionType],
+      actionConfig,
       recordDetail,
       isBulk,
       !isBulk,
@@ -297,6 +326,16 @@ export class GetGstEntryComponent implements OnInit {
         value: row.gstAmount,
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
+      {
+        label: `Verified in ${getGstVerifyPortalName(row.partyType)}`,
+        value: getVerificationLabel(row.isVerified),
+        type: EDataType.STATUS,
+      },
+      {
+        label: 'Held GST',
+        value: getGstSettlementLabel(row),
+        type: EDataType.STATUS,
       },
     ];
 
