@@ -42,6 +42,82 @@ p-dialog .form {
   border-top: 1px solid var(--border-light-color);
 }
 
+// Phones: tighter padding, and a sticky full-width action bar so Submit is
+// always reachable with the thumb on long forms (e.g. Add Expense).
+@media (max-width: 640px) {
+  .form-page {
+    padding: 1rem;
+  }
+
+  .form {
+    gap: 1.25rem;
+    padding: 1rem;
+
+    .grid {
+      gap: 1.25rem;
+    }
+  }
+
+  .multi-step-button-container,
+  .button-container {
+    > * {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    // app-button > span > p-button > button.p-button
+    app-button > span {
+      display: flex;
+      width: 100%;
+    }
+
+    p-button {
+      display: block;
+      width: 100%;
+    }
+
+    .p-button {
+      width: 100%;
+      min-height: 2.75rem;
+      justify-content: center;
+    }
+  }
+
+  // Sticky only for page forms — not inside dialogs/drawers.
+  .form > .button-container {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin: 0 -1rem -1rem;
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    background: var(--background-paper-color);
+    border-radius: 0 0 1rem 1rem;
+    box-shadow: 0 -6px 16px -12px rgb(15 23 42 / 0.25);
+  }
+
+  .p-dialog .form > .button-container,
+  p-dialog .form > .button-container,
+  .p-drawer .form > .button-container {
+    position: static;
+    margin: 0;
+    padding: 1rem 0 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .form-section {
+    margin-bottom: 1.25rem;
+
+    &__header {
+      margin-bottom: 1rem;
+    }
+
+    &__content {
+      gap: 1.25rem;
+    }
+  }
+}
+
 .form-section {
   margin-bottom: 1.5rem;
 

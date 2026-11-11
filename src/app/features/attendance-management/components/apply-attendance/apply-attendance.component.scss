@@ -285,3 +285,37 @@
     justify-content: center;
   }
 }
+
+// Phones: tighter card, slightly smaller ring, and a big thumb-friendly
+// Check-in button (field staff mark attendance one-handed on site).
+@media (max-width: 640px) {
+  .apply-attendance--page {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .apply-attendance__panel {
+    gap: 1.25rem;
+  }
+
+  .apply-attendance__ring {
+    width: 9rem;
+    height: 9rem;
+  }
+
+  .apply-attendance__ring-core {
+    width: 6.6rem;
+    height: 6.6rem;
+  }
+
+  .apply-attendance__track {
+    border-radius: 1rem;
+  }
+
+  .action-button ::ng-deep .p-button {
+    min-height: 3.25rem;
+    border-radius: 0.875rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}

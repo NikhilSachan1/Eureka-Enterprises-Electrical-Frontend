@@ -1,0 +1,66 @@
+@if (visible()) {
+  <aside
+    class="install-banner"
+    role="dialog"
+    aria-labelledby="install-banner-title"
+  >
+    <img
+      class="install-banner__icon"
+      src="favicons/android-chrome-192x192.png"
+      alt=""
+      width="44"
+      height="44"
+    />
+
+    <div class="install-banner__copy">
+      <p
+        id="install-banner-title"
+        class="install-banner__title"
+      >
+        Install Eureka Electrical
+      </p>
+      @if (pwaInstall.isIos) {
+        <p class="install-banner__text">
+          Tap
+          <i
+            class="pi pi-upload"
+            aria-label="Share"
+          ></i>
+          Share, then <strong>Add to Home Screen</strong>.
+        </p>
+      } @else {
+        <p class="install-banner__text">
+          Mark attendance and add expenses faster, right from your home screen.
+        </p>
+      }
+    </div>
+
+    <div class="install-banner__actions">
+      @if (!pwaInstall.isIos) {
+        <button
+          type="button"
+          class="install-banner__install"
+          [disabled]="installing()"
+          (click)="onInstall()"
+        >
+          <i
+            [class]="ICONS.COMMON.DOWNLOAD"
+            aria-hidden="true"
+          ></i>
+          Install
+        </button>
+      }
+      <button
+        type="button"
+        class="install-banner__close"
+        aria-label="Not now"
+        (click)="onDismiss()"
+      >
+        <i
+          [class]="ICONS.COMMON.CLOSE"
+          aria-hidden="true"
+        ></i>
+      </button>
+    </div>
+  </aside>
+}
