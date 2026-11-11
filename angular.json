@@ -56,6 +56,10 @@
               }
             ],
             "styles": [
+              {
+                "input": "src/scss/boot-loader.css",
+                "bundleName": "boot-loader"
+              },
               "src/styles.scss",
               "src/scss/form.scss",
               "src/scss/table.scss",

@@ -86,86 +86,27 @@
     </script>
     <!-- Angular will replace everything inside app-root when app loads -->
     <app-root>
-      <!-- Professional Bootstrap Loader - Auto removed when Angular loads -->
-      <div class="boot-loader">
-        <!-- Background Effects -->
-        <div class="boot-loader__bg">
-          <div class="boot-loader__grid"></div>
-          <div class="boot-loader__glow boot-loader__glow--1"></div>
-          <div class="boot-loader__glow boot-loader__glow--2"></div>
+      <!-- Replaced automatically when Angular bootstraps -->
+      <div
+        class="boot-loader"
+        role="status"
+        aria-label="Loading Eureka Enterprises"
+      >
+        <div class="boot-loader__mark">
+          <span class="boot-loader__ring"></span>
+          <span class="boot-loader__core">
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+            </svg>
+          </span>
         </div>
-
-        <!-- Main Content -->
-        <div class="boot-loader__content">
-          <!-- Animated Logo -->
-          <div class="boot-loader__logo">
-            <div class="boot-loader__orbit"></div>
-            <div class="boot-loader__orbit boot-loader__orbit--reverse"></div>
-            <div class="boot-loader__core">
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-              </svg>
-            </div>
-          </div>
-
-          <!-- Brand -->
-          <div class="boot-loader__brand">
-            <h1 class="boot-loader__title">Eureka Enterprises</h1>
-            <p class="boot-loader__subtitle">Electrical Management System</p>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="boot-loader__progress">
-            <div class="boot-loader__track">
-              <div class="boot-loader__bar"></div>
-            </div>
-          </div>
-
-          <!-- Loading Steps -->
-          <div class="boot-loader__steps">
-            <div
-              class="boot-loader__step boot-loader__step--active"
-              style="--delay: 0s"
-            >
-              <span class="boot-loader__step-icon">⚙️</span>
-              <span class="boot-loader__step-text">Loading system settings</span>
-            </div>
-            <div
-              class="boot-loader__step"
-              style="--delay: 1.2s"
-            >
-              <span class="boot-loader__step-icon">🔧</span>
-              <span class="boot-loader__step-text">Initializing configuration</span>
-            </div>
-            <div
-              class="boot-loader__step"
-              style="--delay: 2.4s"
-            >
-              <span class="boot-loader__step-icon">🔐</span>
-              <span class="boot-loader__step-text">Setting up security</span>
-            </div>
-            <div
-              class="boot-loader__step"
-              style="--delay: 3.6s"
-            >
-              <span class="boot-loader__step-icon">📊</span>
-              <span class="boot-loader__step-text">Preparing dashboard</span>
-            </div>
-            <div
-              class="boot-loader__step"
-              style="--delay: 4.8s"
-            >
-              <span class="boot-loader__step-icon">✨</span>
-              <span class="boot-loader__step-text">Almost ready...</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Version -->
-        <div class="boot-loader__version">v1.0.0</div>
+        <div class="boot-loader__title">Eureka Enterprises</div>
+        <div class="boot-loader__subtitle">Electrical Management System</div>
+        <div class="boot-loader__track"><span class="boot-loader__bar"></span></div>
       </div>
     </app-root>
     <noscript>Please enable JavaScript to continue using this application.</noscript>

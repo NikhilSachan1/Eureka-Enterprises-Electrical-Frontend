@@ -1,0 +1,134 @@
+/*
+ * Boot loader: shown inside <app-root> in index.html until Angular bootstraps.
+ * Kept in its own bundle, separate from the app styles, so it stays small.
+ * Colors mirror theme.config.ts, which is not available at first paint.
+ * Animate only transform/opacity: those keep running while JS blocks the main thread.
+ */
+.boot-loader {
+  --bl-bg: #ffffff;
+  --bl-accent: #006d5b;
+  --bl-on-accent: #ffffff;
+  --bl-text: #1e293b;
+  --bl-muted: #64748b;
+  --bl-track: #e2e8f0;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  background: var(--bl-bg);
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  animation: boot-in 0.25s ease-out both;
+}
+.dark-theme .boot-loader {
+  --bl-bg: #0c1222;
+  --bl-accent: #94a3b8;
+  --bl-on-accent: #0c1222;
+  --bl-text: #ffffff;
+  --bl-muted: #94a3b8;
+  --bl-track: #1e293b;
+}
+.boot-loader__mark {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  margin-bottom: 20px;
+}
+.boot-loader__ring {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border: 3px solid var(--bl-track);
+  border-top-color: var(--bl-accent);
+  border-radius: 50%;
+  animation: boot-spin 0.9s linear infinite;
+}
+.boot-loader__core {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  color: var(--bl-on-accent);
+  background: var(--bl-accent);
+  animation: boot-pulse 1.8s ease-in-out infinite;
+}
+.boot-loader__core svg {
+  display: block;
+  width: 25px;
+  height: 25px;
+}
+.boot-loader__title {
+  color: var(--bl-text);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.boot-loader__subtitle {
+  margin-top: 4px;
+  color: var(--bl-muted);
+  font-size: 13px;
+}
+.boot-loader__track {
+  width: 140px;
+  height: 3px;
+  margin-top: 22px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--bl-track);
+}
+.boot-loader__bar {
+  display: block;
+  width: 40%;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--bl-accent);
+  animation: boot-slide 1.3s ease-in-out infinite;
+}
+@keyframes boot-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes boot-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes boot-pulse {
+  50% {
+    transform: scale(0.93);
+  }
+}
+@keyframes boot-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+@keyframes boot-fade {
+  to {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .boot-loader,
+  .boot-loader__ring,
+  .boot-loader__core {
+    animation: none;
+  }
+  .boot-loader__bar {
+    width: 100%;
+    animation: boot-fade 1.2s ease-in-out infinite alternate;
+  }
+}
