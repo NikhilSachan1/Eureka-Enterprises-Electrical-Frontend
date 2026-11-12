@@ -159,9 +159,55 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
       type: EDataType.ATTACHMENTS,
     });
 
+    const isPurchaseEntry = record.partyType === EDocContext.PURCHASE;
+    const booking = record.gstBookPayment;
+    const transfer = record.gstBankTransfer;
+
+    // Purchase: the GST release booked against this entry (paid via payment sheet / bank transfer).
+    if (record.isGstHold && booking) {
+      entryData.push({
+        label: 'GST release booked on',
+        value: booking.bookingDate,
+        type: EDataType.DATE,
+        format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+      });
+    }
+
+    // The bank transfer that moved the held GST.
+    if (record.isGstHold && transfer) {
+      entryData.push(
+        {
+          label: isPurchaseEntry ? 'Released on' : 'Received on',
+          value: transfer.transferDate,
+          type: EDataType.DATE,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        },
+        {
+          label: 'UTR / Reference No.',
+          value: transfer.utrNumber ?? '—',
+          type: EDataType.TEXT,
+        },
+        ...(isPurchaseEntry && transfer.paymentAdvice?.referenceNumber
+          ? [
+              {
+                label: 'Payment advice',
+                value: transfer.paymentAdvice.referenceNumber,
+                type: EDataType.TEXT,
+              },
+            ]
+          : []),
+        {
+          label: isPurchaseEntry ? 'Transfer proof' : 'Receipt proof',
+          value: transfer.proofFileKey ? [transfer.proofFileKey] : [],
+          type: EDataType.ATTACHMENTS,
+        }
+      );
+    }
+
+    // Legacy: settlement recorded directly before GST moved through the payment chain.
     const settlement = record.gstPayment;
-    if (record.isGstHold && settlement) {
-      const isPurchase = record.partyType === EDocContext.PURCHASE;
+    if (record.isGstHold && settlement && !transfer) {
+      const isPurchase = isPurchaseEntry;
       entryData.push(
         {
           label: isPurchase ? 'Released on' : 'Received on',

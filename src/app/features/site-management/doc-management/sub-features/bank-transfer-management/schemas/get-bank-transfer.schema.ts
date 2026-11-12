@@ -94,6 +94,8 @@ export const BankTransferGetBaseResponseSchema = z.looseObject({
     .nullable(),
   bookPayment: z
     .looseObject({
+      /** INVOICE | ADVANCE | GST_RELEASE */
+      sourceType: z.string().nullable().optional(),
       paymentTotalAmount: z.string(),
       createdAt: isoDateTimeField,
       invoice: z

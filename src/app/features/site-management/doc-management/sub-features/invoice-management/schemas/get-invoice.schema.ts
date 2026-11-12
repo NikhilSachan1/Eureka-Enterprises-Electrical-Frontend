@@ -70,7 +70,8 @@ export const InvoiceGstStatusSchema = z.looseObject({
   gstAmount: z.number(),
   isGstHold: z.boolean(),
   isVerified: z.boolean(),
-  settlementStatus: z.enum(['NOT_HELD', 'PENDING', 'SETTLED']),
+  /** IN_PROCESS: vendor GST release booked, bank transfer not done yet. */
+  settlementStatus: z.enum(['NOT_HELD', 'PENDING', 'IN_PROCESS', 'SETTLED']),
   settledAmount: z.number(),
   settledAt: z.string().nullable(),
 });

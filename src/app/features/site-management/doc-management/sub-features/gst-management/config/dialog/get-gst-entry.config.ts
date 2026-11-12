@@ -11,13 +11,13 @@ import { RevertGstEntryComponent } from '../../components/revert-gst-entry/rever
 const SETTLE_CONFIG: Record<EDocContext, IDialogActionConfig> = {
   [EDocContext.PURCHASE]: {
     dialogConfig: {
-      header: 'Release held GST to vendor?',
+      header: 'Book GST release to vendor?',
       message:
-        'The vendor’s invoice is reflected in GSTR-2B. Record the release of the GST held back from the vendor.',
+        'The vendor’s invoice is reflected in GSTR-2B. A GST book payment will be created for the held GST — pay it from the payment sheet or bank transfer.',
       labels: {
-        actionWord: 'release held GST for',
-        singleLabel: 'Release GST',
-        bulkLabel: 'Release GST',
+        actionWord: 'book the GST release for',
+        singleLabel: 'Book GST Release',
+        bulkLabel: 'Book GST Release',
       },
     },
     dynamicComponent: AddGstPaymentReleaseComponent,
@@ -26,7 +26,7 @@ const SETTLE_CONFIG: Record<EDocContext, IDialogActionConfig> = {
     dialogConfig: {
       header: 'Mark held GST as received?',
       message:
-        'Record the GST the client had held back and has now paid to us.',
+        'Record the GST the client had held back and has now paid to us. It is saved as a GST bank transfer.',
       labels: {
         actionWord: 'mark held GST received for',
         singleLabel: 'Mark Received',

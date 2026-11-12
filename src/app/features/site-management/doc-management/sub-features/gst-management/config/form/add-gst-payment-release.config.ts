@@ -5,7 +5,11 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
 import { IAddGstPaymentReleaseUIFormDto } from '../../types/gst.dto';
 
 /**
- * Settle held GST. Purchase: we release it to the vendor. Sale: the client pays it to us.
+ * Settle held GST.
+ *  Vendor: books a GST release (book payment). The money goes out from the payment sheet /
+ *  bank transfer, so only the booking date and remarks are asked here — UTR and proof are
+ *  captured on the bank transfer. The UTR / proof fields are not shown.
+ *  Contractor: the client has paid the GST — recorded as a bank transfer, so UTR is required.
  */
 function buildFieldsConfig(
   partyType: EDocContext
@@ -18,13 +22,13 @@ function buildFieldsConfig(
       id: 'utrNumber',
       fieldName: 'utrNumber',
       label: 'UTR / Reference No.',
-      validators: [Validators.required],
+      validators: isPurchase ? [] : [Validators.required],
     },
     paymentDate: {
       fieldType: EDataType.DATE,
       id: 'paymentDate',
       fieldName: 'paymentDate',
-      label: isPurchase ? 'Released On' : 'Received On',
+      label: isPurchase ? 'Booking Date' : 'Received On',
       dateConfig: {
         maxDate: new Date(),
         touchUI: false,
@@ -35,7 +39,7 @@ function buildFieldsConfig(
       fieldType: EDataType.ATTACHMENTS,
       id: 'paymentAttachment',
       fieldName: 'paymentAttachment',
-      label: isPurchase ? 'Release proof' : 'Receipt proof',
+      label: 'Receipt proof',
       fileConfig: {
         fileLimit: 1,
         acceptFileTypes: [

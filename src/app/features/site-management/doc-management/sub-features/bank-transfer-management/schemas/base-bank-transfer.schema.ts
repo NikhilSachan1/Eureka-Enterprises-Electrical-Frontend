@@ -13,6 +13,8 @@ export const BankTransferBaseSchema = z.looseObject({
   createdAt: isoDateTimeField,
   siteId: uuidField,
   partyType: z.enum(EDocContext),
+  /** REGULAR (invoice / advance payment) | GST (held GST released to vendor / received from client). */
+  paymentType: z.string().optional(),
   invoiceId: uuidField.nullable(),
   bookPaymentId: uuidField.nullable(),
   utrNumber: z.string(),

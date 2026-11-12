@@ -141,6 +141,8 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
           gstAmount: record.gstAmount,
           gstPercentage: `${record.gstPercentage}%`,
           isGstHold: record.isGstHold,
+          gstStatus: record.gstStatus,
+          isSales: record.partyType === EDocContext.SALES,
           totalAmount: record.totalAmount,
         },
         customTemplateKey: 'invoiceDetailAmounts',
@@ -220,6 +222,8 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
     totalAmount: string;
     gstPercentage: string;
     isGstHold?: boolean;
+    gstStatus?: IInvoiceGetBaseResponseDto['gstStatus'];
+    isSales?: boolean;
   }): IDocAmountSegment[] {
     return buildInvoiceTaxGstAmountSegments({
       invoiceNumber: v.invoiceNumber,
@@ -230,6 +234,8 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
       gstPercentage: v.gstPercentage,
       totalAmount: v.totalAmount,
       isGstHold: v.isGstHold,
+      gstStatus: v.gstStatus,
+      isSales: v.isSales,
     });
   }
 

@@ -6,9 +6,12 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
  * GST
  *  - Verification: invoice matched on the GST portal — GSTR-2B (purchase) / GSTR-1 (sale).
  *    Needed for every entry, held or not.
- *  - Settlement: only HELD GST. Purchase → we release it to the vendor once verified in 2B.
- *    Sale → the client withheld it; we record it as received when they pay.
+ *  - Settlement: only HELD GST, through the normal payment chain.
+ *    Purchase → once verified in 2B, "release" books a GST book payment ("Release in process");
+ *    its bank transfer (payment sheet or direct) makes it "Released".
+ *    Sale → the client withheld it; "mark received" records a GST bank transfer ("Received").
  *    GST that was not held moved with the invoice payment ("With payment").
+ *    Older settlements recorded directly (gstPaymentId) still count as settled.
  *
  * TDS
  *  - Purchase: we deduct → deposit via challan → verify once filed in 26Q.
@@ -22,6 +25,7 @@ export const TAX_STATUS_LABEL = {
   RELEASED: 'Released',
   RECEIVED: 'Received',
   RELEASE_PENDING: 'Release pending',
+  RELEASE_IN_PROCESS: 'Release in process',
   RECEIPT_PENDING: 'Receipt pending',
   DEPOSITED: 'Deposited',
   CHALLAN_PENDING: 'Challan pending',
@@ -32,7 +36,22 @@ export interface IGstSettlementState {
   partyType: EDocContext;
   isGstHold: boolean;
   isVerified: boolean;
+  /** Legacy direct settlement. */
   gstPaymentId: string | null;
+  /** Purchase: GST release booked (book payment). */
+  gstBookPaymentId?: string | null;
+  /** The bank transfer that moved the held GST. */
+  gstBankTransferId?: string | null;
+}
+
+/** Held GST that has actually moved — by bank transfer, or a legacy direct record. */
+export function isGstSettled(state: IGstSettlementState): boolean {
+  return Boolean(state.gstPaymentId || state.gstBankTransferId);
+}
+
+/** Purchase: GST release booked, bank transfer not done yet. */
+export function isGstReleaseInProcess(state: IGstSettlementState): boolean {
+  return !isGstSettled(state) && Boolean(state.gstBookPaymentId);
 }
 
 export interface ITdsDepositState {
@@ -54,10 +73,13 @@ export function getGstSettlementLabel(state: IGstSettlementState): string {
   if (!state.isGstHold) {
     return TAX_STATUS_LABEL.WITH_PAYMENT;
   }
-  if (state.gstPaymentId) {
+  if (isGstSettled(state)) {
     return isPurchase(state.partyType)
       ? TAX_STATUS_LABEL.RELEASED
       : TAX_STATUS_LABEL.RECEIVED;
+  }
+  if (isGstReleaseInProcess(state)) {
+    return TAX_STATUS_LABEL.RELEASE_IN_PROCESS;
   }
   return isPurchase(state.partyType)
     ? TAX_STATUS_LABEL.RELEASE_PENDING
@@ -69,7 +91,7 @@ export function getGstVerifyPortalName(partyType: EDocContext): string {
 }
 
 export function getGstSettleActionLabel(partyType: EDocContext): string {
-  return isPurchase(partyType) ? 'Release to vendor' : 'Mark received';
+  return isPurchase(partyType) ? 'Book GST release' : 'Mark received';
 }
 
 /** Why held GST cannot be settled for this entry, or undefined when it can. */
@@ -79,10 +101,13 @@ export function getGstSettleDisableReason(
   if (!state.isGstHold) {
     return 'GST was not held — it was settled with the invoice payment.';
   }
-  if (state.gstPaymentId) {
+  if (isGstSettled(state)) {
     return isPurchase(state.partyType)
       ? 'Held GST is already released to the vendor.'
       : 'Held GST is already received from the client.';
+  }
+  if (isGstReleaseInProcess(state)) {
+    return 'GST release is already booked — pay it from the payment sheet or bank transfer.';
   }
   if (isPurchase(state.partyType) && !state.isVerified) {
     return 'Verify the invoice in GSTR-2B before releasing GST to the vendor.';
@@ -96,10 +121,51 @@ export function getGstRevertDisableReason(
   if (!state.isVerified) {
     return 'Only verified entries can be reverted.';
   }
-  if (state.gstPaymentId) {
+  if (isGstSettled(state)) {
     return 'Held GST is already settled — verification can no longer be reverted.';
   }
+  if (isGstReleaseInProcess(state)) {
+    return 'A GST release is booked — delete the GST book payment before reverting.';
+  }
   return undefined;
+}
+
+// ── Payment type (book payment / bank transfer) ──────────────────────────────
+
+export const PAYMENT_TYPE_LABEL = {
+  INVOICE: 'Invoice payment',
+  ADVANCE: 'Advance payment',
+  GST_RELEASE: 'GST release',
+  GST_RECEIPT: 'GST receipt',
+} as const;
+
+/** What a book payment pays: the invoice, an advance, or the invoice's held GST. */
+export function getBookPaymentTypeLabel(
+  sourceType: string | null | undefined
+): string {
+  if (sourceType === 'GST_RELEASE') {
+    return PAYMENT_TYPE_LABEL.GST_RELEASE;
+  }
+  if (sourceType === 'ADVANCE') {
+    return PAYMENT_TYPE_LABEL.ADVANCE;
+  }
+  return PAYMENT_TYPE_LABEL.INVOICE;
+}
+
+/** What a bank transfer pays. GST: released to a vendor (purchase) / received from a client (sale). */
+export function getBankTransferTypeLabel(transfer: {
+  partyType: EDocContext;
+  paymentType?: string | null;
+  bookPayment?: { sourceType?: string | null } | null;
+}): string {
+  if (transfer.paymentType === 'GST') {
+    return isPurchase(transfer.partyType)
+      ? PAYMENT_TYPE_LABEL.GST_RELEASE
+      : PAYMENT_TYPE_LABEL.GST_RECEIPT;
+  }
+  return isPurchase(transfer.partyType)
+    ? getBookPaymentTypeLabel(transfer.bookPayment?.sourceType)
+    : PAYMENT_TYPE_LABEL.INVOICE;
 }
 
 // ── TDS ──────────────────────────────────────────────────────────────────────

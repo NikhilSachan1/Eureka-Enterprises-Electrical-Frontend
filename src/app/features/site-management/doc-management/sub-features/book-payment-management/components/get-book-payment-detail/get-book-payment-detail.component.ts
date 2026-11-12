@@ -25,6 +25,7 @@ import { APP_CONFIG } from '@core/config';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
+import { getBookPaymentTypeLabel } from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
 
 @Component({
   selector: 'app-get-book-payment-detail',
@@ -91,6 +92,11 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
         },
         customTemplateKey: 'docWorkspaceContextDetail',
         detailTemplateFullRow: true,
+      },
+      {
+        label: 'Payment type',
+        value: getBookPaymentTypeLabel(record.sourceType),
+        type: EDataType.STATUS,
       },
       {
         label: 'Booking Date',

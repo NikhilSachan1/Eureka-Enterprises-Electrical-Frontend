@@ -57,6 +57,8 @@ export const BookPaymentGetRequestSchema = z
 export const BookPaymentGetBaseResponseSchema = z.looseObject({
   id: uuidField,
   siteId: uuidField,
+  /** INVOICE | ADVANCE | GST_RELEASE (the invoice's held GST paid out to the vendor). */
+  sourceType: z.string().optional(),
   invoiceId: uuidField.nullable(),
   bookingDate: onlyDateStringField,
   taxableAmount: z.string(),

@@ -20,6 +20,7 @@ import { DocReferenceComponent } from '@features/site-management/doc-management/
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
+import { getBookPaymentTypeLabel } from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
 import { BOOK_PAYMENT_ACTION_CONFIG_MAP } from '@features/site-management/doc-management/sub-features/book-payment-management/config';
 import { buildInvoiceTaxGstAmountSegments } from '@features/site-management/doc-management/sub-features/invoice-management/utils/invoice-table-row.util';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
@@ -161,7 +162,9 @@ export class GetVendorOutstandingComponent implements OnInit {
       return;
     }
 
-    const invoice = this.findInvoice(String(event.selectedRows[0]?.['id'] ?? ''));
+    const invoice = this.findInvoice(
+      String(event.selectedRows[0]?.['id'] ?? '')
+    );
 
     if (invoice) {
       this.openBookPaymentDialog(invoice);
@@ -313,9 +316,7 @@ export class GetVendorOutstandingComponent implements OnInit {
     );
   }
 
-  private openBookPaymentDialog(
-    invoice: IVendorInvoiceOutstandingGroup
-  ): void {
+  private openBookPaymentDialog(invoice: IVendorInvoiceOutstandingGroup): void {
     if (!this.canBookPaymentForInvoice(invoice)) {
       return;
     }
@@ -369,7 +370,9 @@ export class GetVendorOutstandingComponent implements OnInit {
 
           this.clearSelections();
           this.vendorGroups.set(groups);
-          this.vendorTable.setData(groups.map(group => this.mapVendorRow(group)));
+          this.vendorTable.setData(
+            groups.map(group => this.mapVendorRow(group))
+          );
           this.vendorTable.updateTableConfig({ totalRecords });
           this.emitSectionSummary(totalRecords, summary ?? null);
           this.logger.logUserAction('Vendor outstanding records loaded');
@@ -413,7 +416,9 @@ export class GetVendorOutstandingComponent implements OnInit {
           return true;
         }
 
-        return Number(row['paymentTotalAmount'] ?? row['pendingAmount'] ?? 0) <= 0;
+        return (
+          Number(row['paymentTotalAmount'] ?? row['pendingAmount'] ?? 0) <= 0
+        );
       },
     });
   }
@@ -500,7 +505,9 @@ export class GetVendorOutstandingComponent implements OnInit {
         : (summary?.totalAmount ?? null),
       isGstHold: isAdvance ? false : (summary?.isGstHold ?? false),
       netPayableAmount: isAdvance ? null : (summary?.netPayableAmount ?? null),
-      bookedTotal: isAdvance ? bookedFromPayments : (summary?.bookedTotal ?? null),
+      bookedTotal: isAdvance
+        ? bookedFromPayments
+        : (summary?.bookedTotal ?? null),
       paidTotal: resolveVendorInvoicePaidTotal(
         summary,
         invoice.bookPayments.map(bookPayment => bookPayment.originalRawData)
@@ -635,6 +642,7 @@ export class GetVendorOutstandingComponent implements OnInit {
       vendorId,
       bookingDate: bookPayment.bookingDate,
       pendingAmount: bookPayment.paymentTotalAmount,
+      paymentTypeLabel: getBookPaymentTypeLabel(bookPayment.sourceType),
       transactionType:
         bookPayment.paymentTotalAmount > 0
           ? 'debit'

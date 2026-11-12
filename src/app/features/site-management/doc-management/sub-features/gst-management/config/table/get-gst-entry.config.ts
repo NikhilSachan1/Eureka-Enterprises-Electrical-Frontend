@@ -95,7 +95,7 @@ const buildGstEntryTableRowActionsConfig = (): Partial<
   },
   {
     id: EButtonActionType.PAID,
-    tooltip: 'Settle held GST (release to vendor / mark received)',
+    tooltip: 'Settle held GST (book release to vendor / mark received)',
     permission: [APP_PERMISSION.GST.RELEASE],
     disableWhen: (row: IGstEntryGetBaseResponseDto) =>
       !!getGstSettleDisableReason(row),
@@ -111,7 +111,7 @@ const buildGstEntryTableBulkActionsConfig = (): Partial<
     id: EButtonActionType.PAID,
     label: 'Settle Held GST',
     tooltip:
-      'Release held GST to the vendor / mark it received from the client',
+      'Book the held GST release to the vendor / mark it received from the client',
     permission: [APP_PERMISSION.GST.RELEASE],
     disableWhen: (row: IGstEntryGetBaseResponseDto) =>
       !!getGstSettleDisableReason(row),
