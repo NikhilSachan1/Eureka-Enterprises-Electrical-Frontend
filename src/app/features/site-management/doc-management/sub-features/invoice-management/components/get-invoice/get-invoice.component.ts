@@ -53,6 +53,7 @@ import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-ac
 import { GetInvoiceDetailComponent } from '../get-invoice-detail/get-invoice-detail.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
+import { InvoicePaymentSummaryComponent } from '@features/site-management/doc-management/shared/components/invoice-payment-summary/invoice-payment-summary.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
@@ -73,6 +74,7 @@ import {
     DataTableComponent,
     UnlockRequestComponent,
     DocAmountComponent,
+    InvoicePaymentSummaryComponent,
     DocReferenceComponent,
     DocWorkspaceContextComponent,
   ],
@@ -102,6 +104,9 @@ export class GetInvoiceComponent implements OnInit {
     undefined
   );
   protected readonly searchTerm = signal<string>('');
+  protected readonly isSalesContext = computed(
+    () => this.docRouteContext() === EDocContext.SALES
+  );
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()

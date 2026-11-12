@@ -50,7 +50,15 @@
   #invoiceBookedPaidSummary
   let-row
 >
-  <app-doc-amount [segments]="docInvoiceBookedPaidSegments(row)" />
+  @let summary = row.originalRawData.paymentSummary;
+  @if (summary && row.originalRawData.invoiceNumber !== null) {
+    <app-invoice-payment-summary
+      [summary]="summary"
+      [isSales]="isSalesContext()"
+    />
+  } @else {
+    <app-doc-amount [segments]="docInvoiceBookedPaidSegments(row)" />
+  }
 </ng-template>
 
 <ng-template

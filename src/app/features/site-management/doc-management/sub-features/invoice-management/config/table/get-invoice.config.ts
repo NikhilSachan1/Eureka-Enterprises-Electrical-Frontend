@@ -77,7 +77,7 @@ export const INVOICE_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
   {
     field: 'bookedTotal',
-    header: 'Booked & paid',
+    header: 'Payment summary',
     bodyTemplate: EDataType.TEXT,
     customTemplateKey: 'invoiceBookedPaidSummary',
     showSort: false,

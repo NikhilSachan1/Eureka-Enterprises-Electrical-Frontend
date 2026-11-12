@@ -24,18 +24,22 @@
   #invoiceDetailBookedPaid
   let-entry
 >
-  <app-doc-amount
-    [segments]="docInvoiceDrawerBookedPaidSegments($any(entry.value))"
-  />
+  @let record = $any(entry.value);
+  @if (record.paymentSummary && record.invoiceNumber !== null) {
+    <app-invoice-payment-summary
+      [summary]="record.paymentSummary"
+      [isSales]="isSalesInvoice(record)"
+    />
+  } @else {
+    <app-doc-amount [segments]="docInvoiceDrawerBookedPaidSegments(record)" />
+  }
 </ng-template>
 
 <ng-template
   #invoiceDetailAdvanceSettlement
   let-entry
 >
-  <app-doc-amount
-    [segments]="docInvoiceDrawerAdvanceSettlementSegments($any(entry.value))"
-  />
+  <app-doc-amount [segments]="docInvoiceDrawerAdvanceSettlementSegments($any(entry.value))" />
 </ng-template>
 
 <app-view-detail

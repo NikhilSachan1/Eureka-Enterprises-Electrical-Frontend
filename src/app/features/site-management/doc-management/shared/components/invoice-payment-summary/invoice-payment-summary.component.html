@@ -1,0 +1,60 @@
+@let s = summary();
+
+@if (!s) {
+  <span class="ips__empty">—</span>
+} @else {
+  <div class="ips">
+    <div class="ips__head">
+      <span class="ips__settled">
+        ₹{{ s.totalSettled | number: fmt : loc }}
+        <span class="ips__of">of ₹{{ s.invoiceValue | number: fmt : loc }}</span>
+      </span>
+      <span
+        class="ips__pct"
+        [class.ips__pct--done]="s.totalBalance <= 0"
+      >
+        {{ s.settledPercent }}%
+      </span>
+    </div>
+
+    <div
+      class="ips__bar"
+      role="img"
+      [attr.aria-label]="s.settledPercent + '% of the invoice value settled'"
+    >
+      @for (part of bar(); track part.key) {
+        <span
+          [class]="'ips__bar-part ips__bar-part--' + part.tone"
+          [style.width.%]="part.pct"
+          [attr.title]="part.label + ': ₹' + (part.amount | number: fmt : loc)"
+        ></span>
+      }
+    </div>
+
+    <ul class="ips__lines">
+      @for (line of lines(); track line.key) {
+        <li class="ips__line">
+          <span [class]="'ips__dot ips__dot--' + line.tone"></span>
+          <span class="ips__label">{{ line.label }}</span>
+          <span class="ips__amount">₹{{ line.amount | number: fmt : loc }}</span>
+          <span [class]="'ips__status ips__status--' + line.state">{{ line.status }}</span>
+          @if (line.detail) {
+            <span class="ips__detail">{{ line.detail }}</span>
+          }
+        </li>
+      }
+    </ul>
+
+    <div
+      class="ips__foot"
+      [class.ips__foot--done]="s.totalBalance <= 0"
+    >
+      @if (s.totalBalance > 0) {
+        <span>Balance</span>
+        <strong>₹{{ s.totalBalance | number: fmt : loc }}</strong>
+      } @else {
+        <span>Fully settled</span>
+      }
+    </div>
+  </div>
+}
