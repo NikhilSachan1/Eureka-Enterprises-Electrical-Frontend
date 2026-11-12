@@ -3,8 +3,12 @@ import { APP_CONFIG } from '@core/config';
 import { transformDateFormat } from '@shared/utility/date-time.util';
 import {
   IDocChainNodeVm,
+  IPoBreakdownAdvance,
+  IPoBreakdownBankTransfer,
   IPoBreakdownBookPayment,
   IPoBreakdownInvoice,
+  IPoBreakdownInvoiceGst,
+  IPoBreakdownInvoiceTds,
   IPoBreakdownJmc,
   IPoBreakdownRecord,
 } from '../types/po-breakdown.interface';
@@ -18,9 +22,12 @@ import {
   IGraphCardView,
 } from '../types/project-document-status-detail.interface';
 import {
+  getInvoicePendingToBook,
   getSalesPaymentNextMissing,
   hasPoUninvoicedBalance,
   getPoUninvoicedAmount,
+  isAdvancePaid,
+  isGstSettled,
   needsAdditionalBookPayment,
 } from './project-document-status-chain.util';
 
@@ -45,6 +52,11 @@ export function buildPoDocumentGraph(
     })
   );
 
+  // Advances hang off the PO itself — they exist because no JMC / invoice was raised yet.
+  for (const advance of po.advances ?? []) {
+    appendAdvanceBranch(nodes, links, poNodeId, advance, ctx);
+  }
+
   if (!po.jmcs.length) {
     pushExpectedMissingNode(
       nodes,
@@ -62,10 +74,7 @@ export function buildPoDocumentGraph(
     appendJmcBranch(nodes, links, poNodeId, jmc, ctx);
   }
 
-  if (
-    ctx.showPoUninvoicedBalanceNode !== false &&
-    hasPoUninvoicedBalance(po)
-  ) {
+  if (ctx.showPoUninvoicedBalanceNode !== false && hasPoUninvoicedBalance(po)) {
     pushExpectedMissingNode(
       nodes,
       links,
@@ -158,7 +167,6 @@ function graphPrimaryText(data: IDocChainNodeVm): string {
   }
 
   if (data.stage === EDocChainStage.REPORT) {
-
     switch (data.state) {
       case EDocChainNodeState.DONE:
         return 'On record';
@@ -226,6 +234,11 @@ function graphStageTone(stage: EDocChainStage): string {
       return 'report';
     case EDocChainStage.INVOICE:
       return 'invoice';
+    case EDocChainStage.GST:
+    case EDocChainStage.TDS:
+      return 'tax';
+    case EDocChainStage.ADVANCE:
+      return 'advance';
     default:
       return 'payment';
   }
@@ -245,6 +258,12 @@ function graphStageIcon(stage: EDocChainStage): string {
       return 'pi pi-wallet';
     case EDocChainStage.BANK_TRANSFER:
       return 'pi pi-credit-card';
+    case EDocChainStage.GST:
+      return 'pi pi-percentage';
+    case EDocChainStage.TDS:
+      return 'pi pi-calculator';
+    case EDocChainStage.ADVANCE:
+      return 'pi pi-forward';
     default:
       return 'pi pi-file';
   }
@@ -270,11 +289,25 @@ function appendJmcBranch(
   pushLink(links, poNodeId, jmcNodeId);
 
   if (ctx.isSales) {
-    appendDocChainAfterJmc(nodes, links, jmcNodeId, jmc, ctx, appendSalesPayments);
+    appendDocChainAfterJmc(
+      nodes,
+      links,
+      jmcNodeId,
+      jmc,
+      ctx,
+      appendSalesPayments
+    );
     return;
   }
 
-  appendDocChainAfterJmc(nodes, links, jmcNodeId, jmc, ctx, appendPurchasePayments);
+  appendDocChainAfterJmc(
+    nodes,
+    links,
+    jmcNodeId,
+    jmc,
+    ctx,
+    appendPurchasePayments
+  );
 }
 
 function appendDocChainAfterJmc(
@@ -348,6 +381,271 @@ function appendDocChainAfterJmc(
   pushNode(nodes, invoiceNodeId, invoiceNodeData(jmc.invoice, ctx));
   pushLink(links, reportNodeId, invoiceNodeId);
   appendPayments(nodes, links, invoiceNodeId, jmc.invoice, ctx);
+  appendInvoiceTax(nodes, links, invoiceNodeId, jmc.invoice, ctx);
+}
+
+/**
+ * GST and TDS of an invoice, each its own node off the invoice. Held GST that moved through
+ * the payment chain hangs off the GST node: vendor → GST book payment → bank transfer; contractor
+ * → GST bank transfer.
+ */
+function appendInvoiceTax(
+  nodes: Node[],
+  links: Edge[],
+  invoiceNodeId: string,
+  invoice: IPoBreakdownInvoice,
+  ctx: IDocGraphBuildContext
+): void {
+  const gst = invoice.gst;
+  if (gst && gst.gstAmount > 0) {
+    const gstNodeId = `${invoice.id}-gst`;
+    pushNode(nodes, gstNodeId, gstNodeData(gst, ctx));
+    pushLink(links, invoiceNodeId, gstNodeId);
+
+    if (ctx.isSales) {
+      for (const receipt of invoice.gstReceipts) {
+        const nodeId = `${receipt.id}-gst-receipt`;
+        pushNode(nodes, nodeId, gstReceiptNodeData(receipt, ctx));
+        pushLink(links, gstNodeId, nodeId);
+      }
+    } else {
+      for (const release of invoice.gstReleases) {
+        appendGstReleaseRail(nodes, links, gstNodeId, release, ctx);
+      }
+    }
+  }
+
+  const tds = invoice.tds;
+  if (tds && tds.tdsAmount > 0) {
+    const tdsNodeId = `${invoice.id}-tds`;
+    pushNode(nodes, tdsNodeId, tdsNodeData(tds, ctx));
+    pushLink(links, invoiceNodeId, tdsNodeId);
+  }
+}
+
+function gstNodeData(
+  gst: IPoBreakdownInvoiceGst,
+  ctx: IDocGraphBuildContext
+): IDocChainNodeVm {
+  const portal = ctx.isSales ? 'GSTR-1' : 'GSTR-2B';
+  const settled = isGstSettled(gst);
+  const inProcess = gst.settlementStatus === 'IN_PROCESS';
+  const docNumber = gst.isGstHold ? 'Held GST' : 'GST with payment';
+  const common = {
+    docNumber,
+    docDate: gst.settledAt,
+    amount: positiveAmount(gst.gstAmount),
+  };
+
+  if (gst.isVerified && (!gst.isGstHold || settled)) {
+    const doneLabel = !gst.isGstHold
+      ? 'Verified'
+      : ctx.isSales
+        ? 'Verified · Received'
+        : 'Verified · Released';
+    return createNode(EDocChainStage.GST, EDocChainNodeState.DONE, ctx, {
+      ...common,
+      statusLabel: doneLabel,
+    });
+  }
+
+  if (gst.isVerified && inProcess) {
+    return createNode(EDocChainStage.GST, EDocChainNodeState.PENDING, ctx, {
+      ...common,
+      statusLabel: 'Release in process',
+    });
+  }
+
+  const open: string[] = [];
+  if (!gst.isVerified) {
+    open.push(`${portal} pending`);
+  }
+  if (gst.isGstHold && !settled) {
+    open.push(
+      inProcess
+        ? 'Release in process'
+        : ctx.isSales
+          ? 'Receipt pending'
+          : 'Release pending'
+    );
+  }
+
+  return createNode(EDocChainStage.GST, EDocChainNodeState.MISSING, ctx, {
+    ...common,
+    statusLabel: open.join(' · '),
+  });
+}
+
+function tdsNodeData(
+  tds: IPoBreakdownInvoiceTds,
+  ctx: IDocGraphBuildContext
+): IDocChainNodeVm {
+  const common = {
+    docNumber: 'TDS',
+    docDate: tds.lastDepositedAt,
+    amount: positiveAmount(tds.tdsAmount),
+  };
+
+  if (ctx.isSales) {
+    return createNode(
+      EDocChainStage.TDS,
+      tds.isVerified ? EDocChainNodeState.DONE : EDocChainNodeState.MISSING,
+      ctx,
+      {
+        ...common,
+        statusLabel: tds.isVerified ? '26AS verified' : '26AS pending',
+      }
+    );
+  }
+
+  if (!tds.isDeposited) {
+    return createNode(EDocChainStage.TDS, EDocChainNodeState.MISSING, ctx, {
+      ...common,
+      statusLabel: 'Challan pending',
+    });
+  }
+
+  return createNode(
+    EDocChainStage.TDS,
+    tds.isVerified ? EDocChainNodeState.DONE : EDocChainNodeState.PENDING,
+    ctx,
+    {
+      ...common,
+      statusLabel: tds.isVerified ? 'Deposited · 26Q filed' : '26Q pending',
+    }
+  );
+}
+
+/** Vendor: GST book payment → its bank transfer, off the GST node. */
+function appendGstReleaseRail(
+  nodes: Node[],
+  links: Edge[],
+  gstNodeId: string,
+  release: IPoBreakdownBookPayment,
+  ctx: IDocGraphBuildContext
+): void {
+  const bookPaymentNodeId = `${release.id}-gst-bp`;
+  pushNode(
+    nodes,
+    bookPaymentNodeId,
+    createNode(
+      EDocChainStage.BOOK_PAYMENT,
+      approvalState(release.status),
+      ctx,
+      {
+        docNumber: 'GST release',
+        docDate: release.bookingDate,
+        amount: positiveAmount(release.paymentTotalAmount),
+      }
+    )
+  );
+  pushLink(links, gstNodeId, bookPaymentNodeId);
+
+  const transferNodeId = `${release.id}-gst-bt`;
+  pushNode(nodes, transferNodeId, bankTransferNodeData(release, ctx));
+  pushLink(links, bookPaymentNodeId, transferNodeId);
+}
+
+function gstReceiptNodeData(
+  receipt: IPoBreakdownBankTransfer,
+  ctx: IDocGraphBuildContext
+): IDocChainNodeVm {
+  return createNode(
+    EDocChainStage.BANK_TRANSFER,
+    approvalState(receipt.status),
+    ctx,
+    {
+      docName: 'GST receipt',
+      docNumber: receipt.utrNumber,
+      docDate: receipt.transferDate,
+      amount: positiveAmount(receipt.transferAmount),
+    }
+  );
+}
+
+/**
+ * Vendor advance off the PO: its own state (approval, then settlement against invoices), and its
+ * payment — the bank transfer of the booking created when it was approved.
+ */
+function appendAdvanceBranch(
+  nodes: Node[],
+  links: Edge[],
+  poNodeId: string,
+  advance: IPoBreakdownAdvance,
+  ctx: IDocGraphBuildContext
+): void {
+  const advanceNodeId = `${advance.id}-advance`;
+  pushNode(nodes, advanceNodeId, advanceNodeData(advance, ctx));
+  pushLink(links, poNodeId, advanceNodeId);
+
+  if (advance.status.toUpperCase() !== 'APPROVED') {
+    return;
+  }
+
+  const paymentNodeId = `${advance.id}-advance-payment`;
+  if (isAdvancePaid(advance)) {
+    pushNode(
+      nodes,
+      paymentNodeId,
+      createNode(EDocChainStage.BANK_TRANSFER, EDocChainNodeState.DONE, ctx, {
+        docNumber: advance.utrNumber ?? 'Transferred',
+        docDate: advance.lastPaidAt,
+        amount: positiveAmount(advance.paidAmount),
+      })
+    );
+    pushLink(links, advanceNodeId, paymentNodeId);
+    return;
+  }
+
+  const due = advance.bookedAmount > 0 ? advance.bookedAmount : advance.amount;
+  pushExpectedMissingNode(
+    nodes,
+    links,
+    advanceNodeId,
+    paymentNodeId,
+    EDocChainStage.BANK_TRANSFER,
+    ctx,
+    { amount: positiveAmount(due - advance.paidAmount) }
+  );
+}
+
+function advanceNodeData(
+  advance: IPoBreakdownAdvance,
+  ctx: IDocGraphBuildContext
+): IDocChainNodeVm {
+  const fileNote = advance.hasUpload ? '' : ' · No file';
+  const common = {
+    docNumber: advance.advanceNumber,
+    docDate: advance.advanceDate,
+    amount: positiveAmount(advance.amount),
+  };
+
+  if (advance.status.toUpperCase() !== 'APPROVED') {
+    const state = approvalState(advance.status);
+    return createNode(EDocChainStage.ADVANCE, state, ctx, {
+      ...common,
+      statusLabel: `${statusLabel(EDocChainStage.ADVANCE, state, ctx.isSales)}${fileNote}`,
+    });
+  }
+
+  if (!isAdvancePaid(advance)) {
+    return createNode(EDocChainStage.ADVANCE, EDocChainNodeState.DONE, ctx, {
+      ...common,
+      statusLabel: `Approved${fileNote}`,
+    });
+  }
+
+  if (advance.unsettled <= 0) {
+    return createNode(EDocChainStage.ADVANCE, EDocChainNodeState.DONE, ctx, {
+      ...common,
+      statusLabel: `Settled${fileNote}`,
+    });
+  }
+
+  return createNode(EDocChainStage.ADVANCE, EDocChainNodeState.PARTIAL, ctx, {
+    ...common,
+    statusLabel: `${advance.settledAmount > 0 ? 'Partly settled' : 'Not settled'}${fileNote}`,
+  });
 }
 
 function appendSalesPayments(
@@ -406,7 +704,8 @@ function appendPurchasePayments(
   ctx: IDocGraphBuildContext
 ): void {
   if (!invoice.bookPayments.length) {
-    if (invoice.totalAmount <= 0 && invoice.remaining <= 0) {
+    // Nothing left to pay — e.g. the net payable was covered by an advance.
+    if (invoice.remaining <= 0) {
       return;
     }
 
@@ -417,7 +716,7 @@ function appendPurchasePayments(
       `${invoice.id}-bp-missing`,
       EDocChainStage.BOOK_PAYMENT,
       ctx,
-      { amount: positiveAmount(invoice.remaining || invoice.totalAmount) }
+      { amount: positiveAmount(invoice.remaining) }
     );
     return;
   }
@@ -439,7 +738,7 @@ function appendPurchasePayments(
     ctx,
     {
       statusLabel: 'Missing',
-      amount: positiveAmount(invoice.remaining),
+      amount: positiveAmount(getInvoicePendingToBook(invoice)),
     }
   );
 }
@@ -470,11 +769,7 @@ function appendPurchaseRail(
   pushLink(links, invoiceNodeId, bookPaymentNodeId);
 
   const transferNodeId = `${bookPayment.id}-bt`;
-  pushNode(
-    nodes,
-    transferNodeId,
-    bankTransferNodeData(bookPayment, ctx)
-  );
+  pushNode(nodes, transferNodeId, bankTransferNodeData(bookPayment, ctx));
   pushLink(links, bookPaymentNodeId, transferNodeId);
 }
 
@@ -636,6 +931,12 @@ function stageDocName(stage: EDocChainStage, isSales: boolean): string {
       return 'Book Payment';
     case EDocChainStage.BANK_TRANSFER:
       return isSales ? 'Payment' : 'Bank Transfer';
+    case EDocChainStage.GST:
+      return 'GST';
+    case EDocChainStage.TDS:
+      return 'TDS';
+    case EDocChainStage.ADVANCE:
+      return 'Advance';
     default:
       return 'Document';
   }

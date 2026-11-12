@@ -1,6 +1,10 @@
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
-import { IPoBreakdownGetRecordDto, IPoBreakdownGetResponseDto } from '../types/project.dto';
 import {
+  IPoBreakdownGetRecordDto,
+  IPoBreakdownGetResponseDto,
+} from '../types/project.dto';
+import {
+  IPoBreakdownAdvance,
   IPoBreakdownApprovalCount,
   IPoBreakdownBankTransfer,
   IPoBreakdownBookPayment,
@@ -10,9 +14,7 @@ import {
   IPoBreakdownRecord,
   IPoBreakdownReport,
 } from '../types/po-breakdown.interface';
-import {
-  IProjectPoBreakdownSnapshot,
-} from '../types/project-document-status.interface';
+import { IProjectPoBreakdownSnapshot } from '../types/project-document-status.interface';
 import { buildProjectDocumentStatusSummary } from './project-document-status-chain.util';
 
 export function buildPoBreakdownSnapshot(
@@ -73,7 +75,27 @@ function mapPoBreakdownRecord(
     status: record.status,
     totalAmount: record.totalAmount ?? 0,
     counts: buildPoBreakdownCounts(jmcs),
+    advances: (record.advances ?? []).map(mapAdvance),
     jmcs,
+  };
+}
+
+function mapAdvance(
+  advance: IPoBreakdownGetRecordDto['advances'][number]
+): IPoBreakdownAdvance {
+  return {
+    id: advance.id,
+    advanceNumber: advance.advanceNumber,
+    advanceDate: advance.advanceDate ?? null,
+    amount: advance.amount ?? 0,
+    settledAmount: advance.settledAmount ?? 0,
+    unsettled: advance.unsettled ?? 0,
+    status: advance.status,
+    hasUpload: advance.hasUpload ?? true,
+    bookedAmount: advance.bookedAmount ?? 0,
+    paidAmount: advance.paidAmount ?? 0,
+    lastPaidAt: advance.lastPaidAt ?? null,
+    utrNumber: advance.utrNumber ?? null,
   };
 }
 
@@ -119,6 +141,12 @@ function mapInvoice(
 
   const paidTotal = invoice.paidTotal ?? 0;
   const totalAmount = invoice.totalAmount ?? 0;
+  const bookPayments = invoice.bookPayments ?? [];
+  const transfers = invoice.bankTransfers ?? [];
+  const isGstBooking = (bp: (typeof bookPayments)[number]): boolean =>
+    bp.sourceType === 'GST_RELEASE';
+  const isGstTransfer = (bt: (typeof transfers)[number]): boolean =>
+    bt.paymentType === 'GST';
 
   return {
     id: invoice.id,
@@ -128,8 +156,32 @@ function mapInvoice(
     totalAmount,
     paidTotal,
     remaining: invoice.remaining ?? Math.max(totalAmount - paidTotal, 0),
-    bookPayments: (invoice.bookPayments ?? []).map(mapBookPayment),
-    bankTransfers: (invoice.bankTransfers ?? []).map(mapBankTransfer),
+    gst: invoice.gst
+      ? {
+          gstAmount: invoice.gst.gstAmount,
+          isGstHold: invoice.gst.isGstHold,
+          isVerified: invoice.gst.isVerified,
+          settlementStatus: invoice.gst.settlementStatus,
+          settledAt: invoice.gst.settledAt ?? null,
+        }
+      : null,
+    tds: invoice.tds
+      ? {
+          tdsAmount: invoice.tds.tdsAmount,
+          isDeposited: invoice.tds.isDeposited,
+          isVerified: invoice.tds.isVerified,
+          lastDepositedAt: invoice.tds.lastDepositedAt ?? null,
+        }
+      : null,
+    // Held GST moves on its own rail — kept out of the invoice's payment rail and counts.
+    bookPayments: bookPayments
+      .filter(bp => !isGstBooking(bp))
+      .map(mapBookPayment),
+    gstReleases: bookPayments.filter(isGstBooking).map(mapBookPayment),
+    bankTransfers: transfers
+      .filter(bt => !isGstTransfer(bt))
+      .map(mapBankTransfer),
+    gstReceipts: transfers.filter(isGstTransfer).map(mapBankTransfer),
   };
 }
 
@@ -164,7 +216,9 @@ function mapBankTransfer(transfer: {
   };
 }
 
-export function buildPoBreakdownCounts(jmcs: IPoBreakdownJmc[]): IPoBreakdownCounts {
+export function buildPoBreakdownCounts(
+  jmcs: IPoBreakdownJmc[]
+): IPoBreakdownCounts {
   const invoices = jmcs
     .map(jmc => jmc.invoice)
     .filter((invoice): invoice is IPoBreakdownInvoice => invoice !== null);

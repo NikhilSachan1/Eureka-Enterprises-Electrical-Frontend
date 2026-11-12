@@ -123,6 +123,10 @@ export const ICONS = {
   PAYMENT: {
     /** Record outbound payment (payment sheet actions, confirmation dialog). */
     RECORD: 'pi pi-money-bill',
+    /** GST / TDS (tax registers, document gaps). */
+    TAX: 'pi pi-percentage',
+    /** Portal verification (GSTR-2B / GSTR-1 / 26Q / 26AS). */
+    VERIFY: 'pi pi-verified',
   },
   /**
    * Fuel / petro (transport menu).

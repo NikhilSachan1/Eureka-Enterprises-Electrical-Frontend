@@ -240,19 +240,18 @@
   font-variant-numeric: tabular-nums;
   color: var(--text-primary-color);
 
-  &[data-tone='danger'] {
+  &[data-tone="danger"] {
     color: #dc2626;
   }
 
-  &[data-tone='warn'] {
+  &[data-tone="warn"] {
     color: #ea580c;
   }
 
-  &[data-tone='ok'] {
+  &[data-tone="ok"] {
     color: #16a34a;
   }
 }
-
 
 .docstat__graph {
   width: 100%;
@@ -330,51 +329,59 @@
   box-shadow: 0 1px 3px rgb(15 23 42 / 0.06);
   overflow: hidden;
 
-  &[data-stage='po'] {
+  &[data-stage="po"] {
     --stage-accent: #0284c7;
   }
 
-  &[data-stage='jmc'] {
+  &[data-stage="jmc"] {
     --stage-accent: #7c3aed;
   }
 
-  &[data-stage='report'] {
+  &[data-stage="report"] {
     --stage-accent: #059669;
   }
 
-  &[data-stage='invoice'] {
+  &[data-stage="invoice"] {
     --stage-accent: #d97706;
   }
 
-  &[data-stage='payment'] {
+  &[data-stage="payment"] {
     --stage-accent: #db2777;
   }
 
-  &[data-state='done'] {
+  &[data-stage="tax"] {
+    --stage-accent: #2563eb;
+  }
+
+  &[data-stage="advance"] {
+    --stage-accent: #0d9488;
+  }
+
+  &[data-state="done"] {
     --status-accent: #16a34a;
     --badge-bg: #f0fdf4;
     --badge-text: #15803d;
   }
 
-  &[data-state='pending'] {
+  &[data-state="pending"] {
     --status-accent: #ea580c;
     --badge-bg: #fff7ed;
     --badge-text: #c2410c;
   }
 
-  &[data-state='rejected'] {
+  &[data-state="rejected"] {
     --status-accent: #dc2626;
     --badge-bg: #fef2f2;
     --badge-text: #b91c1c;
   }
 
-  &[data-state='missing'] {
+  &[data-state="missing"] {
     --status-accent: #94a3b8;
     --badge-bg: #f8fafc;
     --badge-text: #64748b;
   }
 
-  &[data-state='partial'] {
+  &[data-state="partial"] {
     --status-accent: #ca8a04;
     --badge-bg: #fefce8;
     --badge-text: #a16207;
