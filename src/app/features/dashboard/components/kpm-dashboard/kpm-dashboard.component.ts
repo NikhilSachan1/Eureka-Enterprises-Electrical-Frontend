@@ -68,7 +68,6 @@ const DOCUMENT_GAP_ICONS: Record<string, string> = {
   'contractor-payment-pending': ICONS.BANK.ACCOUNT,
   'rejected-not-replaced': ICONS.COMMON.CLOSE,
   'invoice-file-missing': ICONS.COMMON.FILE,
-  'bank-transfer-proof-missing': ICONS.COMMON.FILE,
   'booked-not-transferred': ICONS.BANK.ACCOUNT,
   'advance-not-paid': ICONS.BANK.ACCOUNT,
   'advance-invoice-not-adjusted': ICONS.EXPENSE.MONEY,

@@ -40,8 +40,6 @@ export interface IPoBreakdownBankTransfer {
   transferDate: string | null;
   status: string;
   transferAmount: number | null;
-  /** Bank statement / receipt uploaded on the transfer. */
-  hasProof: boolean;
   /** Vendor transfers only. */
   paymentAdvice: IPoBreakdownPaymentAdvice | null;
 }
@@ -182,6 +180,6 @@ export interface IDocChainNodeVm {
   isExpectedMissing?: boolean;
   /** Monetary amount for invoice, book payment, or bank transfer nodes. */
   amount?: number | null;
-  /** The document exists but its file / proof is not uploaded — shown as a badge. */
+  /** The document exists but its file is not uploaded — shown as a badge. */
   missingFileLabel?: string | null;
 }

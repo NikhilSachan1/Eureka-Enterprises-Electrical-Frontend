@@ -21,7 +21,6 @@ const PoBreakdownBankTransferSchema = z.looseObject({
   transferAmount: z.coerce.number().nullable().optional(),
   /** REGULAR | GST (held GST released to the vendor / received from the client). */
   paymentType: z.string().nullable().optional(),
-  hasProof: z.coerce.boolean().optional(),
   /** Vendor transfers: the payment advice and whether it was emailed. */
   paymentAdvice: z
     .looseObject({

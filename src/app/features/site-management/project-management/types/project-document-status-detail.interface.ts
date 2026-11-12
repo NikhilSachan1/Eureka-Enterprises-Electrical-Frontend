@@ -26,6 +26,6 @@ export interface IGraphCardView {
   formattedDate: string;
   amount: number | null | undefined;
   hasFacts: boolean;
-  /** "No file" / "No proof" badge when the document's upload is missing. */
+  /** "No file" badge when the document's upload is missing. */
   missingFileLabel: string | null;
 }

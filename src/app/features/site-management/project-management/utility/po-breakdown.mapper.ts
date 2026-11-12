@@ -211,7 +211,6 @@ function mapBankTransfer(transfer: {
   transferDate?: string | null;
   status: string;
   transferAmount?: number | null;
-  hasProof?: boolean;
   paymentAdvice?: {
     referenceNumber: string | null;
     generatedAt?: string | null;
@@ -224,7 +223,6 @@ function mapBankTransfer(transfer: {
     transferDate: transfer.transferDate ?? null,
     status: transfer.status,
     transferAmount: transfer.transferAmount ?? null,
-    hasProof: transfer.hasProof ?? true,
     paymentAdvice: transfer.paymentAdvice
       ? {
           referenceNumber: transfer.paymentAdvice.referenceNumber,

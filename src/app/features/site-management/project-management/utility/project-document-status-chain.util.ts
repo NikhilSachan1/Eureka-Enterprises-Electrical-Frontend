@@ -127,22 +127,9 @@ function countPoUninvoicedMissing(record: IPoBreakdownRecord): number {
   return 1;
 }
 
-/**
- * Documents that exist but whose file was never uploaded: the invoice itself, and the proof on
- * every bank transfer that paid it (invoice, GST release / receipt).
- */
+/** The invoice exists but its document was never uploaded. */
 function countInvoiceFilesMissing(invoice: IPoBreakdownInvoice): number {
-  const transfers = [
-    ...invoice.bankTransfers,
-    ...invoice.gstReceipts,
-    ...invoice.bookPayments.flatMap(bp => bp.bankTransfers),
-    ...invoice.gstReleases.flatMap(bp => bp.bankTransfers),
-  ];
-
-  return (
-    (invoice.fileMissing ? 1 : 0) +
-    transfers.filter(transfer => !transfer.hasProof).length
-  );
+  return invoice.fileMissing ? 1 : 0;
 }
 
 function countJmcBranchMissing(jmc: IPoBreakdownJmc, isSales: boolean): number {
