@@ -2,6 +2,11 @@
   display: block;
 }
 
+// Holds the contractor and vendor doc-approval sections, so the KPI tile scrolls to both.
+.work-group {
+  scroll-margin: 1rem;
+}
+
 // ── Work sections: project docs, document gaps, payment sheets ───────────────
 // Same flat card as the chart cards; each section keeps its own accent for the icon chip and counts.
 .work-section {
