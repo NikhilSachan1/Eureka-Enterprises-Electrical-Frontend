@@ -6,6 +6,8 @@ export interface IBookPaymentInvoiceDropdownMeta {
   isGstHold?: boolean | null;
   bookedTotal?: number;
   paidTotal?: number;
+  /** Advances already settled against the invoice. */
+  advanceSettledAmount?: number;
   remaining?: number;
 }
 

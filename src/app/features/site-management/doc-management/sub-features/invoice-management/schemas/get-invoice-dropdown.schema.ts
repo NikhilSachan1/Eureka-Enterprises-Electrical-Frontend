@@ -22,6 +22,7 @@ const InvoiceDropdownMetaSchema = z.looseObject({
   isGstHold: z.boolean().optional(),
   bookedTotal: z.number().optional(),
   paidTotal: z.number().optional(),
+  advanceSettledAmount: z.number().optional(),
   remaining: z.number().optional(),
 });
 
