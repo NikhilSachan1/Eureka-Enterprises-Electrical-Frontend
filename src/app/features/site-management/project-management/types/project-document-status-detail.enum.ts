@@ -11,6 +11,8 @@ export enum EDocChainStage {
   TDS = 'TDS',
   /** Advance payment raised on the PO before any invoice. */
   ADVANCE = 'ADVANCE',
+  /** Vendor payment advice generated with a bank transfer — emailed or not. */
+  PAYMENT_ADVICE = 'PAYMENT_ADVICE',
 }
 
 export enum EDocChainNodeState {

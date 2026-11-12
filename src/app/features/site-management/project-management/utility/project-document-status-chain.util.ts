@@ -14,10 +14,11 @@ export function countPoNextMissing(
   isSales: boolean,
   options?: { includePoUninvoicedBalance?: boolean }
 ): number {
-  const advanceMissing = (record.advances ?? []).reduce(
-    (count, advance) => count + countAdvanceMissing(advance),
-    0
-  );
+  const advanceMissing =
+    (record.advances ?? []).reduce(
+      (count, advance) => count + countAdvanceMissing(advance),
+      0
+    ) + (record.fileMissing ? 1 : 0);
 
   if (!record.jmcs.length) {
     return 1 + advanceMissing;
@@ -126,8 +127,26 @@ function countPoUninvoicedMissing(record: IPoBreakdownRecord): number {
   return 1;
 }
 
+/**
+ * Documents that exist but whose file was never uploaded: the invoice itself, and the proof on
+ * every bank transfer that paid it (invoice, GST release / receipt).
+ */
+function countInvoiceFilesMissing(invoice: IPoBreakdownInvoice): number {
+  const transfers = [
+    ...invoice.bankTransfers,
+    ...invoice.gstReceipts,
+    ...invoice.bookPayments.flatMap(bp => bp.bankTransfers),
+    ...invoice.gstReleases.flatMap(bp => bp.bankTransfers),
+  ];
+
+  return (
+    (invoice.fileMissing ? 1 : 0) +
+    transfers.filter(transfer => !transfer.hasProof).length
+  );
+}
+
 function countJmcBranchMissing(jmc: IPoBreakdownJmc, isSales: boolean): number {
-  let count = 0;
+  let count = jmc.fileMissing ? 1 : 0;
 
   if (!jmc.report) {
     count += 1;
@@ -145,7 +164,8 @@ function countJmcBranchMissing(jmc: IPoBreakdownJmc, isSales: boolean): number {
   return (
     count +
     countInvoicePaymentMissing(jmc.invoice, isSales) +
-    countInvoiceTaxMissing(jmc.invoice, isSales)
+    countInvoiceTaxMissing(jmc.invoice, isSales) +
+    countInvoiceFilesMissing(jmc.invoice)
   );
 }
 

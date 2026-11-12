@@ -21,6 +21,17 @@ const PoBreakdownBankTransferSchema = z.looseObject({
   transferAmount: z.coerce.number().nullable().optional(),
   /** REGULAR | GST (held GST released to the vendor / received from the client). */
   paymentType: z.string().nullable().optional(),
+  hasProof: z.coerce.boolean().optional(),
+  /** Vendor transfers: the payment advice and whether it was emailed. */
+  paymentAdvice: z
+    .looseObject({
+      id: uuidField,
+      referenceNumber: z.string().nullable(),
+      generatedAt: z.string().nullable().optional(),
+      isEmailed: z.coerce.boolean(),
+    })
+    .nullable()
+    .optional(),
 });
 
 const PoBreakdownBookPaymentSchema = z.looseObject({
@@ -56,6 +67,7 @@ const PoBreakdownInvoiceSchema = z.looseObject({
   invoiceNumber: z.string().nullable(),
   invoiceDate: z.string().nullable().optional(),
   status: z.string(),
+  hasUpload: z.coerce.boolean().optional(),
   totalAmount: z.coerce.number(),
   paidTotal: z.coerce.number(),
   /** What the payment covers: taxable − TDS (GST held) / taxable + GST − TDS. */
@@ -97,6 +109,9 @@ const PoBreakdownJmcSchema = z.looseObject({
   jmcNumber: z.string().nullable(),
   jmcDate: z.string().nullable().optional(),
   status: z.string(),
+  isNoJmc: z.coerce.boolean().optional(),
+  isSystemGenerated: z.coerce.boolean().optional(),
+  hasUpload: z.coerce.boolean().optional(),
   hasReport: z.coerce.boolean().optional(),
   hasInvoice: z.coerce.boolean().optional(),
   report: PoBreakdownReportSchema.nullable(),
@@ -109,6 +124,8 @@ export const PoBreakdownRecordSchema = z.looseObject({
   poDate: z.string().nullable().optional(),
   partyType: z.nativeEnum(EDocContext),
   status: z.string(),
+  hasUpload: z.coerce.boolean().optional(),
+  isSystemGenerated: z.coerce.boolean().optional(),
   totalAmount: z.coerce.number(),
   partyName: z.string().nullable(),
   advances: z.array(PoBreakdownAdvanceSchema).default([]),

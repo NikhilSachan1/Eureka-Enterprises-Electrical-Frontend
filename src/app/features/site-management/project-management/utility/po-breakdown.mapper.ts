@@ -73,6 +73,7 @@ function mapPoBreakdownRecord(
     poDate: record.poDate ?? null,
     partyName: record.partyName,
     status: record.status,
+    fileMissing: !record.isSystemGenerated && record.hasUpload === false,
     totalAmount: record.totalAmount ?? 0,
     counts: buildPoBreakdownCounts(jmcs),
     advances: (record.advances ?? []).map(mapAdvance),
@@ -110,6 +111,8 @@ function mapJmc(
     jmcNumber: jmc.jmcNumber,
     jmcDate: jmc.jmcDate ?? null,
     status: jmc.status,
+    fileMissing:
+      !jmc.isNoJmc && !jmc.isSystemGenerated && jmc.hasUpload === false,
     hasReport: jmc.hasReport ?? true,
     hasInvoice: jmc.hasInvoice ?? true,
     report,
@@ -153,6 +156,8 @@ function mapInvoice(
     invoiceNumber: invoice.invoiceNumber,
     invoiceDate: invoice.invoiceDate ?? null,
     status: invoice.status,
+    // A "No invoice / bill later" marker has no number and no document to upload.
+    fileMissing: invoice.invoiceNumber !== null && invoice.hasUpload === false,
     totalAmount,
     paidTotal,
     remaining: invoice.remaining ?? Math.max(totalAmount - paidTotal, 0),
@@ -206,6 +211,12 @@ function mapBankTransfer(transfer: {
   transferDate?: string | null;
   status: string;
   transferAmount?: number | null;
+  hasProof?: boolean;
+  paymentAdvice?: {
+    referenceNumber: string | null;
+    generatedAt?: string | null;
+    isEmailed: boolean;
+  } | null;
 }): IPoBreakdownBankTransfer {
   return {
     id: transfer.id,
@@ -213,6 +224,14 @@ function mapBankTransfer(transfer: {
     transferDate: transfer.transferDate ?? null,
     status: transfer.status,
     transferAmount: transfer.transferAmount ?? null,
+    hasProof: transfer.hasProof ?? true,
+    paymentAdvice: transfer.paymentAdvice
+      ? {
+          referenceNumber: transfer.paymentAdvice.referenceNumber,
+          generatedAt: transfer.paymentAdvice.generatedAt ?? null,
+          isEmailed: transfer.paymentAdvice.isEmailed,
+        }
+      : null,
   };
 }
 

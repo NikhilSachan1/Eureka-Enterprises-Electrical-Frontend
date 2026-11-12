@@ -40,6 +40,17 @@ export interface IPoBreakdownBankTransfer {
   transferDate: string | null;
   status: string;
   transferAmount: number | null;
+  /** Bank statement / receipt uploaded on the transfer. */
+  hasProof: boolean;
+  /** Vendor transfers only. */
+  paymentAdvice: IPoBreakdownPaymentAdvice | null;
+}
+
+export interface IPoBreakdownPaymentAdvice {
+  referenceNumber: string | null;
+  generatedAt: string | null;
+  /** Sent to the vendor by email at least once. */
+  isEmailed: boolean;
 }
 
 export interface IPoBreakdownBookPayment {
@@ -79,6 +90,8 @@ export interface IPoBreakdownInvoice {
   invoiceNumber: string | null;
   invoiceDate: string | null;
   status: string;
+  /** A real invoice without its document uploaded. */
+  fileMissing: boolean;
   totalAmount: number;
   paidTotal: number;
   /** Net payable less advance settled and paid — what is still to pay / receive. */
@@ -122,6 +135,8 @@ export interface IPoBreakdownJmc {
   jmcNumber: string | null;
   jmcDate: string | null;
   status: string;
+  /** An uploaded-type JMC without its signed copy (No-JMC / system-generated need none). */
+  fileMissing: boolean;
   hasReport: boolean;
   hasInvoice: boolean;
   report: IPoBreakdownReport | null;
@@ -134,6 +149,8 @@ export interface IPoBreakdownRecord {
   poDate: string | null;
   partyName: string | null;
   status: string;
+  /** Signed PO not uploaded (system-generated POs need none). */
+  fileMissing: boolean;
   totalAmount: number;
   counts: IPoBreakdownCounts;
   /** Vendor POs: advances paid before any invoice. */
@@ -165,4 +182,6 @@ export interface IDocChainNodeVm {
   isExpectedMissing?: boolean;
   /** Monetary amount for invoice, book payment, or bank transfer nodes. */
   amount?: number | null;
+  /** The document exists but its file / proof is not uploaded — shown as a badge. */
+  missingFileLabel?: string | null;
 }

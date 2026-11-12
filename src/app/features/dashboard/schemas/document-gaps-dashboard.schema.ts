@@ -17,6 +17,8 @@ const DocumentGapItemSchema = z.looseObject({
   amount: z.coerce.number().nullable().optional(),
   since: z.string().nullable().optional(),
   ageDays: z.number().nonnegative().optional(),
+  /** Mixed gaps (rejected documents): the workspace list this row lives in, e.g. `jmc`. */
+  docKind: z.string().nullable().optional(),
 });
 
 export const DocumentGapsDashboardGetResponseSchema = z.looseObject({
