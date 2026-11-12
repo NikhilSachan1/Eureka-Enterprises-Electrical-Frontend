@@ -19,6 +19,9 @@ export function resolveWorkspaceDocTab(stage: EDocChainStage): string {
       return WORKSPACE_DOC.BANK_TRANSFER;
     case EDocChainStage.ADVANCE:
       return WORKSPACE_DOC.ADVANCE_PAYMENT;
+    // The advice is opened (and emailed) from its bank transfer.
+    case EDocChainStage.PAYMENT_ADVICE:
+      return WORKSPACE_DOC.BANK_TRANSFER;
     default:
       return WORKSPACE_DOC.PO;
   }

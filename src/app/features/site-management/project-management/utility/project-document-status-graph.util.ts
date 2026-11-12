@@ -49,6 +49,7 @@ export function buildPoDocumentGraph(
       docNumber: po.poNumber,
       docDate: po.poDate,
       amount: positiveAmount(po.totalAmount),
+      missingFileLabel: po.fileMissing ? NO_FILE_LABEL : null,
     })
   );
 
@@ -135,7 +136,52 @@ export function buildGraphCardView(data: IDocChainNodeVm): IGraphCardView {
     formattedDate,
     amount: data.amount,
     hasFacts: Boolean(data.amount) || formattedDate !== '—',
+    missingFileLabel: data.missingFileLabel ?? null,
   };
+}
+
+const NO_FILE_LABEL = 'No file';
+const NO_PROOF_LABEL = 'No proof';
+
+/** "No proof" badge for a transfer whose bank statement / receipt is not uploaded. */
+function proofBadge(
+  transfer: IPoBreakdownBankTransfer | undefined
+): string | null {
+  return transfer && !transfer.hasProof ? NO_PROOF_LABEL : null;
+}
+
+/**
+ * Vendor transfers: the payment advice generated with them, and whether it reached the vendor.
+ * Pending (not missing) when not emailed — the money has gone, only the intimation is due.
+ */
+function appendPaymentAdviceNode(
+  nodes: Node[],
+  links: Edge[],
+  transferNodeId: string,
+  transfer: IPoBreakdownBankTransfer | undefined,
+  ctx: IDocGraphBuildContext
+): void {
+  const advice = transfer?.paymentAdvice;
+  if (!transfer || !advice) {
+    return;
+  }
+
+  const adviceNodeId = `${transfer.id}-advice`;
+  pushNode(
+    nodes,
+    adviceNodeId,
+    createNode(
+      EDocChainStage.PAYMENT_ADVICE,
+      advice.isEmailed ? EDocChainNodeState.DONE : EDocChainNodeState.PENDING,
+      ctx,
+      {
+        docNumber: advice.referenceNumber,
+        docDate: advice.generatedAt,
+        statusLabel: advice.isEmailed ? 'Emailed' : 'Not emailed',
+      }
+    )
+  );
+  pushLink(links, transferNodeId, adviceNodeId);
 }
 
 function hasDocNumber(data: IDocChainNodeVm): boolean {
@@ -264,6 +310,8 @@ function graphStageIcon(stage: EDocChainStage): string {
       return 'pi pi-calculator';
     case EDocChainStage.ADVANCE:
       return 'pi pi-forward';
+    case EDocChainStage.PAYMENT_ADVICE:
+      return 'pi pi-envelope';
     default:
       return 'pi pi-file';
   }
@@ -283,6 +331,7 @@ function appendJmcBranch(
     createNode(EDocChainStage.JMC, approvalState(jmc.status), ctx, {
       docNumber: jmc.jmcNumber,
       docDate: jmc.jmcDate,
+      missingFileLabel: jmc.fileMissing ? NO_FILE_LABEL : null,
       isNotApplicable: !jmc.jmcNumber?.trim(),
     })
   );
@@ -544,6 +593,13 @@ function appendGstReleaseRail(
   const transferNodeId = `${release.id}-gst-bt`;
   pushNode(nodes, transferNodeId, bankTransferNodeData(release, ctx));
   pushLink(links, bookPaymentNodeId, transferNodeId);
+  appendPaymentAdviceNode(
+    nodes,
+    links,
+    transferNodeId,
+    release.bankTransfers[0],
+    ctx
+  );
 }
 
 function gstReceiptNodeData(
@@ -559,6 +615,7 @@ function gstReceiptNodeData(
       docNumber: receipt.utrNumber,
       docDate: receipt.transferDate,
       amount: positiveAmount(receipt.transferAmount),
+      missingFileLabel: proofBadge(receipt),
     }
   );
 }
@@ -668,6 +725,7 @@ function appendSalesPayments(
           docNumber: transfer.utrNumber,
           docDate: transfer.transferDate,
           amount: salesBankTransferAmount(transfer, invoice),
+          missingFileLabel: proofBadge(transfer),
         }
       )
     );
@@ -771,6 +829,13 @@ function appendPurchaseRail(
   const transferNodeId = `${bookPayment.id}-bt`;
   pushNode(nodes, transferNodeId, bankTransferNodeData(bookPayment, ctx));
   pushLink(links, bookPaymentNodeId, transferNodeId);
+  appendPaymentAdviceNode(
+    nodes,
+    links,
+    transferNodeId,
+    bookPayment.bankTransfers[0],
+    ctx
+  );
 }
 
 function reportNodeData(
@@ -803,6 +868,7 @@ function invoiceNodeData(
       docNumber: invoice.invoiceNumber,
       docDate: invoice.invoiceDate,
       amount: positiveAmount(invoice.totalAmount),
+      missingFileLabel: invoice.fileMissing ? NO_FILE_LABEL : null,
     }
   );
 }
@@ -821,6 +887,7 @@ function bankTransferNodeData(
         docNumber: transfer.utrNumber,
         docDate: transfer.transferDate,
         amount: purchaseBankTransferAmount(transfer, bookPayment),
+        missingFileLabel: proofBadge(transfer),
       }
     );
   }
@@ -937,6 +1004,8 @@ function stageDocName(stage: EDocChainStage, isSales: boolean): string {
       return 'TDS';
     case EDocChainStage.ADVANCE:
       return 'Advance';
+    case EDocChainStage.PAYMENT_ADVICE:
+      return 'Payment Advice';
     default:
       return 'Document';
   }
