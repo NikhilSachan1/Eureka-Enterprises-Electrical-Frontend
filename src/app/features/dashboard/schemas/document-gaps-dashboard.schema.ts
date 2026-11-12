@@ -1,6 +1,9 @@
 import * as z from 'zod';
 
 const DocumentGapSideSchema = z.looseObject({
+  /** The gap as this side words it; falls back to the gap's own label / hint. */
+  label: z.string().optional(),
+  hint: z.string().optional(),
   count: z.number().nonnegative().default(0),
   oldestDays: z.number().nonnegative().default(0),
 });
@@ -30,8 +33,6 @@ const DocumentGapItemSchema = z.looseObject({
   amount: z.coerce.number().nullable().optional(),
   since: z.string().nullable().optional(),
   ageDays: z.number().nonnegative().optional(),
-  /** Mixed gaps (rejected documents): the workspace list this row lives in, e.g. `jmc`. */
-  docKind: z.string().nullable().optional(),
 });
 
 export const DocumentGapsDashboardGetResponseSchema = z.looseObject({

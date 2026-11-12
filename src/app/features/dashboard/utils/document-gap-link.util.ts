@@ -16,7 +16,6 @@ const PARTY_PATH: Record<DocumentGapParty, string> = {
 /** Which project-document list a gap key belongs to. */
 const GAP_DOC_PATH: Record<string, string> = {
   'po-without-jmc': WORKSPACE_DOC.PO,
-  'po-file-missing': WORKSPACE_DOC.PO,
   'po-under-invoiced': WORKSPACE_DOC.PO,
   'jmc-without-invoice': WORKSPACE_DOC.JMC,
   'jmc-without-report': WORKSPACE_DOC.REPORT,
@@ -24,6 +23,7 @@ const GAP_DOC_PATH: Record<string, string> = {
   'invoice-not-booked': WORKSPACE_DOC.INVOICE,
   'invoice-partially-booked': WORKSPACE_DOC.INVOICE,
   'contractor-payment-pending': WORKSPACE_DOC.BANK_TRANSFER,
+  'contractor-payment-partial': WORKSPACE_DOC.BANK_TRANSFER,
   'invoice-file-missing': WORKSPACE_DOC.INVOICE,
   'booked-not-transferred': WORKSPACE_DOC.BOOK_PAYMENT,
   'advance-not-paid': WORKSPACE_DOC.BOOK_PAYMENT,
@@ -58,21 +58,12 @@ export function documentGapParty(
   return null;
 }
 
-/** Workspace document lists a mixed gap row may point at (its `docKind`). */
-const KNOWN_DOC_PATHS = new Set<string>(Object.values(WORKSPACE_DOC));
-
-/**
- * Where a gap — or one row of it — opens. `docKind` lets a gap that mixes document types
- * (rejected documents) send each row to its own list.
- */
+/** Where a gap — or one row of it — opens. */
 export function documentGapListCommands(
   key: string,
-  partyType?: string | null,
-  docKind?: string | null
+  partyType?: string | null
 ): string[] {
   const party = documentGapParty(partyType) ?? 'vendor';
-  const rowDocPath =
-    docKind && KNOWN_DOC_PATHS.has(docKind) ? docKind : undefined;
   const taxSummary = GAP_TAX_SUMMARY_PATH[key];
 
   if (taxSummary) {
@@ -91,7 +82,7 @@ export function documentGapListCommands(
     ROUTE_BASE_PATHS.SITE.PROJECT,
     ROUTES.SITE.PROJECT.WORKSPACE,
     PARTY_PATH[party],
-    rowDocPath ?? GAP_DOC_PATH[key] ?? WORKSPACE_DOC.PO,
+    GAP_DOC_PATH[key] ?? WORKSPACE_DOC.PO,
   ];
 }
 

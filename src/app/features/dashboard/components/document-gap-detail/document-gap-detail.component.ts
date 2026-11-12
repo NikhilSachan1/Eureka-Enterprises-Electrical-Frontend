@@ -37,14 +37,6 @@ interface GapDetailRow {
 
 const SECTION_ORDER = ['contractor', 'vendor', 'other'] as const;
 
-/** Prefix for rows of a gap that mixes document types (rejected documents). */
-const DOC_KIND_LABEL: Record<string, string> = {
-  po: 'PO',
-  jmc: 'JMC',
-  invoice: 'Invoice',
-  'advance-payment': 'Advance',
-};
-
 @Component({
   selector: 'app-document-gap-detail',
   imports: [RouterLink, CurrencyPipe, DatePipe],
@@ -96,18 +88,13 @@ export class DocumentGapDetailComponent implements OnInit {
       const missingNumber = isMissingDocumentNumber(item.documentNumber);
       const number = item.documentNumber?.trim() ?? '';
 
-      const kindLabel = item.docKind ? DOC_KIND_LABEL[item.docKind] : undefined;
-      const numberLabel = missingNumber ? '(no number)' : number;
-
       buckets[party].push({
         id: item.id,
-        documentLabel: kindLabel
-          ? `${kindLabel} · ${numberLabel}`
-          : numberLabel,
+        documentLabel: missingNumber ? '(no number)' : number,
         siteName: item.siteName || '—',
         amount: item.amount ?? null,
         since: item.since ?? null,
-        commands: documentGapListCommands(this.gapKey, partyType, item.docKind),
+        commands: documentGapListCommands(this.gapKey, partyType),
         query: missingNumber ? {} : { [DOC_TAB_SEARCH_QUERY_KEY]: number },
       });
     }
