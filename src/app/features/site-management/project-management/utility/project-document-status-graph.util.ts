@@ -141,14 +141,6 @@ export function buildGraphCardView(data: IDocChainNodeVm): IGraphCardView {
 }
 
 const NO_FILE_LABEL = 'No file';
-const NO_PROOF_LABEL = 'No proof';
-
-/** "No proof" badge for a transfer whose bank statement / receipt is not uploaded. */
-function proofBadge(
-  transfer: IPoBreakdownBankTransfer | undefined
-): string | null {
-  return transfer && !transfer.hasProof ? NO_PROOF_LABEL : null;
-}
 
 /**
  * Vendor transfers: the payment advice generated with them, and whether it reached the vendor.
@@ -615,7 +607,6 @@ function gstReceiptNodeData(
       docNumber: receipt.utrNumber,
       docDate: receipt.transferDate,
       amount: positiveAmount(receipt.transferAmount),
-      missingFileLabel: proofBadge(receipt),
     }
   );
 }
@@ -725,7 +716,6 @@ function appendSalesPayments(
           docNumber: transfer.utrNumber,
           docDate: transfer.transferDate,
           amount: salesBankTransferAmount(transfer, invoice),
-          missingFileLabel: proofBadge(transfer),
         }
       )
     );
@@ -887,7 +877,6 @@ function bankTransferNodeData(
         docNumber: transfer.utrNumber,
         docDate: transfer.transferDate,
         amount: purchaseBankTransferAmount(transfer, bookPayment),
-        missingFileLabel: proofBadge(transfer),
       }
     );
   }

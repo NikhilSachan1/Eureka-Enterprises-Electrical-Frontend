@@ -25,7 +25,6 @@ const GAP_DOC_PATH: Record<string, string> = {
   'invoice-partially-booked': WORKSPACE_DOC.INVOICE,
   'contractor-payment-pending': WORKSPACE_DOC.BANK_TRANSFER,
   'invoice-file-missing': WORKSPACE_DOC.INVOICE,
-  'bank-transfer-proof-missing': WORKSPACE_DOC.BANK_TRANSFER,
   'booked-not-transferred': WORKSPACE_DOC.BOOK_PAYMENT,
   'advance-not-paid': WORKSPACE_DOC.BOOK_PAYMENT,
   'advance-invoice-not-adjusted': WORKSPACE_DOC.ADVANCE_PAYMENT,
