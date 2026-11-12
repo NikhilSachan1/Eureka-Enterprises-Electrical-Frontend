@@ -1,4 +1,7 @@
-import { EDocChainNodeState, EDocChainStage } from './project-document-status-detail.enum';
+import {
+  EDocChainNodeState,
+  EDocChainStage,
+} from './project-document-status-detail.enum';
 
 export interface IPoBreakdownApprovalCount {
   approved: number;
@@ -48,6 +51,29 @@ export interface IPoBreakdownBookPayment {
   bankTransfers: IPoBreakdownBankTransfer[];
 }
 
+export type IPoBreakdownGstSettlement =
+  | 'NOT_HELD'
+  | 'PENDING'
+  | 'IN_PROCESS'
+  | 'SETTLED';
+
+/** Invoice GST: portal match + settlement of the held GST. */
+export interface IPoBreakdownInvoiceGst {
+  gstAmount: number;
+  isGstHold: boolean;
+  isVerified: boolean;
+  settlementStatus: IPoBreakdownGstSettlement;
+  settledAt: string | null;
+}
+
+/** Invoice TDS: challan (vendor) and 26Q / 26AS verification. */
+export interface IPoBreakdownInvoiceTds {
+  tdsAmount: number;
+  isDeposited: boolean;
+  isVerified: boolean;
+  lastDepositedAt: string | null;
+}
+
 export interface IPoBreakdownInvoice {
   id: string;
   invoiceNumber: string | null;
@@ -55,9 +81,33 @@ export interface IPoBreakdownInvoice {
   status: string;
   totalAmount: number;
   paidTotal: number;
+  /** Net payable less advance settled and paid — what is still to pay / receive. */
   remaining: number;
+  gst: IPoBreakdownInvoiceGst | null;
+  tds: IPoBreakdownInvoiceTds | null;
+  /** Invoice payments (GST releases are kept apart in `gstReleases`). */
   bookPayments: IPoBreakdownBookPayment[];
+  /** Vendor: held GST paid out through a GST book payment. */
+  gstReleases: IPoBreakdownBookPayment[];
+  /** Contractor: invoice receipts (GST receipts are kept apart in `gstReceipts`). */
   bankTransfers: IPoBreakdownBankTransfer[];
+  /** Contractor: held GST the client paid, recorded as a GST bank transfer. */
+  gstReceipts: IPoBreakdownBankTransfer[];
+}
+
+export interface IPoBreakdownAdvance {
+  id: string;
+  advanceNumber: string | null;
+  advanceDate: string | null;
+  amount: number;
+  settledAmount: number;
+  unsettled: number;
+  status: string;
+  hasUpload: boolean;
+  bookedAmount: number;
+  paidAmount: number;
+  lastPaidAt: string | null;
+  utrNumber: string | null;
 }
 
 export interface IPoBreakdownReport {
@@ -86,6 +136,8 @@ export interface IPoBreakdownRecord {
   status: string;
   totalAmount: number;
   counts: IPoBreakdownCounts;
+  /** Vendor POs: advances paid before any invoice. */
+  advances: IPoBreakdownAdvance[];
   jmcs: IPoBreakdownJmc[];
 }
 

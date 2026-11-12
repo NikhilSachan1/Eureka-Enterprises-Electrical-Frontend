@@ -23,7 +23,23 @@ const GAP_DOC_PATH: Record<string, string> = {
   'invoice-not-booked': WORKSPACE_DOC.INVOICE,
   'invoice-file-missing': WORKSPACE_DOC.INVOICE,
   'booked-not-transferred': WORKSPACE_DOC.BOOK_PAYMENT,
+  'advance-not-paid': WORKSPACE_DOC.BOOK_PAYMENT,
+  'advance-invoice-not-adjusted': WORKSPACE_DOC.ADVANCE_PAYMENT,
   'advance-not-settled': WORKSPACE_DOC.ADVANCE_PAYMENT,
+  'advance-file-missing': WORKSPACE_DOC.ADVANCE_PAYMENT,
+  'gst-release-not-transferred': WORKSPACE_DOC.BOOK_PAYMENT,
+};
+
+/**
+ * Gaps settled in the project's GST / TDS summary rather than a contractor / vendor document
+ * list. Those summaries sit directly under the workspace and cover both sides.
+ */
+const GAP_TAX_SUMMARY_PATH: Record<string, string> = {
+  'gst-not-verified': ROUTES.SITE.PROJECT.GST_SUMMARY,
+  'gst-release-pending': ROUTES.SITE.PROJECT.GST_SUMMARY,
+  'gst-receipt-pending': ROUTES.SITE.PROJECT.GST_SUMMARY,
+  'tds-challan-pending': ROUTES.SITE.PROJECT.TDS_SUMMARY,
+  'tds-not-verified': ROUTES.SITE.PROJECT.TDS_SUMMARY,
 };
 
 export function documentGapParty(
@@ -44,6 +60,17 @@ export function documentGapListCommands(
   partyType?: string | null
 ): string[] {
   const party = documentGapParty(partyType) ?? 'vendor';
+  const taxSummary = GAP_TAX_SUMMARY_PATH[key];
+
+  if (taxSummary) {
+    return [
+      '/',
+      ROUTE_BASE_PATHS.SITE.BASE,
+      ROUTE_BASE_PATHS.SITE.PROJECT,
+      ROUTES.SITE.PROJECT.WORKSPACE,
+      taxSummary,
+    ];
+  }
 
   return [
     '/',
