@@ -1,229 +1,230 @@
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   input,
 } from '@angular/core';
+import { TooltipModule } from 'primeng/tooltip';
 import { APP_CONFIG } from '@core/config';
+import { ICONS } from '@shared/constants';
 import type { IInvoicePaymentSummary } from '@features/site-management/doc-management/sub-features/invoice-management/types/invoice.interface';
 
-type Tone = 'paid' | 'advance' | 'gst' | 'tds' | 'pending' | 'progress';
+type RowState = 'done' | 'progress' | 'pending';
 
-interface IBarPart {
+interface ISummaryRow {
   key: string;
-  tone: Tone;
   label: string;
   amount: number;
-  pct: number;
-}
-
-interface IStatusLine {
-  key: string;
-  tone: Tone;
-  label: string;
-  amount: number;
-  status: string;
-  /** Status text tone: done (green), progress (blue), pending (amber). */
-  state: 'done' | 'progress' | 'pending';
-  detail?: string;
+  /** What the label means, shown on the info icon. */
+  meaning: string;
+  /** Short status beside the amount, e.g. "₹10,000 awaiting transfer". */
+  status?: string;
+  state?: RowState;
 }
 
 /**
- * The invoice's money at a glance: one bar showing how its value has been cleared (paid,
- * advance, GST, TDS, balance), then each part on its own line with its status. Every figure comes
- * from the server's `paymentSummary`; nothing is added up here.
+ * The invoice's money in plain rows: what it is worth, what was booked and paid, what advances,
+ * GST and TDS covered, and what is left. Every figure is the server's `paymentSummary`; each label
+ * explains itself on hover.
  */
 @Component({
   selector: 'app-invoice-payment-summary',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, NgTemplateOutlet, TooltipModule],
   templateUrl: './invoice-payment-summary.component.html',
   styleUrl: './invoice-payment-summary.component.scss',
 })
 export class InvoicePaymentSummaryComponent {
   protected readonly fmt = APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS;
   protected readonly loc = APP_CONFIG.NUMBER_FORMATS.LOCALE;
+  protected readonly infoIcon = ICONS.COMMON.INFO_CIRCLE;
 
   readonly summary = input<IInvoicePaymentSummary | null | undefined>(null);
   readonly isSales = input(false);
 
-  protected readonly bar = computed<IBarPart[]>(() => {
-    const s = this.summary();
-    if (!s || s.invoiceValue <= 0) {
-      return [];
-    }
-    const parts: Omit<IBarPart, 'pct'>[] = [
-      {
-        key: 'paid',
-        tone: 'paid',
-        label: this.isSales() ? 'Received' : 'Paid',
-        amount: s.paid,
-      },
-      {
-        key: 'advance',
-        tone: 'advance',
-        label: 'Advance',
-        amount: s.advanceAdjusted,
-      },
-      {
-        key: 'gst',
-        tone: 'gst',
-        label: this.isSales() ? 'GST received' : 'GST released',
-        amount: s.gst?.isHeld ? s.gst.settled : 0,
-      },
-      {
-        key: 'tds',
-        tone: 'tds',
-        label: this.isSales() ? 'TDS credited' : 'TDS deposited',
-        amount: s.tds?.cleared ?? 0,
-      },
-    ];
-    return parts
-      .filter(part => part.amount > 0)
-      .map(part => ({
-        ...part,
-        pct: Math.min((part.amount / s.invoiceValue) * 100, 100),
-      }));
-  });
-
-  protected readonly lines = computed<IStatusLine[]>(() => {
+  /** Invoice value and net payable: what the rows below are measured against. */
+  protected readonly headRows = computed<ISummaryRow[]>(() => {
     const s = this.summary();
     if (!s) {
       return [];
     }
     const sales = this.isSales();
-    const lines: IStatusLine[] = [];
+    return [
+      {
+        key: 'value',
+        label: 'Invoice value',
+        amount: s.invoiceValue,
+        meaning: 'Taxable amount + GST — the full worth of this invoice.',
+      },
+      {
+        key: 'net',
+        label: sales ? 'Net receivable' : 'Net payable',
+        amount: s.netPayable,
+        meaning: sales
+          ? 'What the client pays into our bank for this invoice: taxable − TDS, plus GST unless the client holds it.'
+          : 'What goes to the vendor’s bank for this invoice: taxable − TDS, plus GST unless it is held.',
+      },
+    ];
+  });
+
+  /** How the invoice is being cleared. */
+  protected readonly rows = computed<ISummaryRow[]>(() => {
+    const s = this.summary();
+    if (!s) {
+      return [];
+    }
+    const sales = this.isSales();
+    const rows: ISummaryRow[] = [];
 
     if (sales) {
-      lines.push({
-        key: 'payment',
-        tone: 'paid',
+      rows.push({
+        key: 'received',
         label: 'Received',
         amount: s.paid,
-        status:
-          s.paymentBalance > 0
-            ? `${this.money(s.paymentBalance)} due`
-            : 'Fully received',
-        state: s.paymentBalance > 0 ? 'pending' : 'done',
-        detail: `of ${this.money(s.netPayable)} net`,
+        meaning:
+          'Money the client has transferred to us against this invoice (bank transfers).',
+        ...(s.paymentBalance > 0
+          ? {
+              status: `${this.money(s.paymentBalance)} due`,
+              state: 'pending' as RowState,
+            }
+          : { status: 'Fully received', state: 'done' as RowState }),
       });
     } else {
+      const toBook = s.toBook ?? 0;
+      const awaiting = s.awaitingTransfer ?? 0;
       const booked = s.booked ?? 0;
-      lines.push({
-        key: 'booked',
-        tone: 'progress',
-        label: 'Booked',
-        amount: booked,
-        status:
-          (s.toBook ?? 0) > 0
-            ? `${this.money(s.toBook ?? 0)} to book`
-            : 'Fully booked',
-        state: (s.toBook ?? 0) > 0 ? 'pending' : 'done',
-        detail: `of ${this.money(s.netPayable)} net`,
-      });
-      lines.push({
-        key: 'paid',
-        tone: 'paid',
-        label: 'Paid',
-        amount: s.paid,
-        status:
-          (s.awaitingTransfer ?? 0) > 0
-            ? `${this.money(s.awaitingTransfer ?? 0)} awaiting transfer`
+      rows.push(
+        {
+          key: 'booked',
+          label: 'Booked',
+          amount: booked,
+          meaning:
+            'Amount put up for payment (book payment) against this invoice. GST release bookings are shown under GST, not here.',
+          ...(toBook > 0
+            ? {
+                status: `${this.money(toBook)} to book`,
+                state: 'pending' as RowState,
+              }
+            : { status: 'Fully booked', state: 'done' as RowState }),
+        },
+        {
+          key: 'paid',
+          label: 'Paid',
+          amount: s.paid,
+          meaning:
+            'Money actually transferred to the vendor’s bank against the booked amount.',
+          ...(awaiting > 0
+            ? {
+                status: `${this.money(awaiting)} awaiting transfer`,
+                state: 'progress' as RowState,
+              }
             : booked > 0
-              ? 'All booked paid'
-              : 'Nothing booked',
-        state:
-          (s.awaitingTransfer ?? 0) > 0
-            ? 'progress'
-            : booked > 0
-              ? 'done'
-              : 'pending',
-        detail: `of ${this.money(booked)} booked`,
-      });
+              ? { status: 'All booked paid', state: 'done' as RowState }
+              : {}),
+        }
+      );
     }
 
     if (s.advanceAdjusted > 0) {
-      lines.push({
+      rows.push({
         key: 'advance',
-        tone: 'advance',
-        label: 'Advance',
+        label: 'Advance adjusted',
         amount: s.advanceAdjusted,
-        status: 'Adjusted',
-        state: 'done',
+        meaning: sales
+          ? 'Advance already received from the client, set off against this invoice.'
+          : 'Advance already paid to the vendor on this PO, set off against this invoice — no new transfer is needed for this part.',
       });
     }
 
     if (s.gst) {
-      lines.push(this.gstLine(s.gst, sales));
+      rows.push(this.gstRow(s.gst, sales));
     }
 
     if (s.tds) {
-      const done = s.tds.status === 'CLEARED';
-      lines.push({
+      const { tds } = s;
+      const status = sales
+        ? tds.status === 'CLEARED'
+          ? 'Credited in 26AS'
+          : '26AS check pending'
+        : tds.status === 'CLEARED'
+          ? 'Deposited · 26Q filed'
+          : tds.status === 'DEPOSITED'
+            ? 'Deposited · 26Q pending'
+            : 'Challan pending';
+      rows.push({
         key: 'tds',
-        tone: 'tds',
         label: 'TDS',
-        amount: s.tds.amount,
-        status: sales
-          ? done
-            ? '26AS credited'
-            : '26AS pending'
-          : done
-            ? 'Deposited · 26Q filed'
-            : s.tds.status === 'DEPOSITED'
-              ? 'Deposited · 26Q pending'
-              : 'Challan pending',
-        state: done
-          ? 'done'
-          : s.tds.status === 'DEPOSITED'
-            ? 'progress'
-            : 'pending',
+        amount: tds.amount,
+        meaning: sales
+          ? 'Tax the client deducted from our payment. The client deposits it; we check it shows in our Form 26AS.'
+          : 'Tax we deducted from the vendor’s payment. We deposit it with the government by challan, then file it in the 26Q return.',
+        status,
+        state:
+          tds.status === 'CLEARED'
+            ? 'done'
+            : tds.status === 'DEPOSITED'
+              ? 'progress'
+              : 'pending',
       });
     }
 
-    return lines;
+    return rows;
   });
 
-  private gstLine(
+  protected readonly settledMeaning = computed(() =>
+    this.isSales()
+      ? 'Received + advance adjusted + held GST received + TDS credited.'
+      : 'Paid + advance adjusted + held GST released + TDS deposited.'
+  );
+
+  protected readonly balanceMeaning =
+    'Part of the invoice value not settled yet: invoice value − settled.';
+
+  private gstRow(
     gst: NonNullable<IInvoicePaymentSummary['gst']>,
     sales: boolean
-  ): IStatusLine {
+  ): ISummaryRow {
     if (!gst.isHeld) {
       return {
         key: 'gst',
-        tone: 'gst',
         label: 'GST',
         amount: gst.amount,
-        status: sales ? 'With payment' : 'Paid with invoice',
+        meaning: sales
+          ? 'GST is not held — the client pays it with the invoice payment.'
+          : 'GST is not held — it is paid to the vendor with the invoice payment.',
+        status: 'With invoice payment',
         state: 'done',
       };
     }
-    const settledWord = sales ? 'Received' : 'Released';
-    const byStatus: Record<
+
+    const states: Record<
       typeof gst.status,
-      { status: string; state: IStatusLine['state'] }
+      { status: string; state: RowState }
     > = {
-      SETTLED: { status: settledWord, state: 'done' },
+      SETTLED: { status: sales ? 'Received' : 'Released', state: 'done' },
       IN_PROCESS: { status: 'Release in process', state: 'progress' },
       PENDING: {
         status: sales ? 'Receipt pending' : 'Release pending',
         state: 'pending',
       },
-      NOT_HELD: { status: settledWord, state: 'done' },
+      NOT_HELD: { status: sales ? 'Received' : 'Released', state: 'done' },
     };
+
     return {
       key: 'gst',
-      tone: 'gst',
       label: 'GST held',
       amount: gst.amount,
-      ...byStatus[gst.status],
+      meaning: sales
+        ? 'GST the client kept back from the payment. We receive it separately once they release it.'
+        : 'GST kept back until the vendor files it on the GST portal. It is released separately through a GST book payment and bank transfer.',
+      ...states[gst.status],
     };
   }
 
   private money(value: number): string {
     return `₹${value.toLocaleString(this.loc, {
-      minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     })}`;
   }
