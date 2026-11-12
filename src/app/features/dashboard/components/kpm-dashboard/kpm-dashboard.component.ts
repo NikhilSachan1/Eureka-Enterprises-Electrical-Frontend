@@ -58,7 +58,6 @@ const PAYMENT_SHEET_STATUS_BY_STAGE: Record<string, string> = {
 
 const DOCUMENT_GAP_ICONS: Record<string, string> = {
   'po-without-jmc': ICONS.COMMON.FILE,
-  'po-file-missing': ICONS.COMMON.FILE,
   'po-under-invoiced': ICONS.COMMON.FILE,
   'jmc-without-invoice': ICONS.COMMON.LIST,
   'jmc-without-report': ICONS.COMMON.FILE,
@@ -66,7 +65,7 @@ const DOCUMENT_GAP_ICONS: Record<string, string> = {
   'invoice-not-booked': ICONS.PAYMENT.RECORD,
   'invoice-partially-booked': ICONS.PAYMENT.RECORD,
   'contractor-payment-pending': ICONS.BANK.ACCOUNT,
-  'rejected-not-replaced': ICONS.COMMON.CLOSE,
+  'contractor-payment-partial': ICONS.BANK.ACCOUNT,
   'invoice-file-missing': ICONS.COMMON.FILE,
   'booked-not-transferred': ICONS.BANK.ACCOUNT,
   'advance-not-paid': ICONS.BANK.ACCOUNT,
@@ -833,6 +832,13 @@ export class KpmDashboardComponent implements OnInit {
         docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.JMC,
       },
       {
+        key: 'site-reports',
+        label: 'Site Reports',
+        icon: ICONS.COMMON.FILE,
+        hint: 'Approval pending',
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.REPORT,
+      },
+      {
         key: 'invoices',
         label: 'Invoices',
         icon: ICONS.COMMON.FILE,
@@ -961,13 +967,14 @@ export class KpmDashboardComponent implements OnInit {
     return gaps
       .filter(gap => gap.parties.includes(side.apiParty))
       .map(gap => {
-        const count = gap.byParty?.[side.party].count ?? 0;
+        const sideGap = gap.byParty?.[side.party];
+        const count = sideGap?.count ?? 0;
 
         return {
           icon: DOCUMENT_GAP_ICONS[gap.key] ?? ICONS.COMMON.FILE,
-          label: gap.label,
+          label: sideGap?.label ?? gap.label,
           value: count,
-          valueHint: gap.hint,
+          valueHint: sideGap?.hint ?? gap.hint,
           format: EDataType.NUMBER,
           state: informational
             ? EKpmDashboardSeverity.INFO
