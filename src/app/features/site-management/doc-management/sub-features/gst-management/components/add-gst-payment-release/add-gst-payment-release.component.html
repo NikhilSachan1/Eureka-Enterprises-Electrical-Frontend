@@ -2,20 +2,29 @@
   [formGroup]="form.formGroup"
   class="form"
 >
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.utrNumber"
-  />
+  @if (isPurchase()) {
+    <p class="text-sm text-gray-600">
+      A GST book payment of the held GST will be created for each selected invoice. Pay it from the payment sheet or
+      bank transfer — the GST is marked released once the transfer is done.
+    </p>
+  } @else {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.utrNumber"
+    />
+  }
 
   <app-input-field
     [formGroup]="form.formGroup"
     [inputFieldConfig]="form.fieldConfigs.paymentDate"
   />
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.paymentAttachment"
-  />
+  @if (!isPurchase()) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.paymentAttachment"
+    />
+  }
 
   <app-input-field
     [formGroup]="form.formGroup"

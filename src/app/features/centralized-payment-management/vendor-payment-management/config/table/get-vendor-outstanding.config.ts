@@ -131,6 +131,13 @@ export const VENDOR_OUTSTANDING_OPS_TABLE_CONFIG: Partial<IDataTableConfig> = {
 export const VENDOR_OUTSTANDING_OPS_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
   [
     {
+      field: 'paymentTypeLabel',
+      header: 'Payment type',
+      bodyTemplate: EDataType.STATUS,
+      statusConfig: { rounded: true },
+      showSort: false,
+    },
+    {
       field: 'bookingDate',
       header: 'Booking Date',
       bodyTemplate: EDataType.DATE,

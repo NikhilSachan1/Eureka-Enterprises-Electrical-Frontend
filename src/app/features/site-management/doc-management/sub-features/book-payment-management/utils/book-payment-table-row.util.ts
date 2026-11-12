@@ -6,9 +6,27 @@ export function shouldDisableBookPaymentEditOrDelete(
   return row.isLocked === true || row.hasTransfer === true;
 }
 
+/** A GST release books the full held GST of its invoice — it is never edited, only deleted. */
+export function isGstReleaseBookPayment(
+  row: Pick<IBookPaymentGetBaseResponseDto, 'sourceType'>
+): boolean {
+  return row.sourceType === 'GST_RELEASE';
+}
+
+export function shouldDisableBookPaymentEdit(
+  row: IBookPaymentGetBaseResponseDto
+): boolean {
+  return (
+    shouldDisableBookPaymentEditOrDelete(row) || isGstReleaseBookPayment(row)
+  );
+}
+
 export function bookPaymentEditDisableReason(
   row: IBookPaymentGetBaseResponseDto
 ): string | undefined {
+  if (isGstReleaseBookPayment(row)) {
+    return BOOK_PAYMENT_ROW_ACTION_DISABLE_REASON.gstReleaseNoEdit;
+  }
   if (row.isLocked === true) {
     return BOOK_PAYMENT_ROW_ACTION_DISABLE_REASON.lockedNoEdit;
   }
@@ -34,6 +52,8 @@ export const BOOK_PAYMENT_ROW_ACTION_DISABLE_REASON = {
   lockedNoEdit: 'This book payment is locked. Unlock it to edit.',
   lockedNoDelete: 'This book payment is locked. Unlock it to delete.',
   paymentDoneNoEdit: 'Payment is already done. Edit is not allowed.',
+  gstReleaseNoEdit:
+    'A GST release books the full held GST and cannot be edited. Delete it and book again from the GST summary if needed.',
   paymentDoneNoDelete: 'Payment is already done. Delete is not allowed.',
   unlockRequestNotLocked:
     'Unlock can only be requested when the book payment is locked.',

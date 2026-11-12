@@ -18,6 +18,8 @@ export interface IBookPayment
     | 'unlockReason'
   > {
   transferStatusLabel: string;
+  /** Invoice payment / Advance payment / GST release. */
+  paymentTypeLabel: string;
   paymentHoldReasonDisplay: string;
   docWorkspaceContext: IDocWorkspaceContextView;
   documentReferenceHierarchy: IDocReferenceHierarchyNode | null;

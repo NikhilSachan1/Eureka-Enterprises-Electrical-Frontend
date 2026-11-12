@@ -74,7 +74,34 @@ export const GstEntryGetBaseResponseSchema = z.looseObject({
   verifiedBy: uuidField.nullable(),
   verifyFileKey: z.string().nullable(),
   gstPaymentId: uuidField.nullable(),
-  /** Settlement of the held GST — release to vendor (purchase) / receipt from client (sale). */
+  /** Purchase: GST release booked — "release in process" until its bank transfer is done. */
+  gstBookPaymentId: uuidField.nullable().optional(),
+  gstBookPayment: z
+    .looseObject({
+      bookingDate: z.string().nullable(),
+      paymentTotalAmount: z.string(),
+      hasTransfer: z.boolean(),
+      remarks: z.string().nullable().optional(),
+    })
+    .nullable()
+    .optional(),
+  /** The bank transfer that moved the held GST (release to vendor / receipt from client). */
+  gstBankTransferId: uuidField.nullable().optional(),
+  gstBankTransfer: z
+    .looseObject({
+      utrNumber: z.string().nullable(),
+      transferDate: z.string().nullable(),
+      transferAmount: z.string(),
+      proofFileKey: z.string().nullable(),
+      remarks: z.string().nullable().optional(),
+      paymentAdvice: z
+        .looseObject({ referenceNumber: z.string().nullable() })
+        .nullable()
+        .optional(),
+    })
+    .nullable()
+    .optional(),
+  /** Legacy: settlement recorded directly, before GST moved through book payment / bank transfer. */
   gstPayment: z
     .looseObject({
       utrNumber: z.string().nullable(),

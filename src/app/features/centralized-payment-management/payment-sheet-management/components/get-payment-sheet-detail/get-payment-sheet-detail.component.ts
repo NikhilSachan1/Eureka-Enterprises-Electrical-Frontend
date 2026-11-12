@@ -849,7 +849,11 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
       return (item.bookPaymentAllocations ?? []).map(allocation => {
         const { invoice, advance } = allocation;
-        const documentKind = advance ? 'Advance' : 'Invoice';
+        const documentKind = advance
+          ? 'Advance'
+          : allocation.sourceType === 'GST_RELEASE'
+            ? 'GST release'
+            : 'Invoice';
 
         return {
           ...this.getWorkflowFields(detail),

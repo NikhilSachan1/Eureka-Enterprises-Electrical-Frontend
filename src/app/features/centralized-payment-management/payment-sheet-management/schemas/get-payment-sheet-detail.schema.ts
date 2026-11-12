@@ -83,6 +83,8 @@ const PaymentSheetBookPaymentAllocationSchema = z.looseObject({
   bookPaymentId: uuidField,
   allocatedAmount: z.coerce.number(),
   bankTransferId: uuidField.nullable().optional(),
+  /** Book payment source: INVOICE | ADVANCE | GST_RELEASE. */
+  sourceType: z.string().nullable().optional(),
   utrNumber: z.string().nullable().optional(),
   invoice: PaymentSheetBookPaymentAllocationInvoiceSchema.nullable(),
   advance: PaymentSheetBookPaymentAllocationAdvanceSchema.nullable().optional(),

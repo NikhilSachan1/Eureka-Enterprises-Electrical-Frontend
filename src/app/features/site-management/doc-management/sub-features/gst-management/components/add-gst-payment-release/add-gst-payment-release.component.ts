@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   OnInit,
@@ -20,6 +21,7 @@ import {
 } from '@shared/types';
 import { finalize, defer, mergeMap, of } from 'rxjs';
 import { buildAddGstPaymentReleaseFormConfig } from '../../config/form/add-gst-payment-release.config';
+import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { GstService } from '../../services/gst.service';
 import {
   IAddGstPaymentReleaseFormDto,
@@ -48,6 +50,11 @@ export class AddGstPaymentReleaseComponent
   protected readonly selectedRecord =
     input.required<IGstEntryGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
+
+  /** Vendor release → GST book payment (no UTR / proof here). Contractor → GST bank transfer. */
+  protected readonly isPurchase = computed(
+    () => this.selectedRecord()?.[0]?.partyType === EDocContext.PURCHASE
+  );
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -87,6 +94,8 @@ export class AddGstPaymentReleaseComponent
 
     return {
       ...payload,
+      // A vendor release gets its UTR on the bank transfer, not here.
+      utrNumber: this.isPurchase() ? null : payload.utrNumber,
       entryIds: record.map(row => row.id),
       fileKey: attachmentResponse?.fileKey ?? null,
       fileName: attachmentResponse?.fileName ?? null,
@@ -94,12 +103,14 @@ export class AddGstPaymentReleaseComponent
   }
 
   private executeAddGstPaymentReleaseAction(): void {
-    const file = this.form.getFieldData('paymentAttachment') as
-      | File[]
-      | undefined;
+    const file = this.isPurchase()
+      ? undefined
+      : (this.form.getFieldData('paymentAttachment') as File[] | undefined);
 
     this.loadingService.show({
-      title: 'Settling held GST',
+      title: this.isPurchase()
+        ? 'Booking GST release'
+        : 'Recording GST receipt',
       message:
         "Please wait while we're recording the held GST settlement. This will just take a moment.",
     });
@@ -141,8 +152,8 @@ export class AddGstPaymentReleaseComponent
             fallbacks: {
               success: (count: number) =>
                 count === 1
-                  ? 'Held GST settled successfully.'
-                  : `Held GST settled for ${count} entries.`,
+                  ? 'Held GST recorded successfully.'
+                  : `Held GST recorded for ${count} entries.`,
               error: 'Failed to settle held GST.',
               empty: 'Failed to settle held GST.',
             },

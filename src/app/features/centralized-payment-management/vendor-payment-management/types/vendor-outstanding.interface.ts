@@ -15,6 +15,8 @@ export interface IVendorBookPaymentTableRow extends Record<string, unknown> {
   vendorId: string;
   bookingDate: string;
   pendingAmount: number;
+  /** Invoice payment / Advance payment / GST release. */
+  paymentTypeLabel: string;
   transactionType?: 'credit' | 'debit';
   originalRawData: IVendorOutstandingBookPayment;
 }
@@ -43,7 +45,8 @@ export interface IVendorOutstandingVendorGroup {
   invoiceGroups: IVendorInvoiceOutstandingGroup[];
 }
 
-export interface IVendorOutstandingInvoiceListRow extends Record<string, unknown> {
+export interface IVendorOutstandingInvoiceListRow
+  extends Record<string, unknown> {
   id: string;
   invoiceNumber: string;
   invoiceDate: string;
@@ -66,7 +69,8 @@ export interface IVendorOutstandingInvoiceListRow extends Record<string, unknown
   canBookPayment: boolean;
 }
 
-export interface IVendorOutstandingVendorTableRow extends Record<string, unknown> {
+export interface IVendorOutstandingVendorTableRow
+  extends Record<string, unknown> {
   id: string;
   vendorName: string;
   location: string;

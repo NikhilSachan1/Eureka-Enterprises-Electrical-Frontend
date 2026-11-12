@@ -98,7 +98,9 @@ export class GetInvoiceComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
-  protected readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly docRouteContext = signal<EDocContext | undefined>(
+    undefined
+  );
   protected readonly searchTerm = signal<string>('');
 
   protected readonly pageHeaderConfig = computed(
@@ -179,6 +181,8 @@ export class GetInvoiceComponent implements OnInit {
       gstPercentage: row.gstPercentage,
       totalAmount: row.totalAmount,
       isGstHold: row.isGstHold,
+      gstStatus: row.originalRawData.gstStatus,
+      isSales: this.docRouteContext() === EDocContext.SALES,
     });
   }
 
@@ -345,6 +349,8 @@ export class GetInvoiceComponent implements OnInit {
     gstPercentage: string | number;
     totalAmount: string;
     isGstHold?: boolean | null;
+    gstStatus?: IInvoiceGetBaseResponseDto['gstStatus'];
+    isSales?: boolean;
   }): IDocAmountSegment[] {
     return buildInvoiceTaxGstAmountSegments(value);
   }
@@ -369,6 +375,8 @@ export class GetInvoiceComponent implements OnInit {
           gstAmount: selectedRow.gstAmount,
           gstPercentage: selectedRow.gstPercentage,
           isGstHold: selectedRow.isGstHold,
+          gstStatus: selectedRow.gstStatus,
+          isSales: selectedRow.partyType === EDocContext.SALES,
           totalAmount: selectedRow.totalAmount,
         },
         customTemplateKey: 'invoiceDialogAmounts',

@@ -37,6 +37,13 @@ export const createBankTransferTableHeadersConfig = (
       showSort: false,
     },
     {
+      field: 'paymentTypeLabel',
+      header: 'Payment type',
+      bodyTemplate: EDataType.STATUS,
+      statusConfig: { rounded: true },
+      showSort: false,
+    },
+    {
       field: 'transferDate',
       header: isSales ? 'Received Date' : 'Transfer Date',
       bodyTemplate: EDataType.DATE,

@@ -8,6 +8,8 @@ export interface IBankTransfer
     IBankTransferGetBaseResponseDto,
     'id' | 'transferDate' | 'utrNumber' | 'transferAmount' | 'remarks'
   > {
+  /** Invoice payment / Advance payment / GST release / GST receipt. */
+  paymentTypeLabel: string;
   docWorkspaceContext: IDocWorkspaceContextView;
   documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
   transferProofAttachmentKeys: string[];

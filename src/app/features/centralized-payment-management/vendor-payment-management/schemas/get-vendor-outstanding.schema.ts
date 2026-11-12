@@ -96,6 +96,8 @@ export const VendorOutstandingBookPaymentSchema = z.looseObject({
   paymentHoldReason: z.string().nullable(),
   remarks: z.string().nullable(),
   hasTransfer: z.boolean(),
+  /** INVOICE | ADVANCE | GST_RELEASE (the invoice's held GST paid out to the vendor). */
+  sourceType: z.string().optional(),
   displayName: z.string(),
   invoice: VendorOutstandingBookPaymentInvoiceSchema.nullable(),
   jmc: VendorOutstandingJmcSchema.nullable(),

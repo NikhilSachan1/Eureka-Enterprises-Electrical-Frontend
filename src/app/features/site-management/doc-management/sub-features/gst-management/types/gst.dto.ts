@@ -63,8 +63,10 @@ export type IAddGstPaymentReleaseFormDto = z.input<
 >;
 export type IAddGstPaymentReleaseUIFormDto = Omit<
   IAddGstPaymentReleaseFormDto,
-  'entryIds' | 'fileKey' | 'fileName'
+  'entryIds' | 'fileKey' | 'fileName' | 'utrNumber'
 > & {
+  /** Contractor receipt only — a vendor release gets its UTR on the bank transfer. */
+  utrNumber: string | null;
   paymentAttachment: File[];
 };
 export type IAddGstPaymentReleaseResponseDto = z.infer<
