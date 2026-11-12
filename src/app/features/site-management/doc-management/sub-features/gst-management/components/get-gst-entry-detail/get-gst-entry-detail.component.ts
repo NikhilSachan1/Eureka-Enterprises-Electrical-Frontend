@@ -28,6 +28,7 @@ import type { IDocAmountSegment } from '@features/site-management/doc-management
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import {
+  formatTaxRateSuffix,
   getGstSettlementLabel,
   getGstVerifyPortalName,
   getVerificationLabel,
@@ -131,6 +132,11 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
         value: {
           taxableAmount: record.taxableAmount,
           gstAmount: record.gstAmount,
+          rateSuffix: formatTaxRateSuffix(
+            record.invoice.gstPercentage,
+            record.gstAmount,
+            record.taxableAmount
+          ),
         },
         customTemplateKey: 'gstEntryDetailAmounts',
         detailTemplateFullRow: false,
@@ -225,6 +231,7 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
   protected docGstEntryDrawerAmountSegments(v: {
     taxableAmount: string;
     gstAmount: string;
+    rateSuffix?: string;
   }): IDocAmountSegment[] {
     return [
       {
@@ -236,6 +243,7 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
         dataType: EDataType.CURRENCY,
         label: 'GST',
         value: v.gstAmount,
+        suffix: v.rateSuffix,
       },
     ];
   }

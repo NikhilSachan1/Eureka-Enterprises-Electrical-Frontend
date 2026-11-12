@@ -88,6 +88,8 @@ export const GstEntryGetBaseResponseSchema = z.looseObject({
   invoice: z.looseObject({
     invoiceNumber: z.string().nullable(),
     invoiceDate: onlyDateStringField,
+    /** GST rate of the invoice (varies per invoice). */
+    gstPercentage: z.union([z.string(), z.number()]).nullable().optional(),
     jmc: z
       .looseObject({
         jmcNumber: z.string().nullable(),

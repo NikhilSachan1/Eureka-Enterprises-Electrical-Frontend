@@ -52,6 +52,8 @@ import { DocWorkspaceContextComponent } from '@features/site-management/doc-mana
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import {
+  formatTaxRateLabel,
+  formatTaxRateSuffix,
   getBulkSelectionMismatchReason,
   getTdsDepositLabel,
   getTdsVerifyPortalName,
@@ -163,6 +165,7 @@ export class GetTdsEntryComponent implements OnInit {
         dataType: EDataType.CURRENCY,
         label: 'TDS',
         value: row.tdsAmount,
+        suffix: row.tdsRateSuffix,
       },
     ];
   }
@@ -219,6 +222,11 @@ export class GetTdsEntryComponent implements OnInit {
         invoiceDate: invoiceRef.invoiceDate ?? '',
         taxableAmount: record.taxableAmount,
         tdsAmount: record.tdsAmount,
+        tdsRateSuffix: formatTaxRateSuffix(
+          invoiceRef.tdsPercentage,
+          record.tdsAmount,
+          record.taxableAmount
+        ),
         verificationStatusLabel: getVerificationLabel(record.isVerified),
         depositStatusLabel: getTdsDepositLabel(record),
         verifyFileKeys: record.verifyFileKey ? [record.verifyFileKey] : [],
@@ -328,6 +336,15 @@ export class GetTdsEntryComponent implements OnInit {
         value: row.tdsAmount,
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
+      {
+        label: 'TDS %',
+        value: formatTaxRateLabel(
+          invoiceRef.tdsPercentage,
+          row.tdsAmount,
+          row.taxableAmount
+        ),
+        type: EDataType.TEXT,
       },
       {
         label: 'Deposit',

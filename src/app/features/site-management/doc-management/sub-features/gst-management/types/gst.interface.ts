@@ -9,6 +9,8 @@ export interface IGstEntry
     'id' | 'partyType' | 'taxableAmount' | 'gstAmount'
   > {
   invoiceDate: string;
+  /** Invoice GST rate shown beside the amount, e.g. "(18%)". */
+  gstRateSuffix: string;
   verificationStatusLabel: string;
   /** Held GST settlement: With payment / Release pending / Released / Receipt pending / Received. */
   settlementStatusLabel: string;

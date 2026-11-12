@@ -53,6 +53,8 @@ import { ProjectWorkspaceContextService } from '@features/site-management/projec
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import {
+  formatTaxRateLabel,
+  formatTaxRateSuffix,
   getBulkSelectionMismatchReason,
   getGstSettlementLabel,
   getGstVerifyPortalName,
@@ -160,6 +162,7 @@ export class GetGstEntryComponent implements OnInit {
         dataType: EDataType.CURRENCY,
         label: 'GST',
         value: row.gstAmount,
+        suffix: row.gstRateSuffix,
       },
     ];
   }
@@ -215,6 +218,11 @@ export class GetGstEntryComponent implements OnInit {
           invoiceDate: record.invoice.invoiceDate,
           taxableAmount: record.taxableAmount,
           gstAmount: record.gstAmount,
+          gstRateSuffix: formatTaxRateSuffix(
+            record.invoice.gstPercentage,
+            record.gstAmount,
+            record.taxableAmount
+          ),
           verificationStatusLabel: getVerificationLabel(record.isVerified),
           settlementStatusLabel: getGstSettlementLabel(record),
           verifyFileKeys: record.verifyFileKey ? [record.verifyFileKey] : [],
@@ -326,6 +334,15 @@ export class GetGstEntryComponent implements OnInit {
         value: row.gstAmount,
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
+      {
+        label: 'GST %',
+        value: formatTaxRateLabel(
+          row.invoice.gstPercentage,
+          row.gstAmount,
+          row.taxableAmount
+        ),
+        type: EDataType.TEXT,
       },
       {
         label: `Verified in ${getGstVerifyPortalName(row.partyType)}`,

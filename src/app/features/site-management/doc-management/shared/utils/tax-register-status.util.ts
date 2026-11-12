@@ -176,3 +176,48 @@ export function getBulkSelectionMismatchReason(
   }
   return undefined;
 }
+
+/**
+ * Rate shown beside a GST / TDS amount, e.g. "(18%)". Uses the invoice's own rate (rates vary per
+ * invoice) and falls back to tax ÷ taxable for entries whose invoice carries no rate.
+ */
+export function formatTaxRateSuffix(
+  rate: string | number | null | undefined,
+  taxAmount: string | number | null | undefined,
+  taxableAmount: string | number | null | undefined
+): string {
+  const label = formatTaxRateLabel(rate, taxAmount, taxableAmount);
+  return label === '—' ? '' : `(${label})`;
+}
+
+/** Rate as a standalone value, e.g. "18%" — "—" when it cannot be worked out. */
+export function formatTaxRateLabel(
+  rate: string | number | null | undefined,
+  taxAmount: string | number | null | undefined,
+  taxableAmount: string | number | null | undefined
+): string {
+  const percent = resolveTaxRate(rate, taxAmount, taxableAmount);
+  return percent === null ? '—' : `${percent}%`;
+}
+
+function resolveTaxRate(
+  rate: string | number | null | undefined,
+  taxAmount: string | number | null | undefined,
+  taxableAmount: string | number | null | undefined
+): number | null {
+  const fromInvoice = Number(rate);
+  if (
+    rate !== null &&
+    rate !== undefined &&
+    rate !== '' &&
+    Number.isFinite(fromInvoice)
+  ) {
+    return Number(fromInvoice.toFixed(2));
+  }
+  const tax = Number(taxAmount);
+  const taxable = Number(taxableAmount);
+  if (!Number.isFinite(tax) || !Number.isFinite(taxable) || taxable <= 0) {
+    return null;
+  }
+  return Number(((tax / taxable) * 100).toFixed(2));
+}

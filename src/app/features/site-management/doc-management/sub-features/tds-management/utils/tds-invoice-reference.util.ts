@@ -7,6 +7,7 @@ export interface ITdsInvoiceReference {
   invoiceDate: string | null;
   poNumber: string | null;
   jmcNumber: string | null;
+  tdsPercentage: string | number | null;
 }
 
 /**
@@ -30,6 +31,7 @@ export function resolveTdsInvoiceReference(
     invoiceDate: invoice?.invoiceDate ?? null,
     poNumber: invoice?.jmc?.po?.poNumber ?? null,
     jmcNumber: invoice?.jmc?.jmcNumber ?? null,
+    tdsPercentage: invoice?.tdsPercentage ?? null,
   };
 }
 

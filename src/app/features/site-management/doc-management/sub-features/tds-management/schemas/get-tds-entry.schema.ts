@@ -60,6 +60,8 @@ export const TdsEntryGetRequestSchema = z
 const TdsInvoiceReferenceSchema = z.looseObject({
   invoiceNumber: z.string().nullable(),
   invoiceDate: onlyDateStringField.optional(),
+  /** TDS rate of the invoice (varies per invoice). */
+  tdsPercentage: z.union([z.string(), z.number()]).nullable().optional(),
   jmc: z
     .looseObject({
       jmcNumber: z.string().nullable(),

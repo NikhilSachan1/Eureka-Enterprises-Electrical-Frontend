@@ -9,6 +9,8 @@ export interface ITdsEntry
     'id' | 'partyType' | 'taxableAmount' | 'tdsAmount'
   > {
   invoiceDate: string;
+  /** Invoice TDS rate shown beside the amount, e.g. "(2%)". */
+  tdsRateSuffix: string;
   /** 26Q (purchase) / Form 26AS (sale) verification. */
   verificationStatusLabel: string;
   /** Purchase: Challan pending / Deposited. Sale: Deposited by client. */

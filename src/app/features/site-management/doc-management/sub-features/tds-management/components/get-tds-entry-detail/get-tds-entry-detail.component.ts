@@ -27,6 +27,7 @@ import { DocWorkspaceContextComponent } from '@features/site-management/doc-mana
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import {
+  formatTaxRateSuffix,
   getTdsDepositLabel,
   getTdsVerifyPortalName,
   getVerificationLabel,
@@ -132,6 +133,11 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
         value: {
           taxableAmount: record.taxableAmount,
           tdsAmount: record.tdsAmount,
+          rateSuffix: formatTaxRateSuffix(
+            invoiceRef.tdsPercentage,
+            record.tdsAmount,
+            record.taxableAmount
+          ),
         },
         customTemplateKey: 'tdsEntryDetailAmounts',
         detailTemplateFullRow: false,
@@ -216,6 +222,7 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
   protected docTdsEntryDrawerAmountSegments(v: {
     taxableAmount: string;
     tdsAmount: string;
+    rateSuffix?: string;
   }): IDocAmountSegment[] {
     return [
       {
@@ -227,6 +234,7 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
         dataType: EDataType.CURRENCY,
         label: 'TDS',
         value: v.tdsAmount,
+        suffix: v.rateSuffix,
       },
     ];
   }
