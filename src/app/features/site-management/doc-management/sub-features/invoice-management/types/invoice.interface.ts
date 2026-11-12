@@ -3,6 +3,11 @@ import type { IDocReferenceHierarchyNode } from '@features/site-management/doc-m
 
 import { IInvoiceGetBaseResponseDto } from './invoice.dto';
 
+/** Server-computed money position of an invoice (paid, advance, GST, TDS, balance). */
+export type IInvoicePaymentSummary = NonNullable<
+  IInvoiceGetBaseResponseDto['paymentSummary']
+>;
+
 export interface IInvoice
   extends Pick<
     IInvoiceGetBaseResponseDto,

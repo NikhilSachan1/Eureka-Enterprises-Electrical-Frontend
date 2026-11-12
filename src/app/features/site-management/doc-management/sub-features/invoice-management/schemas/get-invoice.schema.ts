@@ -86,10 +86,48 @@ export const InvoiceTdsStatusSchema = z.looseObject({
   lastDepositedAt: z.string().nullable(),
 });
 
+/**
+ * Where the invoice's money stands, computed by the server. Paid + advance adjusted + held GST
+ * settled + TDS cleared = total settled; invoice value − total settled = total balance.
+ */
+export const InvoicePaymentSummarySchema = z.looseObject({
+  invoiceValue: z.number(),
+  netPayable: z.number(),
+  /** Purchase only; null on a sale invoice. */
+  booked: z.number().nullable(),
+  paid: z.number(),
+  awaitingTransfer: z.number().nullable(),
+  toBook: z.number().nullable(),
+  advanceAdjusted: z.number(),
+  paymentBalance: z.number(),
+  gst: z
+    .looseObject({
+      amount: z.number(),
+      isHeld: z.boolean(),
+      status: z.enum(['NOT_HELD', 'PENDING', 'IN_PROCESS', 'SETTLED']),
+      settled: z.number(),
+      pending: z.number(),
+      settledAt: z.string().nullable(),
+    })
+    .nullable(),
+  tds: z
+    .looseObject({
+      amount: z.number(),
+      cleared: z.number(),
+      pending: z.number(),
+      status: z.enum(['CLEARED', 'DEPOSITED', 'PENDING']),
+    })
+    .nullable(),
+  totalSettled: z.number(),
+  totalBalance: z.number(),
+  settledPercent: z.number(),
+});
+
 export const InvoiceGetBaseResponseSchema = z.looseObject({
   ...InvoiceBaseSchema.shape,
   gstStatus: InvoiceGstStatusSchema.nullable().optional(),
   tdsStatus: InvoiceTdsStatusSchema.nullable().optional(),
+  paymentSummary: InvoicePaymentSummarySchema.nullable().optional(),
   isLocked: z.boolean(),
   unlockRequestedAt: isoDateTimeField.nullable(),
   unlockRequestedByUser: makeFieldsNullable(UserSchema).nullable(),
