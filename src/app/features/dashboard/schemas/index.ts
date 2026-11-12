@@ -1,6 +1,7 @@
 export { ApprovalPendingDashboardGetResponseSchema } from './approval-pending-dashboard.schema';
 export {
   DocumentGapDetailGetResponseSchema,
+  DocumentGapDetailQuerySchema,
   DocumentGapsDashboardGetResponseSchema,
 } from './document-gaps-dashboard.schema';
 export { LedgerBalanceDashboardGetResponseSchema } from './ledger-balance-dashboard.schema';

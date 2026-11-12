@@ -88,6 +88,8 @@ export interface IDashboardKpmMetricRow {
   readonly link?: IDashboardKpmMetricLink;
   /** Opens the document-gap drawer instead of navigating. */
   readonly gapKey?: string;
+  /** The side the gap drawer lists, when the row belongs to one. */
+  readonly gapParty?: 'CONTRACTOR' | 'VENDOR';
 }
 
 /** Big-number tile at the top of the dashboard. */

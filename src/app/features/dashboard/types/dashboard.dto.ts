@@ -5,6 +5,7 @@ import {
   AssetFleetAlertsDashboardGetResponseSchema,
   BirthdaysDashboardGetResponseSchema,
   DocumentGapDetailGetResponseSchema,
+  DocumentGapDetailQuerySchema,
   DocumentGapsDashboardGetResponseSchema,
   HolidaysDashboardGetResponseSchema,
   LedgerBalanceDashboardGetResponseSchema,
@@ -22,6 +23,10 @@ export type IApprovalPendingDashboardGetResponseDto = z.infer<
 
 export type IDocumentGapsDashboardGetResponseDto = z.infer<
   typeof DocumentGapsDashboardGetResponseSchema
+>;
+
+export type IDocumentGapDetailQueryDto = z.infer<
+  typeof DocumentGapDetailQuerySchema
 >;
 
 export type IDocumentGapDetailGetResponseDto = z.infer<
