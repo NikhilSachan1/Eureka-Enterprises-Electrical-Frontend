@@ -45,6 +45,11 @@
     color: #0f766e;
     background: color-mix(in srgb, #14b8a6 16%, transparent);
   }
+
+  &--gst {
+    color: #1d4ed8;
+    background: color-mix(in srgb, #3b82f6 16%, transparent);
+  }
 }
 
 .ps-advance-note {

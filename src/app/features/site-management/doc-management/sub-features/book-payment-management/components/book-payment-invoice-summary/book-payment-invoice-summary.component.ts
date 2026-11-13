@@ -93,6 +93,14 @@ export class BookPaymentInvoiceSummaryComponent {
       });
     }
 
+    if (meta.advanceSettledAmount) {
+      paymentItems.push({
+        label: 'Advance',
+        value: meta.advanceSettledAmount,
+        tone: 'paid',
+      });
+    }
+
     if (meta.remaining !== undefined && meta.remaining !== null) {
       paymentItems.push({
         label: 'Remaining',

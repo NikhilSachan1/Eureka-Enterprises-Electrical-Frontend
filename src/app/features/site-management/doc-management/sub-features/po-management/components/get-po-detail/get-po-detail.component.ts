@@ -35,8 +35,15 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
-import { isPoSystemGenerated, poAttachmentKeys } from '../../utils/po-table-row.util';
+import {
+  isPoSystemGenerated,
+  poAttachmentKeys,
+} from '../../utils/po-table-row.util';
 import { parsePoTerms } from '../../utils/po-terms.util';
+import {
+  buildPoTaxSettlementSegments,
+  type IPoTaxTotals,
+} from '../../utils/po-tax-settlement.util';
 
 @Component({
   selector: 'app-get-po-detail',
@@ -185,6 +192,7 @@ export class GetPoDetailComponent extends DrawerDetailBase {
         advancePaidTotal: record.advancePaidTotal,
         lastInvoiceAt: record.lastInvoiceAt,
         lastPaymentAt: record.lastPaymentAt,
+        taxTotals: record.taxTotals ?? null,
       },
       customTemplateKey: 'poDetailInvoiceTotals',
     });
@@ -322,6 +330,7 @@ export class GetPoDetailComponent extends DrawerDetailBase {
     advancePaidTotal: string;
     lastInvoiceAt: string | null | undefined;
     lastPaymentAt: string | null | undefined;
+    taxTotals?: IPoTaxTotals | null;
   }): IDocAmountSegment[] {
     const isSales = v.partyType === EDocContext.SALES;
     const segments: IDocAmountSegment[] = [
@@ -349,6 +358,7 @@ export class GetPoDetailComponent extends DrawerDetailBase {
         label: 'Paid',
         value: v.paidTotal,
       },
+      ...buildPoTaxSettlementSegments(v.taxTotals, isSales),
       {
         dataType: EDataType.DATE,
         label: 'Last invoice',

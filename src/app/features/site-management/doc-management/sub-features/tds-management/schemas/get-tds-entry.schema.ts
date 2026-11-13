@@ -57,49 +57,67 @@ export const TdsEntryGetRequestSchema = z
     }
   );
 
+const TdsInvoiceReferenceSchema = z.looseObject({
+  invoiceNumber: z.string().nullable(),
+  invoiceDate: onlyDateStringField.optional(),
+  /** TDS rate of the invoice (varies per invoice). */
+  tdsPercentage: z.union([z.string(), z.number()]).nullable().optional(),
+  jmc: z
+    .looseObject({
+      jmcNumber: z.string().nullable(),
+      po: z
+        .looseObject({
+          poNumber: z.string(),
+        })
+        .nullable()
+        .optional(),
+    })
+    .nullable()
+    .optional(),
+});
+
 export const TdsEntryGetBaseResponseSchema = z.looseObject({
   id: uuidField,
   partyType: z.enum(EDocContext),
+  siteId: uuidField,
+  contractorId: uuidField.nullable(),
+  vendorId: uuidField.nullable(),
   taxableAmount: z.string(),
   tdsAmount: z.string(),
+  /** Purchase: filed in our 26Q. Sale: credited in our Form 26AS. */
   isVerified: z.boolean(),
   verifiedAt: isoDateTimeField.nullable(),
   verifiedBy: uuidField.nullable(),
   verifyFileKey: z.string().nullable(),
+  /** Purchase only: the challan this deduction was deposited with. */
   tdsPaymentId: uuidField.nullable(),
+  tdsPayment: z
+    .looseObject({
+      utrNumber: z.string().nullable(),
+      paymentDate: z.string().nullable(),
+      fileKey: z.string().nullable(),
+      remarks: z.string().nullable().optional(),
+    })
+    .nullable()
+    .optional(),
+  /** Invoice the deduction belongs to (TDS is projected at invoice approval). */
+  invoice: TdsInvoiceReferenceSchema.nullable().optional(),
+  // Legacy entries that were projected from a bank transfer / book payment.
   bankTransfer: z
     .looseObject({
       transferDate: onlyDateStringField,
-      invoice: z
-        .looseObject({
-          invoiceNumber: z.string(),
-          jmc: z.looseObject({
-            jmcNumber: z.string().nullable(),
-            po: z.looseObject({
-              poNumber: z.string(),
-            }),
-          }),
-        })
-        .optional(),
+      invoice: TdsInvoiceReferenceSchema.nullable().optional(),
     })
-    .nullable(),
+    .nullable()
+    .optional(),
   bookPayment: z
     .looseObject({
       paymentTotalAmount: z.string(),
       bookingDate: onlyDateStringField,
-      invoice: z
-        .looseObject({
-          invoiceNumber: z.string(),
-          jmc: z.looseObject({
-            jmcNumber: z.string().nullable(),
-            po: z.looseObject({
-              poNumber: z.string(),
-            }),
-          }),
-        })
-        .optional(),
+      invoice: TdsInvoiceReferenceSchema.nullable().optional(),
     })
-    .nullable(),
+    .nullable()
+    .optional(),
   site: z.looseObject({
     name: z.string(),
     city: z.string(),

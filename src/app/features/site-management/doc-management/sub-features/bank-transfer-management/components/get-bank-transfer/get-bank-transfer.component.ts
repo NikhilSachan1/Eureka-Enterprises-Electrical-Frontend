@@ -61,6 +61,7 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
+import { getBankTransferTypeLabel } from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
 
 @Component({
   selector: 'app-get-bank-transfer',
@@ -262,6 +263,7 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
         utrNumber: record.utrNumber,
         transferAmount: record.transferAmount,
         remarks: record.remarks,
+        paymentTypeLabel: getBankTransferTypeLabel(record),
         docWorkspaceContext: {
           companyName: record.site.company.name,
           partyName:
@@ -357,13 +359,13 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
     const selectedRecord =
       actionType === EButtonActionType.SEND_EMAIL && raw.paymentAdvice
         ? [
-          {
-            id: raw.paymentAdvice.id,
-            referenceNumber: raw.paymentAdvice.referenceNumber,
-            pdfKey: raw.paymentAdvice.pdfKey,
-            vendor: { email: raw.vendor?.email ?? null },
-          },
-        ]
+            {
+              id: raw.paymentAdvice.id,
+              referenceNumber: raw.paymentAdvice.referenceNumber,
+              pdfKey: raw.paymentAdvice.pdfKey,
+              vendor: { email: raw.vendor?.email ?? null },
+            },
+          ]
         : [raw];
 
     const dynamicComponentInputs: Record<string, unknown> = {

@@ -70,7 +70,10 @@
     <section class="docstat__body">
       @if (loading()) {
         <div class="docstat__loading">
-          <p-progressSpinner strokeWidth="4" ariaLabel="Loading" />
+          <p-progressSpinner
+            strokeWidth="4"
+            ariaLabel="Loading"
+          />
         </div>
       } @else if (showMissingPoChain()) {
         <app-empty-messages
@@ -202,9 +205,15 @@
   </div>
 </p-dialog>
 
-<ng-template #graphNodeCard let-node="node">
+<ng-template
+  #graphNodeCard
+  let-node="node"
+>
   @let card = buildGraphCardView(node.data);
-  <div xmlns="http://www.w3.org/1999/xhtml" class="doc-chain-card-host">
+  <div
+    xmlns="http://www.w3.org/1999/xhtml"
+    class="doc-chain-card-host"
+  >
     <div
       [class]="card.className"
       [attr.data-stage]="card.stageTone"
@@ -217,21 +226,33 @@
             aria-hidden="true"
           ></i>
           <span class="doc-chain-card__type">{{ card.docName }}</span>
+          @if (card.missingFileLabel) {
+            <span
+              class="doc-chain-card__file-missing"
+              [attr.title]="card.missingFileLabel + ' uploaded'"
+            >
+              {{ card.missingFileLabel }}
+            </span>
+          }
         </span>
         <div class="doc-chain-card__actions">
           <span class="doc-chain-card__badge">
-            <span class="doc-chain-card__badge-dot" aria-hidden="true"></span>
+            <span
+              class="doc-chain-card__badge-dot"
+              aria-hidden="true"
+            ></span>
             {{ card.statusLabel }}
           </span>
           <button
             type="button"
             class="doc-chain-card__open"
-            [attr.aria-label]="
-              'Open ' + card.docName + ' in project workspace'
-            "
+            [attr.aria-label]="'Open ' + card.docName + ' in project workspace'"
             (click)="navigateToWorkspaceDoc(node.data.stage, $event)"
           >
-            <i [class]="icons.COMMON.EXTERNAL_LINK" aria-hidden="true"></i>
+            <i
+              [class]="icons.COMMON.EXTERNAL_LINK"
+              aria-hidden="true"
+            ></i>
           </button>
         </div>
       </div>
@@ -249,19 +270,13 @@
             @if (card.amount) {
               <div class="doc-chain-card__fact">
                 <span class="doc-chain-card__fact-label">Amount</span>
-                <span class="doc-chain-card__fact-value">{{
-                  formatCurrency(card.amount)
-                }}</span>
+                <span class="doc-chain-card__fact-value">{{ formatCurrency(card.amount) }}</span>
               </div>
             }
             @if (card.formattedDate !== '—') {
               <div class="doc-chain-card__fact">
-                <span class="doc-chain-card__fact-label">{{
-                  card.dateLabel
-                }}</span>
-                <span class="doc-chain-card__fact-value">{{
-                  card.formattedDate
-                }}</span>
+                <span class="doc-chain-card__fact-label">{{ card.dateLabel }}</span>
+                <span class="doc-chain-card__fact-value">{{ card.formattedDate }}</span>
               </div>
             }
           </div>
@@ -271,7 +286,11 @@
   </div>
 </ng-template>
 
-<ng-template #docChainGraph let-graph="graph" let-graphClass="graphClass">
+<ng-template
+  #docChainGraph
+  let-graph="graph"
+  let-graphClass="graphClass"
+>
   <div [class]="graphClass">
     <ngx-graph
       [nodes]="graph.nodes"
@@ -289,15 +308,16 @@
       [zoomToFit$]="graphZoomToFit$"
       (drawComplete)="onGraphDrawComplete()"
     >
-      <ng-template #nodeTemplate let-node>
+      <ng-template
+        #nodeTemplate
+        let-node
+      >
         <svg:g>
           <svg:foreignObject
             [attr.width]="node.dimension.width"
             [attr.height]="node.dimension.height"
           >
-            <ng-container
-              *ngTemplateOutlet="graphNodeCard; context: { node: node }"
-            />
+            <ng-container *ngTemplateOutlet="graphNodeCard; context: { node: node }" />
           </svg:foreignObject>
         </svg:g>
       </ng-template>

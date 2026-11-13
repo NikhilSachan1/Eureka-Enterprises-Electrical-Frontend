@@ -1,22 +1,34 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
 import { EDataType, IFormConfig, IFormInputFieldsConfig } from '@shared/types';
+import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { IAddGstPaymentReleaseUIFormDto } from '../../types/gst.dto';
 
-const ADD_GST_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddGstPaymentReleaseUIFormDto> =
-  {
+/**
+ * Settle held GST.
+ *  Vendor: books a GST release (book payment). The money goes out from the payment sheet /
+ *  bank transfer, so only the booking date and remarks are asked here — UTR and proof are
+ *  captured on the bank transfer. The UTR / proof fields are not shown.
+ *  Contractor: the client has paid the GST — recorded as a bank transfer, so UTR is required.
+ */
+function buildFieldsConfig(
+  partyType: EDocContext
+): IFormInputFieldsConfig<IAddGstPaymentReleaseUIFormDto> {
+  const isPurchase = partyType === EDocContext.PURCHASE;
+
+  return {
     utrNumber: {
       fieldType: EDataType.TEXT,
       id: 'utrNumber',
       fieldName: 'utrNumber',
       label: 'UTR / Reference No.',
-      validators: [Validators.required],
+      validators: isPurchase ? [] : [Validators.required],
     },
     paymentDate: {
       fieldType: EDataType.DATE,
       id: 'paymentDate',
       fieldName: 'paymentDate',
-      label: 'Payment Date',
+      label: isPurchase ? 'Booking Date' : 'Received On',
       dateConfig: {
         maxDate: new Date(),
         touchUI: false,
@@ -27,7 +39,7 @@ const ADD_GST_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddGst
       fieldType: EDataType.ATTACHMENTS,
       id: 'paymentAttachment',
       fieldName: 'paymentAttachment',
-      label: 'Payment proof',
+      label: 'Receipt proof',
       fileConfig: {
         fileLimit: 1,
         acceptFileTypes: [
@@ -43,8 +55,10 @@ const ADD_GST_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddGst
       label: 'Remarks',
     },
   };
+}
 
-export const ADD_GST_PAYMENT_RELEASE_FORM_CONFIG: IFormConfig<IAddGstPaymentReleaseUIFormDto> =
-  {
-    fields: ADD_GST_PAYMENT_RELEASE_FORM_FIELDS_CONFIG,
-  };
+export function buildAddGstPaymentReleaseFormConfig(
+  partyType: EDocContext
+): IFormConfig<IAddGstPaymentReleaseUIFormDto> {
+  return { fields: buildFieldsConfig(partyType) };
+}

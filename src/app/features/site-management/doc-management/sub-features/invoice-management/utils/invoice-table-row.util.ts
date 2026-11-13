@@ -71,11 +71,24 @@ export function invoiceRejectDisableReason(
   return INVOICE_ROW_ACTION_DISABLE_REASON.rejectOnlyWhilePending;
 }
 
+/**
+ * "(18%) · Hold" beside the GST. Once the held GST has moved the hold is over, so it reads
+ * Released (vendor) / Received (client) instead; a booked vendor release reads "Release in process".
+ */
 export function buildInvoiceGstAmountSuffix(
   gstPercentagePart: string,
-  isGstHold: boolean | undefined | null
+  isGstHold: boolean | undefined | null,
+  gstStatus?: IInvoiceGetBaseResponseDto['gstStatus'],
+  isSales?: boolean
 ): string {
-  const holdStatus = isGstHold === false ? 'No Hold' : 'Hold';
+  let holdStatus = isGstHold === false ? 'No Hold' : 'Hold';
+  if (isGstHold !== false && gstStatus?.isGstHold) {
+    if (gstStatus.settlementStatus === 'SETTLED') {
+      holdStatus = isSales ? 'Received' : 'Released';
+    } else if (gstStatus.settlementStatus === 'IN_PROCESS') {
+      holdStatus = 'Release in process';
+    }
+  }
   return `${gstPercentagePart} · ${holdStatus}`;
 }
 
@@ -205,7 +218,73 @@ export function buildInvoiceBookedPaidSegments(
       value: invoiceAdvanceRemainingAmount(source),
     }
   );
+  segments.push(...buildInvoiceTaxSettlementSegments(source, isSales));
   return segments;
+}
+
+/**
+ * What happened to the tax after the invoice was paid. Shown next to Paid — never folded into it,
+ * because Paid is the cash rollup the payment ceilings are built on.
+ *   Held GST  → released to vendor / received from client (or still pending)
+ *   TDS       → purchase: challan deposited? · sale: credited in Form 26AS?
+ */
+export function buildInvoiceTaxSettlementSegments(
+  row: IInvoiceGetBaseResponseDto,
+  isSales: boolean
+): IDocAmountSegment[] {
+  const segments: IDocAmountSegment[] = [];
+  const gst = row.gstStatus;
+  const tds = row.tdsStatus;
+
+  if (gst?.isGstHold) {
+    const settled = gst.settlementStatus === 'SETTLED';
+    const settledWord = isSales ? 'Received' : 'Released';
+    const pendingWord =
+      gst.settlementStatus === 'IN_PROCESS'
+        ? 'Release in process'
+        : isSales
+          ? 'Receipt pending'
+          : 'Release pending';
+    segments.push({
+      dataType: EDataType.CURRENCY,
+      label: isSales ? 'Held GST (by client)' : 'Held GST',
+      value: gst.gstAmount,
+      suffix: settled
+        ? `${settledWord}${gst.settledAt ? ` · ${formatInvoiceShortDate(gst.settledAt)}` : ''}`
+        : pendingWord,
+    });
+  }
+
+  if (tds && tds.tdsAmount > 0) {
+    const suffix = isSales
+      ? tds.isVerified
+        ? '26AS verified'
+        : '26AS pending'
+      : tds.isDeposited
+        ? tds.isVerified
+          ? 'Deposited · 26Q filed'
+          : 'Deposited'
+        : 'Challan pending';
+    segments.push({
+      dataType: EDataType.CURRENCY,
+      label: 'TDS',
+      value: tds.tdsAmount,
+      suffix,
+    });
+  }
+
+  return segments;
+}
+
+function formatInvoiceShortDate(value: string): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
 }
 
 export function buildInvoiceAdvanceSettlementFlowSegments(
@@ -248,6 +327,9 @@ export function buildInvoiceTaxGstAmountSegments(input: {
   gstPercentage: string | number;
   totalAmount: string;
   isGstHold?: boolean | null;
+  /** When given, the "Hold" tag turns into Released / Received once the held GST has moved. */
+  gstStatus?: IInvoiceGetBaseResponseDto['gstStatus'];
+  isSales?: boolean;
 }): IDocAmountSegment[] {
   if (input.invoiceNumber === null) {
     return [buildInvoiceAmountEmptyPlaceholderSegment()];
@@ -271,7 +353,9 @@ export function buildInvoiceTaxGstAmountSegments(input: {
       value: input.gstAmount,
       suffix: buildInvoiceGstAmountSuffix(
         formatInvoicePercentSuffix(input.gstPercentage),
-        input.isGstHold
+        input.isGstHold,
+        input.gstStatus,
+        input.isSales
       ),
     },
     {

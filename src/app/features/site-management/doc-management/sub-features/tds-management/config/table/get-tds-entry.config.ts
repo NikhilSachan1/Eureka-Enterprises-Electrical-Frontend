@@ -8,6 +8,10 @@ import {
   ITableActionConfig,
 } from '@shared/types';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import {
+  getTdsChallanDisableReason,
+  getTdsVerifyDisableReason,
+} from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
 import { ITdsEntryGetBaseResponseDto } from '../../types/tds.dto';
 
 export const TDS_ENTRY_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -31,8 +35,8 @@ export const TDS_ENTRY_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] =
       showSort: false,
     },
     {
-      field: 'paymentDate',
-      header: 'Payment date',
+      field: 'invoiceDate',
+      header: 'Invoice date',
       bodyTemplate: EDataType.DATE,
       dataType: EDataType.DATE,
       showSort: false,
@@ -51,8 +55,14 @@ export const TDS_ENTRY_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] =
       showSort: false,
     },
     {
+      field: 'depositStatusLabel',
+      header: 'Deposit',
+      bodyTemplate: EDataType.STATUS,
+      showSort: false,
+    },
+    {
       field: 'verificationStatusLabel',
-      header: 'Verification',
+      header: '26Q / 26AS',
       bodyTemplate: EDataType.STATUS,
       showSort: false,
     },
@@ -67,11 +77,21 @@ const buildTdsEntryTableRowActionsConfig = (): Partial<
     permission: [APP_PERMISSION.TDS.VIEW_DETAIL],
   },
   {
-    ...COMMON_ROW_ACTIONS.APPROVE,
-    tooltip: 'Approve TDS entry',
-    disableWhen: (row: ITdsEntryGetBaseResponseDto) => row.isVerified,
+    id: EButtonActionType.PAID,
+    tooltip: 'Record TDS challan',
+    permission: [APP_PERMISSION.TDS.RELEASE],
+    disableWhen: (row: ITdsEntryGetBaseResponseDto) =>
+      !!getTdsChallanDisableReason(row),
     disableReason: (row: ITdsEntryGetBaseResponseDto) =>
-      row.isVerified ? 'This entry is already approved.' : undefined,
+      getTdsChallanDisableReason(row),
+  },
+  {
+    ...COMMON_ROW_ACTIONS.APPROVE,
+    tooltip: 'Verify in 26Q (vendor) / Form 26AS (contractor)',
+    disableWhen: (row: ITdsEntryGetBaseResponseDto) =>
+      !!getTdsVerifyDisableReason(row),
+    disableReason: (row: ITdsEntryGetBaseResponseDto) =>
+      getTdsVerifyDisableReason(row),
     permission: [APP_PERMISSION.TDS.APPROVE],
   },
   {
@@ -82,22 +102,6 @@ const buildTdsEntryTableRowActionsConfig = (): Partial<
       !row.isVerified ? 'Only verified entries can be reverted.' : undefined,
     permission: [APP_PERMISSION.TDS.REJECT],
   },
-  {
-    id: EButtonActionType.PAID,
-    tooltip: 'Release payment',
-    permission: [APP_PERMISSION.TDS.RELEASE],
-    disableWhen: (row: ITdsEntryGetBaseResponseDto) =>
-      !row.isVerified || !!row.tdsPaymentId,
-    disableReason: (row: ITdsEntryGetBaseResponseDto): string | undefined => {
-      if (!row.isVerified) {
-        return 'This entry is not verified yet.';
-      }
-      if (row.tdsPaymentId) {
-        return 'Payment already released for this entry.';
-      }
-      return undefined;
-    },
-  },
 ];
 
 const buildTdsEntryTableBulkActionsConfig = (): Partial<
@@ -105,19 +109,16 @@ const buildTdsEntryTableBulkActionsConfig = (): Partial<
 >[] => [
   {
     id: EButtonActionType.PAID,
-    label: 'Release Payment',
-    tooltip: 'Release payment for selected entries',
+    label: 'Record Challan',
+    tooltip: 'Record one TDS challan for the selected vendor entries',
     permission: [APP_PERMISSION.TDS.RELEASE],
     disableWhen: (row: ITdsEntryGetBaseResponseDto) =>
-      !row.isVerified || !!row.tdsPaymentId,
+      !!getTdsChallanDisableReason(row),
     disableReason: (row: ITdsEntryGetBaseResponseDto): string | undefined => {
-      if (!row.isVerified) {
-        return 'Some selected entries are not verified yet.';
-      }
-      if (row.tdsPaymentId) {
-        return 'Some selected entries already have payment released.';
-      }
-      return undefined;
+      const reason = getTdsChallanDisableReason(row);
+      return reason
+        ? `Some selected entries cannot be added: ${reason}`
+        : undefined;
     },
   },
 ];

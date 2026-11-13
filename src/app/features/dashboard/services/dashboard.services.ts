@@ -10,6 +10,7 @@ import {
   AssetFleetAlertsDashboardGetResponseSchema,
   BirthdaysDashboardGetResponseSchema,
   DocumentGapDetailGetResponseSchema,
+  DocumentGapDetailQuerySchema,
   DocumentGapsDashboardGetResponseSchema,
   HolidaysDashboardGetResponseSchema,
   LedgerBalanceDashboardGetResponseSchema,
@@ -23,6 +24,7 @@ import {
   IAssetFleetAlertsDashboardGetResponseDto,
   IBirthdaysDashboardGetResponseDto,
   IDocumentGapDetailGetResponseDto,
+  IDocumentGapDetailQueryDto,
   IDocumentGapsDashboardGetResponseDto,
   IHolidaysDashboardGetResponseDto,
   ILedgerBalanceDashboardGetResponseDto,
@@ -49,13 +51,17 @@ export class DashboardService {
     );
   }
 
+  /** One gap's documents; `query.party` limits them to the contractor or vendor side. */
   getDocumentGapDetail(
-    key: string
+    key: string,
+    query: IDocumentGapDetailQueryDto = {}
   ): Observable<IDocumentGapDetailGetResponseDto> {
-    return this.fetch(
+    return this.fetchQuery(
       'Get Document Gap Detail',
       API_ROUTES.DASHBOARD.DOCUMENT_GAP(key),
-      DocumentGapDetailGetResponseSchema
+      DocumentGapDetailQuerySchema,
+      DocumentGapDetailGetResponseSchema,
+      query
     );
   }
 

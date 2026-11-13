@@ -26,6 +26,7 @@ import { APP_CONFIG } from '@core/config';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
+import { InvoicePaymentSummaryComponent } from '@features/site-management/doc-management/shared/components/invoice-payment-summary/invoice-payment-summary.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
@@ -43,6 +44,7 @@ import {
     ViewDetailComponent,
     DocReferenceComponent,
     DocAmountComponent,
+    InvoicePaymentSummaryComponent,
     DocWorkspaceContextComponent,
   ],
   templateUrl: './get-invoice-detail.component.html',
@@ -141,13 +143,15 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
           gstAmount: record.gstAmount,
           gstPercentage: `${record.gstPercentage}%`,
           isGstHold: record.isGstHold,
+          gstStatus: record.gstStatus,
+          isSales: record.partyType === EDocContext.SALES,
           totalAmount: record.totalAmount,
         },
         customTemplateKey: 'invoiceDetailAmounts',
         detailTemplateFullRow: false,
       },
       {
-        label: 'Booked & paid',
+        label: 'Payment summary',
         value: record,
         customTemplateKey: 'invoiceDetailBookedPaid',
         detailTemplateFullRow: false,
@@ -220,6 +224,8 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
     totalAmount: string;
     gstPercentage: string;
     isGstHold?: boolean;
+    gstStatus?: IInvoiceGetBaseResponseDto['gstStatus'];
+    isSales?: boolean;
   }): IDocAmountSegment[] {
     return buildInvoiceTaxGstAmountSegments({
       invoiceNumber: v.invoiceNumber,
@@ -230,7 +236,13 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
       gstPercentage: v.gstPercentage,
       totalAmount: v.totalAmount,
       isGstHold: v.isGstHold,
+      gstStatus: v.gstStatus,
+      isSales: v.isSales,
     });
+  }
+
+  protected isSalesInvoice(record: IInvoiceGetBaseResponseDto): boolean {
+    return record.partyType === EDocContext.SALES;
   }
 
   protected docInvoiceDrawerBookedPaidSegments(

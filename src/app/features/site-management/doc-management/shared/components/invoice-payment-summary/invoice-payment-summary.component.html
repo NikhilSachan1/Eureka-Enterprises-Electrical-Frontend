@@ -1,0 +1,70 @@
+@let s = summary();
+
+<ng-template
+  #labelTpl
+  let-label="label"
+  let-meaning="meaning"
+>
+  <span class="ips__label">
+    {{ label }}
+    <i
+      [class]="infoIcon + ' ips__info'"
+      [pTooltip]="meaning"
+      tooltipPosition="top"
+      tabindex="0"
+      [attr.aria-label]="label + ': ' + meaning"
+    ></i>
+  </span>
+</ng-template>
+
+@if (!s) {
+  <span class="ips__empty">—</span>
+} @else {
+  <div class="ips">
+    <div class="ips__group ips__group--head">
+      @for (row of headRows(); track row.key) {
+        <div class="ips__row">
+          <ng-container
+            *ngTemplateOutlet="labelTpl; context: { label: row.label, meaning: row.meaning }"
+          ></ng-container>
+          <span class="ips__amount">₹{{ row.amount | number: fmt : loc }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="ips__group">
+      @for (row of rows(); track row.key) {
+        <div class="ips__row">
+          <ng-container
+            *ngTemplateOutlet="labelTpl; context: { label: row.label, meaning: row.meaning }"
+          ></ng-container>
+          <span class="ips__amount">₹{{ row.amount | number: fmt : loc }}</span>
+          @if (row.status) {
+            <span [class]="'ips__status ips__status--' + (row.state ?? 'done')">
+              {{ row.status }}
+            </span>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="ips__group ips__group--foot">
+      <div class="ips__row">
+        <ng-container
+          *ngTemplateOutlet="labelTpl; context: { label: 'Settled', meaning: settledMeaning() }"
+        ></ng-container>
+        <span class="ips__amount ips__amount--settled">₹{{ s.totalSettled | number: fmt : loc }}</span>
+      </div>
+      <div class="ips__row">
+        <ng-container
+          *ngTemplateOutlet="labelTpl; context: { label: 'Balance', meaning: balanceMeaning }"
+        ></ng-container>
+        @if (s.totalBalance > 0) {
+          <span class="ips__amount ips__amount--balance">₹{{ s.totalBalance | number: fmt : loc }}</span>
+        } @else {
+          <span class="ips__amount ips__amount--settled">Nil · fully settled</span>
+        }
+      </div>
+    </div>
+  </div>
+}

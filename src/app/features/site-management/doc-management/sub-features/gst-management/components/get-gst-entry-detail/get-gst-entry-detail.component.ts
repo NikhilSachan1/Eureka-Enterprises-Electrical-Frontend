@@ -27,6 +27,12 @@ import { DocWorkspaceContextComponent } from '@features/site-management/doc-mana
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import {
+  formatTaxRateSuffix,
+  getGstSettlementLabel,
+  getGstVerifyPortalName,
+  getVerificationLabel,
+} from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
 
 @Component({
   selector: 'app-get-gst-entry-detail',
@@ -126,17 +132,110 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
         value: {
           taxableAmount: record.taxableAmount,
           gstAmount: record.gstAmount,
+          rateSuffix: formatTaxRateSuffix(
+            record.invoice.gstPercentage,
+            record.gstAmount,
+            record.taxableAmount
+          ),
         },
         customTemplateKey: 'gstEntryDetailAmounts',
         detailTemplateFullRow: false,
       },
+      {
+        label: `Verified in ${getGstVerifyPortalName(record.partyType)}`,
+        value: getVerificationLabel(record.isVerified),
+        type: EDataType.STATUS,
+      },
+      {
+        label: 'Held GST',
+        value: getGstSettlementLabel(record),
+        type: EDataType.STATUS,
+      },
     ];
 
     entryData.push({
-      label: 'Attachment',
+      label: 'Verification proof',
       value: record.verifyFileKey ? [record.verifyFileKey] : [],
       type: EDataType.ATTACHMENTS,
     });
+
+    const isPurchaseEntry = record.partyType === EDocContext.PURCHASE;
+    const booking = record.gstBookPayment;
+    const transfer = record.gstBankTransfer;
+
+    // Purchase: the GST release booked against this entry (paid via payment sheet / bank transfer).
+    if (record.isGstHold && booking) {
+      entryData.push({
+        label: 'GST release booked on',
+        value: booking.bookingDate,
+        type: EDataType.DATE,
+        format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+      });
+    }
+
+    // The bank transfer that moved the held GST.
+    if (record.isGstHold && transfer) {
+      entryData.push(
+        {
+          label: isPurchaseEntry ? 'Released on' : 'Received on',
+          value: transfer.transferDate,
+          type: EDataType.DATE,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        },
+        {
+          label: 'UTR / Reference No.',
+          value: transfer.utrNumber ?? '—',
+          type: EDataType.TEXT,
+        },
+        ...(isPurchaseEntry && transfer.paymentAdvice?.referenceNumber
+          ? [
+              {
+                label: 'Payment advice',
+                value: transfer.paymentAdvice.referenceNumber,
+                type: EDataType.TEXT,
+              },
+            ]
+          : []),
+        {
+          label: isPurchaseEntry ? 'Transfer proof' : 'Receipt proof',
+          value: transfer.proofFileKey ? [transfer.proofFileKey] : [],
+          type: EDataType.ATTACHMENTS,
+        }
+      );
+    }
+
+    // Legacy: settlement recorded directly before GST moved through the payment chain.
+    const settlement = record.gstPayment;
+    if (record.isGstHold && settlement && !transfer) {
+      const isPurchase = isPurchaseEntry;
+      entryData.push(
+        {
+          label: isPurchase ? 'Released on' : 'Received on',
+          value: settlement.paymentDate,
+          type: EDataType.DATE,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        },
+        {
+          label: 'UTR / Reference No.',
+          value: settlement.utrNumber ?? '—',
+          type: EDataType.TEXT,
+        },
+        ...(isPurchase && settlement.paymentAdviceReferenceNumber
+          ? [
+              {
+                label: 'GST payment advice',
+                value: settlement.paymentAdviceReferenceNumber,
+                type: EDataType.TEXT,
+              },
+            ]
+          : []),
+        {
+          label: isPurchase ? 'Release proof' : 'Receipt proof',
+          value: settlement.fileKey ? [settlement.fileKey] : [],
+          type: EDataType.ATTACHMENTS,
+        }
+      );
+    }
 
     const detail: IDataViewDetails = {
       status: {
@@ -178,6 +277,7 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
   protected docGstEntryDrawerAmountSegments(v: {
     taxableAmount: string;
     gstAmount: string;
+    rateSuffix?: string;
   }): IDocAmountSegment[] {
     return [
       {
@@ -189,6 +289,7 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
         dataType: EDataType.CURRENCY,
         label: 'GST',
         value: v.gstAmount,
+        suffix: v.rateSuffix,
       },
     ];
   }

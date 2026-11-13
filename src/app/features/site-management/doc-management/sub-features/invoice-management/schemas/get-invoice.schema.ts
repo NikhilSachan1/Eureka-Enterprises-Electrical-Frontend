@@ -64,8 +64,70 @@ export const InvoiceAdvanceSettlementSchema = z.looseObject({
   settledAt: z.string().nullable().optional(),
 });
 
+/** GST register status of the invoice (null until approved / when there is no GST). */
+export const InvoiceGstStatusSchema = z.looseObject({
+  entryId: uuidField,
+  gstAmount: z.number(),
+  isGstHold: z.boolean(),
+  isVerified: z.boolean(),
+  /** IN_PROCESS: vendor GST release booked, bank transfer not done yet. */
+  settlementStatus: z.enum(['NOT_HELD', 'PENDING', 'IN_PROCESS', 'SETTLED']),
+  settledAmount: z.number(),
+  settledAt: z.string().nullable(),
+});
+
+/** TDS register status of the invoice (null until approved / when there is no TDS). */
+export const InvoiceTdsStatusSchema = z.looseObject({
+  tdsAmount: z.number(),
+  depositedAmount: z.number(),
+  verifiedAmount: z.number(),
+  isDeposited: z.boolean(),
+  isVerified: z.boolean(),
+  lastDepositedAt: z.string().nullable(),
+});
+
+/**
+ * Where the invoice's money stands, computed by the server. Paid + advance adjusted + held GST
+ * settled + TDS cleared = total settled; invoice value − total settled = total balance.
+ */
+export const InvoicePaymentSummarySchema = z.looseObject({
+  invoiceValue: z.number(),
+  netPayable: z.number(),
+  /** Purchase only; null on a sale invoice. */
+  booked: z.number().nullable(),
+  paid: z.number(),
+  awaitingTransfer: z.number().nullable(),
+  toBook: z.number().nullable(),
+  advanceAdjusted: z.number(),
+  paymentBalance: z.number(),
+  gst: z
+    .looseObject({
+      amount: z.number(),
+      isHeld: z.boolean(),
+      status: z.enum(['NOT_HELD', 'PENDING', 'IN_PROCESS', 'SETTLED']),
+      settled: z.number(),
+      pending: z.number(),
+      settledAt: z.string().nullable(),
+    })
+    .nullable(),
+  tds: z
+    .looseObject({
+      amount: z.number(),
+      cleared: z.number(),
+      pending: z.number(),
+      status: z.enum(['CLEARED', 'DEPOSITED', 'PENDING']),
+    })
+    .nullable(),
+  totalSettled: z.number(),
+  totalBalance: z.number(),
+  settledPercent: z.number(),
+});
+
 export const InvoiceGetBaseResponseSchema = z.looseObject({
   ...InvoiceBaseSchema.shape,
+  gstStatus: InvoiceGstStatusSchema.nullable().optional(),
+  tdsStatus: InvoiceTdsStatusSchema.nullable().optional(),
+  paymentSummary: InvoicePaymentSummarySchema.nullable().optional(),
   isLocked: z.boolean(),
   unlockRequestedAt: isoDateTimeField.nullable(),
   unlockRequestedByUser: makeFieldsNullable(UserSchema).nullable(),

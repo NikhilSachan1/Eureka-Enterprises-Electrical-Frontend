@@ -56,7 +56,7 @@ export class AddTdsPaymentReleaseComponent
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
       this.logger.error(
-        'Selected record is required to release TDS payment but was not provided'
+        'Selected record is required to record a TDS challan but was not provided'
       );
       return;
     }
@@ -99,9 +99,9 @@ export class AddTdsPaymentReleaseComponent
       | undefined;
 
     this.loadingService.show({
-      title: 'Releasing TDS payment',
+      title: 'Recording TDS challan',
       message:
-        "Please wait while we're recording the TDS payment release. This will just take a moment.",
+        "Please wait while we're recording the TDS challan. This will just take a moment.",
     });
     this.form.disable();
 
@@ -141,10 +141,10 @@ export class AddTdsPaymentReleaseComponent
             fallbacks: {
               success: (count: number) =>
                 count === 1
-                  ? 'TDS payment released successfully.'
-                  : `Successfully released TDS payment for ${count} records.`,
-              error: 'Failed to release TDS payment.',
-              empty: 'Failed to release TDS payment.',
+                  ? 'TDS challan recorded successfully.'
+                  : `TDS challan recorded for ${count} entries.`,
+              error: 'Failed to record TDS challan.',
+              empty: 'Failed to record TDS challan.',
             },
           });
 
@@ -152,9 +152,9 @@ export class AddTdsPaymentReleaseComponent
           this.confirmationDialogService.closeDialog();
         },
         error: error => {
-          this.logger.error('Failed to release TDS payment', error);
+          this.logger.error('Failed to record TDS challan', error);
           this.notificationService.error(
-            'Could not record the TDS payment release. Please try again.'
+            'Could not record the TDS challan. Please try again.'
           );
         },
       });

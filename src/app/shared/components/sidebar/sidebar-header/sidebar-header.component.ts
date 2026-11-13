@@ -8,11 +8,12 @@ import {
 } from '@angular/core';
 import { APP_CONFIG } from '@core/config';
 import { ICONS } from '@shared/constants';
+import { NotificationBellComponent } from '@features/notification-management/components/notification-bell/notification-bell.component';
 
 @Component({
   selector: 'app-sidebar-header',
   standalone: true,
-  imports: [NgClass],
+  imports: [NgClass, NotificationBellComponent],
   templateUrl: './sidebar-header.component.html',
   styleUrls: ['./sidebar-header.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -49,7 +49,8 @@ export interface IPaymentSheetDetailItemRow {
   projectName?: string;
   projectCity?: string;
   projectState?: string;
-  documentKind?: 'Invoice' | 'Advance';
+  /** 'GST release' = the invoice's held GST paid out to the vendor. */
+  documentKind?: 'Invoice' | 'Advance' | 'GST release';
   invoiceNumber?: string;
   invoiceDate?: string | null;
   settledAmount?: number | null;

@@ -1,6 +1,10 @@
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
-import { IPoBreakdownGetRecordDto, IPoBreakdownGetResponseDto } from '../types/project.dto';
 import {
+  IPoBreakdownGetRecordDto,
+  IPoBreakdownGetResponseDto,
+} from '../types/project.dto';
+import {
+  IPoBreakdownAdvance,
   IPoBreakdownApprovalCount,
   IPoBreakdownBankTransfer,
   IPoBreakdownBookPayment,
@@ -10,9 +14,7 @@ import {
   IPoBreakdownRecord,
   IPoBreakdownReport,
 } from '../types/po-breakdown.interface';
-import {
-  IProjectPoBreakdownSnapshot,
-} from '../types/project-document-status.interface';
+import { IProjectPoBreakdownSnapshot } from '../types/project-document-status.interface';
 import { buildProjectDocumentStatusSummary } from './project-document-status-chain.util';
 
 export function buildPoBreakdownSnapshot(
@@ -71,9 +73,30 @@ function mapPoBreakdownRecord(
     poDate: record.poDate ?? null,
     partyName: record.partyName,
     status: record.status,
+    fileMissing: !record.isSystemGenerated && record.hasUpload === false,
     totalAmount: record.totalAmount ?? 0,
     counts: buildPoBreakdownCounts(jmcs),
+    advances: (record.advances ?? []).map(mapAdvance),
     jmcs,
+  };
+}
+
+function mapAdvance(
+  advance: IPoBreakdownGetRecordDto['advances'][number]
+): IPoBreakdownAdvance {
+  return {
+    id: advance.id,
+    advanceNumber: advance.advanceNumber,
+    advanceDate: advance.advanceDate ?? null,
+    amount: advance.amount ?? 0,
+    settledAmount: advance.settledAmount ?? 0,
+    unsettled: advance.unsettled ?? 0,
+    status: advance.status,
+    hasUpload: advance.hasUpload ?? true,
+    bookedAmount: advance.bookedAmount ?? 0,
+    paidAmount: advance.paidAmount ?? 0,
+    lastPaidAt: advance.lastPaidAt ?? null,
+    utrNumber: advance.utrNumber ?? null,
   };
 }
 
@@ -88,6 +111,8 @@ function mapJmc(
     jmcNumber: jmc.jmcNumber,
     jmcDate: jmc.jmcDate ?? null,
     status: jmc.status,
+    // A generated JMC still needs its signed copy uploaded; only a No-JMC entry has no file.
+    fileMissing: !jmc.isNoJmc && jmc.hasUpload === false,
     hasReport: jmc.hasReport ?? true,
     hasInvoice: jmc.hasInvoice ?? true,
     report,
@@ -119,17 +144,49 @@ function mapInvoice(
 
   const paidTotal = invoice.paidTotal ?? 0;
   const totalAmount = invoice.totalAmount ?? 0;
+  const bookPayments = invoice.bookPayments ?? [];
+  const transfers = invoice.bankTransfers ?? [];
+  const isGstBooking = (bp: (typeof bookPayments)[number]): boolean =>
+    bp.sourceType === 'GST_RELEASE';
+  const isGstTransfer = (bt: (typeof transfers)[number]): boolean =>
+    bt.paymentType === 'GST';
 
   return {
     id: invoice.id,
     invoiceNumber: invoice.invoiceNumber,
     invoiceDate: invoice.invoiceDate ?? null,
     status: invoice.status,
+    // A "No invoice / bill later" marker has no number and no document to upload.
+    fileMissing: invoice.invoiceNumber !== null && invoice.hasUpload === false,
     totalAmount,
     paidTotal,
     remaining: invoice.remaining ?? Math.max(totalAmount - paidTotal, 0),
-    bookPayments: (invoice.bookPayments ?? []).map(mapBookPayment),
-    bankTransfers: (invoice.bankTransfers ?? []).map(mapBankTransfer),
+    gst: invoice.gst
+      ? {
+          gstAmount: invoice.gst.gstAmount,
+          isGstHold: invoice.gst.isGstHold,
+          isVerified: invoice.gst.isVerified,
+          settlementStatus: invoice.gst.settlementStatus,
+          settledAt: invoice.gst.settledAt ?? null,
+        }
+      : null,
+    tds: invoice.tds
+      ? {
+          tdsAmount: invoice.tds.tdsAmount,
+          isDeposited: invoice.tds.isDeposited,
+          isVerified: invoice.tds.isVerified,
+          lastDepositedAt: invoice.tds.lastDepositedAt ?? null,
+        }
+      : null,
+    // Held GST moves on its own rail — kept out of the invoice's payment rail and counts.
+    bookPayments: bookPayments
+      .filter(bp => !isGstBooking(bp))
+      .map(mapBookPayment),
+    gstReleases: bookPayments.filter(isGstBooking).map(mapBookPayment),
+    bankTransfers: transfers
+      .filter(bt => !isGstTransfer(bt))
+      .map(mapBankTransfer),
+    gstReceipts: transfers.filter(isGstTransfer).map(mapBankTransfer),
   };
 }
 
@@ -154,6 +211,11 @@ function mapBankTransfer(transfer: {
   transferDate?: string | null;
   status: string;
   transferAmount?: number | null;
+  paymentAdvice?: {
+    referenceNumber: string | null;
+    generatedAt?: string | null;
+    isEmailed: boolean;
+  } | null;
 }): IPoBreakdownBankTransfer {
   return {
     id: transfer.id,
@@ -161,10 +223,19 @@ function mapBankTransfer(transfer: {
     transferDate: transfer.transferDate ?? null,
     status: transfer.status,
     transferAmount: transfer.transferAmount ?? null,
+    paymentAdvice: transfer.paymentAdvice
+      ? {
+          referenceNumber: transfer.paymentAdvice.referenceNumber,
+          generatedAt: transfer.paymentAdvice.generatedAt ?? null,
+          isEmailed: transfer.paymentAdvice.isEmailed,
+        }
+      : null,
   };
 }
 
-export function buildPoBreakdownCounts(jmcs: IPoBreakdownJmc[]): IPoBreakdownCounts {
+export function buildPoBreakdownCounts(
+  jmcs: IPoBreakdownJmc[]
+): IPoBreakdownCounts {
   const invoices = jmcs
     .map(jmc => jmc.invoice)
     .filter((invoice): invoice is IPoBreakdownInvoice => invoice !== null);

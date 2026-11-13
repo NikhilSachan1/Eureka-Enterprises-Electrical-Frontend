@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
@@ -58,20 +59,110 @@ const PAYMENT_SHEET_STATUS_BY_STAGE: Record<string, string> = {
 
 const DOCUMENT_GAP_ICONS: Record<string, string> = {
   'po-without-jmc': ICONS.COMMON.FILE,
-  'po-file-missing': ICONS.COMMON.FILE,
   'po-under-invoiced': ICONS.COMMON.FILE,
   'jmc-without-invoice': ICONS.COMMON.LIST,
+  'jmc-without-report': ICONS.COMMON.FILE,
   'jmc-file-missing': ICONS.COMMON.LIST,
   'invoice-not-booked': ICONS.PAYMENT.RECORD,
-  'invoice-file-missing': ICONS.COMMON.FILE,
+  'invoice-partially-booked': ICONS.PAYMENT.RECORD,
+  'contractor-payment-pending': ICONS.BANK.ACCOUNT,
+  'contractor-payment-partial': ICONS.BANK.ACCOUNT,
   'booked-not-transferred': ICONS.BANK.ACCOUNT,
+  'advance-not-paid': ICONS.BANK.ACCOUNT,
+  'advance-invoice-not-adjusted': ICONS.EXPENSE.MONEY,
   'advance-not-settled': ICONS.EXPENSE.MONEY,
+  'gst-not-verified': ICONS.PAYMENT.VERIFY,
+  'gst-release-pending': ICONS.PAYMENT.TAX,
+  'gst-release-not-transferred': ICONS.BANK.ACCOUNT,
+  'gst-receipt-pending': ICONS.PAYMENT.TAX,
+  'tds-challan-pending': ICONS.PAYMENT.TAX,
+  'tds-not-verified': ICONS.PAYMENT.VERIFY,
+};
+
+/** One side of the project documents: contractor (sales) or vendor (purchase). */
+interface IDocPartySide {
+  readonly party: 'contractor' | 'vendor';
+  /** How the API spells the side. */
+  readonly apiParty: 'CONTRACTOR' | 'VENDOR';
+  readonly title: string;
+  /** Workspace document area the side's rows open. */
+  readonly contextPath: string;
+}
+
+/** Doc approvals and document gaps are shown once per side, contractor first. */
+const DOC_PARTY_SIDES: readonly IDocPartySide[] = [
+  {
+    party: 'contractor',
+    apiParty: 'CONTRACTOR',
+    title: 'Contractor',
+    contextPath: ROUTES.SITE.PROJECT.CONTRACTOR_DOC,
+  },
+  {
+    party: 'vendor',
+    apiParty: 'VENDOR',
+    title: 'Vendor',
+    contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
+  },
+];
+
+/** A contractor / vendor work section: its rows and their total (null while loading). */
+interface IDocPartySection extends IDocPartySide {
+  readonly rows: IDashboardKpmMetricRow[];
+  readonly total: number | null;
+}
+
+/** One document's gaps inside a contractor / vendor gap section. */
+interface IDocGapGroup {
+  readonly key: string;
+  readonly title: string;
+  readonly icon: string;
+  readonly rows: IDashboardKpmMetricRow[];
+  readonly total: number | null;
+}
+
+interface IDocGapSection extends IDocPartySection {
+  readonly groups: IDocGapGroup[];
+  /** Gaps that need action (informational rows left out). */
+  readonly openCount: number;
+  /** Longest any of those has been waiting, in days. */
+  readonly oldestDays: number;
+}
+
+/** Gap groups: the document that is missing, in chain order. The server tags each gap. */
+const DOC_GAP_GROUPS: readonly {
+  key: string;
+  title: string;
+  /** Title on the contractor side, where the step is named differently. */
+  contractorTitle?: string;
+  icon: string;
+}[] = [
+  { key: 'po', title: 'Purchase order', icon: ICONS.COMMON.FILE },
+  { key: 'jmc', title: 'JMC', icon: ICONS.COMMON.LIST },
+  { key: 'report', title: 'Site report', icon: ICONS.COMMON.FILE },
+  { key: 'invoice', title: 'Invoice', icon: ICONS.COMMON.FILE },
+  { key: 'book-payment', title: 'Book payment', icon: ICONS.PAYMENT.RECORD },
+  {
+    key: 'bank-transfer',
+    title: 'Bank transfer',
+    // The client pays us: the step is money received, not a transfer we make.
+    contractorTitle: 'Bank received',
+    icon: ICONS.BANK.ACCOUNT,
+  },
+  { key: 'advance', title: 'Advance settlement', icon: ICONS.EXPENSE.MONEY },
+  { key: 'gst', title: 'GST verification', icon: ICONS.PAYMENT.VERIFY },
+  { key: 'tds', title: 'TDS', icon: ICONS.PAYMENT.TAX },
+];
+
+const OTHER_GAP_GROUP = {
+  key: 'other',
+  title: 'Other',
+  icon: ICONS.COMMON.FILE,
 };
 
 import { IndianCurrencyPipe } from '@shared/pipes/indian-currency.pipe';
 @Component({
   selector: 'app-kpm-dashboard',
-  imports: [DecimalPipe, IndianCurrencyPipe, NgTemplateOutlet],
+  imports: [DecimalPipe, IndianCurrencyPipe, NgTemplateOutlet, TooltipModule],
   templateUrl: './kpm-dashboard.component.html',
   styleUrl: './kpm-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -164,23 +255,42 @@ export class KpmDashboardComponent implements OnInit {
   protected readonly siteDocTotal = computed(() =>
     this.metricTotal(this.siteDocumentRows())
   );
-  protected readonly documentGapTotal = computed(() =>
-    this.metricTotal(this.documentGapRows())
-  );
+  /** Doc approvals, contractor and vendor apart. */
+  protected readonly siteDocSections = computed<IDocPartySection[]>(() => {
+    const data = this.approvalPending();
+    const loading = this.approvalPendingLoading();
+
+    return DOC_PARTY_SIDES.map(side =>
+      this.toSection(side, this.buildSiteDocuments(data, loading, side))
+    );
+  });
   protected readonly paymentSheetTotal = computed(() =>
     this.metricTotal(this.paymentSheetRows())
   );
-  protected readonly documentGapRows = computed<IDashboardKpmMetricRow[]>(
-    () => {
-      const loading = this.documentGapsLoading();
-      const data = this.documentGaps();
+  /** Document gaps, contractor and vendor apart. */
+  protected readonly documentGapSections = computed<IDocGapSection[]>(() => {
+    const loading = this.documentGapsLoading();
+    const data = this.documentGaps();
 
-      return [
-        ...this.buildDocumentGaps(data?.gaps ?? [], loading),
-        ...this.buildDocumentGaps(data?.info ?? [], loading, true),
-      ];
-    }
-  );
+    return DOC_PARTY_SIDES.map(side => {
+      const section = this.toSection(side, [
+        ...this.buildDocumentGaps(data?.gaps ?? [], loading, side),
+        ...this.buildDocumentGaps(data?.info ?? [], loading, side, true),
+      ]);
+      const problems = section.rows.filter(
+        row => row.state !== EKpmDashboardSeverity.INFO && row.value > 0
+      );
+      return {
+        ...section,
+        groups: this.groupGapRows(section.rows, side.party),
+        openCount: problems.reduce((sum, row) => sum + row.value, 0),
+        oldestDays: problems.reduce(
+          (max, row) => Math.max(max, row.gapOldestDays ?? 0),
+          0
+        ),
+      };
+    });
+  });
   protected readonly ledgerBalanceRows = computed<IDashboardKpmMetricRow[]>(
     () =>
       this.buildLedgerBalance(this.ledgerBalance(), this.ledgerBalanceLoading())
@@ -447,6 +557,48 @@ export class KpmDashboardComponent implements OnInit {
     }
   }
 
+  /** Gap rows under their document, in chain order; groups with no gap on this side are left out. */
+  private groupGapRows(
+    rows: IDashboardKpmMetricRow[],
+    party: IDocPartySide['party']
+  ): IDocGapGroup[] {
+    const known = new Set(DOC_GAP_GROUPS.map(group => group.key));
+    return [...DOC_GAP_GROUPS, OTHER_GAP_GROUP]
+      .map(group => {
+        const groupRows = rows.filter(row =>
+          group.key === OTHER_GAP_GROUP.key
+            ? !row.gapGroup || !known.has(row.gapGroup)
+            : row.gapGroup === group.key
+        );
+        return {
+          key: group.key,
+          icon: group.icon,
+          title:
+            party === 'contractor' &&
+            'contractorTitle' in group &&
+            group.contractorTitle
+              ? group.contractorTitle
+              : group.title,
+          rows: groupRows,
+          total: this.metricTotal(groupRows),
+        };
+      })
+      .filter(group => group.rows.length > 0);
+  }
+
+  /** How urgent a waiting time reads: up to a week is fresh, up to a month is ageing. */
+  protected ageTone(days: number | undefined): 'fresh' | 'ageing' | 'stale' {
+    const d = days ?? 0;
+    return d > 30 ? 'stale' : d > 7 ? 'ageing' : 'fresh';
+  }
+
+  private toSection(
+    side: IDocPartySide,
+    rows: IDashboardKpmMetricRow[]
+  ): IDocPartySection {
+    return { ...side, rows, total: this.metricTotal(rows) };
+  }
+
   private metricTotal(rows: readonly IDashboardKpmMetricRow[]): number | null {
     if (rows.some(row => row.valueLoading)) {
       return null;
@@ -464,7 +616,7 @@ export class KpmDashboardComponent implements OnInit {
         header: row.label,
         subtitle: row.valueHint,
         size: EDrawerSize.LARGE,
-        componentData: { key: row.gapKey },
+        componentData: { key: row.gapKey, party: row.gapParty },
       });
       return;
     }
@@ -741,24 +893,31 @@ export class KpmDashboardComponent implements OnInit {
     });
   }
 
+  /**
+   * Project documents waiting for approval. With a `side`, only that side's documents, opening
+   * its own workspace; without one, both sides together (the KPI tile).
+   */
   private buildSiteDocuments(
     data: IApprovalPendingDashboardGetResponseDto | null,
-    valueLoading: boolean
+    valueLoading: boolean,
+    side?: IDocPartySide
   ): IDashboardKpmMetricRow[] {
     const rows: {
       key: string;
       label: string;
       icon: string;
-      contextPath: string;
       docPath: string;
       hint: string;
+      /** Purchase-only documents. */
+      vendorOnly?: boolean;
+      /** Label on the contractor side, where the step is named differently. */
+      contractorLabel?: string;
     }[] = [
       {
         key: 'purchase-orders',
         label: 'Purchase Orders',
         icon: ICONS.COMMON.FILE,
         hint: 'Approval pending',
-        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
         docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.PO,
       },
       {
@@ -766,15 +925,20 @@ export class KpmDashboardComponent implements OnInit {
         label: 'JMCs',
         icon: ICONS.COMMON.LIST,
         hint: 'Approval pending',
-        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
         docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.JMC,
+      },
+      {
+        key: 'site-reports',
+        label: 'Site Reports',
+        icon: ICONS.COMMON.FILE,
+        hint: 'Approval pending',
+        docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.REPORT,
       },
       {
         key: 'invoices',
         label: 'Invoices',
         icon: ICONS.COMMON.FILE,
         hint: 'Approval pending',
-        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
         docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.INVOICE,
       },
       {
@@ -782,58 +946,67 @@ export class KpmDashboardComponent implements OnInit {
         label: 'Advance Payments',
         icon: ICONS.EXPENSE.MONEY,
         hint: 'Approval pending',
-        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
         docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.ADVANCE_PAYMENT,
+        vendorOnly: true,
       },
       {
         key: 'payment-requests',
         label: 'Payment Requests',
         icon: ICONS.PAYMENT.RECORD,
         hint: 'Approval pending',
-        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
         docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.PAYMENT_REQUEST,
+        vendorOnly: true,
       },
       {
         key: 'bank-transfers',
         label: 'Bank Transfers',
+        // The client pays us: on the contractor side this is money received.
+        contractorLabel: 'Bank Received',
         icon: ICONS.BANK.ACCOUNT,
         hint: 'Approval pending',
-        contextPath: ROUTES.SITE.PROJECT.VENDOR_DOC,
         docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.BANK_TRANSFER,
       },
     ];
+    const contextPath = side?.contextPath ?? ROUTES.SITE.PROJECT.VENDOR_DOC;
 
-    return rows.map(row => {
-      const value = this.pendingCount(data, row.key);
+    return rows
+      .filter(row => !row.vendorOnly || side?.party !== 'contractor')
+      .map(row => {
+        const value = this.pendingCount(data, row.key, side?.party);
 
-      return {
-        icon: row.icon,
-        label: row.label,
-        hint: row.hint,
-        value,
-        format: EDataType.NUMBER,
-        state:
-          value > 0 ? EKpmDashboardSeverity.WARN : EKpmDashboardSeverity.NORMAL,
-        valueLoading,
-        link: this.linkTo(
-          [
-            '/',
-            ROUTE_BASE_PATHS.SITE.BASE,
-            ROUTE_BASE_PATHS.SITE.PROJECT,
-            ROUTES.SITE.PROJECT.WORKSPACE,
-            row.contextPath,
-            row.docPath,
-          ],
-          statusFilterQuery(
-            'approvalStatus',
-            pickDropdownValue(
-              this.appConfigurationService.projectDocumentApprovalStatuses(),
-              'pending'
-            ) ?? EApprovalStatus.PENDING
-          )
-        ),
-      };
-    });
+        return {
+          icon: row.icon,
+          label:
+            side?.party === 'contractor' && row.contractorLabel
+              ? row.contractorLabel
+              : row.label,
+          hint: row.hint,
+          value,
+          format: EDataType.NUMBER,
+          state:
+            value > 0
+              ? EKpmDashboardSeverity.WARN
+              : EKpmDashboardSeverity.NORMAL,
+          valueLoading,
+          link: this.linkTo(
+            [
+              '/',
+              ROUTE_BASE_PATHS.SITE.BASE,
+              ROUTE_BASE_PATHS.SITE.PROJECT,
+              ROUTES.SITE.PROJECT.WORKSPACE,
+              contextPath,
+              row.docPath,
+            ],
+            statusFilterQuery(
+              'approvalStatus',
+              pickDropdownValue(
+                this.appConfigurationService.projectDocumentApprovalStatuses(),
+                'pending'
+              ) ?? EApprovalStatus.PENDING
+            )
+          ),
+        };
+      });
   }
 
   private buildPaymentSheets(
@@ -885,37 +1058,56 @@ export class KpmDashboardComponent implements OnInit {
     });
   }
 
+  /** One side's gaps: only those that can occur on it, counted for it alone. */
   private buildDocumentGaps(
     gaps: IDocumentGapsDashboardGetResponseDto['gaps'],
     valueLoading: boolean,
+    side: IDocPartySide,
     informational = false
   ): IDashboardKpmMetricRow[] {
-    return gaps.map(gap => ({
-      icon: DOCUMENT_GAP_ICONS[gap.key] ?? ICONS.COMMON.FILE,
-      label: gap.label,
-      value: gap.count,
-      valueHint: gap.hint,
-      format: EDataType.NUMBER,
-      state: informational
-        ? EKpmDashboardSeverity.INFO
-        : gap.count > 0
-          ? EKpmDashboardSeverity.WARN
-          : EKpmDashboardSeverity.NORMAL,
-      valueLoading,
-      gapKey: gap.key,
-    }));
+    return gaps
+      .filter(gap => gap.parties.includes(side.apiParty))
+      .map(gap => {
+        const sideGap = gap.byParty?.[side.party];
+        const count = sideGap?.count ?? 0;
+
+        return {
+          icon: DOCUMENT_GAP_ICONS[gap.key] ?? ICONS.COMMON.FILE,
+          label: sideGap?.label ?? gap.label,
+          value: count,
+          valueHint: sideGap?.hint ?? gap.hint,
+          format: EDataType.NUMBER,
+          state: informational
+            ? EKpmDashboardSeverity.INFO
+            : count > 0
+              ? EKpmDashboardSeverity.WARN
+              : EKpmDashboardSeverity.NORMAL,
+          valueLoading,
+          gapKey: gap.key,
+          gapParty: side.apiParty,
+          gapGroup: gap.group,
+          gapOldestDays: sideGap?.oldestDays ?? 0,
+        };
+      });
   }
 
+  /** A queue's pending count — one side's when `party` is given. */
   private pendingCount(
     data: IApprovalPendingDashboardGetResponseDto | null,
-    key: string
+    key: string,
+    party?: IDocPartySide['party']
   ): number {
     const queue = data?.queues?.find(item => item.key === key);
     if (!queue) {
       return 0;
     }
 
-    return data?.scope === 'mine' ? queue.raisedByMe : queue.pending;
+    const counts = party ? queue.byParty?.[party] : queue;
+    if (!counts) {
+      return 0;
+    }
+
+    return data?.scope === 'mine' ? counts.raisedByMe : counts.pending;
   }
 
   private buildReceivablesPayables(

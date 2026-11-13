@@ -53,6 +53,7 @@ import { DocWorkspaceContextComponent } from '@features/site-management/doc-mana
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
+import { getBookPaymentTypeLabel } from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
 
 @Component({
   selector: 'app-get-book-payment',
@@ -83,7 +84,9 @@ export class GetBookPaymentComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
-  protected readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly docRouteContext = signal<EDocContext | undefined>(
+    undefined
+  );
   protected readonly searchTerm = signal<string>('');
 
   protected readonly pageHeaderConfig = computed(() =>
@@ -185,6 +188,7 @@ export class GetBookPaymentComponent implements OnInit {
       paymentTotalAmount: record.paymentTotalAmount,
       hasTransfer: record.hasTransfer ?? false,
       transferStatusLabel: record.hasTransfer === true ? 'Done' : 'Pending',
+      paymentTypeLabel: getBookPaymentTypeLabel(record.sourceType),
       paymentHoldReasonDisplay: record.paymentHoldReason?.trim() ?? '—',
       paymentHoldReason: record.paymentHoldReason,
       isLocked: record.isLocked,

@@ -25,8 +25,17 @@ import { DocAmountComponent } from '@features/site-management/doc-management/sha
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
-import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import {
+  formatTaxRateSuffix,
+  getTdsDepositLabel,
+  getTdsVerifyPortalName,
+  getVerificationLabel,
+} from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
+import {
+  buildTdsDocumentReference,
+  resolveTdsInvoiceReference,
+} from '../../utils/tds-invoice-reference.util';
 
 @Component({
   selector: 'app-get-tds-entry-detail',
@@ -79,10 +88,7 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
   private mapTdsEntryDetailData(
     record: ITdsEntryDetailGetResponseDto
   ): IDataViewDetailsWithEntity {
-    const invoiceRef =
-      record.partyType === EDocContext.PURCHASE
-        ? (record.bookPayment?.invoice ?? null)
-        : (record.bankTransfer?.invoice ?? null);
+    const invoiceRef = resolveTdsInvoiceReference(record);
 
     const entryData: IDataViewDetails['entryData'] = [
       {
@@ -102,11 +108,8 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
         detailTemplateFullRow: true,
       },
       {
-        label: 'Payment date',
-        value:
-          record.partyType === EDocContext.PURCHASE
-            ? (record.bookPayment?.bookingDate ?? '')
-            : (record.bankTransfer?.transferDate ?? ''),
+        label: 'Invoice date',
+        value: invoiceRef.invoiceDate ?? '',
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
@@ -121,14 +124,7 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
         : []),
       {
         label: 'Document reference',
-        value: DocReferenceHierarchy.forTdsEntryReference({
-          partyType: record.partyType,
-          poNumber: invoiceRef?.jmc?.po?.poNumber,
-          jmcNumber: invoiceRef?.jmc?.jmcNumber,
-          invoiceNumber: invoiceRef?.invoiceNumber,
-          bookPaymentDate: record.bookPayment?.bookingDate,
-          bankTransferDate: record.bankTransfer?.transferDate,
-        }),
+        value: buildTdsDocumentReference(invoiceRef),
         customTemplateKey: 'documentReferenceHierarchy',
         detailTemplateFullRow: false,
       },
@@ -137,17 +133,54 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
         value: {
           taxableAmount: record.taxableAmount,
           tdsAmount: record.tdsAmount,
+          rateSuffix: formatTaxRateSuffix(
+            invoiceRef.tdsPercentage,
+            record.tdsAmount,
+            record.taxableAmount
+          ),
         },
         customTemplateKey: 'tdsEntryDetailAmounts',
         detailTemplateFullRow: false,
       },
+      {
+        label: 'Deposit',
+        value: getTdsDepositLabel(record),
+        type: EDataType.STATUS,
+      },
+      {
+        label: `Verified in ${getTdsVerifyPortalName(record.partyType)}`,
+        value: getVerificationLabel(record.isVerified),
+        type: EDataType.STATUS,
+      },
     ];
 
     entryData.push({
-      label: 'Attachment',
+      label: 'Verification proof',
       value: record.verifyFileKey ? [record.verifyFileKey] : [],
       type: EDataType.ATTACHMENTS,
     });
+
+    const challan = record.tdsPayment;
+    if (record.partyType === EDocContext.PURCHASE && challan) {
+      entryData.push(
+        {
+          label: 'Date of deposit',
+          value: challan.paymentDate,
+          type: EDataType.DATE,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        },
+        {
+          label: 'UTR / Reference No.',
+          value: challan.utrNumber ?? '—',
+          type: EDataType.TEXT,
+        },
+        {
+          label: 'Challan copy',
+          value: challan.fileKey ? [challan.fileKey] : [],
+          type: EDataType.ATTACHMENTS,
+        }
+      );
+    }
 
     const detail: IDataViewDetails = {
       status: {
@@ -175,23 +208,21 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
   private headerFromRecord(
     record: ITdsEntryDetailGetResponseDto
   ): IEntityViewDetails {
-    const invoiceRef =
-      record.partyType === EDocContext.PURCHASE
-        ? (record.bookPayment?.invoice ?? null)
-        : (record.bankTransfer?.invoice ?? null);
+    const invoiceRef = resolveTdsInvoiceReference(record);
 
     return {
       name:
         record.partyType === EDocContext.SALES
           ? (record.contractor?.name ?? '').trim()
           : (record.vendor?.name ?? '').trim(),
-      subtitle: invoiceRef?.invoiceNumber ?? '—',
+      subtitle: invoiceRef.invoiceNumber ?? '—',
     };
   }
 
   protected docTdsEntryDrawerAmountSegments(v: {
     taxableAmount: string;
     tdsAmount: string;
+    rateSuffix?: string;
   }): IDocAmountSegment[] {
     return [
       {
@@ -203,6 +234,7 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
         dataType: EDataType.CURRENCY,
         label: 'TDS',
         value: v.tdsAmount,
+        suffix: v.rateSuffix,
       },
     ];
   }

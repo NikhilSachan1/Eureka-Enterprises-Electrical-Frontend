@@ -1,5 +1,10 @@
 import * as z from 'zod';
 
+const ApprovalPendingSideSchema = z.looseObject({
+  pending: z.number().nonnegative().default(0),
+  raisedByMe: z.number().nonnegative().default(0),
+});
+
 const ApprovalPendingQueueSchema = z.looseObject({
   key: z.string(),
   label: z.string(),
@@ -9,6 +14,14 @@ const ApprovalPendingQueueSchema = z.looseObject({
   raisedByMe: z.number().nonnegative().default(0),
   oldestDays: z.number().nonnegative().default(0),
   iApprove: z.boolean().default(false),
+  /** Project documents only: `pending` / `raisedByMe` per side. */
+  byParty: z
+    .looseObject({
+      contractor: ApprovalPendingSideSchema.prefault({}),
+      vendor: ApprovalPendingSideSchema.prefault({}),
+    })
+    .nullable()
+    .optional(),
 });
 
 export const ApprovalPendingDashboardGetResponseSchema = z.looseObject({

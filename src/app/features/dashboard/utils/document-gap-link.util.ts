@@ -16,14 +16,31 @@ const PARTY_PATH: Record<DocumentGapParty, string> = {
 /** Which project-document list a gap key belongs to. */
 const GAP_DOC_PATH: Record<string, string> = {
   'po-without-jmc': WORKSPACE_DOC.PO,
-  'po-file-missing': WORKSPACE_DOC.PO,
   'po-under-invoiced': WORKSPACE_DOC.PO,
   'jmc-without-invoice': WORKSPACE_DOC.JMC,
+  'jmc-without-report': WORKSPACE_DOC.REPORT,
   'jmc-file-missing': WORKSPACE_DOC.JMC,
   'invoice-not-booked': WORKSPACE_DOC.INVOICE,
-  'invoice-file-missing': WORKSPACE_DOC.INVOICE,
+  'invoice-partially-booked': WORKSPACE_DOC.INVOICE,
+  'contractor-payment-pending': WORKSPACE_DOC.BANK_TRANSFER,
+  'contractor-payment-partial': WORKSPACE_DOC.BANK_TRANSFER,
   'booked-not-transferred': WORKSPACE_DOC.BOOK_PAYMENT,
+  'advance-not-paid': WORKSPACE_DOC.BOOK_PAYMENT,
+  'advance-invoice-not-adjusted': WORKSPACE_DOC.ADVANCE_PAYMENT,
   'advance-not-settled': WORKSPACE_DOC.ADVANCE_PAYMENT,
+  'gst-release-not-transferred': WORKSPACE_DOC.BOOK_PAYMENT,
+};
+
+/**
+ * Gaps settled in the project's GST / TDS summary rather than a contractor / vendor document
+ * list. Those summaries sit directly under the workspace and cover both sides.
+ */
+const GAP_TAX_SUMMARY_PATH: Record<string, string> = {
+  'gst-not-verified': ROUTES.SITE.PROJECT.GST_SUMMARY,
+  'gst-release-pending': ROUTES.SITE.PROJECT.GST_SUMMARY,
+  'gst-receipt-pending': ROUTES.SITE.PROJECT.GST_SUMMARY,
+  'tds-challan-pending': ROUTES.SITE.PROJECT.TDS_SUMMARY,
+  'tds-not-verified': ROUTES.SITE.PROJECT.TDS_SUMMARY,
 };
 
 export function documentGapParty(
@@ -39,11 +56,23 @@ export function documentGapParty(
   return null;
 }
 
+/** Where a gap — or one row of it — opens. */
 export function documentGapListCommands(
   key: string,
   partyType?: string | null
 ): string[] {
   const party = documentGapParty(partyType) ?? 'vendor';
+  const taxSummary = GAP_TAX_SUMMARY_PATH[key];
+
+  if (taxSummary) {
+    return [
+      '/',
+      ROUTE_BASE_PATHS.SITE.BASE,
+      ROUTE_BASE_PATHS.SITE.PROJECT,
+      ROUTES.SITE.PROJECT.WORKSPACE,
+      taxSummary,
+    ];
+  }
 
   return [
     '/',

@@ -8,8 +8,13 @@ export interface ITdsEntry
     ITdsEntryGetBaseResponseDto,
     'id' | 'partyType' | 'taxableAmount' | 'tdsAmount'
   > {
-  paymentDate: string;
+  invoiceDate: string;
+  /** Invoice TDS rate shown beside the amount, e.g. "(2%)". */
+  tdsRateSuffix: string;
+  /** 26Q (purchase) / Form 26AS (sale) verification. */
   verificationStatusLabel: string;
+  /** Purchase: Challan pending / Deposited. Sale: Deposited by client. */
+  depositStatusLabel: string;
   verifyFileKeys: string[];
   docWorkspaceContext: IDocWorkspaceContextView;
   documentReferenceHierarchy: IDocReferenceHierarchyNode | null;

@@ -3,6 +3,9 @@ import { APP_CONFIG } from '@core/config';
 import { EDataType, IFormConfig, IFormInputFieldsConfig } from '@shared/types';
 import { IAddTdsPaymentReleaseUIFormDto } from '../../types/tds.dto';
 
+/**
+ * TDS challan deposited with the government, identified by the UTR / reference number.
+ */
 const ADD_TDS_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddTdsPaymentReleaseUIFormDto> =
   {
     utrNumber: {
@@ -10,13 +13,13 @@ const ADD_TDS_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddTds
       id: 'utrNumber',
       fieldName: 'utrNumber',
       label: 'UTR / Reference No.',
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.maxLength(100)],
     },
     paymentDate: {
       fieldType: EDataType.DATE,
       id: 'paymentDate',
       fieldName: 'paymentDate',
-      label: 'Payment Date',
+      label: 'Date of Deposit',
       dateConfig: {
         maxDate: new Date(),
         touchUI: false,
@@ -27,7 +30,7 @@ const ADD_TDS_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddTds
       fieldType: EDataType.ATTACHMENTS,
       id: 'paymentAttachment',
       fieldName: 'paymentAttachment',
-      label: 'Payment proof',
+      label: 'Challan copy',
       fileConfig: {
         fileLimit: 1,
         acceptFileTypes: [

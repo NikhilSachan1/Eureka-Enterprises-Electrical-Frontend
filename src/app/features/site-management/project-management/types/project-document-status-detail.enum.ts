@@ -5,6 +5,14 @@ export enum EDocChainStage {
   INVOICE = 'INVOICE',
   BOOK_PAYMENT = 'BOOK_PAYMENT',
   BANK_TRANSFER = 'BANK_TRANSFER',
+  /** Invoice GST: portal verification + settlement of held GST. */
+  GST = 'GST',
+  /** Invoice TDS: challan (vendor) + 26Q / 26AS verification. */
+  TDS = 'TDS',
+  /** Advance payment raised on the PO before any invoice. */
+  ADVANCE = 'ADVANCE',
+  /** Vendor payment advice generated with a bank transfer — emailed or not. */
+  PAYMENT_ADVICE = 'PAYMENT_ADVICE',
 }
 
 export enum EDocChainNodeState {

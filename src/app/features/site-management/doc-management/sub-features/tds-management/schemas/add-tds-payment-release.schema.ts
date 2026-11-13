@@ -2,10 +2,11 @@ import { dateField, uuidField } from '@shared/schemas';
 import { transformDateFormat } from '@shared/utility';
 import * as z from 'zod';
 
+/** Record a TDS challan deposited with the government — purchase side only. */
 export const AddTdsPaymentReleaseRequestSchema = z
   .object({
     entryIds: z.array(uuidField).min(1),
-    utrNumber: z.string(),
+    utrNumber: z.string().trim().min(1),
     paymentDate: dateField,
     fileKey: z.string().nullable(),
     fileName: z.string().nullable(),

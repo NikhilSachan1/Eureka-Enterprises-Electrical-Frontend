@@ -126,6 +126,25 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   generate: { icon: ICONS.PAYROLL.GENERATE, severity: 'info' },
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // GST / TDS REGISTER
+  // ═══════════════════════════════════════════════════════════════════════════
+  verified: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
+  released: { icon: ICONS.PAYROLL.PAID, severity: 'success' },
+  received: { icon: ICONS.PAYROLL.PAID, severity: 'success' },
+  deposited: { icon: ICONS.PAYROLL.PAID, severity: 'success' },
+  'with payment': { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'info' },
+  'release pending': { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
+  'release in process': { icon: ICONS.PAYROLL.GENERATE, severity: 'info' },
+  'receipt pending': { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
+  'challan pending': { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
+  'deposited by client': { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'info' },
+  // Book payment / bank transfer — what the money is for
+  'invoice payment': { icon: ICONS.PAYROLL.PAID, severity: 'secondary' },
+  'advance payment': { icon: ICONS.PAYROLL.PAID, severity: 'secondary' },
+  'gst release': { icon: ICONS.PAYROLL.GENERATE, severity: 'info' },
+  'gst receipt': { icon: ICONS.PAYROLL.GENERATE, severity: 'info' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // ATTENDANCE
   // ═══════════════════════════════════════════════════════════════════════════
   present: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },

@@ -25,7 +25,7 @@ import { DOC_TAB_SEARCH_QUERY_KEY, ICONS } from '@shared/constants';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { DrawerService } from '@shared/services';
 
-type GapDetailRow = {
+interface GapDetailRow {
   id: string;
   documentLabel: string;
   siteName: string;
@@ -33,7 +33,7 @@ type GapDetailRow = {
   since: string | null;
   commands: string[];
   query: Record<string, string>;
-};
+}
 
 const SECTION_ORDER = ['contractor', 'vendor', 'other'] as const;
 
@@ -45,7 +45,11 @@ const SECTION_ORDER = ['contractor', 'vendor', 'other'] as const;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocumentGapDetailComponent implements OnInit {
-  private readonly drawerData = inject(DRAWER_DATA) as { key: string };
+  private readonly drawerData = inject(DRAWER_DATA) as {
+    key: string;
+    /** Opened from the contractor or vendor gaps: list only that side. */
+    party?: 'CONTRACTOR' | 'VENDOR';
+  };
   private readonly dashboardService = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly logger = inject(LoggerService);
@@ -60,9 +64,10 @@ export class DocumentGapDetailComponent implements OnInit {
   protected readonly errorMessage = signal<string | null>(null);
 
   private readonly gapKey = this.drawerData.key;
+  private readonly party = this.drawerData.party;
 
   protected readonly bannerCommands = computed(() =>
-    documentGapListCommands(this.gapKey, this.detail()?.partyType)
+    documentGapListCommands(this.gapKey, this.party ?? this.detail()?.partyType)
   );
 
   protected readonly sections = computed(() => {
@@ -90,24 +95,30 @@ export class DocumentGapDetailComponent implements OnInit {
         amount: item.amount ?? null,
         since: item.since ?? null,
         commands: documentGapListCommands(this.gapKey, partyType),
-        query: missingNumber
-          ? {}
-          : { [DOC_TAB_SEARCH_QUERY_KEY]: number },
+        query: missingNumber ? {} : { [DOC_TAB_SEARCH_QUERY_KEY]: number },
       });
     }
 
     return SECTION_ORDER.filter(tone => buckets[tone].length > 0).map(tone => ({
       key: tone,
       tone,
-      title: tone === 'contractor' ? 'Contractor' : tone === 'vendor' ? 'Vendor' : '',
-      hasAmount: buckets[tone].some(row => row.amount != null),
+      title:
+        tone === 'contractor'
+          ? 'Contractor'
+          : tone === 'vendor'
+            ? 'Vendor'
+            : '',
+      hasAmount: buckets[tone].some(row => row.amount !== null),
       items: buckets[tone],
     }));
   });
 
   ngOnInit(): void {
     this.dashboardService
-      .getDocumentGapDetail(this.gapKey)
+      .getDocumentGapDetail(
+        this.gapKey,
+        this.party ? { party: this.party } : {}
+      )
       .pipe(
         finalize(() => this.loading.set(false)),
         catchError((error: HttpErrorResponse) => {

@@ -12,6 +12,7 @@ import { LoggerService } from '@core/services';
 import {
   ConfirmationDialogService,
   DrawerService,
+  NotificationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
@@ -30,7 +31,7 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { APP_CONFIG } from '@core/config';
 import {
   createTdsEntryTableEnhancedConfig,
-  TDS_ACTION_CONFIG_MAP,
+  getTdsActionConfig,
   TDS_IS_VERIFIED_FILTER_FIELD_CONFIG,
   TDS_PARTY_TYPE_FILTER_FIELD_CONFIG,
 } from '../../config';
@@ -49,8 +50,19 @@ import { DocAmountComponent } from '@features/site-management/doc-management/sha
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
-import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import {
+  formatTaxRateLabel,
+  formatTaxRateSuffix,
+  getBulkSelectionMismatchReason,
+  getTdsDepositLabel,
+  getTdsVerifyPortalName,
+  getVerificationLabel,
+} from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
+import {
+  buildTdsDocumentReference,
+  resolveTdsInvoiceReference,
+} from '../../utils/tds-invoice-reference.util';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { GetTdsEntryDetailComponent } from '../get-tds-entry-detail/get-tds-entry-detail.component';
 
@@ -76,6 +88,7 @@ export class GetTdsEntryComponent implements OnInit {
     ConfirmationDialogService
   );
   private readonly drawerService = inject(DrawerService);
+  private readonly notificationService = inject(NotificationService);
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
@@ -152,6 +165,7 @@ export class GetTdsEntryComponent implements OnInit {
         dataType: EDataType.CURRENCY,
         label: 'TDS',
         value: row.tdsAmount,
+        suffix: row.tdsRateSuffix,
       },
     ];
   }
@@ -200,21 +214,21 @@ export class GetTdsEntryComponent implements OnInit {
 
   private mapTableData(response: ITdsEntryGetBaseResponseDto[]): ITdsEntry[] {
     return response.map(record => {
-      const invoiceRef =
-        record.partyType === EDocContext.PURCHASE
-          ? (record.bookPayment?.invoice ?? null)
-          : (record.bankTransfer?.invoice ?? null);
+      const invoiceRef = resolveTdsInvoiceReference(record);
 
       return {
         id: record.id,
         partyType: record.partyType,
-        paymentDate:
-          record.partyType === EDocContext.PURCHASE
-            ? (record.bookPayment?.bookingDate ?? '')
-            : (record.bankTransfer?.transferDate ?? ''),
+        invoiceDate: invoiceRef.invoiceDate ?? '',
         taxableAmount: record.taxableAmount,
         tdsAmount: record.tdsAmount,
-        verificationStatusLabel: record.isVerified ? 'Approved' : 'Pending',
+        tdsRateSuffix: formatTaxRateSuffix(
+          invoiceRef.tdsPercentage,
+          record.tdsAmount,
+          record.taxableAmount
+        ),
+        verificationStatusLabel: getVerificationLabel(record.isVerified),
+        depositStatusLabel: getTdsDepositLabel(record),
         verifyFileKeys: record.verifyFileKey ? [record.verifyFileKey] : [],
         docWorkspaceContext: {
           companyName: record.site.company.name,
@@ -227,14 +241,7 @@ export class GetTdsEntryComponent implements OnInit {
           projectName: record.site.name,
           siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
         },
-        documentReferenceHierarchy: DocReferenceHierarchy.forTdsEntryReference({
-          partyType: record.partyType,
-          poNumber: invoiceRef?.jmc?.po?.poNumber,
-          jmcNumber: invoiceRef?.jmc?.jmcNumber,
-          invoiceNumber: invoiceRef?.invoiceNumber,
-          bookPaymentDate: record.bookPayment?.bookingDate,
-          bankTransferDate: record.bankTransfer?.transferDate,
-        }),
+        documentReferenceHierarchy: buildTdsDocumentReference(invoiceRef),
         originalRawData: record,
       } satisfies ITdsEntry;
     });
@@ -264,6 +271,26 @@ export class GetTdsEntryComponent implements OnInit {
       return;
     }
 
+    if (actionType === EButtonActionType.PAID) {
+      // One challan covers one project's vendor deductions (several vendors are allowed).
+      const mismatch = getBulkSelectionMismatchReason(selectedRows, {
+        requireSameParty: false,
+      });
+      if (mismatch) {
+        this.notificationService.error(mismatch);
+        return;
+      }
+    }
+
+    const actionConfig = getTdsActionConfig(
+      actionType,
+      selectedFirstRow.partyType
+    );
+    if (!actionConfig) {
+      this.logger.error(`TDS entry: unsupported action "${actionType}"`);
+      return;
+    }
+
     const dynamicComponentInputs: Record<string, unknown> = {
       selectedRecord: selectedRows,
       onSuccess: () => this.loadTdsEntryList(),
@@ -273,7 +300,7 @@ export class GetTdsEntryComponent implements OnInit {
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      TDS_ACTION_CONFIG_MAP[actionType],
+      actionConfig,
       recordDetail,
       isBulk,
       !isBulk,
@@ -289,18 +316,12 @@ export class GetTdsEntryComponent implements OnInit {
         ? (row.contractor?.name ?? '—')
         : (row.vendor?.name ?? '—');
 
-    const invoiceRef =
-      row.partyType === EDocContext.PURCHASE
-        ? (row.bookPayment?.invoice ?? null)
-        : (row.bankTransfer?.invoice ?? null);
+    const invoiceRef = resolveTdsInvoiceReference(row);
 
     const entryData: IDataViewDetails['entryData'] = [
       {
-        label: 'Payment date',
-        value:
-          row.partyType === EDocContext.PURCHASE
-            ? (row.bookPayment?.bookingDate ?? '')
-            : (row.bankTransfer?.transferDate ?? ''),
+        label: 'Invoice date',
+        value: invoiceRef.invoiceDate ?? '',
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
@@ -316,6 +337,25 @@ export class GetTdsEntryComponent implements OnInit {
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
+      {
+        label: 'TDS %',
+        value: formatTaxRateLabel(
+          invoiceRef.tdsPercentage,
+          row.tdsAmount,
+          row.taxableAmount
+        ),
+        type: EDataType.TEXT,
+      },
+      {
+        label: 'Deposit',
+        value: getTdsDepositLabel(row),
+        type: EDataType.STATUS,
+      },
+      {
+        label: `Verified in ${getTdsVerifyPortalName(row.partyType)}`,
+        value: getVerificationLabel(row.isVerified),
+        type: EDataType.STATUS,
+      },
     ];
 
     return {
@@ -330,7 +370,7 @@ export class GetTdsEntryComponent implements OnInit {
       ],
       entity: {
         name: partyName.trim(),
-        subtitle: invoiceRef?.invoiceNumber ?? '—',
+        subtitle: invoiceRef.invoiceNumber ?? '—',
       },
     };
   }

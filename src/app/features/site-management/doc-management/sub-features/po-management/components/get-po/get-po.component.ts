@@ -64,7 +64,11 @@ import { ProjectWorkspaceContextService } from '@features/site-management/projec
 import { ProjectWorkspaceDocumentStatusService } from '@features/site-management/project-management/services/project-workspace-document-status.service';
 import { ensureWorkspaceTableBreakdown } from '@features/site-management/project-management/utility/workspace-table-document-status.util';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
-import { isPoSystemGenerated, poAttachmentKeys } from '../../utils/po-table-row.util';
+import {
+  isPoSystemGenerated,
+  poAttachmentKeys,
+} from '../../utils/po-table-row.util';
+import { buildPoTaxSettlementSegments } from '../../utils/po-tax-settlement.util';
 
 @Component({
   selector: 'app-get-po',
@@ -106,7 +110,9 @@ export class GetPoComponent implements OnInit {
     { optional: true }
   );
 
-  protected readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly docRouteContext = signal<EDocContext | undefined>(
+    undefined
+  );
   protected readonly searchTerm = signal<string>('');
   private readonly poCanCreate = signal<IPoCanCreateGetResponseDto | null>(
     null
@@ -199,10 +205,7 @@ export class GetPoComponent implements OnInit {
             mappedData => this.table.setData(mappedData)
           );
           this.table.updateTableConfig({ totalRecords });
-          ensureWorkspaceTableBreakdown(
-            this.workspaceDocumentStatus,
-            records
-          );
+          ensureWorkspaceTableBreakdown(this.workspaceDocumentStatus, records);
           this.logger.logUserAction('PO records loaded successfully');
         },
       });
@@ -256,6 +259,7 @@ export class GetPoComponent implements OnInit {
         label: 'Paid',
         value: row.paidTotal,
       },
+      ...buildPoTaxSettlementSegments(row.originalRawData.taxTotals, isSales),
       {
         dataType: EDataType.DATE,
         label: 'Last invoice',

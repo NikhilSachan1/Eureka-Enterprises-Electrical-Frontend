@@ -46,7 +46,11 @@ function countGraphStage(
     if (node.stage === stage) {
       total += 1;
 
-      if (mode === 'present' ? !node.isExpectedMissing : isGraphNodeComplete(node.state)) {
+      if (
+        mode === 'present'
+          ? !node.isExpectedMissing
+          : isGraphNodeComplete(node.state)
+      ) {
         done += 1;
       }
     }
@@ -103,6 +107,18 @@ function buildGraphApprovalMetrics(
     );
   }
 
+  // Shown only when the PO has them, so a PO without tax / advances keeps a short strip.
+  const optionalStages: [EDocChainStage, string][] = [
+    [EDocChainStage.GST, 'GST'],
+    [EDocChainStage.TDS, 'TDS'],
+    [EDocChainStage.ADVANCE, 'Advance'],
+  ];
+  for (const [stage, label] of optionalStages) {
+    if (countGraphStage(nodes, stage).total > 0) {
+      metrics.push(buildGraphStageMetric(nodes, stage, label));
+    }
+  }
+
   return metrics;
 }
 
@@ -121,7 +137,10 @@ export function buildPoPanelMetrics(
     .filter((data): data is IDocChainNodeVm => !!data);
 
   const c = buildPoBreakdownCounts(record.jmcs);
-  const invoicePaymentDue = Math.max(c.amounts.invoiceTotal - c.amounts.paid, 0);
+  const invoicePaymentDue = Math.max(
+    c.amounts.invoiceTotal - c.amounts.paid,
+    0
+  );
   const uninvoicedAmount = getPoUninvoicedAmount(record);
   const amountDue = isSales ? uninvoicedAmount : invoicePaymentDue;
 
