@@ -5,8 +5,28 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { AvatarService } from '@shared/services';
+import { Router } from '@angular/router';
+import { ROUTES } from '@shared/constants';
 import type { IDocWorkspaceContextView } from '@features/site-management/doc-management/shared/types/doc-workspace-context.interface';
+
+type PartySide = 'contractor' | 'vendor';
+
+const SIDE_LABEL: Record<PartySide, string> = {
+  contractor: 'Contractor',
+  vendor: 'Vendor',
+};
+
+/** A row's own side, however the list spells it (Contractor / SALE, Vendor / PURCHASE). */
+function sideOf(value: string | null | undefined): PartySide | null {
+  const key = value?.trim().toUpperCase() ?? '';
+  if (['CONTRACTOR', 'SALE', 'SALES'].includes(key)) {
+    return 'contractor';
+  }
+  if (['VENDOR', 'PURCHASE'].includes(key)) {
+    return 'vendor';
+  }
+  return null;
+}
 
 /**
  * Where a document belongs: the project (with its location), the client company it is for, and
@@ -19,31 +39,24 @@ import type { IDocWorkspaceContextView } from '@features/site-management/doc-man
   styleUrl: './doc-workspace-context.component.scss',
 })
 export class DocWorkspaceContextComponent {
-  private readonly avatarService = inject(AvatarService);
+  private readonly router = inject(Router);
 
   readonly view = input.required<IDocWorkspaceContextView>();
 
-  private readonly projectSeed = computed(() => {
-    const raw = this.view().projectName?.trim() ?? '';
-    return raw !== '' && raw !== '—' ? raw : '';
-  });
-
-  readonly leadBackground = computed(
-    () => `#${this.avatarService.getConsistentColor(this.projectSeed())}`
-  );
-
-  /** Up to two initials of the project, e.g. "Doosan 765kv Ict Spare" → "DS". */
-  protected readonly initials = computed(() => {
-    const words = this.projectSeed()
-      .split(/\s+/)
-      .filter(word => /^[a-z]/i.test(word));
-    if (!words.length) {
-      return '—';
+  /**
+   * The workspace tab the list sits in. Most lists don't pass a side per row — they live under
+   * the contractor or vendor tab, so the tab says which one the party is.
+   */
+  private readonly tabSide: PartySide | null = ((): PartySide | null => {
+    const segments = this.router.url.split(/[/?#]/);
+    if (segments.includes(ROUTES.SITE.PROJECT.CONTRACTOR_DOC)) {
+      return 'contractor';
     }
-    const first = words[0][0];
-    const last = words.length > 1 ? words[words.length - 1][0] : '';
-    return `${first}${last}`.toUpperCase();
-  });
+    if (segments.includes(ROUTES.SITE.PROJECT.VENDOR_DOC)) {
+      return 'vendor';
+    }
+    return null;
+  })();
 
   protected readonly companyName = computed(() =>
     this.cleanValue(this.view().companyName)
@@ -53,16 +66,17 @@ export class DocWorkspaceContextComponent {
     this.cleanValue(this.view().partyName)
   );
 
-  /** "Contractor" / "Vendor" when the list knows the side, otherwise a neutral "Party". */
+  /** The row's own side first (lists that mix both, like GST / TDS), then the tab's. */
+  private readonly side = computed<PartySide | null>(
+    () => sideOf(this.view().partyType) ?? this.tabSide
+  );
+
   protected readonly partyLabel = computed(() => {
-    const type = this.view().partyType?.trim();
-    return type ? type : 'Party';
+    const side = this.side();
+    return side ? SIDE_LABEL[side] : 'Party';
   });
 
-  protected readonly partyTone = computed(() => {
-    const type = this.view().partyType?.trim().toLowerCase();
-    return type === 'contractor' || type === 'vendor' ? type : 'party';
-  });
+  protected readonly partyTone = computed(() => this.side() ?? 'party');
 
   private cleanValue(value: string | null | undefined): string | null {
     const trimmed = value?.trim();
