@@ -23,6 +23,7 @@ import { TabsModule } from 'primeng/tabs';
 import { BadgeModule } from 'primeng/badge';
 import { TooltipModule } from 'primeng/tooltip';
 import { DOC_TAB_SEARCH_QUERY_KEY } from '@shared/constants';
+import { TABLE_PAGE_QUERY_KEY } from '@shared/utility/search-filter-query-params.util';
 import {
   ITabChange,
   ITabItem,
@@ -80,9 +81,14 @@ export class NavTabsComponent implements OnInit {
   protected readonly currentRoute = signal<string>('');
   protected selectedTabIndex = signal<number>(0);
 
-  /** Dropped on tab change so a document-gap search does not follow the next tab. */
+  /**
+   * Dropped on tab change: a document-gap search, and the table page — the next tab is a
+   * different list, so it opens on its first page instead of the page the last tab was on.
+   * The page size is kept; it is the user's preference, not a position in one list.
+   */
   protected readonly tabSwitchQueryParams: Record<string, null> = {
     [DOC_TAB_SEARCH_QUERY_KEY]: null,
+    [TABLE_PAGE_QUERY_KEY]: null,
   };
 
   private router = inject(Router);
