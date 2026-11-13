@@ -1,29 +1,20 @@
 $doc-ref-muted: var(--text-secondary-color, #64748b);
 
-@mixin badge-base {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.3rem;
-  font-size: 0.5625rem;
-  font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  border: 1px solid transparent;
-  white-space: nowrap;
-  box-shadow: inset 0 1px 0 color-mix(in srgb, #ffffff 50%, transparent);
-}
-
-@mixin badge-tone($accent) {
-  color: color-mix(in srgb, $accent 50%, var(--text-primary-color, #0f172a));
-  background: color-mix(in srgb, $accent 12%, var(--background-paper-color, #ffffff));
-  border-color: color-mix(in srgb, $accent 22%, var(--border-main-color, #e2e8f0));
-}
+// One accent per document; the dot, the label and the rail between steps all use it.
+$tones: (
+  po: #0ea5e9,
+  jmc: #8b5cf6,
+  report: #10b981,
+  invoice: #f59e0b,
+  advance: #14b8a6,
+  payment: #ec4899,
+  x0: #14b8a6,
+);
 
 :host {
   display: block;
   min-width: 0;
+  max-width: 18rem;
 }
 
 .doc-ref__empty {
@@ -31,75 +22,100 @@ $doc-ref-muted: var(--text-secondary-color, #64748b);
   font-size: 0.8125rem;
 }
 
-.doc-ref__chain {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem;
-  min-width: 0;
+// Vertical chain, parent on top: PO → JMC → report → invoice → payment.
+// The label column takes the widest label in the chain ("BOOK PAYMENT", "BANK TRANSFER"), so no
+// label runs into its value and every value starts at the same place.
+.doc-ref {
+  display: grid;
+  grid-template-columns: 0.6rem max-content minmax(0, 1fr);
+  column-gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.doc-ref__item {
-  display: inline-flex;
-  flex-direction: row;
+.doc-ref__step {
+  --tone: #64748b;
+  position: relative;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
   align-items: center;
-  gap: 0.3rem;
   min-width: 0;
+  padding: 0.18rem 0;
+
+  // Browsers without subgrid: size the label to its own text rather than overlap.
+  @supports not (grid-template-columns: subgrid) {
+    grid-template-columns: 0.6rem auto minmax(0, 1fr);
+    column-gap: 0.45rem;
+  }
+
+  @each $name, $color in $tones {
+    &[data-tone="#{$name}"] {
+      --tone: #{$color};
+    }
+  }
+
+  // Rail from this step's dot down to the next one.
+  &:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: calc(0.3rem - 1px);
+    top: calc(50% + 0.3rem);
+    height: calc(100% - 0.6rem);
+    width: 2px;
+    border-radius: 1px;
+    background: color-mix(in srgb, var(--tone) 35%, var(--border-light-color, #e2e8f0));
+  }
 }
 
-.doc-ref__badge {
-  @include badge-base;
-  flex-shrink: 0;
+.doc-ref__dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  border: 2px solid var(--tone);
+  background: var(--background-paper-color, #fff);
+  box-sizing: border-box;
 
-  &[data-tone="po"] {
-    @include badge-tone(#0ea5e9);
+  // The document this row is about: filled.
+  .doc-ref__step--current & {
+    background: var(--tone);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tone) 18%, transparent);
   }
-  &[data-tone="jmc"] {
-    @include badge-tone(#8b5cf6);
-  }
-  &[data-tone="report"] {
-    @include badge-tone(#10b981);
-  }
-  &[data-tone="invoice"] {
-    @include badge-tone(#f59e0b);
-  }
-  &[data-tone="advance"] {
-    @include badge-tone(#14b8a6);
-  }
-  &[data-tone="payment"] {
-    @include badge-tone(#ec4899);
-  }
-  &[data-tone="x0"] {
-    @include badge-tone(#14b8a6);
-  }
-  &[data-tone="x1"] {
-    @include badge-tone(#f43f5e);
-  }
-  &[data-tone="x2"] {
-    @include badge-tone(#6366f1);
-  }
-  &[data-tone="x3"] {
-    @include badge-tone(#84cc16);
-  }
+}
+
+.doc-ref__label {
+  justify-self: start;
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.3rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  line-height: 1.45;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--tone) 72%, var(--text-primary-color, #0f172a));
+  background: color-mix(in srgb, var(--tone) 12%, transparent);
 }
 
 .doc-ref__val {
+  min-width: 0;
+  overflow: hidden;
+  font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.75rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  color: var(--text-primary-color, #0f172a);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
+  color: color-mix(in srgb, $doc-ref-muted 55%, var(--text-primary-color, #0f172a));
+
+  .doc-ref__step--current & {
+    font-weight: 700;
+    color: var(--text-primary-color, #0f172a);
+  }
 }
 
-.doc-ref__sep {
-  color: $doc-ref-muted;
-  font-size: 0.75rem;
-  font-weight: 400;
-  flex-shrink: 0;
-  opacity: 0.6;
+:host-context(.dark-theme) .doc-ref__label {
+  color: color-mix(in srgb, var(--tone) 75%, #fff);
 }

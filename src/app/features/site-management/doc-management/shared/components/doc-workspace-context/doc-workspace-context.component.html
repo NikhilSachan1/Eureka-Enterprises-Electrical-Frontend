@@ -1,58 +1,62 @@
 @let ctx = view();
 
-<div class="doc-ws-ctx">
-  <div class="doc-ws-primary">
-    <div
-      class="doc-ws-lead doc-ws-lead--site flex size-8 shrink-0 items-center justify-center rounded-lg text-white"
-      [style.background-color]="leadBackground()"
+<div class="ws">
+  <div class="ws__head">
+    <span
+      class="ws__avatar"
+      [style.--ws-accent]="leadBackground()"
       aria-hidden="true"
     >
-      <i class="pi pi-building text-[0.875rem] leading-none"></i>
-    </div>
-    <div class="doc-ws-primary-text">
-      <span class="doc-ws-site-title">{{ ctx.projectName }}</span>
+      {{ initials() }}
+    </span>
+    <div class="ws__titles">
+      <span
+        class="ws__project"
+        [attr.title]="ctx.projectName"
+      >
+        {{ ctx.projectName }}
+      </span>
       @if (ctx.siteLocationSubtitle) {
-        <span class="doc-ws-loc">{{ ctx.siteLocationSubtitle }}</span>
+        <span class="ws__location">
+          <i
+            class="pi pi-map-marker"
+            aria-hidden="true"
+          ></i>
+          {{ ctx.siteLocationSubtitle }}
+        </span>
       }
     </div>
   </div>
 
-  @if (hasCompanyName() || hasPartyName()) {
-    <div class="doc-ws-meta">
-      @if (hasCompanyName()) {
-        <span class="doc-ws-meta-chunk">
-          <i
-            class="pi pi-map-marker doc-ws-ico-plain"
-            aria-hidden="true"
-          ></i>
-          {{ ctx.companyName }}
-        </span>
+  @if (companyName() || partyName()) {
+    <dl class="ws__parties">
+      @if (companyName(); as company) {
+        <div class="ws__party">
+          <dt class="ws__tag ws__tag--client">Client</dt>
+          <dd
+            class="ws__name"
+            [attr.title]="company"
+          >
+            {{ company }}
+          </dd>
+        </div>
       }
-      @if (hasCompanyName() && hasPartyName()) {
-        <span
-          class="doc-ws-meta-sep"
-          aria-hidden="true"
-        >
-          |
-        </span>
+      @if (partyName(); as party) {
+        <div class="ws__party">
+          <dt
+            class="ws__tag"
+            [attr.data-tone]="partyTone()"
+          >
+            {{ partyLabel() }}
+          </dt>
+          <dd
+            class="ws__name"
+            [attr.title]="party"
+          >
+            {{ party }}
+          </dd>
+        </div>
       }
-      @if (hasPartyName()) {
-        <span class="doc-ws-meta-chunk">
-          <i
-            class="pi pi-user doc-ws-ico-plain"
-            aria-hidden="true"
-          ></i>
-          {{ ctx.partyName }}
-          @if (ctx.partyType) {
-            <span
-              class="doc-ws-party-tag"
-              [attr.data-type]="ctx.partyType.toLowerCase()"
-            >
-              {{ ctx.partyType }}
-            </span>
-          }
-        </span>
-      }
-    </div>
+    </dl>
   }
 </div>
