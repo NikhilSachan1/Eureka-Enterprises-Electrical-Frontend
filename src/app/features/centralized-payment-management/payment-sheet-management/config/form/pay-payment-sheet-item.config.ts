@@ -20,6 +20,10 @@ const {
 
 const financialYearService = new FinancialYearService();
 
+/** Cash leaves no bank trail: no source account and no UTR. */
+export const isCashPaymentMode = (mode: unknown): boolean =>
+  String(mode ?? '').toLowerCase() === 'cash';
+
 const PAY_PAYMENT_SHEET_ITEM_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPayPaymentSheetItemFormDto> =
   {
     paymentMode,
@@ -40,8 +44,7 @@ const PAY_PAYMENT_SHEET_ITEM_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPayPaym
         {
           dependsOn: 'paymentMode',
           validators: [Validators.required],
-          shouldApply: (mode: unknown): boolean =>
-            String(mode ?? '').toLowerCase() !== 'cash',
+          shouldApply: (mode: unknown): boolean => !isCashPaymentMode(mode),
           resetOnFalse: true,
         },
       ],
@@ -67,10 +70,17 @@ const PAY_PAYMENT_SHEET_ITEM_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPayPaym
         regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
         maximumInputLength: 32,
       },
-      validators: [
-        Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(32),
+      conditionalValidators: [
+        {
+          dependsOn: 'paymentMode',
+          validators: [
+            Validators.required,
+            Validators.minLength(6),
+            Validators.maxLength(32),
+          ],
+          shouldApply: (mode: unknown): boolean => !isCashPaymentMode(mode),
+          resetOnFalse: true,
+        },
       ],
     },
   };
