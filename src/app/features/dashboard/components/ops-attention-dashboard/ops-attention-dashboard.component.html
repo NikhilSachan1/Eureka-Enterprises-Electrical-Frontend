@@ -12,7 +12,7 @@
         <div>
           <h2 class="card-block__title">Needs attention</h2>
           <p class="card-block__hint">
-            One row per asset or vehicle — labels show calibration, warranty, documents, and service.
+            One row per asset or vehicle — labels show calibration, documents, and service.
           </p>
         </div>
       </div>
@@ -26,12 +26,19 @@
         @if (canViewTransport) {
           <app-button
             [buttonConfig]="openVehiclesButton"
-            (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.TRANSPORT, ROUTE_BASE_PATHS.VEHICLE, ROUTES.VEHICLE.LIST])"
+            (onButtonClick)="
+              navigateTo(['/', ROUTE_BASE_PATHS.TRANSPORT, ROUTE_BASE_PATHS.VEHICLE, ROUTES.VEHICLE.LIST])
+            "
           />
           <app-button
             [buttonConfig]="openServicesButton"
             (onButtonClick)="
-              navigateTo(['/', ROUTE_BASE_PATHS.TRANSPORT, ROUTE_BASE_PATHS.VEHICLE_SERVICE, ROUTES.VEHICLE_SERVICE.LIST])
+              navigateTo([
+                '/',
+                ROUTE_BASE_PATHS.TRANSPORT,
+                ROUTE_BASE_PATHS.VEHICLE_SERVICE,
+                ROUTES.VEHICLE_SERVICE.LIST,
+              ])
             "
           />
         }
@@ -99,8 +106,12 @@
           ></span>
           All clear in this view
         } @else {
-          <span class="ops-health__key ops-health__key--overdue">{{ overdueCount | number: config.DEFAULT : config.LOCALE }} overdue</span>
-          <span class="ops-health__key ops-health__key--soon">{{ soonCount | number: config.DEFAULT : config.LOCALE }} due soon</span>
+          <span class="ops-health__key ops-health__key--overdue">
+            {{ overdueCount | number: config.DEFAULT : config.LOCALE }} overdue
+          </span>
+          <span class="ops-health__key ops-health__key--soon">
+            {{ soonCount | number: config.DEFAULT : config.LOCALE }} due soon
+          </span>
         }
       </p>
     </div>
@@ -150,7 +161,6 @@
                     <span
                       class="ops-tag"
                       [class.ops-tag--calibration]="tag.kind === 'calibration'"
-                      [class.ops-tag--warranty]="tag.kind === 'warranty'"
                       [class.ops-tag--fleet]="tag.kind === 'fleet'"
                       [class.ops-tag--service]="tag.kind === 'service'"
                     >
@@ -210,7 +220,6 @@
                     <span
                       class="ops-tag"
                       [class.ops-tag--calibration]="tag.kind === 'calibration'"
-                      [class.ops-tag--warranty]="tag.kind === 'warranty'"
                       [class.ops-tag--fleet]="tag.kind === 'fleet'"
                       [class.ops-tag--service]="tag.kind === 'service'"
                     >

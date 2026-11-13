@@ -31,7 +31,6 @@ export const AssetFleetAlertsDashboardGetResponseSchema = z
     info: z.array(AssetFleetAlertItemSchema).default([]),
     counts: z.looseObject({
       assetCalibration: DueCountSchema,
-      assetWarranty: ExpiryCountSchema,
       vehicleDocExpiry: ExpiryCountSchema,
       vehicleServiceDue: DueCountSchema,
     }),
