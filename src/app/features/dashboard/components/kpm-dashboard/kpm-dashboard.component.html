@@ -248,11 +248,11 @@
 
 <div
   id="kpm-site-docs"
-  class="work-group"
+  class="work-group party-board"
 >
   @for (section of siteDocSections(); track section.party) {
     <section
-      class="work-section work-section--docs"
+      [class]="'work-section work-section--docs party-panel party-panel--' + section.party"
       [attr.aria-labelledby]="'kpm-site-docs-title-' + section.party"
     >
       <div class="work-section__head">
@@ -291,10 +291,10 @@
   }
 </div>
 
-<div class="gap-board">
+<div class="party-board">
   @for (section of documentGapSections(); track section.party) {
     <section
-      class="work-section work-section--gaps gap-panel"
+      [class]="'work-section work-section--gaps party-panel party-panel--' + section.party"
       [attr.aria-labelledby]="'kpm-doc-gaps-title-' + section.party"
     >
       <div class="gap-panel__head">
@@ -341,9 +341,11 @@
           <div class="gap-card">
             <div class="gap-card__head">
               <span
-                [class]="group.icon + ' gap-card__icon'"
+                class="gap-card__icon"
                 aria-hidden="true"
-              ></span>
+              >
+                <span [class]="group.icon"></span>
+              </span>
               <h3 class="gap-card__title">{{ group.title }}</h3>
               @if (group.total !== null) {
                 <span class="gap-card__count">{{ group.total | number: config.DEFAULT : config.LOCALE }}</span>
@@ -371,7 +373,7 @@
                   <span class="gap-row__label">{{ row.label }}</span>
                   @if (!row.valueLoading && row.value > 0 && row.gapOldestDays) {
                     <span
-                      class="gap-row__age"
+                      [class]="'gap-row__age gap-row__age--' + ageTone(row.gapOldestDays)"
                       [attr.title]="'Oldest waiting ' + row.gapOldestDays + ' days'"
                     >
                       {{ row.gapOldestDays }}d
@@ -379,6 +381,7 @@
                   }
                   <span
                     class="gap-row__count"
+                    [class.gap-row__count--zero]="!row.valueLoading && row.value === 0"
                     [attr.aria-busy]="row.valueLoading ? 'true' : null"
                   >
                     @if (row.valueLoading) {
@@ -390,6 +393,10 @@
                       {{ row.value | number: config.DEFAULT : config.LOCALE }}
                     }
                   </span>
+                  <span
+                    [class]="ICONS.COMMON.CHEVRON_RIGHT + ' gap-row__go'"
+                    aria-hidden="true"
+                  ></span>
                 </li>
               }
             </ul>

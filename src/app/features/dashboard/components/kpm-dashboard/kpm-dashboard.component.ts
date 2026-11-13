@@ -129,18 +129,29 @@ interface IDocGapSection extends IDocPartySection {
 }
 
 /** Gap groups: the document that is missing, in chain order. The server tags each gap. */
-const DOC_GAP_GROUPS: readonly { key: string; title: string; icon: string }[] =
-  [
-    { key: 'po', title: 'Purchase order', icon: ICONS.COMMON.FILE },
-    { key: 'jmc', title: 'JMC', icon: ICONS.COMMON.LIST },
-    { key: 'report', title: 'Site report', icon: ICONS.COMMON.FILE },
-    { key: 'invoice', title: 'Invoice', icon: ICONS.COMMON.FILE },
-    { key: 'book-payment', title: 'Book payment', icon: ICONS.PAYMENT.RECORD },
-    { key: 'bank-transfer', title: 'Bank transfer', icon: ICONS.BANK.ACCOUNT },
-    { key: 'advance', title: 'Advance settlement', icon: ICONS.EXPENSE.MONEY },
-    { key: 'gst', title: 'GST verification', icon: ICONS.PAYMENT.VERIFY },
-    { key: 'tds', title: 'TDS', icon: ICONS.PAYMENT.TAX },
-  ];
+const DOC_GAP_GROUPS: readonly {
+  key: string;
+  title: string;
+  /** Title on the contractor side, where the step is named differently. */
+  contractorTitle?: string;
+  icon: string;
+}[] = [
+  { key: 'po', title: 'Purchase order', icon: ICONS.COMMON.FILE },
+  { key: 'jmc', title: 'JMC', icon: ICONS.COMMON.LIST },
+  { key: 'report', title: 'Site report', icon: ICONS.COMMON.FILE },
+  { key: 'invoice', title: 'Invoice', icon: ICONS.COMMON.FILE },
+  { key: 'book-payment', title: 'Book payment', icon: ICONS.PAYMENT.RECORD },
+  {
+    key: 'bank-transfer',
+    title: 'Bank transfer',
+    // The client pays us: the step is money received, not a transfer we make.
+    contractorTitle: 'Bank received',
+    icon: ICONS.BANK.ACCOUNT,
+  },
+  { key: 'advance', title: 'Advance settlement', icon: ICONS.EXPENSE.MONEY },
+  { key: 'gst', title: 'GST verification', icon: ICONS.PAYMENT.VERIFY },
+  { key: 'tds', title: 'TDS', icon: ICONS.PAYMENT.TAX },
+];
 
 const OTHER_GAP_GROUP = {
   key: 'other',
@@ -271,7 +282,7 @@ export class KpmDashboardComponent implements OnInit {
       );
       return {
         ...section,
-        groups: this.groupGapRows(section.rows),
+        groups: this.groupGapRows(section.rows, side.party),
         openCount: problems.reduce((sum, row) => sum + row.value, 0),
         oldestDays: problems.reduce(
           (max, row) => Math.max(max, row.gapOldestDays ?? 0),
@@ -547,7 +558,10 @@ export class KpmDashboardComponent implements OnInit {
   }
 
   /** Gap rows under their document, in chain order; groups with no gap on this side are left out. */
-  private groupGapRows(rows: IDashboardKpmMetricRow[]): IDocGapGroup[] {
+  private groupGapRows(
+    rows: IDashboardKpmMetricRow[],
+    party: IDocPartySide['party']
+  ): IDocGapGroup[] {
     const known = new Set(DOC_GAP_GROUPS.map(group => group.key));
     return [...DOC_GAP_GROUPS, OTHER_GAP_GROUP]
       .map(group => {
@@ -557,12 +571,25 @@ export class KpmDashboardComponent implements OnInit {
             : row.gapGroup === group.key
         );
         return {
-          ...group,
+          key: group.key,
+          icon: group.icon,
+          title:
+            party === 'contractor' &&
+            'contractorTitle' in group &&
+            group.contractorTitle
+              ? group.contractorTitle
+              : group.title,
           rows: groupRows,
           total: this.metricTotal(groupRows),
         };
       })
       .filter(group => group.rows.length > 0);
+  }
+
+  /** How urgent a waiting time reads: up to a week is fresh, up to a month is ageing. */
+  protected ageTone(days: number | undefined): 'fresh' | 'ageing' | 'stale' {
+    const d = days ?? 0;
+    return d > 30 ? 'stale' : d > 7 ? 'ageing' : 'fresh';
   }
 
   private toSection(
@@ -883,6 +910,8 @@ export class KpmDashboardComponent implements OnInit {
       hint: string;
       /** Purchase-only documents. */
       vendorOnly?: boolean;
+      /** Label on the contractor side, where the step is named differently. */
+      contractorLabel?: string;
     }[] = [
       {
         key: 'purchase-orders',
@@ -931,6 +960,8 @@ export class KpmDashboardComponent implements OnInit {
       {
         key: 'bank-transfers',
         label: 'Bank Transfers',
+        // The client pays us: on the contractor side this is money received.
+        contractorLabel: 'Bank Received',
         icon: ICONS.BANK.ACCOUNT,
         hint: 'Approval pending',
         docPath: ROUTES.SITE.PROJECT.WORKSPACE_DOC.BANK_TRANSFER,
@@ -945,7 +976,10 @@ export class KpmDashboardComponent implements OnInit {
 
         return {
           icon: row.icon,
-          label: row.label,
+          label:
+            side?.party === 'contractor' && row.contractorLabel
+              ? row.contractorLabel
+              : row.label,
           hint: row.hint,
           value,
           format: EDataType.NUMBER,
