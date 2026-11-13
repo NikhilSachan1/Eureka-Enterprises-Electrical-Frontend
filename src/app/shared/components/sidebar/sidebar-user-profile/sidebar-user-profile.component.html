@@ -88,10 +88,7 @@
             <i [class]="ICONS.COMMON.ID_CARD"></i>
             <span>{{ role.name }}</span>
             @if (isActive) {
-              <i
-                class="menu-item__check"
-                [class]="ICONS.COMMON.CHECK_TICK"
-              ></i>
+              <i [class]="ICONS.COMMON.CHECK_TICK + ' menu-item__check'"></i>
             }
           </button>
         }
