@@ -111,8 +111,8 @@ function mapJmc(
     jmcNumber: jmc.jmcNumber,
     jmcDate: jmc.jmcDate ?? null,
     status: jmc.status,
-    fileMissing:
-      !jmc.isNoJmc && !jmc.isSystemGenerated && jmc.hasUpload === false,
+    // A generated JMC still needs its signed copy uploaded; only a No-JMC entry has no file.
+    fileMissing: !jmc.isNoJmc && jmc.hasUpload === false,
     hasReport: jmc.hasReport ?? true,
     hasInvoice: jmc.hasInvoice ?? true,
     report,
