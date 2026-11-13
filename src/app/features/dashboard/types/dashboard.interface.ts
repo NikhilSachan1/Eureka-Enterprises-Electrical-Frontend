@@ -90,6 +90,8 @@ export interface IDashboardKpmMetricRow {
   readonly gapKey?: string;
   /** The side the gap drawer lists, when the row belongs to one. */
   readonly gapParty?: 'CONTRACTOR' | 'VENDOR';
+  /** The document the gap belongs to (po, jmc, report, …); gaps are listed under it. */
+  readonly gapGroup?: string;
 }
 
 /** Big-number tile at the top of the dashboard. */
