@@ -26,13 +26,30 @@ export const TDS_IS_VERIFIED_FILTER_FIELD_CONFIG: IInputFieldsConfig = {
   fieldType: EDataType.SELECT,
   id: 'verificationStatus',
   fieldName: 'verificationStatus',
-  label: 'Verification Status',
-  placeholder: 'Verification Statuses',
+  label: '26Q / 26AS verification',
+  placeholder: 'All verification statuses',
   selectConfig: {
     ...DEFAULT_SELECT_INPUT_FIELD_CONFIG.selectConfig,
     optionsDropdown: [
       { label: 'Verified', value: 'true' },
       { label: 'Pending', value: 'false' },
+    ],
+  },
+} as IInputFieldsConfig;
+
+export const TDS_CHALLAN_FILTER_FIELD_CONFIG: IInputFieldsConfig = {
+  ...DEFAULT_INPUT_FIELD_CONFIG,
+  fieldType: EDataType.SELECT,
+  id: 'challanStatus',
+  fieldName: 'challanStatus',
+  label: 'Challan',
+  placeholder: 'All challans',
+  selectConfig: {
+    ...DEFAULT_SELECT_INPUT_FIELD_CONFIG.selectConfig,
+    optionsDropdown: [
+      { label: 'Challan pending (vendor)', value: 'PENDING' },
+      { label: 'Deposited (vendor)', value: 'DEPOSITED' },
+      { label: 'Client deposits (contractor)', value: 'NOT_APPLICABLE' },
     ],
   },
 } as IInputFieldsConfig;

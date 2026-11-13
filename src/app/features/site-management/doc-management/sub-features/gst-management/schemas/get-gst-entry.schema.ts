@@ -21,6 +21,10 @@ export const GstEntryGetRequestSchema = z
       .union([z.boolean(), z.literal('true'), z.literal('false')])
       .nullable()
       .optional(),
+    settlementStatus: z
+      .enum(['PENDING', 'IN_PROCESS', 'SETTLED', 'NOT_HELD'])
+      .nullable()
+      .optional(),
     dateRange: z.array(dateField).nullable().optional(),
     sortOrder,
     sortField,
@@ -35,6 +39,7 @@ export const GstEntryGetRequestSchema = z
       vendorName,
       partyType,
       verificationStatus,
+      settlementStatus,
       dateRange,
       ...rest
     }) => {
@@ -51,6 +56,7 @@ export const GstEntryGetRequestSchema = z
             : typeof verificationStatus === 'boolean'
               ? verificationStatus
               : verificationStatus === 'true',
+        settlementStatus: settlementStatus ?? undefined,
         dateFrom: transformDateFormat(start),
         dateTo: transformDateFormat(end),
       };
