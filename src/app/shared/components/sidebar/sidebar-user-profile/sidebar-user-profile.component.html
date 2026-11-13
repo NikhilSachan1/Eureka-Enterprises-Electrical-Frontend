@@ -39,7 +39,10 @@
       }
       <span class="user-hint">
         Account
-        <i [ngClass]="ICONS.COMMON.CHEVRON_DOWN" aria-hidden="true"></i>
+        <i
+          [ngClass]="ICONS.COMMON.CHEVRON_DOWN"
+          aria-hidden="true"
+        ></i>
       </span>
     </button>
   }
@@ -53,20 +56,23 @@
     (onHide)="onMenuHide()"
   >
     <div class="user-menu">
-      <div class="user-menu-header">
-        <img
-          [src]="userAvatar()"
-          [alt]="user()?.fullName"
-          class="user-menu-header__avatar"
-          loading="lazy"
-        />
-        <div class="user-menu-header__info">
-          <span class="user-menu-header__name">{{ user()?.fullName }}</span>
-          @if (userDesignation()) {
-            <span class="user-menu-header__meta">{{ userDesignation() }}</span>
-          }
+      <!-- The open sidebar already shows the name next to the button; repeat it only when collapsed. -->
+      @if (isSidebarCollapsed()) {
+        <div class="user-menu-header">
+          <img
+            [src]="userAvatar()"
+            [alt]="user()?.fullName"
+            class="user-menu-header__avatar"
+            loading="lazy"
+          />
+          <div class="user-menu-header__info">
+            <span class="user-menu-header__name">{{ user()?.fullName }}</span>
+            @if (userDesignation()) {
+              <span class="user-menu-header__meta">{{ userDesignation() }}</span>
+            }
+          </div>
         </div>
-      </div>
+      }
 
       @if (hasMultipleRoles()) {
         <div class="menu-section-label">Switch role</div>
