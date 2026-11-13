@@ -33,6 +33,7 @@ import {
   createTdsEntryTableEnhancedConfig,
   getTdsActionConfig,
   TDS_IS_VERIFIED_FILTER_FIELD_CONFIG,
+  TDS_CHALLAN_FILTER_FIELD_CONFIG,
   TDS_PARTY_TYPE_FILTER_FIELD_CONFIG,
 } from '../../config';
 import {
@@ -103,6 +104,11 @@ export class GetTdsEntryComponent implements OnInit {
     undefined
   );
   protected readonly selectedIsVerified = signal<string | undefined>(undefined);
+  protected readonly challanFilterFieldConfig: IInputFieldsConfig =
+    TDS_CHALLAN_FILTER_FIELD_CONFIG;
+  protected readonly selectedChallanStatus = signal<string | undefined>(
+    undefined
+  );
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
@@ -193,6 +199,12 @@ export class GetTdsEntryComponent implements OnInit {
               this.selectedIsVerified() === 'true' ? true : false,
           }
         : {}),
+      ...(this.selectedChallanStatus()
+        ? {
+            challanStatus:
+              this.selectedChallanStatus() as ITdsEntryGetFormDto['challanStatus'],
+          }
+        : {}),
     };
   }
 
@@ -201,6 +213,13 @@ export class GetTdsEntryComponent implements OnInit {
       typeof value === 'string' && value.length > 0
         ? (value as EDocContext)
         : undefined
+    );
+    this.loadTdsEntryList();
+  }
+
+  protected onChallanStatusFilterChange(value: unknown): void {
+    this.selectedChallanStatus.set(
+      typeof value === 'string' && value.length > 0 ? value : undefined
     );
     this.loadTdsEntryList();
   }

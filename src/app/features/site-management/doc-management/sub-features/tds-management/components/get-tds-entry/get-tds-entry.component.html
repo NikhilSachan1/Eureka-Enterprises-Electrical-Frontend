@@ -34,6 +34,11 @@
       [fieldValue]="selectedIsVerified()"
       (onFieldChange)="onIsVerifiedFilterChange($event)"
     />
+    <app-input-field
+      [inputFieldConfig]="challanFilterFieldConfig"
+      [fieldValue]="selectedChallanStatus()"
+      (onFieldChange)="onChallanStatusFilterChange($event)"
+    />
   </div>
 </app-page-header>
 
