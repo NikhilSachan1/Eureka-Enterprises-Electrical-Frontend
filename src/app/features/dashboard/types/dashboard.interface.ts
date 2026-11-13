@@ -32,11 +32,7 @@ export interface IDashboardTodayAttendanceRow {
   readonly statusTone: StatusSeverity;
 }
 
-export type TDashboardOpsAttentionKind =
-  | 'calibration'
-  | 'warranty'
-  | 'fleet'
-  | 'service';
+export type TDashboardOpsAttentionKind = 'calibration' | 'fleet' | 'service';
 
 export type TDashboardOpsAttentionDomain = 'asset' | 'vehicle' | 'service';
 

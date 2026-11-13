@@ -31,7 +31,6 @@ import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 
 const TAG_ORDER: readonly TDashboardOpsAttentionKind[] = [
   'calibration',
-  'warranty',
   'fleet',
   'service',
 ];
@@ -178,7 +177,7 @@ export class OpsAttentionDashboardComponent implements OnInit {
   }
 
   private canViewKind(kind: TDashboardOpsAttentionKind): boolean {
-    if (kind === 'calibration' || kind === 'warranty') {
+    if (kind === 'calibration') {
       return this.canViewAssets;
     }
     return this.canViewTransport;
@@ -267,9 +266,6 @@ export class OpsAttentionDashboardComponent implements OnInit {
     if (type === 'assetCalibration') {
       return 'calibration';
     }
-    if (type === 'assetWarranty') {
-      return 'warranty';
-    }
     if (type === 'vehicleDocExpiry') {
       return 'fleet';
     }
@@ -285,9 +281,6 @@ export class OpsAttentionDashboardComponent implements OnInit {
   ): string {
     if (kind === 'calibration') {
       return 'Calibration';
-    }
-    if (kind === 'warranty') {
-      return 'Warranty';
     }
     if (kind === 'service') {
       return 'Service';
@@ -317,7 +310,7 @@ export class OpsAttentionDashboardComponent implements OnInit {
     title: string;
     meta: string;
   } {
-    if (kind === 'calibration' || kind === 'warranty') {
+    if (kind === 'calibration') {
       const code = data.assetCode?.trim() || '';
       const name = data.assetName?.trim() || 'Unknown asset';
       return {

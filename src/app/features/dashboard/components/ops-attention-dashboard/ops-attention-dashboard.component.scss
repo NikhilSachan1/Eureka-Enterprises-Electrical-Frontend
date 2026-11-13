@@ -354,8 +354,7 @@
   color: var(--ops-tone);
   background: color-mix(in srgb, var(--ops-tone) 12%, transparent);
 
-  &--calibration,
-  &--warranty {
+  &--calibration {
     --ops-tone: #4f46e5;
   }
 
