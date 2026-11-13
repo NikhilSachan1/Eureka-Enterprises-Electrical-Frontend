@@ -112,6 +112,38 @@ interface IDocPartySection extends IDocPartySide {
   readonly total: number | null;
 }
 
+/** One document's gaps inside a contractor / vendor gap section. */
+interface IDocGapGroup {
+  readonly key: string;
+  readonly title: string;
+  readonly icon: string;
+  readonly rows: IDashboardKpmMetricRow[];
+  readonly total: number | null;
+}
+
+interface IDocGapSection extends IDocPartySection {
+  readonly groups: IDocGapGroup[];
+}
+
+/** Document groups in chain order; the server tags each gap with one of these keys. */
+const DOC_GAP_GROUPS: readonly { key: string; title: string; icon: string }[] =
+  [
+    { key: 'po', title: 'Purchase order', icon: ICONS.COMMON.FILE },
+    { key: 'jmc', title: 'JMC', icon: ICONS.COMMON.LIST },
+    { key: 'report', title: 'Site report', icon: ICONS.COMMON.FILE },
+    { key: 'invoice', title: 'Invoice', icon: ICONS.COMMON.FILE },
+    { key: 'payment', title: 'Payment', icon: ICONS.BANK.ACCOUNT },
+    { key: 'advance', title: 'Advance', icon: ICONS.EXPENSE.MONEY },
+    { key: 'gst', title: 'GST', icon: ICONS.PAYMENT.TAX },
+    { key: 'tds', title: 'TDS', icon: ICONS.PAYMENT.TAX },
+  ];
+
+const OTHER_GAP_GROUP = {
+  key: 'other',
+  title: 'Other',
+  icon: ICONS.COMMON.FILE,
+};
+
 import { IndianCurrencyPipe } from '@shared/pipes/indian-currency.pipe';
 @Component({
   selector: 'app-kpm-dashboard',
@@ -221,16 +253,17 @@ export class KpmDashboardComponent implements OnInit {
     this.metricTotal(this.paymentSheetRows())
   );
   /** Document gaps, contractor and vendor apart. */
-  protected readonly documentGapSections = computed<IDocPartySection[]>(() => {
+  protected readonly documentGapSections = computed<IDocGapSection[]>(() => {
     const loading = this.documentGapsLoading();
     const data = this.documentGaps();
 
-    return DOC_PARTY_SIDES.map(side =>
-      this.toSection(side, [
+    return DOC_PARTY_SIDES.map(side => {
+      const section = this.toSection(side, [
         ...this.buildDocumentGaps(data?.gaps ?? [], loading, side),
         ...this.buildDocumentGaps(data?.info ?? [], loading, side, true),
-      ])
-    );
+      ]);
+      return { ...section, groups: this.groupGapRows(section.rows) };
+    });
   });
   protected readonly ledgerBalanceRows = computed<IDashboardKpmMetricRow[]>(
     () =>
@@ -496,6 +529,25 @@ export class KpmDashboardComponent implements OnInit {
     } else {
       this.vehicleReadingsAlertsLoading.set(false);
     }
+  }
+
+  /** Gap rows under their document, in chain order; groups with no gap on this side are left out. */
+  private groupGapRows(rows: IDashboardKpmMetricRow[]): IDocGapGroup[] {
+    const known = new Set(DOC_GAP_GROUPS.map(group => group.key));
+    return [...DOC_GAP_GROUPS, OTHER_GAP_GROUP]
+      .map(group => {
+        const groupRows = rows.filter(row =>
+          group.key === OTHER_GAP_GROUP.key
+            ? !row.gapGroup || !known.has(row.gapGroup)
+            : row.gapGroup === group.key
+        );
+        return {
+          ...group,
+          rows: groupRows,
+          total: this.metricTotal(groupRows),
+        };
+      })
+      .filter(group => group.rows.length > 0);
   }
 
   private toSection(
@@ -984,6 +1036,7 @@ export class KpmDashboardComponent implements OnInit {
           valueLoading,
           gapKey: gap.key,
           gapParty: side.apiParty,
+          gapGroup: gap.group,
         };
       });
   }

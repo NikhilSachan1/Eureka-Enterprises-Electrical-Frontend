@@ -130,6 +130,56 @@
   color: var(--text-secondary-color);
 }
 
+// Document sub-sections inside a gap section: PO, JMC, site report, invoice, payment, …
+.gap-group {
+  & + & {
+    border-top: 1px dashed var(--border-light-color);
+    padding-top: 0.85rem;
+  }
+
+  .work-section__grid {
+    padding-bottom: 0.95rem;
+  }
+}
+
+.gap-group__head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 1.25rem 0.55rem;
+}
+
+.gap-group__icon {
+  font-size: 0.8rem;
+  color: var(--work-ink);
+}
+
+.gap-group__title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary-color);
+}
+
+.gap-group__count {
+  min-width: 1.4rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--work-ink);
+  background: color-mix(in srgb, var(--work-accent) 13%, transparent);
+}
+
+.gap-group__none {
+  padding: 0 1.25rem 1.25rem;
+}
+
 // Small tiles inside a work section: bordered, value on the right.
 .stat-tile,
 .gap-tile {

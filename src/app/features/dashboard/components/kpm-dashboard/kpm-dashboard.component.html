@@ -323,48 +323,69 @@
         }
       </span>
     </div>
-    <div class="work-section__grid work-section__grid--gaps">
-      @for (row of section.rows; track row.gapKey) {
-        <div
-          class="gap-tile"
-          [class.gap-tile--clickable]="!!row.gapKey && !row.valueLoading"
-          [class.gap-tile--clear]="!row.valueLoading && row.value === 0"
-          [class.gap-tile--info]="row.state === KpmRowState.INFO"
-          [attr.role]="row.gapKey ? 'link' : null"
-          [attr.tabindex]="row.gapKey && !row.valueLoading ? 0 : null"
-          [attr.aria-label]="row.gapKey ? 'Open ' + row.label : null"
-          (click)="openMetric(row)"
-          (keydown.enter)="openMetric(row)"
-          (keydown.space)="$event.preventDefault(); openMetric(row)"
-        >
-          <span class="gap-tile__top">
-            <span class="gap-tile__label">{{ row.label }}</span>
-            <span
-              class="gap-tile__count"
-              [attr.aria-busy]="row.valueLoading ? 'true' : null"
-            >
-              @if (row.valueLoading) {
-                <span
-                  [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
-                  aria-hidden="true"
-                ></span>
-              } @else {
-                {{ row.value | number: config.DEFAULT : config.LOCALE }}
-              }
-            </span>
-          </span>
-          @if (row.valueHint) {
-            <span class="gap-tile__hint">{{ row.valueHint }}</span>
+    @for (group of section.groups; track group.key) {
+      <div class="gap-group">
+        <div class="gap-group__head">
+          <span
+            [class]="group.icon + ' gap-group__icon'"
+            aria-hidden="true"
+          ></span>
+          <h3 class="gap-group__title">{{ group.title }}</h3>
+          @if (group.total !== null && group.total > 0) {
+            <span class="gap-group__count">{{ group.total | number: config.DEFAULT : config.LOCALE }}</span>
           }
         </div>
-      } @empty {
-        @if (!documentGapsLoading()) {
-          <p class="work-section__empty">No document gaps.</p>
-        }
+        <div class="work-section__grid work-section__grid--gaps">
+          @for (row of group.rows; track row.gapKey) {
+            <ng-container *ngTemplateOutlet="gapTileTpl; context: { $implicit: row }"></ng-container>
+          }
+        </div>
+      </div>
+    } @empty {
+      @if (!documentGapsLoading()) {
+        <p class="work-section__empty gap-group__none">No document gaps.</p>
       }
-    </div>
+    }
   </section>
 }
+
+<ng-template
+  #gapTileTpl
+  let-row
+>
+  <div
+    class="gap-tile"
+    [class.gap-tile--clickable]="!!row.gapKey && !row.valueLoading"
+    [class.gap-tile--clear]="!row.valueLoading && row.value === 0"
+    [class.gap-tile--info]="row.state === KpmRowState.INFO"
+    [attr.role]="row.gapKey ? 'link' : null"
+    [attr.tabindex]="row.gapKey && !row.valueLoading ? 0 : null"
+    [attr.aria-label]="row.gapKey ? 'Open ' + row.label : null"
+    (click)="openMetric(row)"
+    (keydown.enter)="openMetric(row)"
+    (keydown.space)="$event.preventDefault(); openMetric(row)"
+  >
+    <span class="gap-tile__top">
+      <span class="gap-tile__label">{{ row.label }}</span>
+      <span
+        class="gap-tile__count"
+        [attr.aria-busy]="row.valueLoading ? 'true' : null"
+      >
+        @if (row.valueLoading) {
+          <span
+            [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+            aria-hidden="true"
+          ></span>
+        } @else {
+          {{ row.value | number: config.DEFAULT : config.LOCALE }}
+        }
+      </span>
+    </span>
+    @if (row.valueHint) {
+      <span class="gap-tile__hint">{{ row.valueHint }}</span>
+    }
+  </div>
+</ng-template>
 
 @if (showPaymentSheets) {
   <section
