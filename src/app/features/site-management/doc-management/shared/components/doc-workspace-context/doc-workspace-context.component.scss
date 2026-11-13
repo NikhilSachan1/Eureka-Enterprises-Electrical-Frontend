@@ -18,28 +18,11 @@ $muted: var(--text-secondary-color, #64748b);
   min-width: 0;
 }
 
-// Project: initials avatar, name, location.
+// Project: name, location.
 .ws__head {
   display: flex;
   align-items: flex-start;
-  gap: 0.6rem;
   min-width: 0;
-}
-
-.ws__avatar {
-  --ws-accent: #64748b;
-  display: grid;
-  place-items: center;
-  width: 2.1rem;
-  height: 2.1rem;
-  flex-shrink: 0;
-  border-radius: 0.6rem;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  color: #fff;
-  background: linear-gradient(135deg, var(--ws-accent), color-mix(in srgb, var(--ws-accent) 70%, #000));
-  box-shadow: 0 1px 2px rgb(15 23 42 / 0.15);
 }
 
 .ws__titles {
@@ -75,22 +58,30 @@ $muted: var(--text-secondary-color, #64748b);
   }
 }
 
-// Client and party: one labelled row each, under the project.
+// Client and party: one labelled row each, under the project. The tag column is as wide as the
+// widest tag ("CONTRACTOR"), so no tag runs into its name and both names start at the same place.
 .ws__parties {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 0.5rem;
+  row-gap: 0.3rem;
   margin: 0;
   padding: 0.45rem 0 0;
   border-top: 1px dashed var(--border-light-color, #e2e8f0);
 }
 
 .ws__party {
+  grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: 4.6rem minmax(0, 1fr);
+  grid-template-columns: subgrid;
   align-items: baseline;
-  column-gap: 0.5rem;
   min-width: 0;
+
+  // Browsers without subgrid: size the tag to its own text rather than overlap.
+  @supports not (grid-template-columns: subgrid) {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 0.5rem;
+  }
 }
 
 .ws__tag {
