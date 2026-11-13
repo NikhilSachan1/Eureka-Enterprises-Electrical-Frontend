@@ -10,7 +10,7 @@ const DocumentGapSideSchema = z.looseObject({
 
 const DocumentGapSchema = z.looseObject({
   key: z.string(),
-  /** The document the gap belongs to: po, jmc, report, invoice, payment, advance, gst, tds. */
+  /** The document the gap belongs to: po, jmc, report, payment, advance, gst, tds. */
   group: z.string().optional(),
   label: z.string(),
   hint: z.string().optional().default(''),
