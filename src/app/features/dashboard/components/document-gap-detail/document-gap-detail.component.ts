@@ -87,11 +87,10 @@ export class DocumentGapDetailComponent implements OnInit {
       const party = documentGapParty(partyType) ?? 'other';
       const missingNumber = isMissingDocumentNumber(item.documentNumber);
       const number = item.documentNumber?.trim() ?? '';
-
       buckets[party].push({
         id: item.id,
         documentLabel: missingNumber ? '(no number)' : number,
-        siteName: item.siteName || '—',
+        siteName: item.siteName?.trim() || '—',
         amount: item.amount ?? null,
         since: item.since ?? null,
         commands: documentGapListCommands(this.gapKey, partyType),
