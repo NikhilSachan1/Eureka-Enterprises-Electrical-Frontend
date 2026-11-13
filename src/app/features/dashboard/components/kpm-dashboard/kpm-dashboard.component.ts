@@ -70,7 +70,6 @@ const DOCUMENT_GAP_ICONS: Record<string, string> = {
   'advance-not-paid': ICONS.BANK.ACCOUNT,
   'advance-invoice-not-adjusted': ICONS.EXPENSE.MONEY,
   'advance-not-settled': ICONS.EXPENSE.MONEY,
-  'advance-file-missing': ICONS.COMMON.FILE,
   'gst-not-verified': ICONS.PAYMENT.VERIFY,
   'gst-release-pending': ICONS.PAYMENT.TAX,
   'gst-release-not-transferred': ICONS.BANK.ACCOUNT,

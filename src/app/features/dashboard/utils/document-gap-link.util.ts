@@ -28,7 +28,6 @@ const GAP_DOC_PATH: Record<string, string> = {
   'advance-not-paid': WORKSPACE_DOC.BOOK_PAYMENT,
   'advance-invoice-not-adjusted': WORKSPACE_DOC.ADVANCE_PAYMENT,
   'advance-not-settled': WORKSPACE_DOC.ADVANCE_PAYMENT,
-  'advance-file-missing': WORKSPACE_DOC.ADVANCE_PAYMENT,
   'gst-release-not-transferred': WORKSPACE_DOC.BOOK_PAYMENT,
 };
 
