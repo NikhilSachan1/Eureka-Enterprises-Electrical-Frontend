@@ -33,6 +33,7 @@ import {
   createGstEntryTableEnhancedConfig,
   getGstActionConfig,
   GST_IS_VERIFIED_FILTER_FIELD_CONFIG,
+  GST_SETTLEMENT_FILTER_FIELD_CONFIG,
   GST_PARTY_TYPE_FILTER_FIELD_CONFIG,
 } from '../../config';
 import {
@@ -100,6 +101,11 @@ export class GetGstEntryComponent implements OnInit {
     undefined
   );
   protected readonly selectedIsVerified = signal<string | undefined>(undefined);
+  protected readonly settlementFilterFieldConfig: IInputFieldsConfig =
+    GST_SETTLEMENT_FILTER_FIELD_CONFIG;
+  protected readonly selectedSettlementStatus = signal<string | undefined>(
+    undefined
+  );
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
@@ -190,6 +196,12 @@ export class GetGstEntryComponent implements OnInit {
               this.selectedIsVerified() === 'true' ? true : false,
           }
         : {}),
+      ...(this.selectedSettlementStatus()
+        ? {
+            settlementStatus:
+              this.selectedSettlementStatus() as IGstEntryGetFormDto['settlementStatus'],
+          }
+        : {}),
     };
   }
 
@@ -198,6 +210,13 @@ export class GetGstEntryComponent implements OnInit {
       typeof value === 'string' && value.length > 0
         ? (value as EDocContext)
         : undefined
+    );
+    this.loadGstEntryList();
+  }
+
+  protected onSettlementStatusFilterChange(value: unknown): void {
+    this.selectedSettlementStatus.set(
+      typeof value === 'string' && value.length > 0 ? value : undefined
     );
     this.loadGstEntryList();
   }

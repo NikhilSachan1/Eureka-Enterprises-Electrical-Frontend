@@ -2,29 +2,28 @@
 @if (!nodes.length) {
   <span class="doc-ref__empty">—</span>
 } @else {
-  <div
-    class="doc-ref__chain"
-    role="group"
+  <ol
+    class="doc-ref"
     aria-label="Document reference chain"
   >
     @for (node of nodes; track node.kind; let last = $last) {
-      <span class="doc-ref__item">
+      <li
+        class="doc-ref__step"
+        [class.doc-ref__step--current]="last"
+        [attr.data-tone]="tone(node.kind)"
+      >
         <span
-          class="doc-ref__badge"
-          [attr.data-tone]="tone(node.kind)"
-        >
-          {{ label(node) }}
-        </span>
-        <span class="doc-ref__val">{{ node.value }}</span>
-      </span>
-      @if (!last) {
-        <span
-          class="doc-ref__sep"
+          class="doc-ref__dot"
           aria-hidden="true"
+        ></span>
+        <span class="doc-ref__label">{{ label(node) }}</span>
+        <span
+          class="doc-ref__val"
+          [attr.title]="node.value"
         >
-          ›
+          {{ node.value }}
         </span>
-      }
+      </li>
     }
-  </div>
+  </ol>
 }

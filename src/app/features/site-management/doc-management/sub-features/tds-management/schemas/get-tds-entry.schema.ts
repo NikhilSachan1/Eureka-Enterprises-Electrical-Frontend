@@ -21,6 +21,10 @@ export const TdsEntryGetRequestSchema = z
       .union([z.boolean(), z.literal('true'), z.literal('false')])
       .nullable()
       .optional(),
+    challanStatus: z
+      .enum(['PENDING', 'DEPOSITED', 'NOT_APPLICABLE'])
+      .nullable()
+      .optional(),
     dateRange: z.array(dateField).nullable().optional(),
     sortOrder,
     sortField,
@@ -35,6 +39,7 @@ export const TdsEntryGetRequestSchema = z
       vendorName,
       partyType,
       verificationStatus,
+      challanStatus,
       dateRange,
       ...rest
     }) => {
@@ -51,6 +56,7 @@ export const TdsEntryGetRequestSchema = z
             : typeof verificationStatus === 'boolean'
               ? verificationStatus
               : verificationStatus === 'true',
+        challanStatus: challanStatus ?? undefined,
         dateFrom: transformDateFormat(start),
         dateTo: transformDateFormat(end),
       };

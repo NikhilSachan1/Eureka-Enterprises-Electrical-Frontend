@@ -34,6 +34,11 @@
       [fieldValue]="selectedIsVerified()"
       (onFieldChange)="onIsVerifiedFilterChange($event)"
     />
+    <app-input-field
+      [inputFieldConfig]="settlementFilterFieldConfig"
+      [fieldValue]="selectedSettlementStatus()"
+      (onFieldChange)="onSettlementStatusFilterChange($event)"
+    />
   </div>
 </app-page-header>
 
