@@ -5,6 +5,7 @@ import {
   inject,
   input,
   OnInit,
+  Signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
@@ -15,7 +16,10 @@ import { ConfirmationDialogService } from '@shared/services';
 import { IDialogActionHandler } from '@shared/types';
 import { toLocalCalendarDate } from '@shared/utility';
 import { finalize } from 'rxjs';
-import { PAY_PAYMENT_SHEET_ITEM_FORM_CONFIG } from '../../config/form/pay-payment-sheet-item.config';
+import {
+  isCashPaymentMode,
+  PAY_PAYMENT_SHEET_ITEM_FORM_CONFIG,
+} from '../../config/form/pay-payment-sheet-item.config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
 import {
   IPayPaymentSheetItemFormDto,
@@ -46,6 +50,13 @@ export class PayPaymentSheetItemComponent
 
   protected readonly isVendorPayment = computed(() =>
     Boolean(this.selectedRecord()[0]?.bookPaymentId)
+  );
+
+  private paymentModeTracked?: Signal<string | null | undefined>;
+
+  /** Cash hides the source account and UTR (and sends both as null). */
+  protected readonly isCash = computed(() =>
+    isCashPaymentMode(this.paymentModeTracked?.())
   );
 
   private itemId?: string;
@@ -83,7 +94,13 @@ export class PayPaymentSheetItemComponent
       const paidFromAccountControl = this.form.formGroup.get('paidFromAccount');
       paidFromAccountControl?.setValidators([Validators.required]);
       paidFromAccountControl?.updateValueAndValidity();
+      return;
     }
+
+    // Employee settlement: follow the payment mode so cash hides the bank fields.
+    this.paymentModeTracked = this.formService.trackFieldChanges<
+      string | null | undefined
+    >(this.form.formGroup, 'paymentMode', this.destroyRef);
   }
 
   onDialogAccept(): void {

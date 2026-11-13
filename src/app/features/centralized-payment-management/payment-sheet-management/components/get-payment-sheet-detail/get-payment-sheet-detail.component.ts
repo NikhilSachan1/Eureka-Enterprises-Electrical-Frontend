@@ -415,7 +415,14 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     const bankName = row.paidFromAccount?.bankName?.trim();
 
     if (!bankName) {
-      return null;
+      // An employee payment recorded with neither a source account nor a UTR was paid in cash —
+      // every other mode needs both. Vendor payments always go from a bank account.
+      const paidInCash =
+        this.isItemPaid(row) &&
+        !row.bookPaymentId &&
+        !row.paidFromAccount &&
+        !row.utrNumber?.trim();
+      return paidInCash ? 'Cash' : null;
     }
 
     return getMappedValueFromArrayOfObjects(

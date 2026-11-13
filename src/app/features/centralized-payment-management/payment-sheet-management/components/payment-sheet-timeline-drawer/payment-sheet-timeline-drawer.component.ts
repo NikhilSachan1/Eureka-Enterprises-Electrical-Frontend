@@ -378,6 +378,17 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
             bankDetails: this.drawerData.paidFromAccount,
             variant: 'paidFrom',
           });
+        } else if (
+          this.drawerData.mode === EPaymentSheetTimelineMode.ITEM_HISTORY &&
+          !utrNumber &&
+          !this.drawerData.paymentAdvice
+        ) {
+          // No source account, no UTR and no vendor advice: an employee payment made in cash.
+          details.push({
+            icon: ICONS.BANK.ACCOUNT,
+            label: 'Paid from',
+            value: 'Cash',
+          });
         }
 
         if (this.drawerData.mode === EPaymentSheetTimelineMode.ITEM_HISTORY) {
