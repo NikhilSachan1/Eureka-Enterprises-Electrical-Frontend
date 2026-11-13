@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
@@ -121,17 +122,23 @@ interface IDocGapGroup {
 
 interface IDocGapSection extends IDocPartySection {
   readonly groups: IDocGapGroup[];
+  /** Gaps that need action (informational rows left out). */
+  readonly openCount: number;
+  /** Longest any of those has been waiting, in days. */
+  readonly oldestDays: number;
 }
 
-/** Document groups in chain order; the server tags each gap with one of these keys. */
+/** Gap groups: the document that is missing, in chain order. The server tags each gap. */
 const DOC_GAP_GROUPS: readonly { key: string; title: string; icon: string }[] =
   [
     { key: 'po', title: 'Purchase order', icon: ICONS.COMMON.FILE },
     { key: 'jmc', title: 'JMC', icon: ICONS.COMMON.LIST },
     { key: 'report', title: 'Site report', icon: ICONS.COMMON.FILE },
-    { key: 'payment', title: 'Payment', icon: ICONS.BANK.ACCOUNT },
-    { key: 'advance', title: 'Advance', icon: ICONS.EXPENSE.MONEY },
-    { key: 'gst', title: 'GST', icon: ICONS.PAYMENT.TAX },
+    { key: 'invoice', title: 'Invoice', icon: ICONS.COMMON.FILE },
+    { key: 'book-payment', title: 'Book payment', icon: ICONS.PAYMENT.RECORD },
+    { key: 'bank-transfer', title: 'Bank transfer', icon: ICONS.BANK.ACCOUNT },
+    { key: 'advance', title: 'Advance settlement', icon: ICONS.EXPENSE.MONEY },
+    { key: 'gst', title: 'GST verification', icon: ICONS.PAYMENT.VERIFY },
     { key: 'tds', title: 'TDS', icon: ICONS.PAYMENT.TAX },
   ];
 
@@ -144,7 +151,7 @@ const OTHER_GAP_GROUP = {
 import { IndianCurrencyPipe } from '@shared/pipes/indian-currency.pipe';
 @Component({
   selector: 'app-kpm-dashboard',
-  imports: [DecimalPipe, IndianCurrencyPipe, NgTemplateOutlet],
+  imports: [DecimalPipe, IndianCurrencyPipe, NgTemplateOutlet, TooltipModule],
   templateUrl: './kpm-dashboard.component.html',
   styleUrl: './kpm-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -259,7 +266,18 @@ export class KpmDashboardComponent implements OnInit {
         ...this.buildDocumentGaps(data?.gaps ?? [], loading, side),
         ...this.buildDocumentGaps(data?.info ?? [], loading, side, true),
       ]);
-      return { ...section, groups: this.groupGapRows(section.rows) };
+      const problems = section.rows.filter(
+        row => row.state !== EKpmDashboardSeverity.INFO && row.value > 0
+      );
+      return {
+        ...section,
+        groups: this.groupGapRows(section.rows),
+        openCount: problems.reduce((sum, row) => sum + row.value, 0),
+        oldestDays: problems.reduce(
+          (max, row) => Math.max(max, row.gapOldestDays ?? 0),
+          0
+        ),
+      };
     });
   });
   protected readonly ledgerBalanceRows = computed<IDashboardKpmMetricRow[]>(
@@ -1034,6 +1052,7 @@ export class KpmDashboardComponent implements OnInit {
           gapKey: gap.key,
           gapParty: side.apiParty,
           gapGroup: gap.group,
+          gapOldestDays: sideGap?.oldestDays ?? 0,
         };
       });
   }
