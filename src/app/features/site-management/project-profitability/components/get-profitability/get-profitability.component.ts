@@ -1,54 +1,54 @@
-import {
-  CurrencyPipe,
-  DatePipe,
-  DecimalPipe,
-  NgTemplateOutlet,
-} from '@angular/common';
+import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   effect,
+  ElementRef,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
+import { ChartsComponent } from '@shared/components/charts/charts.component';
 import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 import { SectionLoaderComponent } from '@shared/components/section-loader/section-loader.component';
 import { ICONS } from '@shared/constants';
-import { AppConfigurationService, AvatarService } from '@shared/services';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
+import { TooltipModule } from 'primeng/tooltip';
 import { finalize } from 'rxjs';
+import { ProjectProfitabilityService } from '../../services/project-profitability.service';
 import {
   IProjectProfitabilityGetFormDto,
   IProjectProfitabilityGetResponseDto,
 } from '../../types/project-profitability.dto';
 import {
-  IProfitabilityDetailColumn,
-  IProfitabilityDetailSection,
   IProjectProfitabilityReport,
-  ProfitabilityDetailDialogType,
+  ProfitabilityBreakdownType,
 } from '../../types/project-profitability.interface';
-import { ProjectProfitabilityService } from '../../services/project-profitability.service';
-
-type RegularExpenseDetailView = 'category' | 'employee';
+import {
+  buildDonutChart,
+  compactInr,
+} from '../../utility/profitability-chart.util';
+import {
+  buildProfitabilityView,
+  PROFITABILITY_TONE_COLORS,
+} from '../../utility/profitability-view.util';
+import { ProfitabilityBreakdownComponent } from '../profitability-breakdown/profitability-breakdown.component';
 
 @Component({
   selector: 'app-get-profitability',
   imports: [
-    ButtonModule,
+    ChartsComponent,
     CurrencyPipe,
-    DatePipe,
     DecimalPipe,
-    DialogModule,
     EmptyMessagesComponent,
-    NgTemplateOutlet,
+    ProfitabilityBreakdownComponent,
     SectionLoaderComponent,
+    TooltipModule,
   ],
   templateUrl: './get-profitability.component.html',
   styleUrl: './get-profitability.component.scss',
@@ -61,28 +61,70 @@ export class GetProfitabilityComponent {
     ProjectProfitabilityService
   );
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
-  private readonly avatarService = inject(AvatarService);
-  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly icons = ICONS;
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly isLoading = signal(false);
   protected readonly report = signal<IProjectProfitabilityReport | null>(null);
+  protected readonly view = computed(() => {
+    const report = this.report();
+    return report ? buildProfitabilityView(report) : null;
+  });
+  /** Headline ring: where each rupee of revenue went (costs only, on a loss). */
+  protected readonly heroChart = computed(() => {
+    const view = this.view();
+    return view
+      ? buildDonutChart(view.costShares, { title: 'Revenue split' })
+      : null;
+  });
+  protected readonly netProfitCompact = computed(() =>
+    compactInr(this.report()?.profitabilitySummary.netProfit ?? 0)
+  );
+  /** Rings on the receivable / payable cards: settled against still due. */
+  protected readonly cashCharts = computed(() => {
+    const view = this.view();
+    if (!view) {
+      return null;
+    }
+    return {
+      in: buildDonutChart(
+        [
+          {
+            label: 'Received',
+            amount: view.receivable.settled,
+            color: PROFITABILITY_TONE_COLORS.revenue,
+          },
+          {
+            label: 'Still to receive',
+            amount: view.receivable.outstanding,
+            color: '#cbd5e1',
+          },
+        ],
+        { cutout: '78%' }
+      ),
+      out: buildDonutChart(
+        [
+          {
+            label: 'Paid',
+            amount: view.payable.settled,
+            color: PROFITABILITY_TONE_COLORS.vendor,
+          },
+          {
+            label: 'Still to pay',
+            amount: view.payable.outstanding,
+            color: '#cbd5e1',
+          },
+        ],
+        { cutout: '78%' }
+      ),
+    };
+  });
   protected readonly hasSelectedProject =
     this.workspaceContext.selectedProjectId;
-  protected readonly detailDialogVisible = signal(false);
-  protected readonly detailDialogTitle = signal('');
-  protected readonly detailDialogType =
-    signal<ProfitabilityDetailDialogType | null>(null);
-  protected readonly regularExpenseDetailView =
-    signal<RegularExpenseDetailView>('category');
-  protected readonly regularExpenseViewOptions: {
-    label: string;
-    value: RegularExpenseDetailView;
-  }[] = [
-    { label: 'Category wise', value: 'category' },
-    { label: 'Employee wise', value: 'employee' },
-  ];
+  /** Open tab of the breakdown section. */
+  protected readonly breakdownType =
+    signal<ProfitabilityBreakdownType>('sales-invoices');
+  private readonly breakdown = viewChild('breakdown', { read: ElementRef });
 
   constructor() {
     effect(() => {
@@ -91,7 +133,6 @@ export class GetProfitabilityComponent {
 
       if (!projectId) {
         this.report.set(null);
-        this.closeDetailDialog();
         return;
       }
 
@@ -99,263 +140,25 @@ export class GetProfitabilityComponent {
     });
   }
 
-  protected detailSections(
-    vm: IProjectProfitabilityReport
-  ): IProfitabilityDetailSection[] {
-    const type = this.detailDialogType();
-    if (!type) {
-      return [];
-    }
-
-    switch (type) {
-      case 'sales-invoices':
-        return this.getSalesInvoiceDetailSections(vm);
-      case 'vendor-invoices':
-        return this.getVendorInvoiceDetailSections(vm);
-      case 'employee-cost':
-        return this.getEmployeeCostDetailSections(vm);
-      case 'fuel-employee':
-        return this.getFuelEmployeeDetailSections(vm);
-      case 'regular-expense-detail':
-        return this.getRegularExpenseDetailSections(vm);
-      default:
-        return [];
-    }
-  }
-
-  protected openDetailDialog(
-    type: ProfitabilityDetailDialogType,
-    title: string
-  ): void {
-    this.detailDialogType.set(type);
-    this.detailDialogTitle.set(title);
-    this.detailDialogVisible.set(true);
-  }
-
-  protected closeDetailDialog(): void {
-    this.detailDialogVisible.set(false);
-    this.detailDialogType.set(null);
-    this.detailDialogTitle.set('');
-    this.regularExpenseDetailView.set('category');
-  }
-
-  protected onDetailDialogVisibilityChange(visible: boolean): void {
-    if (visible) {
-      this.detailDialogVisible.set(true);
-      return;
-    }
-    this.closeDetailDialog();
-  }
-
-  protected openRegularExpenseDetailDialog(): void {
-    this.regularExpenseDetailView.set('category');
-    this.openDetailDialog('regular-expense-detail', 'Expense breakdown');
-  }
-
-  protected setRegularExpenseDetailView(view: RegularExpenseDetailView): void {
-    this.regularExpenseDetailView.set(view);
-  }
-
-  protected detailColWidth(col: IProfitabilityDetailColumn): string | null {
-    if (col.amount) {
-      return '9rem';
-    }
-    if (col.type === 'avatar' || col.type === 'vehicle') {
-      return '34%';
-    }
-    if (col.type === 'date') {
-      return '9.5rem';
-    }
-    return null;
-  }
-
-  protected expenseCategoryLabel(value: string): string {
-    return String(
-      getMappedValueFromArrayOfObjects(
-        this.appConfigurationService.expenseCategories(),
-        value
-      )
+  /** Opens a statement line's tab in the breakdown and brings it into view. */
+  protected showBreakdown(type: ProfitabilityBreakdownType): void {
+    this.breakdownType.set(type);
+    requestAnimationFrame(() =>
+      this.breakdown()?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
     );
-  }
-
-  protected getAvatarUrl(name: string): string {
-    return this.avatarService.getAvatarFromName(name);
-  }
-
-  private getSalesInvoiceDetailSections(
-    vm: IProjectProfitabilityReport
-  ): IProfitabilityDetailSection[] {
-    return [
-      {
-        rows: vm.metaSummary.salesSummary.salesInvoiceSummary
-          .invoiceSummary as Record<string, unknown>[],
-        columns: this.buildInvoiceColumns('clientName', 'Contractor'),
-        emptyDescription:
-          'There is no sales invoice detail available for this project.',
-      },
-    ];
-  }
-
-  private getVendorInvoiceDetailSections(
-    vm: IProjectProfitabilityReport
-  ): IProfitabilityDetailSection[] {
-    return [
-      {
-        rows: vm.metaSummary.purchaseSummary.vendorInvoiceSummary
-          .invoiceSummary as Record<string, unknown>[],
-        columns: this.buildInvoiceColumns('vendorName', 'Vendor'),
-        emptyDescription:
-          'There is no vendor invoice detail available for this project.',
-      },
-    ];
-  }
-
-  private getEmployeeCostDetailSections(
-    vm: IProjectProfitabilityReport
-  ): IProfitabilityDetailSection[] {
-    return [
-      {
-        rows: vm.expenseSummary.employeeCost.employeeWiseSummary as Record<
-          string,
-          unknown
-        >[],
-        columns: this.getEmployeeAmountColumns(),
-        emptyDescription:
-          'There is no employee cost detail available for this project.',
-      },
-    ];
-  }
-
-  private getFuelEmployeeDetailSections(
-    vm: IProjectProfitabilityReport
-  ): IProfitabilityDetailSection[] {
-    return [
-      {
-        rows: vm.expenseSummary.operationalExpense.fuelExpense
-          .employeeWiseSummary as Record<string, unknown>[],
-        columns: [
-          {
-            field: 'employeeName',
-            header: 'Employee',
-            type: 'avatar',
-            subtitleField: 'employeeCode',
-          },
-          {
-            field: 'vehicleNumber',
-            header: 'Vehicle',
-            type: 'vehicle',
-          },
-          {
-            field: 'expenseAmount',
-            header: 'Amount',
-            type: 'currency',
-            amount: true,
-          },
-        ],
-        emptyDescription:
-          'There is no fuel expense detail available for this project.',
-      },
-    ];
-  }
-
-  private getRegularExpenseDetailSections(
-    vm: IProjectProfitabilityReport
-  ): IProfitabilityDetailSection[] {
-    return this.regularExpenseDetailView() === 'category'
-      ? [this.getRegularExpenseCategorySection(vm)]
-      : [this.getRegularExpenseEmployeeSection(vm)];
-  }
-
-  private getRegularExpenseEmployeeSection(
-    vm: IProjectProfitabilityReport
-  ): IProfitabilityDetailSection {
-    const regular = vm.expenseSummary.operationalExpense.regularExpense;
-
-    return {
-      rows: regular.employeeWiseSummary as Record<string, unknown>[],
-      columns: [
-        {
-          field: 'employeeName',
-          header: 'Employee',
-          type: 'avatar',
-          subtitleField: 'employeeCode',
-        },
-        {
-          field: 'expenseType',
-          header: 'Expense type',
-          type: 'expense-category',
-        },
-        {
-          field: 'expenseAmount',
-          header: 'Amount',
-          type: 'currency',
-          amount: true,
-        },
-      ],
-      emptyDescription: 'There is no employee expense detail available.',
-    };
-  }
-
-  private getRegularExpenseCategorySection(
-    vm: IProjectProfitabilityReport
-  ): IProfitabilityDetailSection {
-    const regular = vm.expenseSummary.operationalExpense.regularExpense;
-
-    return {
-      rows: regular.categoryWiseSummary as Record<string, unknown>[],
-      columns: [
-        { field: 'categoryName', header: 'Category', type: 'expense-category' },
-        {
-          field: 'amount',
-          header: 'Amount',
-          type: 'currency',
-          amount: true,
-        },
-      ],
-      emptyDescription: 'There is no category expense detail available.',
-    };
-  }
-
-  private getEmployeeAmountColumns(): IProfitabilityDetailColumn[] {
-    return [
-      {
-        field: 'employeeName',
-        header: 'Employee',
-        type: 'avatar',
-      },
-      { field: 'amount', header: 'Amount', type: 'currency', amount: true },
-    ];
-  }
-
-  private buildInvoiceColumns(
-    partyField: 'clientName' | 'vendorName',
-    partyHeader: string
-  ): IProfitabilityDetailColumn[] {
-    return [
-      {
-        field: partyField,
-        header: partyHeader,
-        type: 'avatar',
-        subtitleField: 'poNumber',
-        subtitlePrefix: 'PO ',
-      },
-      { field: 'invoiceNumber', header: 'Invoice no.', type: 'text' },
-      { field: 'invoiceDate', header: 'Date', type: 'date' },
-      {
-        field: 'invoiceAmount',
-        header: 'Amount',
-        type: 'currency',
-        amount: true,
-      },
-    ];
   }
 
   private loadProjectProfitability(projectId: string): void {
     this.isLoading.set(true);
     this.report.set(null);
-    this.closeDetailDialog();
+    this.breakdownType.set('sales-invoices');
 
-    const paramData = this.prepareParamData(projectId);
+    const paramData: IProjectProfitabilityGetFormDto = {
+      projectName: projectId,
+    };
 
     this.projectProfitabilityService
       .getProjectProfitability(paramData)
@@ -380,11 +183,5 @@ export class GetProfitabilityComponent {
           );
         },
       });
-  }
-
-  private prepareParamData(projectId: string): IProjectProfitabilityGetFormDto {
-    return {
-      projectName: projectId,
-    };
   }
 }

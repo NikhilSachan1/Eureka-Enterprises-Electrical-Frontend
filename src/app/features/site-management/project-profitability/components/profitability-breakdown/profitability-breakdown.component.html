@@ -1,0 +1,471 @@
+@let m = meta();
+
+<section class="pdd-card">
+  <header class="pdd-card__head">
+    <div>
+      <h2>Breakdown</h2>
+      <p>Every figure in the statement, entry by entry. Pick a tab, or click a line in the statement.</p>
+    </div>
+  </header>
+
+  <div
+    class="pdd-tabs"
+    role="tablist"
+    aria-label="Breakdown"
+  >
+    @for (tab of tabs(); track tab.type) {
+      <button
+        type="button"
+        role="tab"
+        class="pdd-tab"
+        [attr.data-tone]="tab.tone"
+        [attr.aria-selected]="type() === tab.type"
+        [class.pdd-tab--on]="type() === tab.type"
+        (click)="type.set(tab.type)"
+      >
+        <span
+          class="pdd-tab__icon"
+          aria-hidden="true"
+        >
+          <i [class]="tab.icon"></i>
+        </span>
+        <span class="pdd-tab__text">
+          <span class="pdd-tab__label">{{ tab.label }}</span>
+          <strong class="pdd-tab__amount">{{ tab.amount | currency: currency : 'symbol' : '1.0-0' : locale }}</strong>
+        </span>
+      </button>
+    }
+  </div>
+
+  <div
+    class="pdd"
+    [attr.data-tone]="m.tone"
+  >
+    <p class="pdd-lead">
+      <i
+        [class]="m.icon"
+        aria-hidden="true"
+      ></i>
+      {{ m.subtitle }}
+    </p>
+
+    <!-- Overview: donut of where the total goes, beside the key numbers -->
+    <section class="pdd-overview">
+      @if (donut(); as d) {
+        <div class="pdd-donut-wrap">
+          <div
+            class="pdd-donut"
+            role="img"
+            [attr.aria-label]="d.centerValue + ' ' + d.centerLabel"
+          >
+            @if (donutChart(); as chart) {
+              <app-charts [chartConfig]="chart" />
+            } @else {
+              <span
+                class="pdd-donut__empty"
+                aria-hidden="true"
+              ></span>
+            }
+            <div class="pdd-donut__center">
+              <strong>{{ d.centerValue }}</strong>
+              <small>{{ d.centerLabel }}</small>
+            </div>
+          </div>
+          <ul class="pdd-legend">
+            @for (seg of d.segments; track seg.key) {
+              <li>
+                <span
+                  class="pdd-swatch"
+                  [style.background]="seg.color"
+                  aria-hidden="true"
+                ></span>
+                <span class="pdd-legend__label">{{ seg.label }}</span>
+                <b>{{ seg.share | number: '1.0-0' : locale }}%</b>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      <div class="pdd-overview__side">
+        <dl class="pdd-stats">
+          @for (stat of stats(); track stat.label) {
+            <div
+              class="pdd-stat"
+              [attr.data-tone]="stat.tone"
+            >
+              <dt>{{ stat.label }}</dt>
+              <dd>
+                @if (stat.kind === 'money') {
+                  {{ stat.value | currency: currency : 'symbol' : '1.0-0' : locale }}
+                } @else {
+                  {{ stat.value | number: '1.0-0' : locale }}
+                }
+              </dd>
+              @if (stat.hint) {
+                <small>{{ stat.hint }}</small>
+              }
+            </div>
+          }
+        </dl>
+        <p class="pdd-formula">
+          <i
+            class="pi pi-calculator"
+            aria-hidden="true"
+          ></i>
+          <span>{{ m.formula }}</span>
+        </p>
+      </div>
+    </section>
+
+    @if (invoices(); as inv) {
+      <!-- Invoices: one row each, with its tax split and settlement -->
+      @if (inv.rows.length) {
+        <div class="pdd-table-wrap">
+          <table class="pdd-table">
+            <thead>
+              <tr>
+                <th scope="col">{{ type() === 'sales-invoices' ? 'Contractor' : 'Vendor' }}</th>
+                <th scope="col">Invoice</th>
+                <th
+                  scope="col"
+                  class="num num--key"
+                >
+                  Taxable
+                </th>
+                <th
+                  scope="col"
+                  class="num"
+                >
+                  GST
+                </th>
+                <th
+                  scope="col"
+                  class="num"
+                >
+                  Total
+                </th>
+                <th
+                  scope="col"
+                  class="num"
+                >
+                  TDS
+                </th>
+                <th
+                  scope="col"
+                  class="num"
+                >
+                  {{ settledLabel() }}
+                </th>
+                <th
+                  scope="col"
+                  class="num"
+                >
+                  Outstanding
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of inv.rows; track row.key) {
+                <tr>
+                  <td>
+                    <div class="pdd-party">
+                      <img
+                        [src]="row.partyAvatar"
+                        alt=""
+                        loading="lazy"
+                      />
+                      <div class="pdd-cell-stack">
+                        <span
+                          class="pdd-strong pdd-ellipsis"
+                          [attr.title]="row.partyName"
+                        >
+                          {{ row.partyName }}
+                        </span>
+                        <span
+                          class="pdd-muted pdd-ellipsis"
+                          [attr.title]="row.poNumber"
+                        >
+                          PO {{ row.poNumber }}
+                        </span>
+                        @if (row.partyTags.length) {
+                          <span class="pdd-tags">
+                            @for (tag of row.partyTags; track tag) {
+                              <span class="pdd-tag">{{ tag }}</span>
+                            }
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="pdd-cell-stack">
+                      <span class="pdd-strong">{{ row.invoiceNumber }}</span>
+                      <span class="pdd-muted">{{ row.invoiceDate | date: 'dd MMM yyyy' : undefined : locale }}</span>
+                      @if (row.isGstHold) {
+                        <span class="pdd-tags">
+                          <span
+                            class="pdd-tag"
+                            pTooltip="GST on this invoice is held and moves separately from the invoice payment"
+                            tooltipPosition="top"
+                          >
+                            GST held
+                          </span>
+                        </span>
+                      }
+                    </div>
+                  </td>
+                  <td class="num num--key">
+                    {{ row.taxableAmount | currency: currency : 'symbol' : '1.2-2' : locale }}
+                  </td>
+                  <td class="num">{{ row.gstAmount | currency: currency : 'symbol' : '1.2-2' : locale }}</td>
+                  <td class="num">{{ row.invoiceAmount | currency: currency : 'symbol' : '1.2-2' : locale }}</td>
+                  <td class="num">{{ row.tdsAmount | currency: currency : 'symbol' : '1.2-2' : locale }}</td>
+                  <td class="num">{{ row.settledAmount | currency: currency : 'symbol' : '1.2-2' : locale }}</td>
+                  <td class="num">
+                    <div class="pdd-cell-stack pdd-cell-stack--end">
+                      <span
+                        class="pdd-strong"
+                        [class.pdd-bad]="row.outstandingAmount > 0"
+                      >
+                        {{ row.outstandingAmount | currency: currency : 'symbol' : '1.2-2' : locale }}
+                      </span>
+                      <span
+                        class="pdd-status"
+                        [attr.data-status]="row.status"
+                      >
+                        {{ statusLabel(row.status) }}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <th
+                  scope="row"
+                  colspan="2"
+                >
+                  Total · {{ inv.rows.length }} {{ inv.rows.length === 1 ? 'invoice' : 'invoices' }}
+                </th>
+                <td class="num num--key">
+                  {{ inv.totals.taxableAmount | currency: currency : 'symbol' : '1.2-2' : locale }}
+                </td>
+                <td class="num">{{ inv.totals.gstAmount | currency: currency : 'symbol' : '1.2-2' : locale }}</td>
+                <td class="num">{{ inv.totals.invoiceAmount | currency: currency : 'symbol' : '1.2-2' : locale }}</td>
+                <td class="num">{{ inv.totals.tdsAmount | currency: currency : 'symbol' : '1.2-2' : locale }}</td>
+                <td class="num">{{ inv.totals.settledAmount | currency: currency : 'symbol' : '1.2-2' : locale }}</td>
+                <td
+                  class="num"
+                  [class.pdd-bad]="inv.totals.outstandingAmount > 0"
+                >
+                  {{ inv.totals.outstandingAmount | currency: currency : 'symbol' : '1.2-2' : locale }}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      } @else {
+        <app-empty-messages
+          [icon]="icons.COMMON.INFO_CIRCLE"
+          title="No invoices yet"
+          description="Approved invoices of this project will show here."
+        />
+      }
+    } @else if (listRows().length) {
+      @if (type() === 'regular-expense-detail') {
+        <div class="pdd-toolbar">
+          <div
+            class="pdd-switch"
+            role="tablist"
+            aria-label="Expense view"
+          >
+            @for (option of expenseViews; track option.value) {
+              <button
+                type="button"
+                role="tab"
+                class="pdd-switch__btn"
+                [attr.aria-selected]="expenseView() === option.value"
+                [class.pdd-switch__btn--on]="expenseView() === option.value"
+                (click)="setExpenseView(option.value)"
+              >
+                {{ option.label }}
+              </button>
+            }
+          </div>
+          <span class="pdd-toolbar__hint">Pick a row to see its breakdown</span>
+        </div>
+      } @else if (hasDetail()) {
+        <div class="pdd-toolbar">
+          <span class="pdd-toolbar__hint">Pick an employee to see the vehicles behind their total</span>
+        </div>
+      }
+
+      <div
+        class="pdd-browse"
+        [class.pdd-browse--split]="hasDetail()"
+      >
+        <!-- Master list: ranked by amount -->
+        <ol
+          class="pdd-master"
+          [attr.role]="hasDetail() ? 'listbox' : null"
+        >
+          @for (row of listRows(); track row.key; let i = $index) {
+            @let picked = hasDetail() && selectedRow()?.key === row.key;
+            <li [attr.role]="hasDetail() ? 'option' : null">
+              <button
+                type="button"
+                class="pdd-row"
+                [class.pdd-row--picked]="picked"
+                [class.pdd-row--static]="!hasDetail()"
+                [attr.aria-selected]="hasDetail() ? picked : null"
+                [disabled]="!hasDetail()"
+                (click)="selectedKey.set(row.key)"
+              >
+                @if (row.avatar) {
+                  <img
+                    class="pdd-row__avatar"
+                    [src]="row.avatar"
+                    alt=""
+                    loading="lazy"
+                  />
+                } @else {
+                  <span
+                    class="pdd-row__swatch"
+                    [style.background]="row.color"
+                    aria-hidden="true"
+                  >
+                    {{ i + 1 }}
+                  </span>
+                }
+                <span class="pdd-row__body">
+                  <span class="pdd-row__top">
+                    <span class="pdd-row__title">{{ row.title }}</span>
+                    <strong class="pdd-row__amount">
+                      {{ row.amount | currency: currency : 'symbol' : '1.0-0' : locale }}
+                    </strong>
+                  </span>
+                  <!-- Stacked bar: the row's own mix (categories / vehicles), else its share of the total -->
+                  <span
+                    class="pdd-row__bar"
+                    aria-hidden="true"
+                  >
+                    @if (row.parts?.length) {
+                      <span
+                        class="pdd-row__fill"
+                        [style.width.%]="row.share"
+                      >
+                        @for (part of row.parts; track part.key) {
+                          <span
+                            [style.width.%]="part.share"
+                            [style.background]="part.color"
+                          ></span>
+                        }
+                      </span>
+                    } @else {
+                      <span
+                        class="pdd-row__fill"
+                        [style.width.%]="row.share"
+                        [style.background]="row.color"
+                      ></span>
+                    }
+                  </span>
+                  <span class="pdd-row__meta">
+                    <span>{{ row.subtitle }}</span>
+                    <span>{{ row.share | number: '1.0-1' : locale }}%</span>
+                  </span>
+                </span>
+                @if (hasDetail()) {
+                  <i
+                    class="pdd-row__chev pi pi-chevron-right"
+                    aria-hidden="true"
+                  ></i>
+                }
+              </button>
+            </li>
+          }
+        </ol>
+
+        <!-- Detail of the picked row -->
+        @if (hasDetail() && selectedRow(); as sel) {
+          <section
+            class="pdd-detail"
+            aria-live="polite"
+          >
+            <header class="pdd-detail__head">
+              @if (sel.avatar) {
+                <img
+                  [src]="sel.avatar"
+                  alt=""
+                />
+              } @else {
+                <span
+                  class="pdd-detail__swatch"
+                  [style.background]="sel.color"
+                  aria-hidden="true"
+                ></span>
+              }
+              <div>
+                <h4>{{ sel.title }}</h4>
+                <p>
+                  {{ sel.amount | currency: currency : 'symbol' : '1.2-2' : locale }} ·
+                  {{ sel.share | number: '1.0-1' : locale }}% of total
+                </p>
+              </div>
+            </header>
+
+            <span class="pdd-detail__label">{{ detailHeading() }} · {{ sel.parts?.length }}</span>
+
+            <!-- Whole-width stacked bar of the picked row -->
+            <div
+              class="pdd-detail__stack"
+              aria-hidden="true"
+            >
+              @for (part of sel.parts; track part.key) {
+                <span
+                  [style.width.%]="part.share"
+                  [style.background]="part.color"
+                  [pTooltip]="part.label"
+                  tooltipPosition="top"
+                ></span>
+              }
+            </div>
+
+            <ul class="pdd-parts">
+              @for (part of sel.parts; track part.key) {
+                <li class="pdd-part">
+                  <span
+                    class="pdd-swatch"
+                    [style.background]="part.color"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="pdd-part__label">{{ part.label }}</span>
+                  <span class="pdd-part__track">
+                    <span
+                      [style.width.%]="part.share"
+                      [style.background]="part.color"
+                    ></span>
+                  </span>
+                  <span class="pdd-part__pct">{{ part.share | number: '1.0-0' : locale }}%</span>
+                  <b class="pdd-part__amount">{{ part.amount | currency: currency : 'symbol' : '1.0-0' : locale }}</b>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+      </div>
+
+      <div class="pdd-total">
+        <span>Total</span>
+        <strong>{{ listTotal() | currency: currency : 'symbol' : '1.2-2' : locale }}</strong>
+      </div>
+    } @else {
+      <app-empty-messages
+        [icon]="icons.COMMON.INFO_CIRCLE"
+        title="Nothing recorded yet"
+        description="Approved entries for this project will show here."
+      />
+    }
+  </div>
+</section>
