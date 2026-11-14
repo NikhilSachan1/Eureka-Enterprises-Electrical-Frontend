@@ -442,6 +442,13 @@
   />
 </ng-template>
 
+<ng-template
+  #projectPnl
+  let-row
+>
+  <app-project-pnl-cell [projectId]="$any(row).id" />
+</ng-template>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"
@@ -455,6 +462,7 @@
     projectWorkTypes: projectWorkTypes,
     projectStakeholders: projectStakeholders,
     projectDocumentStatus: projectDocumentStatus,
+    projectPnl: projectPnl,
   }"
   (rowActionClick)="handleProjectTableActionClick($any($event), false)"
   (bulkActionClick)="handleProjectTableActionClick($any($event), true)"

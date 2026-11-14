@@ -142,10 +142,8 @@ export const API_ROUTES = {
     BALANCE: 'petro-card-wallet/balance',
     LIST: 'petro-card-wallet/recharges',
     ADD: 'petro-card-wallet/recharges',
-    EDIT: (rechargeId: string) =>
-      `petro-card-wallet/recharges/${rechargeId}`,
-    DELETE: (rechargeId: string) =>
-      `petro-card-wallet/recharges/${rechargeId}`,
+    EDIT: (rechargeId: string) => `petro-card-wallet/recharges/${rechargeId}`,
+    DELETE: (rechargeId: string) => `petro-card-wallet/recharges/${rechargeId}`,
   },
   COMPANY_BANK_ACCOUNT: {
     LIST: 'company-bank-accounts',
@@ -221,6 +219,7 @@ export const API_ROUTES = {
     },
     PROFITABILITY: {
       GET: 'analytics/profitability/detail',
+      SUMMARY: 'analytics/profitability/summary',
     },
     COMPANY: {
       LIST: 'companies',
@@ -431,7 +430,8 @@ export const API_ROUTES = {
   },
   NOTIFICATION: {
     LIST: 'notifications',
-    MARK_READ: (notificationId: string) => `notifications/${notificationId}/read`,
+    MARK_READ: (notificationId: string) =>
+      `notifications/${notificationId}/read`,
     MARK_UNREAD: (notificationId: string) =>
       `notifications/${notificationId}/unread`,
     READ_ALL: 'notifications/read-all',

@@ -25,7 +25,6 @@ import {
   EDataType,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
-  IEnhancedTable,
   IMetricGroup,
   IOptionDropdown,
   IPageHeaderConfig,
@@ -71,6 +70,8 @@ import { EVendorType } from '@features/site-management/vendor-management/types/v
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { AppPermissionService } from '@core/services/app-permission.service';
+import { ProjectPnlCellComponent } from '@features/site-management/project-profitability/components/project-pnl-cell/project-pnl-cell.component';
+import { ProjectListInsightsService } from '../../services/project-list-insights.service';
 
 @Component({
   selector: 'app-get-project',
@@ -83,13 +84,17 @@ import { AppPermissionService } from '@core/services/app-permission.service';
     PopoverModule,
     ProjectSiteTypeChipsComponent,
     ProjectDocumentStatusBlockComponent,
+    ProjectPnlCellComponent,
   ],
+  // Document status and P&L of the rows load in one batch per page.
+  providers: [ProjectListInsightsService],
   templateUrl: './get-project.component.html',
   styleUrl: './get-project.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetProjectComponent implements OnInit {
   private readonly logger = inject(LoggerService);
+  private readonly listInsights = inject(ProjectListInsightsService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -173,6 +178,8 @@ export class GetProjectComponent implements OnInit {
       .subscribe({
         next: (response: IProjectGetResponseDto) => {
           const { records, stats, totalRecords } = response;
+          // Fresh figures for the rows about to render.
+          this.listInsights.reset();
 
           this.appConfigurationService.runAfterTouchedConfiguration(
             () => this.mapTableData(records),

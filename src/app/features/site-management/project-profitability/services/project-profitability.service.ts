@@ -5,7 +5,13 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
   IProjectProfitabilityGetFormDto,
   IProjectProfitabilityGetResponseDto,
+  IProjectsPnlSummaryGetFormDto,
+  IProjectsPnlSummaryGetResponseDto,
 } from '../types/project-profitability.dto';
+import {
+  ProjectsPnlSummaryGetRequestSchema,
+  ProjectsPnlSummaryGetResponseSchema,
+} from '../schemas/get-projects-pnl-summary.schema';
 import {
   ProjectProfitabilityGetRequestSchema,
   ProjectProfitabilityGetResponseSchema,
@@ -47,6 +53,34 @@ export class ProjectProfitabilityService {
             );
           } else {
             this.logger.logUserAction('Get Project Profitability Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /** P&L summary of several projects in one call (project list column). */
+  getProjectsPnlSummary(
+    params: IProjectsPnlSummaryGetFormDto
+  ): Observable<IProjectsPnlSummaryGetResponseDto> {
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.PROFITABILITY.SUMMARY,
+        {
+          response: ProjectsPnlSummaryGetResponseSchema,
+          request: ProjectsPnlSummaryGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get projects P&L summary error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get projects P&L summary error', error);
           }
           return throwError(() => error);
         })

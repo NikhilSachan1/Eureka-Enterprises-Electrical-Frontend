@@ -661,3 +661,11 @@ $muted: var(--text-secondary-color);
   white-space: normal;
   vertical-align: middle;
 }
+
+:host ::ng-deep td.project-pnl-col,
+:host ::ng-deep th.project-pnl-col {
+  min-width: 11rem;
+  max-width: 13rem;
+  white-space: normal;
+  vertical-align: middle;
+}

@@ -15,9 +15,9 @@ import { AppPermissionService } from '@core/services/app-permission.service';
 const normalizeProjectStatusKey = (status: unknown): string =>
   typeof status === 'string'
     ? status
-      .trim()
-      .toLowerCase()
-      .replace(/[\s_-]+/g, '')
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_-]+/g, '')
     : '';
 
 const isOngoingProjectStatus = (status: unknown): boolean =>
@@ -77,6 +77,14 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     columnStyleClass: 'project-doc-status-col',
     showSort: false,
     permission: [APP_PERMISSION.UI.PROJECT.DOCUMENT_STATUS],
+  },
+  {
+    field: 'pnl',
+    header: 'P&L',
+    customTemplateKey: 'projectPnl',
+    columnStyleClass: 'project-pnl-col',
+    showSort: false,
+    permission: [APP_PERMISSION.PROJECT.PROFITABILITY],
   },
   {
     field: 'timeLine',
@@ -145,15 +153,15 @@ function buildProjectTableRowActionsConfig(
 const PROJECT_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IProject>
 >[] = [
-    {
-      ...COMMON_BULK_ACTIONS.DELETE,
-      tooltip: 'Delete Selected Project',
-      permission: [APP_PERMISSION.PROJECT.DELETE],
-      disableWhen: record =>
-        isOngoingProjectStatus(record?.originalRawData?.status),
-      disableReason: () => PROJECT_DISABLED_TOOLTIP.deleteWhileOngoing,
-    },
-  ];
+  {
+    ...COMMON_BULK_ACTIONS.DELETE,
+    tooltip: 'Delete Selected Project',
+    permission: [APP_PERMISSION.PROJECT.DELETE],
+    disableWhen: record =>
+      isOngoingProjectStatus(record?.originalRawData?.status),
+    disableReason: () => PROJECT_DISABLED_TOOLTIP.deleteWhileOngoing,
+  },
+];
 
 export function createProjectTableEnhancedConfig(
   appPermissionService: AppPermissionService

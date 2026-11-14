@@ -7,6 +7,7 @@ import {
   inject,
   input,
   signal,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -21,6 +22,7 @@ import {
 } from '../../types/project-document-status.interface';
 import { DocumentStatusService } from '../../services/document-status.service';
 import { ProjectWorkspaceDocumentStatusService } from '../../services/project-workspace-document-status.service';
+import { ProjectListInsightsService } from '../../services/project-list-insights.service';
 import {
   buildDocumentStatusTargetFromOverview,
   emptyDocumentBreakdownCell,
@@ -49,6 +51,10 @@ export class ProjectDocumentStatusBlockComponent {
     ProjectWorkspaceDocumentStatusService,
     { optional: true }
   );
+  /** In the project list: one batched call for all rows instead of one per row. */
+  private readonly listInsights = inject(ProjectListInsightsService, {
+    optional: true,
+  });
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly logger = inject(LoggerService);
   private readonly appPermissionService = inject(AppPermissionService);
@@ -68,8 +74,31 @@ export class ProjectDocumentStatusBlockComponent {
   protected readonly localBreakdown = signal<IProjectDocumentBreakdownCell>(
     emptyDocumentBreakdownCell()
   );
-  protected readonly breakdown = computed(
-    () => this.workspaceDocumentStatus?.breakdown() ?? this.localBreakdown()
+  protected readonly breakdown = computed((): IProjectDocumentBreakdownCell => {
+    if (this.workspaceDocumentStatus) {
+      return this.workspaceDocumentStatus.breakdown();
+    }
+    if (this.listInsights) {
+      return this.listBreakdown();
+    }
+    return this.localBreakdown();
+  });
+
+  /** This row's share of the list's batched PO breakdown. */
+  private readonly listBreakdown = computed(
+    (): IProjectDocumentBreakdownCell => {
+      const project = this.resolvedProject();
+      const entry = project
+        ? this.listInsights?.docStatusOf(project.id)
+        : undefined;
+      if (!project || !entry || entry.loading) {
+        return emptyDocumentBreakdownCell(!!entry?.loading);
+      }
+      if (entry.error || !entry.data) {
+        return { ...emptyDocumentBreakdownCell(false), error: true };
+      }
+      return mapBreakdownResponse(entry.data, project);
+    }
   );
   protected readonly detailVisible = signal(false);
   protected readonly detailSnapshot =
@@ -123,6 +152,15 @@ export class ProjectDocumentStatusBlockComponent {
       }
 
       const project = this.resolvedProject();
+
+      if (this.listInsights) {
+        if (project && this.isVisible()) {
+          const insights = this.listInsights;
+          untracked(() => insights.requestDocStatus(project.id));
+        }
+        return;
+      }
+
       const version = ++this.loadVersion;
 
       if (!project || !this.isVisible()) {
