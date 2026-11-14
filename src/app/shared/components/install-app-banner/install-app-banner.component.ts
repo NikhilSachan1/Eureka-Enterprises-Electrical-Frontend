@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, map } from 'rxjs';
@@ -8,7 +14,7 @@ import { ICONS } from '@shared/constants';
 /** Form pages have a sticky Submit bar at the bottom; don't cover it. */
 const FORM_ROUTE_PATTERN = /\/(add|edit|force|reimburse)(\/|\?|$)/;
 
-/** Mobile-only bottom sheet inviting the user to install the app. */
+/** Invites the user to install the app: a bottom sheet on mobile, a corner card on desktop. */
 @Component({
   selector: 'app-install-app-banner',
   templateUrl: './install-app-banner.component.html',
