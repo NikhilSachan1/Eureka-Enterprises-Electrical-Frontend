@@ -1,262 +1,268 @@
+// Document status as a small aligned grid: a row per side (contractor / vendor), columns for
+// missing, pending and the open amount. Numbers are coloured only when something is owed.
+
 :host {
   display: block;
   width: 100%;
-}
-
-.doc-status {
-  display: grid;
-  gap: 0.45rem;
   min-width: 0;
-  width: 100%;
-  padding: 0.45rem 0.55rem;
-  border: 1px solid var(--border-light-color);
-  border-radius: 10px;
-  background: var(--background-paper-color);
-  box-shadow: var(--shadow-sm);
+
+  --ds-text: var(--text-primary-color, #0f172a);
+  --ds-muted: var(--text-secondary-color, #64748b);
+  --ds-border: var(--border-light-color, var(--surface-border, #e2e8f0));
+  --ds-surface: var(--background-paper-color, var(--background-default-color, #fff));
+  --ds-subtle: var(--surface-50, #f8fafc);
+  --ds-danger: #dc2626;
+  --ds-warn: #d97706;
+  --ds-info: #7c3aed;
+  --ds-ok: #16a34a;
 }
 
-.doc-status--interactive {
-  margin: 0;
-  font: inherit;
+:host-context(.dark-theme) {
+  --ds-danger: #f87171;
+  --ds-warn: #fbbf24;
+  --ds-info: #a78bfa;
+  --ds-ok: #4ade80;
+}
+
+// Colour of each side, and of each count.
+
+[data-side="contractor"] {
+  --side: #0d9488;
+}
+
+[data-side="vendor"] {
+  --side: #ea580c;
+}
+
+[data-tone="danger"] {
+  --chip: var(--ds-danger);
+}
+
+[data-tone="warn"] {
+  --chip: var(--ds-warn);
+}
+
+[data-tone="info"] {
+  --chip: var(--ds-info);
+}
+
+[data-tone="ok"] {
+  --chip: var(--ds-ok);
+}
+
+// ── Frame ───────────────────────────────────────────────────────────────────
+
+.ds {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  min-width: 0;
+  padding: 0.35rem 0.25rem 0.1rem;
+  border: 1px solid var(--ds-border);
+  border-radius: 0.65rem;
+  background: var(--ds-surface);
   color: inherit;
-  text-align: inherit;
+  font: inherit;
+  text-align: left;
+
+  // Inside a titled block / dialog header: no frame of its own.
+  &--embedded,
+  &--flat {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+}
+
+.ds--interactive {
+  // The chevron sits in its own column beside the grid, never over it.
+  flex-direction: row;
+  align-items: center;
+  gap: 0.25rem;
+  padding-right: 0.45rem;
+
+  > :first-child {
+    flex: 1;
+    min-width: 0;
+  }
+
   cursor: pointer;
   transition:
     border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.15s ease;
+    box-shadow 0.15s ease;
 
   &:hover:not(:disabled) {
-    border-color: color-mix(in srgb, var(--primary-color) 28%, var(--border-light-color));
-    box-shadow: var(--shadow-sm);
-    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--primary-color, #3b82f6) 45%, var(--ds-border));
+    box-shadow: 0 8px 20px -14px color-mix(in srgb, var(--primary-color, #3b82f6) 80%, transparent);
+
+    .ds__go {
+      color: var(--primary-color, #3b82f6);
+      transform: translateX(2px);
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--primary-color);
+    outline: 2px solid var(--primary-color, #3b82f6);
     outline-offset: 2px;
   }
 
   &:disabled {
     cursor: default;
-    transform: none;
   }
 }
 
-.doc-status__metrics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.35rem;
+.ds__go {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  color: var(--ds-muted);
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
 }
 
-.doc-status--two-metrics .doc-status__metrics {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
+// ── Grid ────────────────────────────────────────────────────────────────────
 
-.doc-status__metric {
+.ds-grid {
+  // Columns size to their content, so headers and amounts are never cut.
+  --cols: repeat(3, auto);
+
+  // One grid for the header and every row, so a column lines up all the way down.
   display: grid;
-  gap: 0.1rem;
+  grid-template-columns: var(--cols);
+  column-gap: 0.45rem;
+  width: 100%;
   min-width: 0;
-  text-align: center;
-}
+  padding-inline: 0.35rem;
+  font-size: 0.72rem;
 
-.doc-status__label {
-  font-size: 0.625rem;
-  font-weight: 600;
-  line-height: 1.2;
-  color: var(--text-secondary-color);
-}
-
-.doc-status__value {
-  font-size: 0.8125rem;
-  font-weight: 700;
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  &[data-tone='danger'] {
-    color: #dc2626;
+  &--labelled {
+    --cols: auto repeat(3, auto);
   }
 
-  &[data-tone='warn'] {
-    color: #ea580c;
+  &--no-amount {
+    --cols: repeat(2, auto);
   }
 
-  &[data-tone='info'] {
-    color: #4f46e5;
-  }
-
-  &[data-tone='ok'] {
-    color: #16a34a;
+  &--labelled.ds-grid--no-amount {
+    --cols: auto repeat(2, auto);
   }
 }
 
-.doc-status--sectioned,
-.doc-status--dual {
-  .doc-status__section {
-    display: grid;
-    gap: 0.25rem;
-    min-width: 0;
-
-    &--split {
-      padding-top: 0.4rem;
-      border-top: 1px solid var(--border-light-color);
-    }
-  }
-
-  .doc-status__section-title {
-    font-size: 0.5625rem;
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    text-align: center;
-    color: var(--text-secondary-color);
-  }
-
-  .doc-status__section--contractor .doc-status__section-title {
-    color: #0369a1;
-  }
-
-  .doc-status__section--vendor .doc-status__section-title {
-    color: #6d28d9;
-  }
-}
-
-.doc-status__empty {
-  min-height: 3.5rem;
-  display: flex;
+.ds-grid__head,
+.ds-grid__row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
   align-items: center;
-  justify-content: center;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--text-secondary-color);
-  text-align: center;
+
+  // Browsers without subgrid: fall back to the old per-row grid.
+  @supports not (grid-template-columns: subgrid) {
+    grid-template-columns: var(--cols);
+    column-gap: 0.45rem;
+  }
 }
 
-.doc-status--loading {
-  min-height: 4.5rem;
+.ds-grid__head {
+  // No side padding on the rows: with subgrid it would push cells off their columns.
+  padding: 0 0 0.2rem;
+
+  span {
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-align: center;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--ds-muted);
+  }
 }
 
-.doc-status__loading {
+.ds-grid__row {
+  padding: 0.3rem 0;
+  border-top: 1px solid var(--ds-border);
+}
+
+.ds-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--ds-text);
+}
+
+.ds-side__dot {
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 2px;
+  background: var(--side, var(--ds-muted));
+}
+
+.ds-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  min-height: 3.5rem;
-  font-size: 0.625rem;
+  line-height: 1.15;
+  text-align: center;
+
+  b {
+    font-size: 0.78rem;
+    font-weight: 800;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    color: var(--chip);
+  }
+
+  small {
+    font-size: 0.55rem;
+    color: var(--ds-muted);
+    white-space: nowrap;
+  }
+}
+
+.ds-cell__none {
   font-weight: 600;
-  color: var(--text-secondary-color);
+  color: color-mix(in srgb, var(--ds-muted) 55%, transparent);
 }
 
-.doc-status__spinner {
-  width: 0.95rem;
-  height: 0.95rem;
-  border: 2px solid color-mix(in srgb, var(--primary-color) 15%, transparent);
-  border-top-color: var(--primary-color);
+// ── States ──────────────────────────────────────────────────────────────────
+
+.ds-loading,
+.ds-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.55rem;
+  font-size: 0.74rem;
+  color: var(--ds-muted);
+}
+
+.ds-loading__spinner {
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 2px solid var(--ds-border);
+  border-top-color: var(--primary-color, #3b82f6);
   border-radius: 50%;
-  animation: doc-status-spin 0.7s linear infinite;
+  animation: ds-spin 0.8s linear infinite;
 }
 
-@keyframes doc-status-spin {
+@keyframes ds-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-.doc-status--compact-stages {
-  padding: 0.5rem 0.65rem;
-  border: 1px solid var(--border-light-color);
-  border-radius: 0.375rem;
-  background: #f8fafc;
-  box-shadow: none;
-
-  .doc-status__stages {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0;
-    min-width: 0;
+@media (prefers-reduced-motion: reduce) {
+  .ds-loading__spinner {
+    animation: none;
   }
 
-  .doc-status__stage {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.125rem;
-    min-width: 0;
-    padding: 0.125rem 0.5rem;
-    text-align: center;
-
-    &:not(:last-child) {
-      border-right: 1px solid var(--border-light-color);
-    }
-  }
-
-  .doc-status__stage-label {
-    font-size: 0.5625rem;
-    font-weight: 600;
-    line-height: 1.2;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--text-secondary-color);
-  }
-
-  .doc-status__stage-value {
-    font-size: 0.8125rem;
-    font-weight: 700;
-    line-height: 1.2;
-    font-variant-numeric: tabular-nums;
-    color: var(--text-primary-color);
-    white-space: nowrap;
-
-    &[data-tone='danger'] {
-      color: #dc2626;
-    }
-
-    &[data-tone='warn'] {
-      color: #ea580c;
-    }
-
-    &[data-tone='info'] {
-      color: #4f46e5;
-    }
-
-    &[data-tone='ok'] {
-      color: #16a34a;
-    }
-  }
-}
-
-.doc-status--embedded {
-  padding: 0.85rem 0;
-  border-radius: 0.5rem;
-
-  .doc-status__metrics {
-    gap: 0;
-  }
-
-  .doc-status__metric {
-    padding: 0 1rem;
-
-    &:not(:last-child) {
-      border-right: 1px solid var(--border-light-color);
-    }
-  }
-
-  .doc-status__label {
-    font-size: 0.6875rem;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-  }
-
-  .doc-status__value {
-    font-size: 1.0625rem;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: unset;
+  .ds--interactive,
+  .ds__go {
+    transition: none;
   }
 }

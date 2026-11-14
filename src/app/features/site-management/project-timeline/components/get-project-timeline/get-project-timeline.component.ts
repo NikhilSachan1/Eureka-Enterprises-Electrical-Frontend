@@ -20,6 +20,7 @@ import {
   ETimelineLayout,
   ITimelineConfig,
 } from '@shared/types';
+import { DialogModule } from 'primeng/dialog';
 import { finalize } from 'rxjs';
 import {
   IProjectTimelineGetFormDto,
@@ -28,9 +29,21 @@ import {
 import { IProjectTimelineEventView } from '../../types/project-timeline.interface';
 import { ProjectTimelineService } from '../../services/project-timeline.service';
 
+/** Events shown in the workspace tile; the rest open in the full timeline. */
+const RECENT_EVENTS = 4;
+
+/**
+ * Project activity in the workspace: the latest few events as a compact list, with the full
+ * timeline a click away.
+ */
 @Component({
   selector: 'app-get-project-timeline',
-  imports: [CommonModule, TimelineComponent, SectionLoaderComponent],
+  imports: [
+    CommonModule,
+    DialogModule,
+    TimelineComponent,
+    SectionLoaderComponent,
+  ],
   templateUrl: './get-project-timeline.component.html',
   styleUrl: './get-project-timeline.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,6 +60,11 @@ export class GetProjectTimelineComponent {
 
   protected readonly isLoading = signal(false);
   protected readonly events = signal<IProjectTimelineEventView[]>([]);
+  /** Newest first, as the API returns them. */
+  protected readonly recentEvents = computed(() =>
+    this.events().slice(0, RECENT_EVENTS)
+  );
+  protected readonly fullTimelineVisible = signal(false);
 
   protected readonly timelineConfig = computed<Partial<ITimelineConfig>>(
     () => ({
@@ -65,6 +83,30 @@ export class GetProjectTimelineComponent {
       }
 
       this.loadTimeline(projectId);
+    });
+  }
+
+  /** "just now", "5m ago", "3h ago", "2d ago", else the date. */
+  protected relativeTime(date: Date): string {
+    const diff = Date.now() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) {
+      return 'just now';
+    }
+    if (minutes < 60) {
+      return `${minutes}m ago`;
+    }
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+      return `${hours}h ago`;
+    }
+    const days = Math.floor(hours / 24);
+    if (days < 7) {
+      return `${days}d ago`;
+    }
+    return date.toLocaleDateString(APP_CONFIG.NUMBER_FORMATS.LOCALE, {
+      day: '2-digit',
+      month: 'short',
     });
   }
 

@@ -18,7 +18,11 @@ const InvoiceFinancialsSchema = z.looseObject({
   invoiceNumber: z
     .string()
     .nullable()
-    .transform(value => value?.trim() ?? 'No invoice no.'),
+    .transform(value => {
+      const number = value?.trim();
+      // "No invoice" entries carry an empty or missing number.
+      return number !== undefined && number !== '' ? number : 'No invoice no.';
+    }),
   invoiceDate: onlyDateStringField,
   poNumber: z.string(),
   taxableAmount: z.number(),

@@ -1,220 +1,393 @@
+// Project overview strip: identity on the left, parties and schedule on the right.
+
 :host {
   display: block;
-  height: 100%;
+  min-width: 0;
+
+  --pov-text: var(--text-primary-color, #0f172a);
+  --pov-muted: var(--text-secondary-color, #64748b);
+  --pov-border: var(--surface-border, #e2e8f0);
+  --pov-subtle: var(--surface-50, #f8fafc);
+  --pov-surface: var(--background-default-color, #fff);
+}
+
+[data-tone="contractor"] {
+  --tone: #0d9488;
+}
+
+[data-tone="vendor"] {
+  --tone: #ea580c;
+}
+
+[data-tone="team"] {
+  --tone: #6366f1;
+}
+
+.pov {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem 1.1rem;
   min-width: 0;
 }
 
-.info-card {
-  height: 100%;
-  background: transparent;
+.pov__icon {
+  display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  border-radius: 0.8rem;
+  font-size: 1.2rem;
+  color: #fff;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #3b82f6),
+    color-mix(in srgb, var(--primary-color, #3b82f6) 70%, #000)
+  );
+  box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--primary-color, #3b82f6) 70%, transparent);
+}
 
-  &__header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
-  }
+.pov__main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
 
-  &__hero-main {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-width: 0;
-  }
+.pov__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+  min-width: 0;
+}
 
-  &__icon-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.95rem;
-    height: 1.95rem;
-    border-radius: 0.4rem;
-    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600, var(--primary-color)) 100%);
-    border: 1px solid var(--primary-400, var(--primary-color));
-    color: #ffffff;
-    font-size: 0.88rem;
-    flex-shrink: 0;
-    box-shadow: 0 2px 6px color-mix(in srgb, var(--primary-color) 32%, transparent);
-  }
+.pov__title {
+  overflow: hidden;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--pov-text);
+}
 
-  &__title-block {
-    min-width: 0;
-  }
+.pov__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+  color: var(--pov-muted);
 
-  &__eyebrow {
-    display: block;
-    margin: 0 0 0.08rem;
-    font-size: 0.58rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--primary-600, var(--primary-color));
-    line-height: 1.2;
-  }
-
-  &__title {
-    margin: 0;
-    font-size: 0.9375rem;
-    font-weight: 700;
-    line-height: 1.25;
-    color: var(--text-color);
-    letter-spacing: -0.02em;
-  }
-
-  &__location {
-    display: flex;
+  li {
+    display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    margin: 0 0 1rem;
-    padding-left: 2.45rem;
-    font-size: 0.75rem;
-    color: var(--text-color-secondary);
-
-    i {
-      color: var(--primary-500, var(--primary-color));
-      font-size: 0.72rem;
-    }
-  }
-
-  &__status-badge {
-    flex-shrink: 0;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    padding: 0.25rem 0.65rem;
-    border-radius: 999px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-    background: var(--surface-100);
-    color: var(--text-color-secondary);
-
-    &--ongoing {
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    &--upcoming {
-      background: #dbeafe;
-      color: #1e40af;
-    }
-
-    &--completed {
-      background: #f3f4f6;
-      color: #374151;
-    }
-
-    &--workcompleted {
-      background: #f3e8ff;
-      color: #6b21a8;
-    }
-
-    &--hold {
-      background: #fef9c3;
-      color: #854d0e;
-    }
-
-    &--inactive {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-  }
-
-  &__meta-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--surface-border);
-  }
-
-  &__meta {
     min-width: 0;
-
-    &--wide {
-      grid-column: 1 / -1;
-    }
   }
 
-  &__label {
-    display: block;
-    margin-bottom: 0.15rem;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    color: var(--text-color-secondary);
-    line-height: 1.2;
-  }
-
-  &__value {
-    display: block;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: var(--text-color);
-    line-height: 1.35;
-  }
-
-  &__range-sep {
-    margin: 0 0.35rem;
-    color: var(--text-color-secondary);
-    font-weight: 400;
-  }
-
-  &__stakeholders {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.85rem;
-
-    @media (width >= 640px) {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  &__stakeholder-group {
-    min-width: 0;
-
-    &--wide {
-      grid-column: 1 / -1;
-    }
-  }
-
-  &__chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-
-  &__empty {
-    font-size: 0.75rem;
-    color: var(--text-color-secondary);
-    font-style: italic;
+  .pi {
+    font-size: 0.72rem;
+    opacity: 0.85;
   }
 }
 
-:host ::ng-deep {
-  .info-card__chip.p-chip {
+.pov__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.1rem;
+}
+
+.pov__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.12rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--pov-muted);
+  background: var(--pov-subtle);
+  box-shadow: inset 0 0 0 1px var(--pov-border);
+
+  .pi {
+    font-size: 0.62rem;
+  }
+
+  &--more {
+    cursor: default;
+    color: var(--primary-color, #3b82f6);
+  }
+}
+
+.pov__side {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.55rem;
+  min-width: 15rem;
+}
+
+.pov__counts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.pov__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.55rem 0.28rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--tone) 9%, transparent);
+  color: var(--pov-muted);
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+
+  .pi {
     font-size: 0.72rem;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    background: var(--surface-100);
-    color: var(--text-color);
-    border: 1px solid var(--surface-border);
+    color: var(--tone);
   }
 
-  .info-card__chip--contractor.p-chip {
-    background: color-mix(in srgb, var(--primary-color) 8%, var(--surface-card));
-    border-color: color-mix(in srgb, var(--primary-color) 18%, var(--surface-border));
+  b {
+    font-variant-numeric: tabular-nums;
+    color: var(--pov-text);
   }
 
-  .info-card__chip--vendor.p-chip {
-    background: color-mix(in srgb, #6366f1 8%, var(--surface-card));
-    border-color: color-mix(in srgb, #6366f1 18%, var(--surface-border));
+  &:hover {
+    border-color: color-mix(in srgb, var(--tone) 40%, transparent);
+    background: color-mix(in srgb, var(--tone) 14%, transparent);
   }
 
-  .info-card__chip--work-type.p-chip {
-    background: color-mix(in srgb, #0d9488 8%, var(--surface-card));
-    border-color: color-mix(in srgb, #0d9488 18%, var(--surface-border));
+  &:focus-visible {
+    outline: 2px solid var(--tone);
+    outline-offset: 1px;
+  }
+}
+
+.pov__count-caret {
+  font-size: 0.55rem !important;
+  opacity: 0.7;
+}
+
+// People behind a count, in a popover. The popover renders under <body>, outside :host, so the
+// panel is targeted by its own class, and the colour tokens are set on the panel again. The
+// padding is restored here because sidebar styles strip it from every popover.
+::ng-deep .p-popover.pov-people {
+  max-width: min(20rem, calc(100vw - 2rem));
+  border: 1px solid var(--surface-border, #e2e8f0);
+  border-radius: 0.75rem;
+  background: var(--background-paper-color, var(--background-default-color, #fff));
+  box-shadow: 0 16px 40px -16px rgb(15 23 42 / 0.35);
+
+  &::before {
+    border-bottom-color: var(--surface-border, #e2e8f0);
+  }
+
+  &::after {
+    border-bottom-color: var(--background-paper-color, var(--background-default-color, #fff));
+  }
+
+  .p-popover-content {
+    padding: 0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: transparent !important;
+  }
+}
+
+.pov-people__panel {
+  --pov-text: var(--text-primary-color, #0f172a);
+  --pov-muted: var(--text-secondary-color, #64748b);
+  --pov-border: var(--surface-border, #e2e8f0);
+  --pov-subtle: var(--surface-50, #f8fafc);
+
+  width: min(19rem, calc(100vw - 2.5rem));
+}
+
+.pov-people__head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid var(--pov-border);
+  background: color-mix(in srgb, var(--tone) 7%, transparent);
+}
+
+.pov-people__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.55rem;
+  font-size: 0.8rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--tone), color-mix(in srgb, var(--tone) 70%, #000));
+}
+
+.pov-people__head-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.pov-people__title {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pov-muted);
+}
+
+.pov-people__project {
+  overflow: hidden;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--pov-text);
+}
+
+.pov-people__count {
+  flex-shrink: 0;
+  min-width: 1.5rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  background: var(--tone);
+}
+
+.pov-people__list {
+  display: flex;
+  flex-direction: column;
+  max-height: 16rem;
+  margin: 0;
+  padding: 0.35rem;
+  overflow-y: auto;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0.5rem;
+    border-radius: 0.55rem;
+
+    &:hover {
+      background: var(--pov-subtle);
+    }
+  }
+
+  img {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.55rem;
+    object-fit: cover;
+  }
+
+  small {
+    font-size: 0.7rem;
+    color: var(--pov-muted);
+  }
+}
+
+.pov-people__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pov-people__name {
+  overflow: hidden;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--pov-text);
+}
+
+.pov-people__empty {
+  margin: 0;
+  padding: 0.9rem;
+  font-size: 0.78rem;
+  color: var(--pov-muted);
+}
+
+.pov__schedule {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  --tone: var(--primary-color, #3b82f6);
+
+  &--overdue {
+    --tone: #dc2626;
+  }
+}
+
+.pov__schedule-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.7rem;
+  color: var(--pov-muted);
+
+  b {
+    font-variant-numeric: tabular-nums;
+    color: var(--tone);
+  }
+}
+
+.pov__progress {
+  height: 0.4rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--pov-subtle);
+  box-shadow: inset 0 0 0 1px var(--pov-border);
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--tone) 65%, #fff), var(--tone));
+  }
+}
+
+@media (max-width: 900px) {
+  .pov {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .pov__side {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .pov__counts {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .pov__title {
+    white-space: normal;
   }
 }

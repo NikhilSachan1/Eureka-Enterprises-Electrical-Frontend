@@ -54,7 +54,9 @@ export class ProjectDocumentStatusBlockComponent {
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly project = input<IProject | IProjectDocumentStatusTarget | null>(null);
+  readonly project = input<IProject | IProjectDocumentStatusTarget | null>(
+    null
+  );
   readonly projectId = input<string | null | undefined>(null);
   readonly overview = input<IProjectOverviewGetResponseDto | null>(null);
   readonly showHeader = input(false);
@@ -66,34 +68,35 @@ export class ProjectDocumentStatusBlockComponent {
   protected readonly localBreakdown = signal<IProjectDocumentBreakdownCell>(
     emptyDocumentBreakdownCell()
   );
-  protected readonly breakdown = computed(() =>
-    this.workspaceDocumentStatus?.breakdown() ?? this.localBreakdown()
+  protected readonly breakdown = computed(
+    () => this.workspaceDocumentStatus?.breakdown() ?? this.localBreakdown()
   );
   protected readonly detailVisible = signal(false);
-  protected readonly detailSnapshot = signal<IProjectPoBreakdownSnapshot | null>(
-    null
-  );
+  protected readonly detailSnapshot =
+    signal<IProjectPoBreakdownSnapshot | null>(null);
 
   private loadVersion = 0;
 
-  protected readonly resolvedProject = computed((): IProjectDocumentStatusTarget | null => {
-    const directProject = this.project();
-    if (directProject) {
-      return toDocumentStatusTarget(directProject);
-    }
+  protected readonly resolvedProject = computed(
+    (): IProjectDocumentStatusTarget | null => {
+      const directProject = this.project();
+      if (directProject) {
+        return toDocumentStatusTarget(directProject);
+      }
 
-    const id = this.projectId();
-    const overview = this.overview();
-    if (!id || !overview) {
-      return null;
-    }
+      const id = this.projectId();
+      const overview = this.overview();
+      if (!id || !overview) {
+        return null;
+      }
 
-    return buildDocumentStatusTargetFromOverview(
-      id,
-      overview,
-      this.appConfigurationService.projectStatus()
-    );
-  });
+      return buildDocumentStatusTargetFromOverview(
+        id,
+        overview,
+        this.appConfigurationService.projectStatus()
+      );
+    }
+  );
 
   protected readonly isVisible = computed(() => {
     const project = this.resolvedProject();
@@ -153,7 +156,10 @@ export class ProjectDocumentStatusBlockComponent {
               ...emptyDocumentBreakdownCell(false),
               error: true,
             });
-            this.logger.error('Failed to load project document breakdown', error);
+            this.logger.error(
+              'Failed to load project document breakdown',
+              error
+            );
           },
         });
     });

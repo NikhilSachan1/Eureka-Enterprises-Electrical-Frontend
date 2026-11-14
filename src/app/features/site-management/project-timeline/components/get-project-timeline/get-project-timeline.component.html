@@ -1,74 +1,121 @@
-<div class="project-timeline">
-  @if (isLoading()) {
-    <app-section-loader message="Loading project timeline..." />
-  } @else {
-    <section class="hero-card">
-      <div class="hero-content">
-        <div class="hero-main">
-          <div class="hero-icon-wrap">
-            <i [class]="icons.COMMON.HISTORY"></i>
-          </div>
-          <div>
-            <p class="eyebrow">Project activity</p>
-            <h2>Project timeline</h2>
-          </div>
-        </div>
-        <div class="hero-stat">
-          <span
-            class="hero-stat__icon-wrap"
-            aria-hidden="true"
-          >
-            <i [class]="icons.COMMON.HISTORY"></i>
-          </span>
-          <span class="hero-stat__label">Events</span>
-          <span class="hero-stat__value">{{ events().length }}</span>
-        </div>
-      </div>
-    </section>
-
-    @if (events().length > 0) {
-      <div class="timeline-scroll">
-        <div class="timeline-shell">
-          <app-timeline [config]="timelineConfig()">
-            <ng-template
-              #marker
-              let-event
-            >
-              <div class="timeline-marker">
-                <i [class]="event.icon"></i>
-              </div>
-            </ng-template>
-
-            <ng-template
-              #content
-              let-event
-            >
-              <article class="timeline-card">
-                <time class="timeline-card__when">
-                  {{
-                    event.occurredAt
-                      | date: APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME : undefined : APP_CONFIG.NUMBER_FORMATS.LOCALE
-                  }}
-                </time>
-                <h4 class="timeline-card__title">{{ event.title }}</h4>
-                <p class="timeline-card__desc">{{ event.description }}</p>
-                @if (event.actor?.trim(); as actorName) {
-                  <div class="timeline-card__actor">
-                    <i [class]="icons.COMMON.USER"></i>
-                    <span>{{ actorName }}</span>
-                  </div>
-                }
-              </article>
-            </ng-template>
-          </app-timeline>
-        </div>
-      </div>
-    } @else {
-      <section class="timeline-empty">
-        <i [class]="icons.COMMON.INFO_CIRCLE"></i>
-        <p class="timeline-empty__title">No timeline found</p>
-        <p class="timeline-empty__text">No site activity has been recorded for this project yet.</p>
-      </section>
+<div class="activity">
+  <header class="activity__head">
+    <span
+      class="activity__icon"
+      aria-hidden="true"
+    >
+      <i [class]="icons.COMMON.HISTORY"></i>
+    </span>
+    <div class="activity__titles">
+      <h3>Recent activity</h3>
+      <p>{{ events().length }} {{ events().length === 1 ? 'event' : 'events' }} on this project</p>
+    </div>
+    @if (events().length > recentEvents().length) {
+      <button
+        type="button"
+        class="activity__all"
+        (click)="fullTimelineVisible.set(true)"
+      >
+        View all
+        <i
+          class="pi pi-arrow-right"
+          aria-hidden="true"
+        ></i>
+      </button>
     }
+  </header>
+
+  @if (isLoading()) {
+    <div class="activity__loading">
+      <app-section-loader message="Loading activity..." />
+    </div>
+  } @else if (recentEvents().length) {
+    <ol class="activity__list">
+      @for (event of recentEvents(); track event.id) {
+        <li class="activity__item">
+          <span
+            class="activity__dot"
+            aria-hidden="true"
+          ></span>
+          <div class="activity__body">
+            <div class="activity__top">
+              <span class="activity__title">{{ event.title }}</span>
+              <time
+                class="activity__when"
+                [attr.datetime]="event.occurredAt.toISOString()"
+                [attr.title]="
+                  event.occurredAt
+                    | date: APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME : undefined : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                "
+              >
+                {{ relativeTime(event.occurredAt) }}
+              </time>
+            </div>
+            <p class="activity__desc">
+              {{ event.description }}
+              @if (event.actor?.trim(); as actorName) {
+                <span class="activity__actor">· {{ actorName }}</span>
+              }
+            </p>
+          </div>
+        </li>
+      }
+    </ol>
+  } @else {
+    <p class="activity__empty">
+      <i
+        [class]="icons.COMMON.INFO_CIRCLE"
+        aria-hidden="true"
+      ></i>
+      No activity recorded for this project yet.
+    </p>
   }
 </div>
+
+<!-- Full timeline -->
+<p-dialog
+  header="Project timeline"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: 'min(640px, 94vw)' }"
+  [contentStyle]="{ maxHeight: '70vh', overflow: 'auto' }"
+  [visible]="fullTimelineVisible()"
+  (visibleChange)="fullTimelineVisible.set($event)"
+>
+  <div class="timeline-shell">
+    <app-timeline [config]="timelineConfig()">
+      <ng-template
+        #marker
+        let-event
+      >
+        <div class="timeline-marker">
+          <i [class]="event.icon"></i>
+        </div>
+      </ng-template>
+
+      <ng-template
+        #content
+        let-event
+      >
+        <article class="timeline-card">
+          <time class="timeline-card__when">
+            {{
+              event.occurredAt
+                | date: APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME : undefined : APP_CONFIG.NUMBER_FORMATS.LOCALE
+            }}
+          </time>
+          <h4 class="timeline-card__title">{{ event.title }}</h4>
+          <p class="timeline-card__desc">{{ event.description }}</p>
+          @if (event.actor?.trim(); as actorName) {
+            <div class="timeline-card__actor">
+              <i [class]="icons.COMMON.USER"></i>
+              <span>{{ actorName }}</span>
+            </div>
+          }
+        </article>
+      </ng-template>
+    </app-timeline>
+  </div>
+</p-dialog>

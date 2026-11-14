@@ -655,8 +655,9 @@ $muted: var(--text-secondary-color);
 
 :host ::ng-deep td.project-doc-status-col,
 :host ::ng-deep th.project-doc-status-col {
-  min-width: 14rem;
-  max-width: 17rem;
+  // Wide enough for the status grid (side, missing, pending, open amount) without cutting.
+  min-width: 20rem;
+  max-width: 22rem;
   white-space: normal;
   vertical-align: middle;
 }

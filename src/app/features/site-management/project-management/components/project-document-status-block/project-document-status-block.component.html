@@ -9,10 +9,16 @@
   >
     @if (showHeader()) {
       <div class="doc-status-block__head">
-        <span class="doc-status-block__eyebrow">Document status</span>
-        <span class="doc-status-block__hint">
-          PO breakdown · missing docs and approvals
+        <span
+          class="doc-status-block__icon"
+          aria-hidden="true"
+        >
+          <i class="pi pi-folder-open"></i>
         </span>
+        <div class="doc-status-block__titles">
+          <h3>Document status</h3>
+          <p>Missing documents and pending approvals, PO by PO</p>
+        </div>
       </div>
     }
 

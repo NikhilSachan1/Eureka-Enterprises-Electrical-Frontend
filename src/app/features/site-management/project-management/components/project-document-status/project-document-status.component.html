@@ -1,155 +1,120 @@
 @let interactive = showAction() && !embedded();
 
-<ng-template #compactStageMetrics let-items>
-  <div class="doc-status__stages">
-    @for (metric of items; track metric.label) {
-      <div class="doc-status__stage">
-        <span class="doc-status__stage-label">{{ metric.label }}</span>
-        <span
-          class="doc-status__stage-value"
-          [attr.data-tone]="metric.tone"
-        >
-          {{ metric.displayValue }}
-        </span>
-      </div>
-    }
-  </div>
-</ng-template>
-
-<ng-template #metricGrid let-items>
-  <div class="doc-status__metrics">
-    @for (metric of items; track metric.label) {
-      <div class="doc-status__metric">
-        <span class="doc-status__label">{{ metric.label }}</span>
-        <span
-          class="doc-status__value"
-          [attr.data-tone]="metric.tone"
-        >
-          {{ metric.displayValue }}
-        </span>
-      </div>
-    }
-  </div>
-</ng-template>
-
 <ng-template
-  #contextSection
-  let-title
-  let-items="items"
-  let-toneClass="toneClass"
+  #cell
+  let-metric
+  let-amount="amount"
 >
-  <div [class]="'doc-status__section ' + toneClass">
-    <span class="doc-status__section-title">{{ title }}</span>
-    <ng-container
-      *ngTemplateOutlet="metricGrid; context: { $implicit: items }"
-    />
-  </div>
-</ng-template>
-
-<ng-template #docStatusBody>
-  @if (loading()) {
-    <div class="doc-status__loading">
-      <span class="doc-status__spinner" aria-hidden="true"></span>
-      <span>Loading…</span>
-    </div>
-  } @else if (layoutMode() === 'both') {
-    <ng-container
-      *ngTemplateOutlet="
-        contextSection;
-        context: {
-          $implicit: 'Contractor',
-          items: contractorMetrics(),
-          toneClass: 'doc-status__section--contractor',
-        }
-      "
-    />
-    <ng-container
-      *ngTemplateOutlet="
-        contextSection;
-        context: {
-          $implicit: 'Vendor',
-          items: vendorMetrics(),
-          toneClass: 'doc-status__section--vendor doc-status__section--split',
-        }
-      "
-    />
-  } @else if (layoutMode() === 'contractor') {
-    <ng-container
-      *ngTemplateOutlet="
-        contextSection;
-        context: {
-          $implicit: 'Contractor',
-          items: contractorMetrics(),
-          toneClass: 'doc-status__section--contractor',
-        }
-      "
-    />
-  } @else if (layoutMode() === 'vendor') {
-    <ng-container
-      *ngTemplateOutlet="
-        contextSection;
-        context: {
-          $implicit: 'Vendor',
-          items: vendorMetrics(),
-          toneClass: 'doc-status__section--vendor',
-        }
-      "
-    />
-  } @else if (layoutMode() === 'single') {
-    @if (compactStages()) {
-      <ng-container
-        *ngTemplateOutlet="compactStageMetrics; context: { $implicit: metrics() }"
-      />
+  <span
+    class="ds-cell"
+    role="cell"
+    [attr.data-tone]="metric?.tone ?? 'ok'"
+  >
+    @if (!metric || metric.tone === 'ok') {
+      <span class="ds-cell__none">–</span>
     } @else {
-      @if (contextLabel(); as label) {
-        <ng-container
-          *ngTemplateOutlet="
-            contextSection;
-            context: {
-              $implicit: label,
-              items: metrics(),
-              toneClass:
-                label === 'Contractor'
-                  ? 'doc-status__section--contractor'
-                  : 'doc-status__section--vendor',
-            }
-          "
-        />
-      } @else {
-        <ng-container
-          *ngTemplateOutlet="metricGrid; context: { $implicit: metrics() }"
-        />
+      <b>{{ metric.displayValue }}</b>
+      @if (amount) {
+        <small>{{ metric.label.toLowerCase() }}</small>
       }
     }
+  </span>
+</ng-template>
+
+<ng-template #body>
+  @if (loading()) {
+    <div class="ds-loading">
+      <span
+        class="ds-loading__spinner"
+        aria-hidden="true"
+      ></span>
+      <span>Checking documents…</span>
+    </div>
+  } @else if (rows().length) {
+    @let labelled = !!rows()[0].label;
+    <div
+      class="ds-grid"
+      [class.ds-grid--labelled]="labelled"
+      [class.ds-grid--no-amount]="!hasAmount()"
+      role="table"
+      aria-label="Document status"
+    >
+      <div
+        class="ds-grid__head"
+        role="row"
+      >
+        @if (labelled) {
+          <span role="columnheader"></span>
+        }
+        <span role="columnheader">Missing</span>
+        <span role="columnheader">Pending</span>
+        @if (hasAmount()) {
+          <span role="columnheader">Open ₹</span>
+        }
+      </div>
+
+      @for (row of rows(); track row.key) {
+        <div
+          class="ds-grid__row"
+          role="row"
+          [attr.data-side]="row.key"
+          [attr.title]="(row.label ? row.label + ' · ' : '') + row.summary"
+        >
+          @if (labelled) {
+            <span
+              class="ds-side"
+              role="rowheader"
+            >
+              <span
+                class="ds-side__dot"
+                aria-hidden="true"
+              ></span>
+              {{ row.label }}
+            </span>
+          }
+          <ng-container *ngTemplateOutlet="cell; context: { $implicit: row.missing }" />
+          <ng-container *ngTemplateOutlet="cell; context: { $implicit: row.pending }" />
+          @if (hasAmount()) {
+            <ng-container *ngTemplateOutlet="cell; context: { $implicit: row.amount, amount: true }" />
+          }
+        </div>
+      }
+    </div>
   } @else {
-    <div class="doc-status__empty">No contractor or vendor linked</div>
+    <div class="ds-empty">
+      <i
+        class="pi pi-link"
+        aria-hidden="true"
+      ></i>
+      No contractor or vendor linked
+    </div>
   }
 </ng-template>
 
 @if (interactive) {
   <button
     type="button"
-    class="doc-status doc-status--interactive"
-    [class.doc-status--sectioned]="layoutMode() !== 'none'"
-    [class.doc-status--dual]="layoutMode() === 'both'"
-    [class.doc-status--two-metrics]="!showToInvoiceMetric()"
-    [class.doc-status--loading]="loading()"
+    class="ds ds--interactive"
+    [class.ds--dual]="rows().length > 1"
     [disabled]="loading() || layoutMode() === 'none'"
     aria-label="View document status breakdown"
     (click)="onViewDetails($event)"
   >
-    <ng-container *ngTemplateOutlet="docStatusBody" />
+    <ng-container *ngTemplateOutlet="body" />
+    <span
+      class="ds__go"
+      aria-hidden="true"
+    >
+      <i class="pi pi-chevron-right"></i>
+    </span>
   </button>
 } @else {
   <div
-    class="doc-status"
-    [class.doc-status--embedded]="embedded()"
-    [class.doc-status--compact-stages]="compactStages()"
-    [class.doc-status--sectioned]="layoutMode() !== 'none' && !compactStages()"
-    [class.doc-status--dual]="layoutMode() === 'both'"
-    [class.doc-status--two-metrics]="!showToInvoiceMetric()"
-    [class.doc-status--loading]="loading()"
+    class="ds"
+    [class.ds--dual]="rows().length > 1"
+    [class.ds--embedded]="embedded()"
+    [class.ds--flat]="compactStages()"
   >
-    <ng-container *ngTemplateOutlet="docStatusBody" />
+    <ng-container *ngTemplateOutlet="body" />
   </div>
 }

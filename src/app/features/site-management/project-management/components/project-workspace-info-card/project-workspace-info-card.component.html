@@ -2,109 +2,199 @@
   <app-section-loader message="Loading project overview..." />
 } @else {
   @if (site(); as project) {
-    <div class="info-card">
-      <header class="info-card__header">
-        <div class="info-card__hero-main">
-          <div class="info-card__icon-wrap">
-            <i [class]="icons.SITE.BUILDING"></i>
-          </div>
-          <div class="info-card__title-block">
-            <span class="info-card__eyebrow">Project overview</span>
-            <h3 class="info-card__title">{{ project.name }}</h3>
-          </div>
+    @let sched = schedule();
+    <div class="pov">
+      <span
+        class="pov__icon"
+        aria-hidden="true"
+      >
+        <i [class]="icons.SITE.BUILDING"></i>
+      </span>
+
+      <div class="pov__main">
+        <div class="pov__title-row">
+          <h3 class="pov__title">{{ project.name }}</h3>
+          <app-status-tag [value]="project.status" />
         </div>
-        <span [class]="'info-card__status-badge info-card__status-badge--' + projectStatusCssKey()">
-          {{ projectStatusLabel() }}
-        </span>
-      </header>
 
-      <p class="info-card__location">
-        <i class="pi pi-map-marker"></i>
-        <span>{{ project.city }}, {{ project.state }}</span>
-      </p>
+        <ul class="pov__facts">
+          <li [attr.title]="'Location'">
+            <i
+              class="pi pi-map-marker"
+              aria-hidden="true"
+            ></i>
+            {{ project.city }}, {{ project.state }}
+          </li>
+          @if (project.company) {
+            <li [attr.title]="'Company'">
+              <i
+                class="pi pi-building-columns"
+                aria-hidden="true"
+              ></i>
+              {{ project.company.name }}
+            </li>
+          }
+          <li [attr.title]="'Site manager'">
+            <i
+              class="pi pi-user"
+              aria-hidden="true"
+            ></i>
+            {{ project.managerName }}
+          </li>
+          <li [attr.title]="'Schedule'">
+            <i
+              class="pi pi-calendar"
+              aria-hidden="true"
+            ></i>
+            {{ project.startDate | date: dateFormat }} → {{ project.endDate | date: dateFormat }}
+          </li>
+        </ul>
 
-      <div class="info-card__meta-grid">
-        @if (project.company) {
-          <div class="info-card__meta">
-            <span class="info-card__label">Company</span>
-            <span class="info-card__value">{{ project.company.name }}</span>
+        <div class="pov__tags">
+          <app-project-site-type-chips [siteTypes]="project.siteTypes" />
+          @for (type of workTypes().shown; track type) {
+            <span class="pov__tag">
+              <i
+                class="pi pi-briefcase"
+                aria-hidden="true"
+              ></i>
+              {{ type }}
+            </span>
+          }
+          @if (workTypes().more.length) {
+            <span
+              class="pov__tag pov__tag--more"
+              [pTooltip]="workTypes().more.join('\n')"
+              tooltipPosition="top"
+            >
+              +{{ workTypes().more.length }} more
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="pov__side">
+        <div class="pov__counts">
+          @for (
+            chip of [
+              {
+                kind: 'contractors',
+                tone: 'contractor',
+                icon: 'pi pi-users',
+                count: contractors().length,
+                one: 'Contractor',
+                many: 'Contractors',
+              },
+              {
+                kind: 'vendors',
+                tone: 'vendor',
+                icon: 'pi pi-truck',
+                count: vendors().length,
+                one: 'Vendor',
+                many: 'Vendors',
+              },
+              {
+                kind: 'team',
+                tone: 'team',
+                icon: 'pi pi-id-card',
+                count: team().length,
+                one: 'On site',
+                many: 'On site',
+              },
+            ];
+            track chip.kind
+          ) {
+            <button
+              type="button"
+              class="pov__count"
+              [attr.data-tone]="chip.tone"
+              [attr.aria-label]="'Show ' + chip.many.toLowerCase()"
+              (click)="showPeople($any(chip.kind), $event, peoplePopover)"
+            >
+              <i
+                [class]="chip.icon"
+                aria-hidden="true"
+              ></i>
+              <b>{{ chip.count }}</b>
+              {{ chip.count === 1 ? chip.one : chip.many }}
+              <i
+                class="pi pi-chevron-down pov__count-caret"
+                aria-hidden="true"
+              ></i>
+            </button>
+          }
+        </div>
+
+        @if (sched) {
+          <div
+            class="pov__schedule"
+            [class.pov__schedule--overdue]="sched.overdue"
+          >
+            <div class="pov__schedule-head">
+              <span>Schedule</span>
+              <b>{{ sched.label }}</b>
+            </div>
+            <div
+              class="pov__progress"
+              role="progressbar"
+              [attr.aria-valuenow]="sched.percent"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              [attr.aria-label]="'Schedule ' + sched.label"
+            >
+              <span [style.width.%]="sched.percent"></span>
+            </div>
           </div>
         }
-
-        <div class="info-card__meta">
-          <span class="info-card__label">Project Type</span>
-          <span class="info-card__value">
-            <app-project-site-type-chips [siteTypes]="site()?.siteTypes ?? []" />
-          </span>
-        </div>
-
-        <div class="info-card__meta">
-          <span class="info-card__label">Site manager</span>
-          <span class="info-card__value">{{ project.managerName }}</span>
-        </div>
-
-        <div class="info-card__meta info-card__meta--wide">
-          <span class="info-card__label">Schedule</span>
-          <span class="info-card__value">
-            {{ project.startDate | date: dateFormat }}
-            <span class="info-card__range-sep">→</span>
-            {{ project.endDate | date: dateFormat }}
-          </span>
-        </div>
-      </div>
-
-      <div class="info-card__stakeholders">
-        <div class="info-card__stakeholder-group info-card__stakeholder-group--wide">
-          <span class="info-card__label">Work types</span>
-          @if (workTypeLabels().length) {
-            <div class="info-card__chips">
-              @for (label of workTypeLabels(); track label) {
-                <app-chip
-                  [label]="label"
-                  icon="pi pi-briefcase"
-                  styleClass="info-card__chip info-card__chip--work-type"
-                />
-              }
-            </div>
-          } @else {
-            <span class="info-card__empty">No work types assigned</span>
-          }
-        </div>
-
-        <div class="info-card__stakeholder-group">
-          <span class="info-card__label">Contractors</span>
-          @if (contractorNames().length) {
-            <div class="info-card__chips">
-              @for (name of contractorNames(); track name) {
-                <app-chip
-                  [label]="name"
-                  icon="pi pi-users"
-                  styleClass="info-card__chip info-card__chip--contractor"
-                />
-              }
-            </div>
-          } @else {
-            <span class="info-card__empty">No contractors linked</span>
-          }
-        </div>
-
-        <div class="info-card__stakeholder-group">
-          <span class="info-card__label">Vendors</span>
-          @if (vendorNames().length) {
-            <div class="info-card__chips">
-              @for (name of vendorNames(); track name) {
-                <app-chip
-                  [label]="name"
-                  icon="pi pi-truck"
-                  styleClass="info-card__chip info-card__chip--vendor"
-                />
-              }
-            </div>
-          } @else {
-            <span class="info-card__empty">No vendors linked</span>
-          }
-        </div>
       </div>
     </div>
+
+    <p-popover
+      #peoplePopover
+      styleClass="pov-people"
+      [dismissable]="true"
+      appendTo="body"
+    >
+      @let list = people();
+      <div
+        class="pov-people__panel"
+        [attr.data-tone]="list.tone"
+      >
+        <div class="pov-people__head">
+          <span
+            class="pov-people__icon"
+            aria-hidden="true"
+          >
+            <i [class]="list.icon"></i>
+          </span>
+          <div class="pov-people__head-text">
+            <span class="pov-people__title">{{ list.title }}</span>
+            <span class="pov-people__project">{{ project.name }}</span>
+          </div>
+          <b class="pov-people__count">{{ list.items.length }}</b>
+        </div>
+        @if (list.items.length) {
+          <ul class="pov-people__list">
+            @for (person of list.items; track $index) {
+              <li>
+                <img
+                  [src]="person.avatar"
+                  alt=""
+                  loading="lazy"
+                />
+                <div class="pov-people__text">
+                  <span class="pov-people__name">{{ person.name }}</span>
+                  @if (person.sub) {
+                    <small>{{ person.sub }}</small>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="pov-people__empty">{{ list.empty }}</p>
+        }
+      </div>
+    </p-popover>
   }
 }
