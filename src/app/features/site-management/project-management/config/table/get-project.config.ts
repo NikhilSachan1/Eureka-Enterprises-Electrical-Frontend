@@ -58,6 +58,7 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     field: 'stakeholders',
     header: 'Stakeholders',
     customTemplateKey: 'projectStakeholders',
+    columnStyleClass: 'project-stakeholders-col',
     showSort: false,
   },
   {
