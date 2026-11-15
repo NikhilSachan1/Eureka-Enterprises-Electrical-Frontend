@@ -112,10 +112,7 @@ export class UnsettleAdvanceInvoiceComponent
     this.executeUnsettleAction(invoiceId, settlementId);
   }
 
-  private executeUnsettleAction(
-    invoiceId: string,
-    settlementId: string
-  ): void {
+  private executeUnsettleAction(invoiceId: string, settlementId: string): void {
     this.loadingService.show({
       title: 'Reversing settlement',
       message:

@@ -54,7 +54,9 @@ export class ApprovePaymentRequestComponent
       return;
     }
 
-    const requestedAmount = parsePaymentRequestAmount(record[0].requestedAmount);
+    const requestedAmount = parsePaymentRequestAmount(
+      record[0].requestedAmount
+    );
     if (requestedAmount === null || requestedAmount < 0.01) {
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
@@ -119,9 +121,7 @@ export class ApprovePaymentRequestComponent
         },
         error: error => {
           this.logger.error('Failed to approve payment request', error);
-          this.notificationService.error(
-            'Failed to approve payment request.'
-          );
+          this.notificationService.error('Failed to approve payment request.');
         },
       });
   }

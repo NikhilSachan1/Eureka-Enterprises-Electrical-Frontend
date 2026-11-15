@@ -1,9 +1,5 @@
 import { Validators } from '@angular/forms';
-import {
-  EDataType,
-  IFormConfig,
-  IFormInputFieldsConfig,
-} from '@shared/types';
+import { EDataType, IFormConfig, IFormInputFieldsConfig } from '@shared/types';
 import { IUnsettleAdvanceInvoiceFormDto } from '../../types/invoice.dto';
 
 const UNSETTLE_ADVANCE_INVOICE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IUnsettleAdvanceInvoiceFormDto> =

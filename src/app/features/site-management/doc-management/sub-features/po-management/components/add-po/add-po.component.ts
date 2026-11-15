@@ -7,7 +7,13 @@ import {
   input,
   OnInit,
 } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { FormBase } from '@shared/base/form.base';
 import {
   IAddPoFormDto,
@@ -57,7 +63,8 @@ type AddPoStakeholderField = 'contractorName' | 'vendorName';
 })
 export class AddPoComponent
   extends FormBase<IAddPoUIFormDto>
-  implements OnInit, IDialogActionHandler {
+  implements OnInit, IDialogActionHandler
+{
   private readonly poService = inject(PoService);
   private readonly projectService = inject(ProjectService);
   private readonly attachmentsService = inject(AttachmentsService);
@@ -142,7 +149,9 @@ export class AddPoComponent
   }
 
   private patchTerms(terms: { content: string }[]): void {
-    const termsArray = this.form.formGroup.get('terms') as FormArray<FormGroup> | null;
+    const termsArray = this.form.formGroup.get(
+      'terms'
+    ) as FormArray<FormGroup> | null;
     if (!termsArray) {
       return;
     }
@@ -200,14 +209,18 @@ export class AddPoComponent
   }
 
   private setupLineItemAmountSync(): void {
-    const items = this.form.formGroup.get('items') as FormArray<FormGroup> | null;
+    const items = this.form.formGroup.get(
+      'items'
+    ) as FormArray<FormGroup> | null;
     items?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.syncLineItemAmounts());
   }
 
   private syncLineItemAmounts(): void {
-    const items = this.form.formGroup.get('items') as FormArray<FormGroup> | null;
+    const items = this.form.formGroup.get(
+      'items'
+    ) as FormArray<FormGroup> | null;
     if (!items) {
       return;
     }
@@ -217,7 +230,9 @@ export class AddPoComponent
       const rate = Number(group.get('rate')?.value);
       const amount = computePoLineItemAmount(quantity, rate);
       if (group.get('amount')?.value !== amount) {
-        group.get('amount')?.setValue(amount, { emitEvent: true, onlySelf: true });
+        group
+          .get('amount')
+          ?.setValue(amount, { emitEvent: true, onlySelf: true });
       }
     });
 
@@ -390,12 +405,12 @@ export class AddPoComponent
     const submit$ = isGenerate
       ? this.poService.addPo(this.prepareFormData())
       : this.attachmentsService
-        .uploadFinancialDocument(this.form.getFieldData('poAttachment')[0])
-        .pipe(
-          switchMap(attachmentResponse =>
-            this.poService.addPo(this.prepareFormData(attachmentResponse))
-          )
-        );
+          .uploadFinancialDocument(this.form.getFieldData('poAttachment')[0])
+          .pipe(
+            switchMap(attachmentResponse =>
+              this.poService.addPo(this.prepareFormData(attachmentResponse))
+            )
+          );
 
     submit$
       .pipe(
@@ -432,7 +447,7 @@ export class AddPoComponent
     const formData = this.form.getData();
     const record = { ...formData };
     delete (record as Record<string, unknown>)['poAttachment'];
-    const {terms} = record;
+    const { terms } = record;
     delete (record as Record<string, unknown>)['terms'];
 
     if (this.isSystemGenerated()) {
