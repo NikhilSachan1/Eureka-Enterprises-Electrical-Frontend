@@ -522,3 +522,25 @@
     bottom: 50%;
   }
 }
+
+// Overflow menu: a disabled action says why, under its label (no hover on phones).
+::ng-deep .row-overflow-actions-menu {
+  .row-overflow-actions-menu__link {
+    align-items: flex-start;
+  }
+
+  .row-overflow-actions-menu__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  .row-overflow-actions-menu__reason {
+    max-width: 16rem;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    white-space: normal;
+    color: var(--p-text-muted-color);
+  }
+}

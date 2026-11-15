@@ -4,9 +4,12 @@ import {
   output,
   computed,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
+  viewChild,
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
+import { Tooltip, TooltipModule } from 'primeng/tooltip';
 import {
   IButtonConfig,
   EButtonIconPosition,
@@ -34,6 +37,13 @@ export class ButtonComponent {
   stopClickPropagation = input<boolean>(false);
 
   onButtonClick = output<string>();
+
+  private readonly tooltip = viewChild(Tooltip);
+  private tapTipTimer?: ReturnType<typeof setTimeout>;
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => clearTimeout(this.tapTipTimer));
+  }
 
   finalButtonConfig = computed((): Partial<IButtonConfig> => {
     const config = this.buttonConfig();
@@ -79,6 +89,25 @@ export class ButtonComponent {
     }
     return cfg.tooltip?.trim() ?? undefined;
   });
+
+  /**
+   * A tap on a disabled button shows why it is disabled. Phones have no hover, so the reason in
+   * the tooltip was never seen there; the tap opens it for a few seconds.
+   */
+  protected onWrapperClick(event: Event): void {
+    if (!this.isButtonDisabled() || !this.resolvedTooltip()) {
+      return;
+    }
+    // The tap is about the reason, not the row or card behind the button.
+    event.stopPropagation();
+    const tip = this.tooltip();
+    if (!tip) {
+      return;
+    }
+    tip.activate();
+    clearTimeout(this.tapTipTimer);
+    this.tapTipTimer = setTimeout(() => tip.deactivate(), 3000);
+  }
 
   onClick(event: MouseEvent): void {
     if (this.isButtonDisabled()) {

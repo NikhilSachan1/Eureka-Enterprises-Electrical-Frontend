@@ -511,7 +511,24 @@
   [popup]="true"
   appendTo="body"
   styleClass="row-overflow-actions-menu"
-/>
+>
+  <ng-template
+    #item
+    let-item
+  >
+    <a class="p-menu-item-link row-overflow-actions-menu__link">
+      @if (item.icon) {
+        <span [class]="item.icon + ' p-menu-item-icon'"></span>
+      }
+      <span class="row-overflow-actions-menu__text">
+        <span class="p-menu-item-label">{{ item.label }}</span>
+        @if (item.state?.disabledReason) {
+          <span class="row-overflow-actions-menu__reason">{{ item.state.disabledReason }}</span>
+        }
+      </span>
+    </a>
+  </ng-template>
+</p-menu>
 
 <ng-template
   #cardCell
