@@ -27,7 +27,7 @@ export function resolveWorkspaceDocTab(stage: EDocChainStage): string {
   }
 }
 
-/** GST / TDS are settled in the project's GST / TDS summary, which covers both sides. */
+/** GST / TDS are settled in the GST / TDS summary tab of that side. */
 const TAX_SUMMARY_ROUTE: Partial<Record<EDocChainStage, string>> = {
   [EDocChainStage.GST]: ROUTES.SITE.PROJECT.GST_SUMMARY,
   [EDocChainStage.TDS]: ROUTES.SITE.PROJECT.TDS_SUMMARY,
@@ -37,16 +37,6 @@ export function buildProjectWorkspaceDocRoute(
   stage: EDocChainStage,
   isSales: boolean
 ): string[] {
-  const taxSummary = TAX_SUMMARY_ROUTE[stage];
-  if (taxSummary) {
-    return [
-      ROUTE_BASE_PATHS.SITE.BASE,
-      ROUTE_BASE_PATHS.SITE.PROJECT,
-      ROUTES.SITE.PROJECT.WORKSPACE,
-      taxSummary,
-    ];
-  }
-
   const docContext = isSales
     ? ROUTES.SITE.PROJECT.CONTRACTOR_DOC
     : ROUTES.SITE.PROJECT.VENDOR_DOC;
@@ -56,6 +46,6 @@ export function buildProjectWorkspaceDocRoute(
     ROUTE_BASE_PATHS.SITE.PROJECT,
     ROUTES.SITE.PROJECT.WORKSPACE,
     docContext,
-    resolveWorkspaceDocTab(stage),
+    TAX_SUMMARY_ROUTE[stage] ?? resolveWorkspaceDocTab(stage),
   ];
 }

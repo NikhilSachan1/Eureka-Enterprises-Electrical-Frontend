@@ -32,9 +32,8 @@ import { APP_CONFIG } from '@core/config';
 import {
   createTdsEntryTableEnhancedConfig,
   getTdsActionConfig,
-  TDS_IS_VERIFIED_FILTER_FIELD_CONFIG,
-  TDS_CHALLAN_FILTER_FIELD_CONFIG,
-  TDS_PARTY_TYPE_FILTER_FIELD_CONFIG,
+  getTdsIsVerifiedFilterFieldConfig,
+  getTdsChallanFilterFieldConfig,
 } from '../../config';
 import {
   ITdsEntryGetBaseResponseDto,
@@ -42,6 +41,7 @@ import {
   ITdsEntryGetResponseDto,
 } from '../../types/tds.dto';
 import { ITdsEntry } from '../../types/tds.interface';
+import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { TdsService } from '../../services/tds.service';
@@ -98,17 +98,20 @@ export class GetTdsEntryComponent implements OnInit {
   );
   private readonly tdsService = inject(TdsService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
+  private readonly route = inject(ActivatedRoute);
 
-  protected readonly partyTypeFilterFieldConfig: IInputFieldsConfig =
-    TDS_PARTY_TYPE_FILTER_FIELD_CONFIG;
+  /** Contractor (sales) or vendor (purchase) side, from the parent workspace tab. */
+  protected readonly docContext =
+    (this.route.parent?.snapshot.data['docContext'] as
+      | EDocContext
+      | undefined) ?? null;
+
   protected readonly isVerifiedFilterFieldConfig: IInputFieldsConfig =
-    TDS_IS_VERIFIED_FILTER_FIELD_CONFIG;
-  protected readonly selectedPartyType = signal<EDocContext | undefined>(
-    undefined
-  );
+    getTdsIsVerifiedFilterFieldConfig(this.docContext);
+  protected readonly isSalesSide = this.docContext === EDocContext.SALES;
   protected readonly selectedIsVerified = signal<string | undefined>(undefined);
   protected readonly challanFilterFieldConfig: IInputFieldsConfig =
-    TDS_CHALLAN_FILTER_FIELD_CONFIG;
+    getTdsChallanFilterFieldConfig(this.docContext);
   protected readonly selectedChallanStatus = signal<string | undefined>(
     undefined
   );
@@ -132,7 +135,7 @@ export class GetTdsEntryComponent implements OnInit {
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
-      createTdsEntryTableEnhancedConfig()
+      createTdsEntryTableEnhancedConfig(this.docContext)
     );
 
     this.loadTrigger$
@@ -193,9 +196,7 @@ export class GetTdsEntryComponent implements OnInit {
     return {
       ...this.workspaceContext.filters(),
       ...base,
-      ...(this.selectedPartyType()
-        ? { partyType: this.selectedPartyType() }
-        : {}),
+      ...(this.docContext ? { partyType: this.docContext } : {}),
       ...(this.selectedIsVerified()
         ? {
             verificationStatus:
@@ -209,15 +210,6 @@ export class GetTdsEntryComponent implements OnInit {
           }
         : {}),
     };
-  }
-
-  protected onPartyTypeFilterChange(value: unknown): void {
-    this.selectedPartyType.set(
-      typeof value === 'string' && value.length > 0
-        ? (value as EDocContext)
-        : undefined
-    );
-    this.loadTdsEntryList();
   }
 
   protected onChallanStatusFilterChange(value: unknown): void {

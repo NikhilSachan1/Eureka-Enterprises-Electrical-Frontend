@@ -44,6 +44,8 @@ export class DocIntegrationComponent {
       PAYMENT_REQUEST_DOC,
       BOOK_PAYMENT_DOC,
       BANK_TRANSFER_DOC,
+      GST,
+      TDS,
     } = APP_PERMISSION;
 
     return [
@@ -108,6 +110,18 @@ export class DocIntegrationComponent {
         visible: this.appPermissionService.hasPermission(
           BANK_TRANSFER_DOC.TABLE_VIEW
         ),
+      },
+      {
+        route: ROUTES.SITE.PROJECT.GST_SUMMARY,
+        label: 'GST Summary',
+        icon: ICONS.COMMON.TAG,
+        visible: this.appPermissionService.hasPermission(GST.TABLE_VIEW),
+      },
+      {
+        route: ROUTES.SITE.PROJECT.TDS_SUMMARY,
+        label: 'TDS Summary',
+        icon: ICONS.COMMON.TAG,
+        visible: this.appPermissionService.hasPermission(TDS.TABLE_VIEW),
       },
     ];
   });

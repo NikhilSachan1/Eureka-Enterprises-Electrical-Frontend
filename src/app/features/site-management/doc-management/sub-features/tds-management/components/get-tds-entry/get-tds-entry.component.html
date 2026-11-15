@@ -25,24 +25,25 @@
     class="tds-header-filters"
   >
     <app-input-field
-      [inputFieldConfig]="partyTypeFilterFieldConfig"
-      [fieldValue]="selectedPartyType()"
-      (onFieldChange)="onPartyTypeFilterChange($event)"
-    />
-    <app-input-field
       [inputFieldConfig]="isVerifiedFilterFieldConfig"
       [fieldValue]="selectedIsVerified()"
       (onFieldChange)="onIsVerifiedFilterChange($event)"
     />
-    <app-input-field
-      [inputFieldConfig]="challanFilterFieldConfig"
-      [fieldValue]="selectedChallanStatus()"
-      (onFieldChange)="onChallanStatusFilterChange($event)"
-    />
+    <!-- Only vendor TDS is deposited by us through a challan. -->
+    @if (!isSalesSide) {
+      <app-input-field
+        [inputFieldConfig]="challanFilterFieldConfig"
+        [fieldValue]="selectedChallanStatus()"
+        (onFieldChange)="onChallanStatusFilterChange($event)"
+      />
+    }
   </div>
 </app-page-header>
 
-<app-workspace-doc-metrics kind="tds" />
+<app-workspace-doc-metrics
+  kind="tds"
+  [side]="docContext"
+/>
 
 <app-data-table
   #dataTable

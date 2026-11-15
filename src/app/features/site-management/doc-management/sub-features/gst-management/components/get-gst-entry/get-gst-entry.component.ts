@@ -32,9 +32,8 @@ import { APP_CONFIG } from '@core/config';
 import {
   createGstEntryTableEnhancedConfig,
   getGstActionConfig,
-  GST_IS_VERIFIED_FILTER_FIELD_CONFIG,
-  GST_SETTLEMENT_FILTER_FIELD_CONFIG,
-  GST_PARTY_TYPE_FILTER_FIELD_CONFIG,
+  getGstIsVerifiedFilterFieldConfig,
+  getGstSettlementFilterFieldConfig,
 } from '../../config';
 import {
   IGstEntryGetBaseResponseDto,
@@ -42,6 +41,7 @@ import {
   IGstEntryGetResponseDto,
 } from '../../types/gst.dto';
 import { IGstEntry } from '../../types/gst.interface';
+import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { GstService } from '../../services/gst.service';
@@ -95,17 +95,19 @@ export class GetGstEntryComponent implements OnInit {
   );
   private readonly gstService = inject(GstService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
+  private readonly route = inject(ActivatedRoute);
 
-  protected readonly partyTypeFilterFieldConfig: IInputFieldsConfig =
-    GST_PARTY_TYPE_FILTER_FIELD_CONFIG;
+  /** Contractor (sales) or vendor (purchase) side, from the parent workspace tab. */
+  protected readonly docContext =
+    (this.route.parent?.snapshot.data['docContext'] as
+      | EDocContext
+      | undefined) ?? null;
+
   protected readonly isVerifiedFilterFieldConfig: IInputFieldsConfig =
-    GST_IS_VERIFIED_FILTER_FIELD_CONFIG;
-  protected readonly selectedPartyType = signal<EDocContext | undefined>(
-    undefined
-  );
+    getGstIsVerifiedFilterFieldConfig(this.docContext);
   protected readonly selectedIsVerified = signal<string | undefined>(undefined);
   protected readonly settlementFilterFieldConfig: IInputFieldsConfig =
-    GST_SETTLEMENT_FILTER_FIELD_CONFIG;
+    getGstSettlementFilterFieldConfig(this.docContext);
   protected readonly selectedSettlementStatus = signal<string | undefined>(
     undefined
   );
@@ -129,7 +131,7 @@ export class GetGstEntryComponent implements OnInit {
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
-      createGstEntryTableEnhancedConfig()
+      createGstEntryTableEnhancedConfig(this.docContext)
     );
 
     this.loadTrigger$
@@ -190,9 +192,7 @@ export class GetGstEntryComponent implements OnInit {
     return {
       ...this.workspaceContext.filters(),
       ...base,
-      ...(this.selectedPartyType()
-        ? { partyType: this.selectedPartyType() }
-        : {}),
+      ...(this.docContext ? { partyType: this.docContext } : {}),
       ...(this.selectedIsVerified()
         ? {
             verificationStatus:
@@ -206,15 +206,6 @@ export class GetGstEntryComponent implements OnInit {
           }
         : {}),
     };
-  }
-
-  protected onPartyTypeFilterChange(value: unknown): void {
-    this.selectedPartyType.set(
-      typeof value === 'string' && value.length > 0
-        ? (value as EDocContext)
-        : undefined
-    );
-    this.loadGstEntryList();
   }
 
   protected onSettlementStatusFilterChange(value: unknown): void {
