@@ -29,7 +29,9 @@ export type TWorkspaceDocMetricsKind =
   | 'report'
   | 'invoice'
   | 'bookPayment'
-  | 'advance';
+  | 'advance'
+  | 'gst'
+  | 'tds';
 
 const TITLES: Record<TWorkspaceDocMetricsKind, string> = {
   po: 'Total POs',
@@ -38,6 +40,8 @@ const TITLES: Record<TWorkspaceDocMetricsKind, string> = {
   invoice: 'Total invoices',
   bookPayment: 'Total bookings',
   advance: 'Total advances',
+  gst: 'GST entries',
+  tds: 'TDS entries',
 };
 
 /**
@@ -116,8 +120,13 @@ export class WorkspaceDocMetricsComponent {
       },
     ];
 
-    // Reports and bookings carry no approval split here.
-    if (kind !== 'report' && kind !== 'bookPayment') {
+    // Approval split only for documents that go through approval.
+    if (
+      kind === 'po' ||
+      kind === 'jmc' ||
+      kind === 'invoice' ||
+      kind === 'advance'
+    ) {
       const doc = all?.[kind];
       groups.push({
         id: 'approval',
@@ -242,6 +251,65 @@ export class WorkspaceDocMetricsComponent {
             ],
           },
         ];
+      }
+      case 'gst': {
+        const gst = all?.gst;
+        return [
+          {
+            id: 'gstVerification',
+            title: 'Portal verification',
+            icon: ICONS.COMMON.CHART,
+            metrics: [
+              { label: 'Verified', value: gst?.verified ?? 0 },
+              { label: 'Pending', value: gst?.verificationPending ?? 0 },
+            ],
+          },
+          {
+            id: 'gstHold',
+            title: 'Held GST',
+            icon: ICONS.COMMON.CLOCK,
+            metrics: [
+              {
+                label: 'Pending',
+                value: gst?.holdPending ?? 0,
+                subtitle: this.money(gst?.holdPendingAmount),
+              },
+              { label: 'In process', value: gst?.holdInProcess ?? 0 },
+              { label: 'Settled', value: gst?.holdSettled ?? 0 },
+            ],
+          },
+        ];
+      }
+      case 'tds': {
+        const tds = all?.tds;
+        const groups: IMetricGroup[] = [
+          {
+            id: 'tdsVerification',
+            title: 'Verification (26Q / 26AS)',
+            icon: ICONS.COMMON.CHART,
+            metrics: [
+              { label: 'Verified', value: tds?.verified ?? 0 },
+              { label: 'Pending', value: tds?.verificationPending ?? 0 },
+            ],
+          },
+        ];
+        // Only vendor TDS is deposited by us through a challan.
+        if (!this.side() || isVendor) {
+          groups.push({
+            id: 'tdsChallan',
+            title: 'Challan (vendor)',
+            icon: ICONS.COMMON.CLOCK,
+            metrics: [
+              { label: 'Deposited', value: tds?.challanDeposited ?? 0 },
+              {
+                label: 'Pending',
+                value: tds?.challanPending ?? 0,
+                subtitle: this.money(tds?.challanPendingAmount),
+              },
+            ],
+          });
+        }
+        return groups;
       }
       default:
         return [];

@@ -72,6 +72,27 @@ export const DocumentMetricsGetResponseSchema = z.looseObject({
     unadjustedCount: z.number(),
     unadjustedAmount: z.number(),
   }),
+  gst: z.looseObject({
+    total: z.number(),
+    /** Matched on the GST portal (GSTR-1 / GSTR-2B). */
+    verified: z.number(),
+    verificationPending: z.number(),
+    /** Held GST: not released / received, release booked, moved. */
+    holdPending: z.number(),
+    holdInProcess: z.number(),
+    holdSettled: z.number(),
+    holdPendingAmount: z.number(),
+  }),
+  tds: z.looseObject({
+    total: z.number(),
+    /** Verified in 26Q (vendor) / 26AS (contractor). */
+    verified: z.number(),
+    verificationPending: z.number(),
+    /** Vendor TDS deposited by challan, or not yet. */
+    challanDeposited: z.number(),
+    challanPending: z.number(),
+    challanPendingAmount: z.number(),
+  }),
 });
 
 export type IDocumentMetricsGetFormDto = z.input<
