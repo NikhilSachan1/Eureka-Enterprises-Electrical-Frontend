@@ -7,7 +7,8 @@ import {
   LeaveApplyResponseSchema,
   LeaveForceRequestSchema,
   LeaveForceResponseSchema,
-  LeaveGetResponseSchema,
+  LeaveGroupGetBaseResponseSchema,
+  LeaveGroupGetResponseSchema,
   LeaveGetStatsResponseSchema,
   LeaveGetRequestSchema,
   LeaveBalanceGetResponseSchema,
@@ -19,7 +20,6 @@ import {
  * Get Leave
  */
 
-export type ILeaveGetRequestDto = z.infer<typeof LeaveGetRequestSchema>;
 export type ILeaveGetFormDto = z.input<typeof LeaveGetRequestSchema>;
 export type ILeaveGetBaseResponseDto = z.infer<
   typeof LeaveGetBaseResponseSchema
@@ -27,7 +27,12 @@ export type ILeaveGetBaseResponseDto = z.infer<
 export type ILeaveGetStatsResponseDto = z.infer<
   typeof LeaveGetStatsResponseSchema
 >;
-export type ILeaveGetResponseDto = z.infer<typeof LeaveGetResponseSchema>;
+export type ILeaveGroupGetBaseResponseDto = z.infer<
+  typeof LeaveGroupGetBaseResponseSchema
+>;
+export type ILeaveGroupGetResponseDto = z.infer<
+  typeof LeaveGroupGetResponseSchema
+>;
 
 /**
  * Apply Leave
@@ -50,7 +55,7 @@ export type ILeaveActionRequestDto = z.infer<typeof LeaveActionRequestSchema>;
 export type ILeaveActionFormDto = z.input<typeof LeaveActionRequestSchema>;
 export type ILeaveActionUIFormDto = Omit<
   ILeaveActionFormDto,
-  'approvalStatus' | 'leaveIds'
+  'approvalStatus' | 'leaveIds' | 'futureLeaveIds'
 >;
 export type ILeaveActionResponseDto = z.infer<typeof LeaveActionResponseSchema>;
 

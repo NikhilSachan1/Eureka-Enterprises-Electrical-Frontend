@@ -10,7 +10,7 @@ import {
   ILeaveForceFormDto,
   ILeaveForceResponseDto,
   ILeaveGetFormDto,
-  ILeaveGetResponseDto,
+  ILeaveGroupGetResponseDto,
 } from '../types/leave.dto';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { API_ROUTES } from '@core/constants';
@@ -24,7 +24,7 @@ import {
   LeaveForceRequestSchema,
   LeaveForceResponseSchema,
   LeaveGetRequestSchema,
-  LeaveGetResponseSchema,
+  LeaveGroupGetResponseSchema,
 } from '../schemas';
 
 @Injectable({
@@ -117,27 +117,30 @@ export class LeaveService {
       );
   }
 
-  getLeaveList(params?: ILeaveGetFormDto): Observable<ILeaveGetResponseDto> {
-    this.logger.logUserAction('Get Leave List Request');
+  /** Leave applications, one per submission with all its days (paginated per application). */
+  getLeaveGroupList(
+    params?: ILeaveGetFormDto
+  ): Observable<ILeaveGroupGetResponseDto> {
+    this.logger.logUserAction('Get Leave Group List Request');
 
     return this.apiService
       .getValidated(
-        API_ROUTES.LEAVE.LIST,
+        API_ROUTES.LEAVE.GROUPS,
         {
-          response: LeaveGetResponseSchema,
+          response: LeaveGroupGetResponseSchema,
           request: LeaveGetRequestSchema,
         },
         params
       )
       .pipe(
-        tap((response: ILeaveGetResponseDto) => {
-          this.logger.logUserAction('Get Leave List Response', response);
-        }),
         catchError(error => {
           if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Get Leave List Error', error);
+            this.logger.logDtoValidationErrors(
+              'Get Leave Group List Error',
+              error
+            );
           } else {
-            this.logger.logUserAction('Get Leave List Error', error);
+            this.logger.logUserAction('Get Leave Group List Error', error);
           }
           return throwError(() => error);
         })

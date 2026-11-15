@@ -9,6 +9,8 @@ export const LeaveActionRequestSchema = z
     remark: approvalReason,
     leaveIds: z.array(id),
     attendanceStatus: z.string().optional().nullable(),
+    /** Days not started yet: the API refuses an attendance status for them. */
+    futureLeaveIds: z.array(id).optional(),
   })
   .strict()
   .transform(data => {
@@ -17,7 +19,9 @@ export const LeaveActionRequestSchema = z
         leaveApplicationId: leaveId,
         approvalStatus: data.approvalStatus,
         approvalComment: data.remark,
-        attendanceStatus: data.attendanceStatus,
+        attendanceStatus: data.futureLeaveIds?.includes(leaveId)
+          ? undefined
+          : data.attendanceStatus,
       })),
     };
   });

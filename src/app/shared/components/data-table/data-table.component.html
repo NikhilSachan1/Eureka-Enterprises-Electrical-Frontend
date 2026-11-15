@@ -1,4 +1,4 @@
-@let selectedCount = selectedTableRows().length;
+@let selectedCount = bulkRows().length;
 @let currentViewMode = resolvedViewMode();
 @let showToggle = (tableConfig().showViewModeToggle ?? true) && !isCompactViewport();
 
@@ -9,7 +9,10 @@
     aria-label="Layout"
     [class.is-table]="mobileViewMode() === 'list'"
   >
-    <span class="mobile-layout-switch__thumb" aria-hidden="true"></span>
+    <span
+      class="mobile-layout-switch__thumb"
+      aria-hidden="true"
+    ></span>
     @for (option of mobileLayoutOptions; track option.value) {
       <button
         type="button"
@@ -49,7 +52,7 @@
   </div>
 }
 
-@if (selectedCount > 1 && showBulkActionBar()) {
+@if (showBulkBar() && showBulkActionBar()) {
   <p-panel class="bulk-action-panel">
     <!-- Top Row: Selection Count + Clear Selection Button -->
     <div class="flex items-center justify-between gap-2">
@@ -254,13 +257,7 @@
                 [pRowToggler]="rowData"
                 [attr.aria-expanded]="expanded"
               >
-                <i
-                  [class]="
-                    expanded
-                      ? icons.COMMON.CHEVRON_DOWN
-                      : icons.COMMON.CHEVRON_RIGHT
-                  "
-                ></i>
+                <i [class]="expanded ? icons.COMMON.CHEVRON_DOWN : icons.COMMON.CHEVRON_RIGHT"></i>
               </button>
             }
           </td>
@@ -274,10 +271,20 @@
             [style.minWidth]="getColumnWidth(tableConfig().selectionColumn, defaultFrozenSelectionColumn)"
             [style.maxWidth]="getColumnWidth(tableConfig().selectionColumn, defaultFrozenSelectionColumn)"
           >
-            <p-tableCheckbox
-              [value]="rowData"
-              [disabled]="isRowSelectionDisabled(rowData)"
-            />
+            @if (isPartiallySelected(rowData)) {
+              <!-- Some children ticked: "–"; clicking ticks them all. -->
+              <p-checkbox
+                [binary]="true"
+                [indeterminate]="true"
+                [ngModel]="false"
+                (onChange)="partialRowToggle.emit(rowData)"
+              />
+            } @else {
+              <p-tableCheckbox
+                [value]="rowData"
+                [disabled]="isRowSelectionDisabled(rowData)"
+              />
+            }
           </td>
         }
 
@@ -300,11 +307,7 @@
               column.customTemplateKey === 'attendanceProjectDetails' ||
               column.customTemplateKey === 'attendanceAssignmentDetails';
             @let allowCellWrap =
-              hasLead ||
-              isReadMoreCol ||
-              isWorkspaceContextCol ||
-              isDocAmountCol ||
-              isAttendanceWrapCol;
+              hasLead || isReadMoreCol || isWorkspaceContextCol || isDocAmountCol || isAttendanceWrapCol;
             @let t = customBodyTemplates();
             <td
               pFrozenColumn
@@ -395,18 +398,93 @@
     <ng-template
       #expandedrow
       let-rowData
+      let-columns="columns"
     >
-      @if (rowExpansionTemplate(); as expansionTpl) {
-        <tr class="data-table-expanded-row">
-          <td [attr.colspan]="emptyMessageColSpan()">
-            <div class="data-table-expansion">
-              <ng-container
-                [ngTemplateOutlet]="expansionTpl"
-                [ngTemplateOutletContext]="{ $implicit: rowData }"
-              />
-            </div>
-          </td>
-        </tr>
+      @if (childRows(); as getChildren) {
+        @let children = getChildren(rowData);
+        @let childTpls = childCellTemplates();
+        @for (child of children; track $index; let isLast = $last) {
+          <tr
+            class="data-table-child-row"
+            [class.data-table-child-row--last]="isLast"
+          >
+            <td class="data-table-expand-col">
+              <span
+                class="data-table-child-tree"
+                aria-hidden="true"
+              ></span>
+            </td>
+            @if (showBulkSelectionCheckbox()) {
+              <td
+                pFrozenColumn
+                [frozen]="isColumnFrozen(tableConfig().selectionColumn)"
+                [alignFrozen]="getFrozenAlign(tableConfig().selectionColumn, 'left')"
+                [style.width]="getColumnWidth(tableConfig().selectionColumn, defaultFrozenSelectionColumn)"
+                [style.minWidth]="getColumnWidth(tableConfig().selectionColumn, defaultFrozenSelectionColumn)"
+                [style.maxWidth]="getColumnWidth(tableConfig().selectionColumn, defaultFrozenSelectionColumn)"
+              >
+                <p-checkbox
+                  [binary]="true"
+                  [ngModel]="isChildSelected()(child)"
+                  (onChange)="childSelectionToggle.emit(child)"
+                />
+              </td>
+            }
+            @for (column of columns; track $index) {
+              @if (column.showColumn !== false) {
+                <td
+                  pFrozenColumn
+                  [frozen]="isColumnFrozen(column)"
+                  [alignFrozen]="getFrozenAlign(column)"
+                  [style.width]="getColumnWidth(column)"
+                  [style.minWidth]="getColumnWidth(column)"
+                >
+                  @if (childTpls[column.field]; as childTpl) {
+                    <ng-container
+                      [ngTemplateOutlet]="childTpl"
+                      [ngTemplateOutletContext]="{ $implicit: child, parent: rowData, column: column }"
+                    />
+                  }
+                </td>
+              }
+            }
+            @if (showRowActionsColumn()) {
+              <td
+                pFrozenColumn
+                [frozen]="isColumnFrozen(tableConfig().actionsColumn)"
+                [alignFrozen]="getFrozenAlign(tableConfig().actionsColumn, 'right')"
+                [style.width]="getColumnWidth(tableConfig().actionsColumn, defaultFrozenActionsColumn)"
+                [style.minWidth]="getColumnWidth(tableConfig().actionsColumn, defaultFrozenActionsColumn)"
+                [style.maxWidth]="getColumnWidth(tableConfig().actionsColumn, defaultFrozenActionsColumn)"
+              >
+                <div class="flex items-center">
+                  @for (action of getVisibleChildRowActions(child); track action.id) {
+                    <app-button
+                      class="mr-2"
+                      [buttonConfig]="resolveActionButtonConfig(action, child)"
+                      [showDisabledButton]="isActionDisabled(action, child)"
+                      (onButtonClick)="onChildRowActionClick(action.id, child)"
+                    />
+                  }
+                </div>
+              </td>
+            }
+          </tr>
+        }
+      } @else {
+        @let expansionTpl = rowExpansionTemplate();
+        @if (expansionTpl) {
+          <tr class="data-table-expanded-row">
+            <td [attr.colspan]="emptyMessageColSpan()">
+              <div class="data-table-expansion">
+                <ng-container
+                  [ngTemplateOutlet]="expansionTpl"
+                  [ngTemplateOutletContext]="{ $implicit: rowData }"
+                />
+              </div>
+            </td>
+          </tr>
+        }
       }
     </ng-template>
 
@@ -442,8 +520,7 @@
 >
   @let columnData = $any(resolveNestedProperty(rowData, column.field));
   @let bodyTemplate = column.bodyTemplate;
-  @let hasLead =
-    column.icon || column.iconField || (column.showImage && (column.dummyImageField || column.iconField));
+  @let hasLead = column.icon || column.iconField || (column.showImage && (column.dummyImageField || column.iconField));
   @let t = customBodyTemplates();
   <div
     class="min-w-0"
@@ -533,13 +610,7 @@
                   aria-label="Toggle row details"
                   (click)="toggleCardRowExpansion(rowData)"
                 >
-                  <i
-                    [class]="
-                      isCardRowExpanded(rowData)
-                        ? icons.COMMON.CHEVRON_DOWN
-                        : icons.COMMON.CHEVRON_RIGHT
-                    "
-                  ></i>
+                  <i [class]="isCardRowExpanded(rowData) ? icons.COMMON.CHEVRON_DOWN : icons.COMMON.CHEVRON_RIGHT"></i>
                 </button>
               }
 
@@ -730,8 +801,7 @@
     }
     @case (ALL_DATA_TYPES.CURRENCY) {
       @let entryType = row ? $any(row)['transactionType'] : null;
-      @let isPenalty =
-        $any(row)?.originalRawData?.expenseEntryType === 'penalty';
+      @let isPenalty = $any(row)?.originalRawData?.expenseEntryType === 'penalty';
       @let colorClass =
         isPenalty
           ? 'text-yellow-600 font-semibold'

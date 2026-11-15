@@ -3,7 +3,8 @@ export {
   LeaveGetRequestSchema,
   LeaveGetBaseResponseSchema,
   LeaveGetStatsResponseSchema,
-  LeaveGetResponseSchema,
+  LeaveGroupGetBaseResponseSchema,
+  LeaveGroupGetResponseSchema,
 } from './get-leave.schema';
 export {
   LeaveApplyRequestSchema,

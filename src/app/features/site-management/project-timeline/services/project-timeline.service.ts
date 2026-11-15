@@ -18,15 +18,16 @@ export class ProjectTimelineService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
+  /** Activity timeline of one project (site), by its id. */
   getProjectTimeline(
-    projectName: string,
+    projectId: string,
     params: IProjectTimelineGetFormDto
   ): Observable<IProjectTimelineGetResponseDto> {
     this.logger.logUserAction('Get Project Timeline Request');
 
     return this.apiService
       .getValidated(
-        API_ROUTES.SITE.TIMELINE.GET(projectName),
+        API_ROUTES.SITE.TIMELINE.GET(projectId),
         {
           response: ProjectTimelineGetResponseSchema,
           request: ProjectTimelineGetRequestSchema,

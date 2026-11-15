@@ -12,6 +12,38 @@
   />
 </div>
 
+<ng-template
+  #leaveGroupStatus
+  let-row
+>
+  <div class="leave-group-status">
+    @for (chip of row.statusChips; track chip.status) {
+      <app-status-tag
+        [value]="chip.label"
+        [config]="{ severity: chip.severity }"
+      />
+    }
+  </div>
+</ng-template>
+
+<!-- Day rows of an expanded leave: date and status only (who decided and why is in the drawer). -->
+<ng-template
+  #leaveDayDate
+  let-day
+>
+  <div class="leave-day-date">
+    <span class="leave-day-date__day">{{ day.leaveDay | date: 'dd MMM yyyy' }}</span>
+    <span class="leave-day-date__weekday">{{ day.leaveDay | date: 'EEEE' }}</span>
+  </div>
+</ng-template>
+
+<ng-template
+  #leaveDayStatus
+  let-day
+>
+  <app-status-tag [value]="day.approvalStatus" />
+</ng-template>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"
@@ -20,7 +52,21 @@
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{ leaveGroupStatus: leaveGroupStatus }"
+  [childRows]="daysOf"
+  [childRowActions]="dayRowActions"
+  (childRowActionClick)="handleLeaveDayActionClick($any($event))"
+  [childCellTemplates]="{ leaveDate: leaveDayDate, approvalStatus: leaveDayStatus }"
+  [isChildSelected]="isDayRowSelected"
+  [isRowPartiallySelected]="isGroupPartiallySelected"
+  (childSelectionToggle)="toggleDay($any($event).id)"
+  (partialRowToggle)="selectAllDays($any($event))"
+  [isRowExpandable]="hasSeveralDays"
+  [selectedRowIds]="selectedGroupIds()"
+  [bulkSelectionRows]="selectedDays()"
+  (selectionChange)="onGroupSelectionChange($event)"
+  (selectionCleared)="clearDaySelection()"
   (rowActionClick)="handleLeaveTableActionClick($any($event), false)"
-  (bulkActionClick)="handleLeaveTableActionClick($any($event), true)"
+  (bulkActionClick)="handleLeaveBulkActionClick($any($event))"
   (filterData)="onTableStateChange($event)"
 />

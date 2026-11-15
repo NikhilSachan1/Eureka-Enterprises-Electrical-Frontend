@@ -140,6 +140,13 @@ export interface ITableActionConfig<T = Record<string, unknown>>
   hideWhen?: (rowData: T) => boolean;
   disableWhen?: (rowData: T) => boolean;
   disableReason?: (rowData: T) => string | undefined;
+  /**
+   * Bulk only: `'any'` (default) disables when any selected row is blocked; `'all'` only when
+   * every selected row is — for actions that skip the rows they cannot take.
+   */
+  bulkDisableMode?: 'any' | 'all';
+  /** Bulk only: tooltip for a disabled bulk button, from all selected rows (wins over disableReason). */
+  bulkDisableReason?: (rows: T[]) => string | undefined;
 }
 
 export interface ITableActionClickEvent<T = Record<string, unknown>> {
