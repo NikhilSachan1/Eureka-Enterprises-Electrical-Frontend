@@ -4,7 +4,7 @@ import {
   computed,
   input,
 } from '@angular/core';
-import { ChartModule } from 'primeng/chart';
+import { ChartCanvasComponent } from './chart-canvas/chart-canvas.component';
 import {
   IBarChartOptions,
   IDoughnutChartOptions,
@@ -20,7 +20,7 @@ import {
 
 @Component({
   selector: 'app-charts',
-  imports: [ChartModule],
+  imports: [ChartCanvasComponent],
   templateUrl: './charts.component.html',
   styleUrl: './charts.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

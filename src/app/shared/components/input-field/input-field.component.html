@@ -135,7 +135,8 @@
         [virtualScroll]="
           isPaginatedReferenceDropdown()
             ? false
-            : (selectConfig?.virtualScroll ?? (optionsDropdownLength ?? 0) > ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD)
+            : (selectConfig?.virtualScroll ??
+              (optionsDropdownLength ?? 0) > ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD)
         "
         [virtualScrollItemSize]="effectiveDropdownVirtualScrollItemSize(selectConfig, selectOpts)"
         [disabled]="config.disabledInput || false"
@@ -228,8 +229,14 @@
         @if (dropdownCreateActionButtonConfig() || paginatedDropdownLoading()) {
           <ng-template pTemplate="footer">
             @if (paginatedDropdownLoading()) {
-              <div class="ee-dropdown-load-more" aria-live="polite">
-                <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+              <div
+                class="ee-dropdown-load-more"
+                aria-live="polite"
+              >
+                <i
+                  class="pi pi-spinner pi-spin"
+                  aria-hidden="true"
+                ></i>
                 <span>Loading...</span>
               </div>
             }
@@ -414,8 +421,14 @@
         @if (dropdownCreateActionButtonConfig() || paginatedDropdownLoading()) {
           <ng-template pTemplate="footer">
             @if (paginatedDropdownLoading()) {
-              <div class="ee-dropdown-load-more" aria-live="polite">
-                <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+              <div
+                class="ee-dropdown-load-more"
+                aria-live="polite"
+              >
+                <i
+                  class="pi pi-spinner pi-spin"
+                  aria-hidden="true"
+                ></i>
                 <span>Loading...</span>
               </div>
             }
@@ -799,18 +812,25 @@
       class="flex flex-col gap-1 overflow-hidden rounded-lg border transition-colors editor-custom-toolbar"
       [ngClass]="isFieldInvalid ? 'border-red-500' : 'border-border-medium'"
     >
-      <p-editor
-        [id]="config.id"
-        [ngModel]="effectiveValue()"
-        [ngModelOptions]="{ standalone: true }"
-        [invalid]="isFieldInvalid"
-        [style]="{ height: editorConfig?.height ?? '320px' }"
-        [modules]="getEditorModules(editorConfig)"
-        [readonly]="config.readonlyInput || false"
-        [disabled]="config.disabledInput || false"
-        [placeholder]="config.placeholder"
-        (ngModelChange)="onValueChange($event)"
-      ></p-editor>
+      <!-- Quill loads only when an editor field is shown. -->
+      @defer (on immediate) {
+        <app-rich-text-editor
+          [editorId]="config.id"
+          [value]="effectiveValue()"
+          [invalid]="isFieldInvalid"
+          [height]="editorConfig?.height ?? '320px'"
+          [modules]="getEditorModules(editorConfig)"
+          [readonly]="config.readonlyInput || false"
+          [disabled]="config.disabledInput || false"
+          [placeholder]="config.placeholder"
+          (valueChange)="onValueChange($event)"
+        />
+      } @placeholder {
+        <div
+          class="editor-loading"
+          [style.height]="editorConfig?.height ?? '320px'"
+        ></div>
+      }
     </div>
   }
   @case (ALL_DATA_TYPES.LINE_ITEMS) {

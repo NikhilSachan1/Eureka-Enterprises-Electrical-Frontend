@@ -1,0 +1,12 @@
+<p-editor
+  [id]="editorId()"
+  [ngModel]="value()"
+  [ngModelOptions]="{ standalone: true }"
+  [invalid]="invalid()"
+  [style]="{ height: height() }"
+  [modules]="modules()"
+  [readonly]="readonly()"
+  [disabled]="disabled()"
+  [placeholder]="placeholder()"
+  (ngModelChange)="valueChange.emit($event)"
+></p-editor>

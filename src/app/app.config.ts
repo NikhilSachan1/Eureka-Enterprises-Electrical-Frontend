@@ -20,7 +20,7 @@ import {
   withFetch,
   withInterceptors,
 } from '@angular/common/http';
-import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { AppPreset, APP_CONFIG } from '@core/config';
@@ -40,9 +40,7 @@ import {
 } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
-import { AnnouncementService } from '@features/announcement-management/services/announcement.service';
-import { NotificationInboxService } from '@features/notification-management/services/notification-inbox.service';
-import { PushNotificationService } from '@features/notification-management/services/push-notification.service';
+import { BackgroundServicesLoader } from '@core/services/background-services.loader';
 import { AppConfigurationService } from '@shared/services';
 import { lastValueFrom, take } from 'rxjs';
 import { FinancialYearService } from '@core/services/financial-year.service';
@@ -50,7 +48,8 @@ import { FinancialYearService } from '@core/services/financial-year.service';
 export const appConfig: ApplicationConfig = {
   providers: [
     { provide: LOCALE_ID, useValue: APP_CONFIG.NUMBER_FORMATS.LOCALE },
-    provideAnimations(),
+    // The animation engine loads on first use, not in the start-up bundle.
+    provideAnimationsAsync(),
     providePrimeNG({
       theme: {
         preset: AppPreset,
@@ -106,10 +105,7 @@ export const appConfig: ApplicationConfig = {
               '';
             // Skip Firebase SW; also skip unknown/empty URLs so we don't
             // kill a messaging worker mid-install.
-            if (
-              !scriptUrl ||
-              scriptUrl.includes('firebase-messaging-sw.js')
-            ) {
+            if (!scriptUrl || scriptUrl.includes('firebase-messaging-sw.js')) {
               return;
             }
             void reg.unregister();
@@ -123,9 +119,7 @@ export const appConfig: ApplicationConfig = {
       const userPermissionService = inject(UserPermissionService);
       const financialYearService = inject(FinancialYearService);
       const appConfigurationService = inject(AppConfigurationService);
-      const announcementService = inject(AnnouncementService);
-      const notificationInboxService = inject(NotificationInboxService);
-      const pushNotificationService = inject(PushNotificationService);
+      const backgroundServices = inject(BackgroundServicesLoader);
       const criticalStartupState = inject(CriticalStartupStateService);
       const healthCheckService = inject(HealthCheckService);
 
@@ -168,14 +162,11 @@ export const appConfig: ApplicationConfig = {
         return;
       }
 
-      notificationInboxService.startUnreadPolling();
-
-      // Acknowledging announcements or registering this browser for push would
-      // act on the real user's account while a super admin is signed in as them.
-      if (!authService.isImpersonating()) {
-        announcementService.startPeriodicUnacknowledgedCheck();
-        pushNotificationService.registerIfPermitted().subscribe();
-      }
+      // Inbox polling, announcements and push load in the background, after the app is up;
+      // their code is not part of the start-up bundle.
+      void backgroundServices.start({
+        impersonating: authService.isImpersonating(),
+      });
     }),
   ],
 };

@@ -10,15 +10,17 @@
 
   @if (detailVisible()) {
     @if (detailProject(); as target) {
-      <app-project-document-status-detail
-        [visible]="detailVisible()"
-        (visibleChange)="onDetailVisibleChange($event)"
-        [project]="target"
-        [breakdownSnapshot]="scopedBreakdownSnapshot()"
-        [initialDocContext]="docContext() ?? null"
-        [autoExpandPoId]="autoExpandPoId()"
-        [workspaceScope]="scope()"
-      />
+      @defer (when detailVisible()) {
+        <app-project-document-status-detail
+          [visible]="detailVisible()"
+          (visibleChange)="onDetailVisibleChange($event)"
+          [project]="target"
+          [breakdownSnapshot]="scopedBreakdownSnapshot()"
+          [initialDocContext]="docContext() ?? null"
+          [autoExpandPoId]="autoExpandPoId()"
+          [workspaceScope]="scope()"
+        />
+      }
     }
   }
 } @else {

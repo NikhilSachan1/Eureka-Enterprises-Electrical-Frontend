@@ -49,9 +49,7 @@ import {
 } from '../schemas';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { EUserRole } from '@shared/constants/role.constants';
-import { AnnouncementService } from '@features/announcement-management/services/announcement.service';
-import { NotificationInboxService } from '@features/notification-management/services/notification-inbox.service';
-import { PushNotificationService } from '@features/notification-management/services/push-notification.service';
+import { BackgroundServicesLoader } from '@core/services/background-services.loader';
 import { UserDelegationService } from '@features/settings-management/delegation-management/services/user-delegation.service';
 
 @Injectable({
@@ -65,9 +63,8 @@ export class AuthService {
   private readonly notificationService = inject(NotificationService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appPermissionService = inject(AppPermissionService);
-  private readonly announcementService = inject(AnnouncementService);
-  private readonly notificationInboxService = inject(NotificationInboxService);
-  private readonly pushNotificationService = inject(PushNotificationService);
+  /** Announcements, inbox and push (loaded lazily, outside the start-up bundle). */
+  private readonly backgroundServices = inject(BackgroundServicesLoader);
   private readonly userDelegationService = inject(UserDelegationService);
 
   public readonly loggedInUserInitials = computed(() =>
@@ -296,7 +293,7 @@ export class AuthService {
     };
 
     // Unregister FCM device while auth header is still valid.
-    return this.pushNotificationService.unregisterOnLogout().pipe(
+    return this.backgroundServices.unregisterPushOnLogout().pipe(
       catchError(() => of(undefined)),
       switchMap(() =>
         this.apiService.postValidated(
@@ -419,14 +416,16 @@ export class AuthService {
 
   forceLogout(): void {
     if (this.isImpersonating()) {
-      this.logger.warn('Impersonation session ended, returning to admin account');
+      this.logger.warn(
+        'Impersonation session ended, returning to admin account'
+      );
       this.leaveImpersonation();
       return;
     }
 
     this.logger.warn('Force logout: Session expired, redirecting to login');
     // Best-effort: drop FCM registration while the access token may still work.
-    this.pushNotificationService.unregisterOnLogout().subscribe({
+    this.backgroundServices.unregisterPushOnLogout().subscribe({
       next: () => this.completeForceLogout(),
       error: () => this.completeForceLogout(),
     });
@@ -642,8 +641,7 @@ export class AuthService {
    * Clear authentication state
    */
   private clearAuthState(): void {
-    this.announcementService.stopPeriodicUnacknowledgedCheck();
-    this.notificationInboxService.stopUnreadPolling();
+    this.backgroundServices.stopIfLoaded();
     this.userDelegationService.clearManagedUsersCache();
     this.appPermissionService.setAssignableVendorAccess({
       gated: false,
