@@ -58,7 +58,8 @@ import { joinPoTerms, mapPoTermsForForm } from '../../utils/po-terms.util';
 })
 export class EditPoComponent
   extends FormBase<IEditPoUIFormDto>
-  implements OnInit, IDialogActionHandler {
+  implements OnInit, IDialogActionHandler
+{
   private readonly poService = inject(PoService);
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly confirmationDialogService = inject(
@@ -240,7 +241,9 @@ export class EditPoComponent
   }
 
   private setupLineItemAmountSync(): void {
-    const items = this.form.formGroup.get('items') as FormArray<FormGroup> | null;
+    const items = this.form.formGroup.get(
+      'items'
+    ) as FormArray<FormGroup> | null;
     items?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
@@ -252,7 +255,9 @@ export class EditPoComponent
   }
 
   private syncLineItemAmounts(): void {
-    const items = this.form.formGroup.get('items') as FormArray<FormGroup> | null;
+    const items = this.form.formGroup.get(
+      'items'
+    ) as FormArray<FormGroup> | null;
     if (!items) {
       return;
     }
@@ -262,7 +267,9 @@ export class EditPoComponent
       const rate = Number(group.get('rate')?.value);
       const amount = computePoLineItemAmount(quantity, rate);
       if (group.get('amount')?.value !== amount) {
-        group.get('amount')?.setValue(amount, { emitEvent: false, onlySelf: true });
+        group
+          .get('amount')
+          ?.setValue(amount, { emitEvent: false, onlySelf: true });
       }
     });
 
@@ -359,15 +366,15 @@ export class EditPoComponent
     const submit$ = isSystemGenerated
       ? this.poService.editPo(this.prepareFormData(), poId)
       : this.attachmentsService
-        .uploadFinancialDocument(this.form.getFieldData('poAttachment')[0])
-        .pipe(
-          switchMap(attachmentResponse =>
-            this.poService.editPo(
-              this.prepareFormData(attachmentResponse),
-              poId
+          .uploadFinancialDocument(this.form.getFieldData('poAttachment')[0])
+          .pipe(
+            switchMap(attachmentResponse =>
+              this.poService.editPo(
+                this.prepareFormData(attachmentResponse),
+                poId
+              )
             )
-          )
-        );
+          );
 
     submit$
       .pipe(
@@ -402,7 +409,7 @@ export class EditPoComponent
     delete (record as Record<string, unknown>)['projectName'];
     delete (record as Record<string, unknown>)['contractorName'];
     delete (record as Record<string, unknown>)['vendorName'];
-    const {terms} = record;
+    const { terms } = record;
     delete (record as Record<string, unknown>)['terms'];
 
     if (this.isSystemGenerated()) {

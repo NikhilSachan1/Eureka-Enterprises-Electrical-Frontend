@@ -121,7 +121,7 @@ export class AddAdvancePaymentComponent
 
   protected poSummaryRows(
     meta: IPoDropdownRecordDto['meta']
-  ) {
+  ): ReturnType<typeof buildAdvancePaymentPoSummaryRows> {
     return buildAdvancePaymentPoSummaryRows(meta);
   }
 

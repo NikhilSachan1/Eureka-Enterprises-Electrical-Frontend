@@ -1,4 +1,5 @@
 import { EDataType } from '@shared/types';
+import type { IDocWorkspaceContextView } from '@features/site-management/doc-management/shared/types/doc-workspace-context.interface';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { EDocReferenceHierarchyKind } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
 import type { IDocMetricSummaryRow } from '@features/site-management/doc-management/sub-features/book-payment-management/components/book-payment-invoice-summary/book-payment-invoice-summary.component';
@@ -11,10 +12,7 @@ export interface IAdvancePaymentLinkedDocView {
   amountSegments: IDocAmountSegment[];
 }
 
-function locationSubtitle(
-  city?: string | null,
-  state?: string | null
-): string {
+function locationSubtitle(city?: string | null, state?: string | null): string {
   return [city, state]
     .filter((part): part is string => Boolean(part?.trim()))
     .join(', ');
@@ -58,7 +56,7 @@ export function resolveAdvancePaymentSiteName(
 
 export function buildAdvancePaymentWorkspaceContext(
   record: IAdvancePaymentGetBaseResponseDto
-) {
+): IDocWorkspaceContextView {
   return {
     companyName: record.company?.name ?? '',
     partyName: resolveAdvancePaymentVendorName(record),
@@ -136,7 +134,7 @@ function displayDocDate(value: string | null | undefined): string | null {
 export function buildAdvancePaymentPoDoc(
   record: IAdvancePaymentGetBaseResponseDto
 ): IAdvancePaymentLinkedDocView {
-  const po = record.po;
+  const { po } = record;
   return {
     kind: EDocReferenceHierarchyKind.Po,
     number: displayDocNumber(resolveAdvancePaymentPoNumber(record)),

@@ -33,18 +33,14 @@
   #paymentRequestInvoice
   let-row
 >
-  <ng-container
-    *ngTemplateOutlet="linkedDocCard; context: { $implicit: row.invoiceDoc }"
-  />
+  <ng-container *ngTemplateOutlet="linkedDocCard; context: { $implicit: row.invoiceDoc }" />
 </ng-template>
 
 <ng-template
   #paymentRequestPo
   let-row
 >
-  <ng-container
-    *ngTemplateOutlet="linkedDocCard; context: { $implicit: row.poDoc }"
-  />
+  <ng-container *ngTemplateOutlet="linkedDocCard; context: { $implicit: row.poDoc }" />
 </ng-template>
 
 <ng-template

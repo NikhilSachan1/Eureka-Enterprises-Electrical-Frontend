@@ -131,7 +131,9 @@ export class DocReferenceHierarchy {
     invoiceNumber?: string | null;
     advanceNumber?: string | null;
   }): IDocReferenceHierarchyNode | null {
-    const advanceNumber = DocReferenceHierarchy.normalize(context.advanceNumber);
+    const advanceNumber = DocReferenceHierarchy.normalize(
+      context.advanceNumber
+    );
     if (
       advanceNumber &&
       !DocReferenceHierarchy.normalize(context.invoiceNumber)

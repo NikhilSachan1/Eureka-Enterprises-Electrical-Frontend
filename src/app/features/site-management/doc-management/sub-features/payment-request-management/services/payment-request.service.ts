@@ -240,10 +240,7 @@ export class PaymentRequestService {
               error
             );
           } else {
-            this.logger.logUserAction(
-              'Get Payment Request List Error',
-              error
-            );
+            this.logger.logUserAction('Get Payment Request List Error', error);
           }
           return throwError(() => error);
         })
