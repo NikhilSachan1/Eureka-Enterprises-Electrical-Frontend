@@ -23,6 +23,8 @@ export const BankTransferGetRequestSchema = z
     dateRange: z.array(dateField).nullable().optional(),
     poNumber: z.string().nullable().optional(),
     paidFromAccount: uuidField.optional(),
+    /** INVOICE | ADVANCE | GST (held GST released / received). */
+    paymentType: z.enum(['INVOICE', 'ADVANCE', 'GST']).optional(),
     hasPaidFromAccount: z
       .union([z.boolean(), z.literal('true'), z.literal('false')])
       .nullable()
@@ -111,6 +113,14 @@ export const BankTransferGetBaseResponseSchema = z.looseObject({
           }),
         })
         .nullable(),
+      /** Advance-backed booking: advance → PO. */
+      advancePayment: z
+        .looseObject({
+          advanceNumber: z.string().nullable(),
+          po: z.looseObject({ poNumber: z.string() }).nullable().optional(),
+        })
+        .nullable()
+        .optional(),
     })
     .nullable(),
   paymentAdvice: z

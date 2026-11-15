@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { getPaymentTypeFilterFieldConfig } from '@features/site-management/doc-management/shared/config/payment-filter.config';
 import { injectHeaderFilterQueryParams } from '@features/site-management/doc-management/shared/utils/header-filter-query-params.util';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -122,6 +123,13 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
       this.docRouteContext() ?? EDocContext.PURCHASE
     )
   );
+  /** Payment type (invoice / advance / GST); options follow the side. */
+  protected readonly paymentTypeFilterFieldConfig = computed(() =>
+    getPaymentTypeFilterFieldConfig(this.docRouteContext())
+  );
+  protected readonly selectedPaymentType = signal<string | undefined>(
+    this.headerParams.read('paymentType', ['INVOICE', 'ADVANCE', 'GST'])
+  );
   protected readonly hasPaidFromAccountFilterFieldConfig = computed(() =>
     getBankTransferHasPaidFromAccountFilterFieldConfig(
       this.docRouteContext() ?? EDocContext.PURCHASE
@@ -230,6 +238,12 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
       ...(this.selectedPaidFromAccount()
         ? { paidFromAccount: this.selectedPaidFromAccount() }
         : {}),
+      ...(this.selectedPaymentType()
+        ? {
+            paymentType:
+              this.selectedPaymentType() as IBankTransferGetFormDto['paymentType'],
+          }
+        : {}),
       ...(this.selectedHasPaidFromAccount()
         ? { hasPaidFromAccount: this.selectedHasPaidFromAccount() }
         : {}),
@@ -242,6 +256,14 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
       this.searchTerm.set(value.trim());
       this.loadBankTransferList();
     }, 400);
+  }
+
+  protected onPaymentTypeFilterChange(value: unknown): void {
+    this.selectedPaymentType.set(
+      typeof value === 'string' && value.length > 0 ? value : undefined
+    );
+    this.headerParams.write({ paymentType: this.selectedPaymentType() });
+    this.loadBankTransferList();
   }
 
   protected onPaidFromAccountFilterChange(value: unknown): void {
@@ -296,9 +318,12 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
         },
         documentReferenceHierarchy:
           DocReferenceHierarchy.forBankTransferDetailReference({
-            poNumber: invoiceRef?.jmc?.po?.poNumber,
+            poNumber:
+              invoiceRef?.jmc?.po?.poNumber ??
+              record.bookPayment?.advancePayment?.po?.poNumber,
             jmcNumber: invoiceRef?.jmc?.jmcNumber,
             invoiceNumber: invoiceRef?.invoiceNumber,
+            advanceNumber: record.bookPayment?.advancePayment?.advanceNumber,
             bookPayment:
               record.partyType === EDocContext.PURCHASE
                 ? record.createdAt

@@ -24,6 +24,10 @@ export const BookPaymentGetRequestSchema = z
     dateRange: z.array(dateField).nullable().optional(),
     poNumber: z.string().nullable().optional(),
     invoiceNumber: z.string().nullable().optional(),
+    /** INVOICE | ADVANCE | GST (held GST release). */
+    paymentType: z.enum(['INVOICE', 'ADVANCE', 'GST']).optional(),
+    /** Bank transfer done (true) or still pending (false). */
+    hasTransfer: z.boolean().optional(),
     sortOrder,
     sortField,
     pageSize,

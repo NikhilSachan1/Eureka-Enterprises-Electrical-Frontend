@@ -155,7 +155,8 @@ export class DocReferenceHierarchy {
   }
 
   /**
-   * Bank transfer (list + detail doc-ref): **PO → JMC → Invoice** → optional **Book payment** only (no bank-transfer leaf).
+   * Bank transfer (list + detail doc-ref): **PO → JMC → Invoice** (advance transfer: **PO → Advance**)
+   * → optional **Book payment** only (no bank-transfer leaf).
    *
    * `bookPayment` is the **raw** datetime for that tier (e.g. bank transfer `record.createdAt`); pass `null` / omit for sales.
    * It is formatted inside; unparseable / empty values omit the book-payment link.
@@ -164,12 +165,29 @@ export class DocReferenceHierarchy {
     poNumber?: string | null;
     jmcNumber?: string | null;
     invoiceNumber?: string | null;
+    advanceNumber?: string | null;
     bookPayment?: string | Date | null;
   }): IDocReferenceHierarchyNode | null {
     const bookPaymentDisplay =
       DocReferenceHierarchy.formatBankTransferBookPaymentTier(
         context.bookPayment
       );
+    const advanceNumber = DocReferenceHierarchy.normalize(
+      context.advanceNumber
+    );
+    if (
+      advanceNumber &&
+      !DocReferenceHierarchy.normalize(context.invoiceNumber)
+    ) {
+      return DocReferenceHierarchy.link([
+        { kind: EDocReferenceHierarchyKind.Po, value: context.poNumber },
+        { kind: EDocReferenceHierarchyKind.Advance, value: advanceNumber },
+        {
+          kind: EDocReferenceHierarchyKind.BookPayment,
+          value: bookPaymentDisplay,
+        },
+      ]);
+    }
     return DocReferenceHierarchy.link([
       { kind: EDocReferenceHierarchyKind.Po, value: context.poNumber },
       { kind: EDocReferenceHierarchyKind.Jmc, value: context.jmcNumber },
