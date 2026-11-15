@@ -42,6 +42,10 @@ import {
 } from '../../types/gst.dto';
 import { IGstEntry } from '../../types/gst.interface';
 import { ActivatedRoute } from '@angular/router';
+import {
+  injectHeaderFilterQueryParams,
+  selectOptionValues,
+} from '@features/site-management/doc-management/shared/utils/header-filter-query-params.util';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { GstService } from '../../services/gst.service';
@@ -105,11 +109,21 @@ export class GetGstEntryComponent implements OnInit {
 
   protected readonly isVerifiedFilterFieldConfig: IInputFieldsConfig =
     getGstIsVerifiedFilterFieldConfig(this.docContext);
-  protected readonly selectedIsVerified = signal<string | undefined>(undefined);
+  /** Page-header filters live in the URL, so refresh / shared links keep them. */
+  private readonly headerParams = injectHeaderFilterQueryParams();
+  protected readonly selectedIsVerified = signal<string | undefined>(
+    this.headerParams.read(
+      'gstVerified',
+      selectOptionValues(this.isVerifiedFilterFieldConfig)
+    )
+  );
   protected readonly settlementFilterFieldConfig: IInputFieldsConfig =
     getGstSettlementFilterFieldConfig(this.docContext);
   protected readonly selectedSettlementStatus = signal<string | undefined>(
-    undefined
+    this.headerParams.read(
+      'gstHeld',
+      selectOptionValues(this.settlementFilterFieldConfig)
+    )
   );
 
   protected readonly pageHeaderConfig = computed(
@@ -212,6 +226,7 @@ export class GetGstEntryComponent implements OnInit {
     this.selectedSettlementStatus.set(
       typeof value === 'string' && value.length > 0 ? value : undefined
     );
+    this.headerParams.write({ gstHeld: this.selectedSettlementStatus() });
     this.loadGstEntryList();
   }
 
@@ -219,6 +234,7 @@ export class GetGstEntryComponent implements OnInit {
     this.selectedIsVerified.set(
       value === 'true' || value === 'false' ? value : undefined
     );
+    this.headerParams.write({ gstVerified: this.selectedIsVerified() });
     this.loadGstEntryList();
   }
 

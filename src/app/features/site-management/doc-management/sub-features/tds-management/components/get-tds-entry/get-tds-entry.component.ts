@@ -42,6 +42,10 @@ import {
 } from '../../types/tds.dto';
 import { ITdsEntry } from '../../types/tds.interface';
 import { ActivatedRoute } from '@angular/router';
+import {
+  injectHeaderFilterQueryParams,
+  selectOptionValues,
+} from '@features/site-management/doc-management/shared/utils/header-filter-query-params.util';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { TdsService } from '../../services/tds.service';
@@ -109,11 +113,24 @@ export class GetTdsEntryComponent implements OnInit {
   protected readonly isVerifiedFilterFieldConfig: IInputFieldsConfig =
     getTdsIsVerifiedFilterFieldConfig(this.docContext);
   protected readonly isSalesSide = this.docContext === EDocContext.SALES;
-  protected readonly selectedIsVerified = signal<string | undefined>(undefined);
+  /** Page-header filters live in the URL, so refresh / shared links keep them. */
+  private readonly headerParams = injectHeaderFilterQueryParams();
+  protected readonly selectedIsVerified = signal<string | undefined>(
+    this.headerParams.read(
+      'tdsVerified',
+      selectOptionValues(this.isVerifiedFilterFieldConfig)
+    )
+  );
   protected readonly challanFilterFieldConfig: IInputFieldsConfig =
     getTdsChallanFilterFieldConfig(this.docContext);
+  /** Contractor TDS has no challan, so the challan filter is ignored on that side. */
   protected readonly selectedChallanStatus = signal<string | undefined>(
-    undefined
+    this.isSalesSide
+      ? undefined
+      : this.headerParams.read(
+          'tdsChallan',
+          selectOptionValues(this.challanFilterFieldConfig)
+        )
   );
 
   protected readonly pageHeaderConfig = computed(
@@ -216,6 +233,7 @@ export class GetTdsEntryComponent implements OnInit {
     this.selectedChallanStatus.set(
       typeof value === 'string' && value.length > 0 ? value : undefined
     );
+    this.headerParams.write({ tdsChallan: this.selectedChallanStatus() });
     this.loadTdsEntryList();
   }
 
@@ -223,6 +241,7 @@ export class GetTdsEntryComponent implements OnInit {
     this.selectedIsVerified.set(
       value === 'true' || value === 'false' ? value : undefined
     );
+    this.headerParams.write({ tdsVerified: this.selectedIsVerified() });
     this.loadTdsEntryList();
   }
 

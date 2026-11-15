@@ -15,4 +15,15 @@ export const GstEntryDetailGetResponseSchema = z.looseObject({
   verifiedByUser: makeFieldsNullable(UserSchema).nullable(),
   verifyRemarks: z.string().nullable(),
   revertReason: z.string().nullable(),
+  /** Who verified / released / recorded the challan, oldest first. */
+  auditTrail: z
+    .array(
+      z.looseObject({
+        action: z.string(),
+        user: makeFieldsNullable(UserSchema).nullable(),
+        date: z.string().nullable(),
+        notes: z.string().nullable().optional(),
+      })
+    )
+    .default([]),
 });

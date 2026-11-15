@@ -52,9 +52,7 @@
             @if (entryType && entryType !== '') {
               <p-tag
                 [value]="entryType | textCase: 'title'"
-                [severity]="
-                  entryType === ALL_ENTRY_TYPES.PENALTY ? 'danger' : 'info'
-                "
+                [severity]="entryType === ALL_ENTRY_TYPES.PENALTY ? 'danger' : 'info'"
               />
             }
 
@@ -219,6 +217,32 @@
               <p class="text-xs italic">"{{ approvalBy.notes }}"</p>
             }
           </div>
+        }
+
+        @for (step of detail.auditTrail ?? []; track $index) {
+          @let stepByName = getUserName(step.user);
+          @if (shouldShowMetaAuditActor(stepByName)) {
+            <p-divider />
+            <div class="space-y-1 view-detail-meta">
+              <p class="text-xs">
+                {{ step.action }} by
+                <span class="font-semibold">{{ stepByName }}</span>
+                @if (step.date) {
+                  at
+                  <span class="font-semibold">
+                    {{ step.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
+                  </span>
+                  on
+                  <span class="font-semibold">
+                    {{ step.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
+                  </span>
+                }
+              </p>
+              @if (step.notes && step.notes !== '') {
+                <p class="text-xs italic">"{{ step.notes }}"</p>
+              }
+            </div>
+          }
         }
 
         @if (detail.createdBy) {

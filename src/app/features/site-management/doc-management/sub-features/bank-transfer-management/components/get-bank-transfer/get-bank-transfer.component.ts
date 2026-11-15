@@ -8,9 +8,11 @@ import {
   OnDestroy,
   OnInit,
   signal,
+  untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { injectHeaderFilterQueryParams } from '@features/site-management/doc-management/shared/utils/header-filter-query-params.util';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { LoggerService } from '@core/services';
@@ -102,12 +104,19 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
   protected searchInput = '';
+  /** Page-header filters live in the URL, so refresh / shared links keep them. */
+  private readonly headerParams = injectHeaderFilterQueryParams();
   protected readonly selectedPaidFromAccount = signal<string | undefined>(
-    undefined
+    this.headerParams.read('account')
   );
   protected readonly selectedHasPaidFromAccount = signal<
     'true' | 'false' | undefined
-  >(undefined);
+  >(
+    this.headerParams.read('hasAccount', ['true', 'false']) as
+      | 'true'
+      | 'false'
+      | undefined
+  );
   protected readonly paidFromAccountFilterFieldConfig = computed(() =>
     getBankTransferPaidFromAccountFilterFieldConfig(
       this.docRouteContext() ?? EDocContext.PURCHASE
@@ -132,9 +141,19 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
       const projectId = this.workspaceContext.selectedProjectId();
       this.workspaceContext.filterSubmitVersion();
 
+      // Accounts belong to the project's company: clear them when the user switches project,
+      // but keep the ones restored from the URL on first load.
       if (projectId !== this.lastProjectIdForHeaderFilters) {
-        this.selectedPaidFromAccount.set(undefined);
-        this.selectedHasPaidFromAccount.set(undefined);
+        if (this.lastProjectIdForHeaderFilters !== undefined) {
+          this.selectedPaidFromAccount.set(undefined);
+          this.selectedHasPaidFromAccount.set(undefined);
+          untracked(() =>
+            this.headerParams.write({
+              account: undefined,
+              hasAccount: undefined,
+            })
+          );
+        }
         this.lastProjectIdForHeaderFilters = projectId;
       }
 
@@ -229,6 +248,7 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
     this.selectedPaidFromAccount.set(
       typeof value === 'string' && value.length > 0 ? value : undefined
     );
+    this.headerParams.write({ account: this.selectedPaidFromAccount() });
     this.loadBankTransferList();
   }
 
@@ -236,6 +256,7 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
     this.selectedHasPaidFromAccount.set(
       value === 'true' || value === 'false' ? value : undefined
     );
+    this.headerParams.write({ hasAccount: this.selectedHasPaidFromAccount() });
     this.loadBankTransferList();
   }
 
