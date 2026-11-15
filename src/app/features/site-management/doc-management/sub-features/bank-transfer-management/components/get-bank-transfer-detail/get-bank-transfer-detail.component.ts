@@ -107,9 +107,12 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
       {
         label: 'Document reference',
         value: DocReferenceHierarchy.forBankTransferDetailReference({
-          poNumber: invoiceRef?.jmc?.po?.poNumber,
+          poNumber:
+            invoiceRef?.jmc?.po?.poNumber ??
+            record.bookPayment?.advancePayment?.po?.poNumber,
           jmcNumber: invoiceRef?.jmc?.jmcNumber,
           invoiceNumber: invoiceRef?.invoiceNumber,
+          advanceNumber: record.bookPayment?.advancePayment?.advanceNumber,
           bookPayment:
             record.partyType === EDocContext.PURCHASE ? record.createdAt : null,
         }),

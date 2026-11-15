@@ -34,10 +34,15 @@
         type="text"
         [(ngModel)]="searchInput"
         (ngModelChange)="onSearchInput($event)"
-        placeholder="Search by UTR / Reference / Invoice Number"
+        placeholder="Search by UTR / Reference / Invoice / Advance Number"
         class="w-full"
       />
     </p-iconfield>
+    <app-input-field
+      [inputFieldConfig]="paymentTypeFilterFieldConfig()"
+      [fieldValue]="selectedPaymentType()"
+      (onFieldChange)="onPaymentTypeFilterChange($event)"
+    />
     <app-input-field
       [inputFieldConfig]="paidFromAccountFilterFieldConfig()"
       [fieldValue]="selectedPaidFromAccount()"

@@ -56,6 +56,19 @@ import { UnlockRequestComponent } from '@features/site-management/doc-management
 import { getBookPaymentTypeLabel } from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
 
 import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+import {
+  BOOKING_TRANSFER_FILTER_FIELD_CONFIG,
+  getPaymentTypeFilterFieldConfig,
+} from '@features/site-management/doc-management/shared/config/payment-filter.config';
+import {
+  injectHeaderFilterQueryParams,
+  selectOptionValues,
+} from '@features/site-management/doc-management/shared/utils/header-filter-query-params.util';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { FormsModule } from '@angular/forms';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-get-book-payment',
@@ -67,6 +80,11 @@ import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-mana
     DocReferenceComponent,
     DocWorkspaceContextComponent,
     UnlockRequestComponent,
+    InputFieldComponent,
+    FormsModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
   ],
   templateUrl: './get-book-payment.component.html',
   styleUrl: './get-book-payment.component.scss',
@@ -91,6 +109,24 @@ export class GetBookPaymentComponent implements OnInit {
     undefined
   );
   protected readonly searchTerm = signal<string>('');
+  protected searchInput = '';
+  private searchDebounceTimer?: ReturnType<typeof setTimeout>;
+
+  /** Header filters (kept in the URL): payment type, and whether the transfer is done. */
+  private readonly headerParams = injectHeaderFilterQueryParams();
+  protected readonly paymentTypeFilterFieldConfig =
+    getPaymentTypeFilterFieldConfig(EDocContext.PURCHASE);
+  protected readonly transferFilterFieldConfig =
+    BOOKING_TRANSFER_FILTER_FIELD_CONFIG;
+  protected readonly selectedPaymentType = signal<string | undefined>(
+    this.headerParams.read(
+      'paymentType',
+      selectOptionValues(this.paymentTypeFilterFieldConfig)
+    )
+  );
+  protected readonly selectedTransfer = signal<string | undefined>(
+    this.headerParams.read('transfer', ['true', 'false'])
+  );
 
   protected readonly pageHeaderConfig = computed(() =>
     this.getPageHeaderConfig()
@@ -113,7 +149,9 @@ export class GetBookPaymentComponent implements OnInit {
     const tabSearch = readDocTabSearch(this.route.snapshot.queryParamMap);
     if (tabSearch) {
       this.searchTerm.set(tabSearch);
+      this.searchInput = tabSearch;
     }
+    this.destroyRef.onDestroy(() => clearTimeout(this.searchDebounceTimer));
 
     const docContext = this.route.parent?.snapshot.data[
       'docContext'
@@ -173,11 +211,39 @@ export class GetBookPaymentComponent implements OnInit {
       ...base,
       ...(workspaceSearch ? { poNumber: workspaceSearch } : {}),
       ...(this.searchTerm() ? { invoiceNumber: this.searchTerm() } : {}),
+      ...(this.selectedPaymentType()
+        ? {
+            paymentType:
+              this.selectedPaymentType() as IBookPaymentGetFormDto['paymentType'],
+          }
+        : {}),
+      ...(this.selectedTransfer()
+        ? { hasTransfer: this.selectedTransfer() === 'true' }
+        : {}),
     };
   }
 
-  protected onSearchChange(term: string): void {
-    this.searchTerm.set(term);
+  protected onSearchInput(value: string): void {
+    clearTimeout(this.searchDebounceTimer);
+    this.searchDebounceTimer = setTimeout(() => {
+      this.searchTerm.set(value.trim());
+      this.loadBookPaymentList();
+    }, 400);
+  }
+
+  protected onPaymentTypeFilterChange(value: unknown): void {
+    this.selectedPaymentType.set(
+      typeof value === 'string' && value.length > 0 ? value : undefined
+    );
+    this.headerParams.write({ paymentType: this.selectedPaymentType() });
+    this.loadBookPaymentList();
+  }
+
+  protected onTransferFilterChange(value: unknown): void {
+    this.selectedTransfer.set(
+      value === 'true' || value === 'false' ? value : undefined
+    );
+    this.headerParams.write({ transfer: this.selectedTransfer() });
     this.loadBookPaymentList();
   }
 
@@ -339,8 +405,7 @@ export class GetBookPaymentComponent implements OnInit {
       showHeaderButton: true,
       showGoBackButton: false,
       showNotificationBell: false,
-      showSearch: true,
-      searchPlaceholder: 'Search by Invoice Number',
+      showHeaderFilter: true,
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
