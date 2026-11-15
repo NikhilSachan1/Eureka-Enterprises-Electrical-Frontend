@@ -67,10 +67,13 @@ import {
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { GetTdsEntryDetailComponent } from '../get-tds-entry-detail/get-tds-entry-detail.component';
 
+import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+
 @Component({
   selector: 'app-get-tds-entry',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    WorkspaceDocMetricsComponent,
     PageHeaderComponent,
     InputFieldComponent,
     DataTableComponent,

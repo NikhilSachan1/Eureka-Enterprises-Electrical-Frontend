@@ -64,10 +64,13 @@ import {
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { GetGstEntryDetailComponent } from '../get-gst-entry-detail/get-gst-entry-detail.component';
 
+import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+
 @Component({
   selector: 'app-get-gst-entry',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    WorkspaceDocMetricsComponent,
     PageHeaderComponent,
     InputFieldComponent,
     DataTableComponent,
