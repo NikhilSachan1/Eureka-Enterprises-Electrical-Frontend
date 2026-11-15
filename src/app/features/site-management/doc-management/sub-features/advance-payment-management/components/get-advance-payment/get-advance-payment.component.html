@@ -5,6 +5,11 @@
   (onSearch)="onSearchChange($event)"
 />
 
+<app-workspace-doc-metrics
+  kind="advance"
+  [side]="docRouteContext() ?? null"
+/>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"
@@ -33,9 +38,7 @@
   #advancePaymentPo
   let-row
 >
-  <ng-container
-    *ngTemplateOutlet="linkedDocCard; context: { $implicit: row.poDoc }"
-  />
+  <ng-container *ngTemplateOutlet="linkedDocCard; context: { $implicit: row.poDoc }" />
 </ng-template>
 
 <ng-template

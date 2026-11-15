@@ -180,7 +180,10 @@ export class AddPaymentRequestComponent
     this.selectedInvoiceMeta.set(null);
   }
 
-  private applyInvoiceOptions(options: IOptionDropdown[], loading: boolean): void {
+  private applyInvoiceOptions(
+    options: IOptionDropdown[],
+    loading: boolean
+  ): void {
     if (!this.form) {
       return;
     }

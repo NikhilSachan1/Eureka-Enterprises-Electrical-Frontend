@@ -318,9 +318,6 @@
               Nothing pending
             } @else {
               {{ section.openCount | number: config.DEFAULT : config.LOCALE }} open
-              @if (section.oldestDays > 0) {
-                · oldest {{ section.oldestDays }}d
-              }
             }
           </p>
         </div>
@@ -371,14 +368,6 @@
                     aria-hidden="true"
                   ></span>
                   <span class="gap-row__label">{{ row.label }}</span>
-                  @if (!row.valueLoading && row.value > 0 && row.gapOldestDays) {
-                    <span
-                      [class]="'gap-row__age gap-row__age--' + ageTone(row.gapOldestDays)"
-                      [attr.title]="'Oldest waiting ' + row.gapOldestDays + ' days'"
-                    >
-                      {{ row.gapOldestDays }}d
-                    </span>
-                  }
                   <span
                     class="gap-row__count"
                     [class.gap-row__count--zero]="!row.valueLoading && row.value === 0"

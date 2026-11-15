@@ -13,33 +13,55 @@
 
 @if (showOverviewPanel() && selectedProjectId()) {
   <section
-    class="workspace-overview-panel"
-    [class.workspace-overview-panel--with-timeline]="canViewProjectTimeline()"
+    class="ws-overview"
+    [class.ws-overview--collapsed]="!overviewExpanded()"
   >
-    <div class="workspace-overview-panel__body">
-      <div class="workspace-overview-panel__detail">
-        <app-project-workspace-info-card
-          [overview]="projectOverview()"
-          [loading]="isProjectOverviewLoading()"
-        />
-      </div>
-      @if (canViewProjectTimeline()) {
-        <div
-          class="workspace-overview-panel__divider"
+    <div class="ws-overview__strip">
+      <app-project-workspace-info-card
+        class="ws-overview__info"
+        [overview]="projectOverview()"
+        [loading]="isProjectOverviewLoading()"
+      />
+      <button
+        type="button"
+        class="ws-overview__toggle"
+        [attr.aria-expanded]="overviewExpanded()"
+        [attr.aria-label]="
+          overviewExpanded() ? 'Hide document status and activity' : 'Show document status and activity'
+        "
+        [pTooltip]="overviewExpanded() ? 'Hide details' : 'Show document status and activity'"
+        tooltipPosition="left"
+        (click)="toggleOverview()"
+      >
+        <i
+          class="pi"
+          [class.pi-chevron-up]="overviewExpanded()"
+          [class.pi-chevron-down]="!overviewExpanded()"
           aria-hidden="true"
-        ></div>
-        <div class="workspace-overview-panel__timeline">
-          <app-get-project-timeline [projectId]="selectedProjectId()!" />
-        </div>
-      }
+        ></i>
+      </button>
     </div>
 
-    <app-project-document-status-block
-      [projectId]="selectedProjectId() ?? null"
-      [overview]="projectOverview()"
-      [showHeader]="true"
-      logSource="project-workspace"
-    />
+    @if (overviewExpanded()) {
+      <div
+        class="ws-overview__tiles"
+        [class.ws-overview__tiles--single]="!canViewProjectTimeline()"
+      >
+        <div class="ws-overview__tile">
+          <app-project-document-status-block
+            [projectId]="selectedProjectId() ?? null"
+            [overview]="projectOverview()"
+            [showHeader]="true"
+            logSource="project-workspace"
+          />
+        </div>
+        @if (canViewProjectTimeline()) {
+          <div class="ws-overview__tile">
+            <app-get-project-timeline [projectId]="selectedProjectId()!" />
+          </div>
+        }
+      </div>
+    }
   </section>
 }
 

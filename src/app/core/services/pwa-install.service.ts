@@ -1,4 +1,10 @@
-import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import {
+  DestroyRef,
+  Injectable,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 
 /** Chromium-only event; not in lib.dom yet. */
 interface BeforeInstallPromptEvent extends Event {
@@ -24,18 +30,23 @@ export class PwaInstallService {
   private readonly snoozed = signal(this.readSnoozed());
   private readonly mobile = signal(this.matchMobile());
 
+  /** Phone / tablet layout — the banner is a full-width bottom sheet there, a corner card on desktop. */
+  readonly isMobile = this.mobile.asReadonly();
+
   /** iOS Safari has no install API — users must use Share → Add to Home Screen. */
   readonly isIos = this.detectIosSafari();
 
-  /** True when the app can be installed (native prompt or iOS manual steps). */
+  /** Safari on macOS 17+ has no install API either — users use File → Add to Dock. */
+  readonly isMacSafari = this.detectMacSafari();
+
+  /** True when the app can be installed (native prompt, or Safari's manual steps). */
   readonly canInstall = computed(
-    () => !this.installed() && (this.canPrompt() || this.isIos)
+    () =>
+      !this.installed() && (this.canPrompt() || this.isIos || this.isMacSafari)
   );
 
-  /** Whether the mobile install banner should be visible. */
-  readonly showBanner = computed(
-    () => this.canInstall() && this.mobile() && !this.snoozed()
-  );
+  /** Whether the install banner should be visible (mobile and desktop). */
+  readonly showBanner = computed(() => this.canInstall() && !this.snoozed());
 
   constructor() {
     if (typeof window === 'undefined') {
@@ -115,7 +126,25 @@ export class PwaInstallService {
   }
 
   private matchMobile(): boolean {
-    return typeof window !== 'undefined' && !!window.matchMedia?.(MOBILE_QUERY).matches;
+    return (
+      typeof window !== 'undefined' &&
+      !!window.matchMedia?.(MOBILE_QUERY).matches
+    );
+  }
+
+  private detectMacSafari(): boolean {
+    if (typeof navigator === 'undefined') {
+      return false;
+    }
+    const ua = navigator.userAgent;
+    // A Mac with touch points is an iPad (handled by isIos).
+    const isMac = ua.includes('Macintosh') && navigator.maxTouchPoints <= 1;
+    const isSafari =
+      ua.includes('Safari') &&
+      !/Chrome|Chromium|CriOS|Edg|Firefox|FxiOS|OPR/.test(ua);
+    // "Add to Dock" arrived in Safari 17.
+    const version = Number(/Version\/(\d+)/.exec(ua)?.[1] ?? 0);
+    return isMac && isSafari && version >= 17;
   }
 
   private detectIosSafari(): boolean {
@@ -128,7 +157,9 @@ export class PwaInstallService {
       /iPad|iPhone|iPod/.test(ua) ||
       (ua.includes('Macintosh') && navigator.maxTouchPoints > 1);
     // Only Safari can add to home screen on older iOS; skip in-app browsers.
-    const isOtherBrowser = /CriOS|FxiOS|EdgiOS|OPiOS|FBAN|FBAV|Instagram/.test(ua);
+    const isOtherBrowser = /CriOS|FxiOS|EdgiOS|OPiOS|FBAN|FBAV|Instagram/.test(
+      ua
+    );
     return isIosDevice && !isOtherBrowser;
   }
 }

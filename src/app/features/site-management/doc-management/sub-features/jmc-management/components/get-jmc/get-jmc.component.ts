@@ -63,10 +63,13 @@ import { ensureWorkspaceTableBreakdown } from '@features/site-management/project
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
+import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+
 @Component({
   selector: 'app-get-jmc',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    WorkspaceDocMetricsComponent,
     PageHeaderComponent,
     DataTableComponent,
     UnlockRequestComponent,
@@ -101,7 +104,9 @@ export class GetJmcComponent implements OnInit {
     { optional: true }
   );
 
-  protected readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly docRouteContext = signal<EDocContext | undefined>(
+    undefined
+  );
   protected readonly searchTerm = signal<string>('');
 
   protected readonly pageHeaderConfig = computed(
@@ -159,10 +164,7 @@ export class GetJmcComponent implements OnInit {
             mappedData => this.table.setData(mappedData)
           );
           this.table.updateTableConfig({ totalRecords });
-          ensureWorkspaceTableBreakdown(
-            this.workspaceDocumentStatus,
-            records
-          );
+          ensureWorkspaceTableBreakdown(this.workspaceDocumentStatus, records);
           this.logger.logUserAction('JMC records loaded successfully');
         },
       });

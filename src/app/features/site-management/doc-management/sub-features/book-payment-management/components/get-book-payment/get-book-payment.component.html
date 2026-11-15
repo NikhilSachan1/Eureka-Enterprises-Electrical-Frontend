@@ -31,6 +31,11 @@
   (onSearch)="onSearchChange($event)"
 />
 
+<app-workspace-doc-metrics
+  kind="bookPayment"
+  [side]="docRouteContext() ?? null"
+/>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"

@@ -104,9 +104,7 @@ export class RejectPaymentRequestComponent
         },
         error: error => {
           this.logger.error('Failed to reject payment request', error);
-          this.notificationService.error(
-            'Failed to reject payment request.'
-          );
+          this.notificationService.error('Failed to reject payment request.');
         },
       });
   }

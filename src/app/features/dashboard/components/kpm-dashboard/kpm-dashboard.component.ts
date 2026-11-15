@@ -124,8 +124,6 @@ interface IDocGapSection extends IDocPartySection {
   readonly groups: IDocGapGroup[];
   /** Gaps that need action (informational rows left out). */
   readonly openCount: number;
-  /** Longest any of those has been waiting, in days. */
-  readonly oldestDays: number;
 }
 
 /** Gap groups: the document that is missing, in chain order. The server tags each gap. */
@@ -284,10 +282,6 @@ export class KpmDashboardComponent implements OnInit {
         ...section,
         groups: this.groupGapRows(section.rows, side.party),
         openCount: problems.reduce((sum, row) => sum + row.value, 0),
-        oldestDays: problems.reduce(
-          (max, row) => Math.max(max, row.gapOldestDays ?? 0),
-          0
-        ),
       };
     });
   });
@@ -584,12 +578,6 @@ export class KpmDashboardComponent implements OnInit {
         };
       })
       .filter(group => group.rows.length > 0);
-  }
-
-  /** How urgent a waiting time reads: up to a week is fresh, up to a month is ageing. */
-  protected ageTone(days: number | undefined): 'fresh' | 'ageing' | 'stale' {
-    const d = days ?? 0;
-    return d > 30 ? 'stale' : d > 7 ? 'ageing' : 'fresh';
   }
 
   private toSection(
@@ -1086,7 +1074,6 @@ export class KpmDashboardComponent implements OnInit {
           gapKey: gap.key,
           gapParty: side.apiParty,
           gapGroup: gap.group,
-          gapOldestDays: sideGap?.oldestDays ?? 0,
         };
       });
   }

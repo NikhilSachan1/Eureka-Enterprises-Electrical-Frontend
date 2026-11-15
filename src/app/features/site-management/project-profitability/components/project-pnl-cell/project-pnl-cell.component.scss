@@ -1,0 +1,193 @@
+// P&L in the project list: margin up top, a bar of cost (indigo) against what is left (green),
+// and net / revenue underneath.
+
+:host {
+  display: block;
+  min-width: 0;
+
+  --pnl-text: var(--text-primary-color, #0f172a);
+  --pnl-muted: var(--text-secondary-color, #64748b);
+  --pnl-border: var(--border-light-color, var(--surface-border, #e2e8f0));
+  --pnl-surface: var(--background-paper-color, var(--background-default-color, #fff));
+  --pnl-subtle: var(--surface-100, #f1f5f9);
+  --pnl-cost: #6366f1;
+}
+
+[data-tone="profit"] {
+  --tone: #16a34a;
+}
+
+[data-tone="loss"] {
+  --tone: #dc2626;
+}
+
+:host-context(.dark-theme) {
+  [data-tone="profit"] {
+    --tone: #4ade80;
+  }
+
+  [data-tone="loss"] {
+    --tone: #f87171;
+  }
+}
+
+.pnl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  width: 100%;
+  min-width: 9.5rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--pnl-border);
+  border-radius: 0.65rem;
+  background: var(--pnl-surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+button.pnl {
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--tone) 45%, var(--pnl-border));
+    box-shadow: 0 8px 20px -14px color-mix(in srgb, var(--tone) 80%, transparent);
+
+    .pnl__go {
+      color: var(--tone);
+      transform: translateX(2px);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--tone);
+    outline-offset: 2px;
+  }
+}
+
+.pnl__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.pnl__margin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--tone);
+
+  .pi {
+    font-size: 0.7rem;
+  }
+}
+
+.pnl__go {
+  font-size: 0.6rem;
+  color: var(--pnl-muted);
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
+}
+
+// Whole bar = revenue. Indigo = cost, the green that shows through = profit.
+.pnl__bar {
+  display: block;
+  height: 0.35rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--tone);
+}
+
+.pnl__bar-cost {
+  display: block;
+  height: 100%;
+  border-radius: 999px 0 0 999px;
+  background: var(--pnl-cost);
+
+  [data-tone="loss"] & {
+    background: var(--tone);
+  }
+}
+
+.pnl__meta {
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--pnl-muted);
+
+  b {
+    font-weight: 700;
+    color: var(--pnl-text);
+  }
+}
+
+.pnl-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  color: var(--pnl-muted);
+
+  .pi {
+    font-size: 0.72rem;
+  }
+}
+
+// Placeholder while the batch loads.
+.pnl--loading {
+  gap: 0.4rem;
+}
+
+.pnl__skeleton {
+  display: block;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--pnl-subtle),
+    color-mix(in srgb, var(--pnl-subtle) 40%, var(--pnl-surface)),
+    var(--pnl-subtle)
+  );
+  background-size: 200% 100%;
+  animation: pnl-shimmer 1.2s linear infinite;
+
+  &--value {
+    width: 45%;
+    height: 0.85rem;
+  }
+
+  &--bar {
+    width: 100%;
+    height: 0.35rem;
+  }
+
+  &--meta {
+    width: 70%;
+  }
+}
+
+@keyframes pnl-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pnl__skeleton {
+    animation: none;
+  }
+
+  button.pnl,
+  .pnl__go {
+    transition: none;
+  }
+}

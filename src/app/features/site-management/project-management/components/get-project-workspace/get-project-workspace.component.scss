@@ -1,55 +1,89 @@
-.workspace-overview-panel {
-  margin-bottom: 1rem;
-  overflow: hidden;
-  border: 1px solid var(--surface-border);
-  border-radius: 0.75rem;
-  background: #ffffff;
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.05),
-    0 6px 18px rgba(15, 23, 42, 0.04);
+// Project summary above the workspace tabs: a compact project strip, then document status and
+// recent activity side by side. The tiles fold away behind the strip's toggle.
+
+.ws-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
   min-width: 0;
+  margin-bottom: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--surface-border, #e2e8f0);
+  border-radius: 0.9rem;
+  background:
+    radial-gradient(
+      120% 160% at 0% 0%,
+      color-mix(in srgb, var(--primary-color, #3b82f6) 6%, transparent),
+      transparent 55%
+    ),
+    var(--background-default-color, #fff);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
 
-  &__body {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
+  &--collapsed {
+    padding-block: 0.8rem;
+  }
+}
+
+.ws-overview__strip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.ws-overview__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ws-overview__toggle {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--surface-border, #e2e8f0);
+  border-radius: 0.55rem;
+  background: var(--background-default-color, #fff);
+  color: var(--text-secondary-color, #64748b);
+  cursor: pointer;
+
+  .pi {
+    font-size: 0.72rem;
   }
 
-  &--with-timeline &__body {
-    @media (width >= 992px) {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-      align-items: stretch;
-    }
+  &:hover {
+    color: var(--primary-color, #3b82f6);
+    border-color: color-mix(in srgb, var(--primary-color, #3b82f6) 45%, var(--surface-border, #e2e8f0));
   }
 
-  &__detail,
-  &__timeline {
-    min-width: 0;
+  &:focus-visible {
+    outline: 2px solid var(--primary-color, #3b82f6);
+    outline-offset: 1px;
   }
+}
 
-  &__detail {
-    padding: 1.25rem 1.5rem;
+.ws-overview__tiles {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: stretch;
+
+  &--single {
+    grid-template-columns: minmax(0, 1fr);
   }
+}
 
-  &--with-timeline &__timeline {
-    padding: 1.25rem 1.5rem;
-  }
+.ws-overview__tile {
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--surface-border, #e2e8f0);
+  border-radius: 0.75rem;
+  background: var(--background-default-color, #fff);
+}
 
-  &__divider {
-    flex-shrink: 0;
-    background: #e2e8f0;
-
-    @media (width < 992px) {
-      height: 1px;
-      width: calc(100% - 3rem);
-      margin: 0 auto;
-    }
-
-    @media (width >= 992px) {
-      width: 1px;
-      margin: 1.25rem 0;
-      align-self: stretch;
-    }
+@media (max-width: 991px) {
+  .ws-overview__tiles {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

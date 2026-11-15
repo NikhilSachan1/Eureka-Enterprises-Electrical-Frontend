@@ -164,8 +164,7 @@ export class GetAdvancePaymentDetailComponent extends DrawerDetailBase {
     record: IAdvancePaymentDetailGetResponseDto
   ): IEntityViewDetails {
     return {
-      name:
-        resolveAdvancePaymentVendorName(record).trim() || 'Advance payment',
+      name: resolveAdvancePaymentVendorName(record).trim() || 'Advance payment',
       subtitle:
         record.advanceNumber ??
         resolveAdvancePaymentPoNumber(record) ??

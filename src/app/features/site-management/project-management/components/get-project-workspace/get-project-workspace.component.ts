@@ -44,6 +44,17 @@ import {
   setProjectDateFieldLoading,
 } from '../../utility/project-overview-date.util';
 
+import { TooltipModule } from 'primeng/tooltip';
+const OVERVIEW_EXPANDED_KEY = 'project_workspace_overview_expanded';
+
+function readOverviewExpanded(): boolean {
+  try {
+    return localStorage.getItem(OVERVIEW_EXPANDED_KEY) !== '0';
+  } catch {
+    return true;
+  }
+}
+
 @Component({
   selector: 'app-get-project-workspace',
   imports: [
@@ -53,6 +64,7 @@ import {
     ProjectDocumentStatusBlockComponent,
     PageHeaderComponent,
     SearchFilterComponent,
+    TooltipModule,
   ],
   templateUrl: './get-project-workspace.component.html',
   styleUrl: './get-project-workspace.component.scss',
@@ -86,6 +98,8 @@ export class GetProjectWorkspaceComponent {
     Partial<IProjectWorkspaceSearchFilterFormDto>
   >({});
   protected readonly showOverviewPanel = signal(false);
+  /** Document status and activity tiles under the project strip; the choice is remembered. */
+  protected readonly overviewExpanded = signal(readOverviewExpanded());
   protected readonly isProjectOverviewLoading = signal(false);
 
   private readonly overviewProjectId = signal<string | undefined>(undefined);
@@ -124,6 +138,16 @@ export class GetProjectWorkspaceComponent {
   protected readonly visibleWorkspaceTabs = computed((): ITabItem[] =>
     this.buildWorkspaceTabs()
   );
+
+  protected toggleOverview(): void {
+    const next = !this.overviewExpanded();
+    this.overviewExpanded.set(next);
+    try {
+      localStorage.setItem(OVERVIEW_EXPANDED_KEY, next ? '1' : '0');
+    } catch {
+      // Storage blocked — the choice lasts for this visit only.
+    }
+  }
 
   protected readonly canViewProjectTimeline = computed(() =>
     this.appPermissionService.hasPermission(APP_PERMISSION.PROJECT.TIMELINE)
@@ -229,8 +253,8 @@ export class GetProjectWorkspaceComponent {
   }
 
   private applyRoutedProject(projectId: string | undefined): void {
-    const formProjectId = this.workspaceFilterForm?.formGroup.get('projectName')
-      ?.value;
+    const formProjectId =
+      this.workspaceFilterForm?.formGroup.get('projectName')?.value;
     const currentProjectId =
       typeof formProjectId === 'string' && formProjectId.length > 0
         ? formProjectId
@@ -254,8 +278,8 @@ export class GetProjectWorkspaceComponent {
       this.showOverviewPanel.set(false);
       this.clearProjectOverviewState();
       this.workspaceContext.setActiveProjectId(undefined);
-      const { projectName: _projectName, ...filtersWithoutProject } =
-        this.workspaceContext.filters();
+      const filtersWithoutProject = { ...this.workspaceContext.filters() };
+      delete filtersWithoutProject.projectName;
 
       if (!this.workspaceFilterForm) {
         this.workspaceContext.applyFilters(filtersWithoutProject);
@@ -571,10 +595,7 @@ export class GetProjectWorkspaceComponent {
     return Object.entries(SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG.fields)
       .filter(([fieldName, field]) => {
         if (
-          !this.isFieldVisibleForTab(
-            field as { visibleOnTabs?: string[] },
-            tab
-          )
+          !this.isFieldVisibleForTab(field as { visibleOnTabs?: string[] }, tab)
         ) {
           return false;
         }

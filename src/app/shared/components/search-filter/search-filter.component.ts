@@ -195,9 +195,8 @@ export class SearchFilterComponent implements OnInit {
   /** Applied filters other than the search box, shown on the "Filters" toggle. */
   protected readonly appliedExtraFilterCount = computed(
     () =>
-      this.appliedChips().filter(
-        chip => chip.fieldName !== SEARCH_FIELD_NAME
-      ).length
+      this.appliedChips().filter(chip => chip.fieldName !== SEARCH_FIELD_NAME)
+        .length
   );
 
   protected form!: IEnhancedForm<Record<string, unknown>>;
@@ -241,6 +240,19 @@ export class SearchFilterComponent implements OnInit {
         if (this.restoreFromUrlPending && table) {
           this.applyRestoredFilters();
         }
+      });
+    });
+
+    // Pages such as the project workspace show different fields per tab: rebuild the field
+    // layout whenever the visible list changes, not only on init.
+    effect(() => {
+      this.visibleFieldNames();
+      untracked(() => {
+        if (!this.form) {
+          return;
+        }
+        this.resolveFieldLayout();
+        this.changeDetectorRef.markForCheck();
       });
     });
 
@@ -670,26 +682,20 @@ export class SearchFilterComponent implements OnInit {
     if (Array.isArray(value)) {
       const items = value.filter(hasFilterValue);
       if (items.length && items.every(item => item instanceof Date)) {
-        return items
-          .map(item => CHIP_DATE_FORMAT.format(item))
-          .join(' – ');
+        return items.map(item => CHIP_DATE_FORMAT.format(item)).join(' – ');
       }
       const options = this.resolveOptions(config);
       const labels = items.map(item => findOptionLabel(options, item));
       if (labels.every(label => label === null)) {
         return `${items.length} selected`;
       }
-      const named = labels.map(
-        (label, index) => label ?? String(items[index])
-      );
+      const named = labels.map((label, index) => label ?? String(items[index]));
       const extra = named.length - CHIP_MAX_LABELS;
       return extra > 0
         ? `${named.slice(0, CHIP_MAX_LABELS).join(', ')} +${extra}`
         : named.join(', ');
     }
-    return (
-      findOptionLabel(this.resolveOptions(config), value) ?? String(value)
-    );
+    return findOptionLabel(this.resolveOptions(config), value) ?? String(value);
   }
 
   /** Static options plus already-loaded configuration dropdowns; used only for chip labels. */

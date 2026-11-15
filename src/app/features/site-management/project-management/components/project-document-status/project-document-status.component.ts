@@ -25,6 +25,33 @@ export type TDocStatusLayoutMode =
   | 'single'
   | 'none';
 
+/** How a side stands overall: documents missing, approvals waiting, or nothing to do. */
+export type TDocStatusHealth = 'danger' | 'warn' | 'ok';
+
+/** One side (contractor / vendor), or the only side, as the component shows it. */
+export interface IDocStatusRow {
+  key: 'contractor' | 'vendor' | 'single';
+  label: string | null;
+  metrics: IDocStatusMetric[];
+  health: TDocStatusHealth;
+  summary: string;
+  /** The three columns of the grid; amount is absent where the surface hides it. */
+  missing: IDocStatusMetric | null;
+  pending: IDocStatusMetric | null;
+  amount: IDocStatusMetric | null;
+}
+
+const HEALTH_SUMMARY: Record<TDocStatusHealth, string> = {
+  danger: 'Needs documents',
+  warn: 'Waiting for approval',
+  ok: 'All in order',
+};
+
+/**
+ * Document status of a project / PO / JMC as a small grid: a row per side, with what is missing,
+ * what waits for approval and what is left to invoice or pay. Used in the project
+ * list, the workspace tile, the PO / JMC tables and the missing-documents dialog.
+ */
 @Component({
   selector: 'app-project-document-status',
   imports: [NgTemplateOutlet],
@@ -54,7 +81,8 @@ export class ProjectDocumentStatusComponent {
   readonly viewDetails = output<void>();
 
   protected readonly isDual = computed(
-    () => this.salesStatus() !== undefined || this.purchaseStatus() !== undefined
+    () =>
+      this.salesStatus() !== undefined || this.purchaseStatus() !== undefined
   );
 
   protected readonly layoutMode = computed((): TDocStatusLayoutMode => {
@@ -113,9 +141,69 @@ export class ProjectDocumentStatusComponent {
     );
   });
 
+  /** Sides to draw, in order; a single row when only one status is given. */
+  /** The amount column, when any row has one. */
+  protected readonly hasAmount = computed(() =>
+    this.rows().some(row => row.amount)
+  );
+
+  protected readonly rows = computed((): IDocStatusRow[] => {
+    switch (this.layoutMode()) {
+      case 'both':
+        return [
+          this.toRow('contractor', 'Contractor', this.contractorMetrics()),
+          this.toRow('vendor', 'Vendor', this.vendorMetrics()),
+        ];
+      case 'contractor':
+        return [
+          this.toRow('contractor', 'Contractor', this.contractorMetrics()),
+        ];
+      case 'vendor':
+        return [this.toRow('vendor', 'Vendor', this.vendorMetrics())];
+      case 'single': {
+        const label = this.compactStages() ? null : this.contextLabel();
+        const key =
+          label === 'Contractor'
+            ? 'contractor'
+            : label === 'Vendor'
+              ? 'vendor'
+              : 'single';
+        return [this.toRow(key, label, this.metrics())];
+      }
+      default:
+        return [];
+    }
+  });
+
   protected onViewDetails(event: Event): void {
     event.stopPropagation();
     this.viewDetails.emit();
+  }
+
+  private toRow(
+    key: IDocStatusRow['key'],
+    label: string | null,
+    metrics: IDocStatusMetric[]
+  ): IDocStatusRow {
+    const health: TDocStatusHealth = metrics.some(
+      m => m.tone === EDocStatusTone.DANGER
+    )
+      ? 'danger'
+      : metrics.some(m => m.tone === EDocStatusTone.INFO)
+        ? 'warn'
+        : 'ok';
+    return {
+      key,
+      label,
+      metrics,
+      health,
+      summary: HEALTH_SUMMARY[health],
+      missing: metrics.find(m => m.label === 'Missing') ?? null,
+      pending: metrics.find(m => m.label === 'Pending') ?? null,
+      amount:
+        metrics.find(m => m.label === 'To invoice' || m.label === 'To pay') ??
+        null,
+    };
   }
 
   private buildMetrics(
@@ -167,8 +255,9 @@ export class ProjectDocumentStatusComponent {
   ): IDocStatusMetric {
     if (missingStageLabel && status.missingDocsCount > 0) {
       return {
-        label: missingStageLabel,
-        displayValue: 'Missing',
+        // Reads "PO missing" on the chip.
+        label: 'Missing',
+        displayValue: missingStageLabel,
         tone: EDocStatusTone.DANGER,
       };
     }

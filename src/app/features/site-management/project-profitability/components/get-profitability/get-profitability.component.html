@@ -1,21 +1,6 @@
-<ng-template
-  #detailInfo
-  let-type="type"
-  let-title="title"
->
-  <button
-    type="button"
-    class="info-btn"
-    [attr.title]="title"
-    (click)="openDetailDialog(type, title)"
-  >
-    <i [class]="icons.COMMON.INFO_CIRCLE"></i>
-  </button>
-</ng-template>
-
-<div class="profitability-report">
+<div class="pf">
   @if (!hasSelectedProject()) {
-    <section class="empty-panel">
+    <section class="pf-empty">
       <app-empty-messages
         [icon]="icons.COMMON.FILTER"
         title="Select a project to view profitability"
@@ -26,524 +11,433 @@
     <app-section-loader message="Loading project profitability..." />
   } @else {
     @if (report(); as vm) {
-    @let sales = vm.metaSummary.salesSummary;
-    @let purchase = vm.metaSummary.purchaseSummary;
-    @let profit = vm.profitabilitySummary;
-    @let cost = profit.projectCost;
-    @let ops = vm.expenseSummary.operationalExpense;
-    @let salesPay = vm.paymentSummary.salesPaymentSummary;
-    @let purchasePay = vm.paymentSummary.purchasePaymentSummary;
-    @let currency = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
-    @let pctFmt = APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS;
-    @let locale = APP_CONFIG.NUMBER_FORMATS.LOCALE;
+      @let v = view()!;
+      @let profit = vm.profitabilitySummary;
+      @let cur = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
+      @let locale = APP_CONFIG.NUMBER_FORMATS.LOCALE;
+      @let money = '1.0-0';
 
-    <section
-      class="overview-card"
-      [class.overview-card--loss]="profit.netProfit < 0"
-    >
-      <div class="overview-card__main">
-        <div class="overview-card__icon-wrap">
-          <i [class]="icons.COMMON.CHART_LINE"></i>
-        </div>
-        <div>
-          <span class="overview-card__eyebrow">Project workspace</span>
-          <h1>Profitability report</h1>
-          <p>Revenue, costs, payments and margin for the selected project.</p>
-        </div>
-      </div>
-      <div class="overview-card__highlight">
-        <span class="overview-card__highlight-label">Net profit</span>
-        <strong
-          class="overview-card__highlight-value"
-          [class.positive]="profit.netProfit >= 0"
-          [class.negative]="profit.netProfit < 0"
-        >
-          {{ profit.netProfit | currency: currency }}
-        </strong>
-        <span class="overview-card__highlight-sub">
-          Margin {{ profit.profitMarginPercentage | number: pctFmt : locale }}%
-        </span>
-      </div>
-    </section>
-
-    <section class="metric-grid">
-      <article class="metric-tile">
-        <span class="metric-tile__icon metric-tile__icon--revenue">
-          <i [class]="icons.EXPENSE.MONEY"></i>
-        </span>
-        <div>
-          <span class="metric-tile__label">Revenue</span>
-          <strong class="metric-tile__value">{{ profit.revenue | currency: currency }}</strong>
-        </div>
-      </article>
-      <article class="metric-tile">
-        <span class="metric-tile__icon metric-tile__icon--cost">
-          <i [class]="icons.PAYROLL.WALLET"></i>
-        </span>
-        <div>
-          <span class="metric-tile__label">Project cost</span>
-          <strong class="metric-tile__value">{{ cost.totalProjectCost | currency: currency }}</strong>
-        </div>
-      </article>
-      <article class="metric-tile">
-        <span class="metric-tile__icon metric-tile__icon--profit">
-          <i [class]="icons.COMMON.ARROW_UP"></i>
-        </span>
-        <div>
-          <span class="metric-tile__label">Gross profit</span>
-          <strong class="metric-tile__value">{{ profit.grossProfit | currency: currency }}</strong>
-        </div>
-      </article>
-    </section>
-
-    <section class="module-grid">
-      <article class="module-card module-card--sales">
-        <header class="module-card__head">
-          <div class="module-card__title">
-            <span class="module-card__icon"><i [class]="icons.COMMON.ARROW_UP"></i></span>
-            <div>
-              <h2>Sales</h2>
-              <p>Contractor billing summary</p>
+      <!-- ── Headline: where the revenue went, and what is left ───────────── -->
+      <section
+        class="pf-hero"
+        [attr.data-tone]="v.isLoss ? 'loss' : 'profit'"
+      >
+        <div class="pf-hero__chart">
+          <div
+            class="pf-ring pf-ring--hero"
+            role="img"
+            [attr.aria-label]="(v.isLoss ? 'Net loss ' : 'Net profit ') + netProfitCompact()"
+          >
+            @if (heroChart(); as chart) {
+              <app-charts [chartConfig]="chart" />
+            } @else {
+              <span
+                class="pf-ring__empty"
+                aria-hidden="true"
+              ></span>
+            }
+            <div class="pf-ring__center">
+              <small>{{ v.isLoss ? 'Net loss' : 'Net profit' }}</small>
+              <strong>{{ netProfitCompact() }}</strong>
+              <span>{{ profit.profitMarginPercentage | number: '1.0-1' : locale }}% margin</span>
             </div>
           </div>
-        </header>
 
-        <div class="stat-grid">
-          <div class="stat-block">
-            <span class="stat-block__label">PO value</span>
-            <strong class="stat-block__value">{{ sales.totalSalesPOValue | currency: currency }}</strong>
-            <small>{{ sales.totalSalesPOCount }} PO</small>
-          </div>
-          <div class="stat-block">
-            <span class="stat-block__label stat-block__label--action">
-              Invoiced
-              <ng-container
-                [ngTemplateOutlet]="detailInfo"
-                [ngTemplateOutletContext]="{
-                  type: 'sales-invoices',
-                  title: 'Sales invoice summary',
-                }"
-              />
+          <ul class="pf-legend">
+            @for (slice of v.costShares; track slice.key) {
+              <li>
+                <span
+                  class="pf-swatch"
+                  [style.background]="slice.color"
+                  aria-hidden="true"
+                ></span>
+                <span class="pf-legend__label">{{ slice.label }}</span>
+                <b>{{ slice.amount | currency: cur : 'symbol' : money : locale }}</b>
+                <small>{{ slice.percent | number: '1.0-0' : locale }}%</small>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="pf-hero__main">
+          <div class="pf-hero__headline">
+            <span class="pf-hero__icon">
+              <i
+                [class]="v.isLoss ? 'pi pi-arrow-down-right' : 'pi pi-chart-line'"
+                aria-hidden="true"
+              ></i>
             </span>
-            <strong class="stat-block__value positive">
-              {{ sales.totalSalesInvoicedAmount | currency: currency }}
-            </strong>
-            <small>{{ sales.totalSalesInvoiceCount }} invoice(s)</small>
-          </div>
-          <div class="stat-block">
-            <span class="stat-block__label">Unbilled</span>
-            <strong class="stat-block__value">{{ sales.salesUnbilledAmount | currency: currency }}</strong>
-            <small>Pending billing</small>
-          </div>
-          <div class="stat-block">
-            <span class="stat-block__label">Billing completion</span>
-            <strong class="stat-block__value">
-              {{ sales.billingCompletionPercentage | number: pctFmt : locale }}%
-            </strong>
-            <small>Of sales PO value</small>
-          </div>
-        </div>
-
-        <div class="module-card__divider"></div>
-
-        <div class="payment-row payment-row--in">
-          <span class="payment-row__title">
-            <i [class]="icons.PAYROLL.WALLET"></i>
-            Collections
-          </span>
-          <div class="payment-row__items">
             <div>
-              <span>Invoiced</span>
-              <strong>{{ salesPay.totalInvoicedAmount | currency: currency }}</strong>
-            </div>
-            <div>
-              <span>Received</span>
-              <strong class="positive">{{ salesPay.totalPaymentReceived | currency: currency }}</strong>
-            </div>
-            <div>
-              <span>Outstanding</span>
-              <strong class="negative">{{ salesPay.outstandingReceivableAmount | currency: currency }}</strong>
-            </div>
-          </div>
-        </div>
-      </article>
-
-      <article class="module-card module-card--purchase">
-        <header class="module-card__head">
-          <div class="module-card__title">
-            <span class="module-card__icon"><i [class]="icons.COMMON.ARROW_DOWN"></i></span>
-            <div>
-              <h2>Purchase</h2>
-              <p>Vendor billing summary</p>
-            </div>
-          </div>
-        </header>
-
-        <div class="stat-grid">
-          <div class="stat-block">
-            <span class="stat-block__label">PO value</span>
-            <strong class="stat-block__value">{{ purchase.totalPurchasePOValue | currency: currency }}</strong>
-            <small>{{ purchase.totalPurchasePOCount }} PO</small>
-          </div>
-          <div class="stat-block">
-            <span class="stat-block__label stat-block__label--action">
-              Vendor invoiced
-              <ng-container
-                [ngTemplateOutlet]="detailInfo"
-                [ngTemplateOutletContext]="{
-                  type: 'vendor-invoices',
-                  title: 'Vendor invoice summary',
-                }"
-              />
-            </span>
-            <strong class="stat-block__value">{{ purchase.totalVendorInvoicedAmount | currency: currency }}</strong>
-            <small>{{ purchase.totalVendorInvoiceCount }} invoice(s)</small>
-          </div>
-          <div class="stat-block">
-            <span class="stat-block__label">Pending billing</span>
-            <strong class="stat-block__value">{{ purchase.pendingVendorBillingAmount | currency: currency }}</strong>
-            <small>Yet to invoice</small>
-          </div>
-          <div class="stat-block">
-            <span class="stat-block__label">Billing completion</span>
-            <strong class="stat-block__value">
-              {{ purchase.purchaseBillingCompletionPercentage | number: pctFmt : locale }}%
-            </strong>
-            <small>Of purchase PO value</small>
-          </div>
-        </div>
-
-        <div class="module-card__divider"></div>
-
-        <div class="payment-row payment-row--out">
-          <span class="payment-row__title">
-            <i [class]="icons.COMMON.CREDIT_CARD"></i>
-            Payouts
-          </span>
-          <div class="payment-row__items">
-            <div>
-              <span>Vendor invoiced</span>
-              <strong>{{ purchasePay.totalVendorInvoiceAmount | currency: currency }}</strong>
-            </div>
-            <div>
-              <span>Paid</span>
-              <strong class="positive">{{ purchasePay.totalPaymentPaid | currency: currency }}</strong>
-            </div>
-            <div>
-              <span>Outstanding</span>
-              <strong class="negative">{{ purchasePay.outstandingPayableAmount | currency: currency }}</strong>
-            </div>
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <article class="module-card module-card--pl">
-      <header class="module-card__head">
-        <div class="module-card__title">
-          <span class="module-card__icon module-card__icon--pl">
-            <i [class]="icons.COMMON.BOOK"></i>
-          </span>
-          <div>
-            <h2>Profit &amp; loss</h2>
-            <p>Project-level statement</p>
-          </div>
-        </div>
-      </header>
-
-      <div class="pl-body">
-        <div class="pl-revenue-band">
-          <div class="pl-revenue-band__lead">
-            <span class="pl-revenue-band__eyebrow">Top line</span>
-            <span class="pl-revenue-band__label">Revenue (invoiced)</span>
-          </div>
-          <strong class="pl-revenue-band__value positive">{{ profit.revenue | currency: currency }}</strong>
-        </div>
-
-        <div class="pl-layout">
-          <div class="pl-cost-panel">
-            <div class="stat-grid stat-grid--compact">
-              <div class="stat-block">
-                <span class="stat-block__label">Vendor cost</span>
-                <strong class="stat-block__value">{{ cost.vendorCost | currency: currency }}</strong>
-                <small>Purchase &amp; vendor billing</small>
-              </div>
-              <div class="stat-block">
-                <span class="stat-block__label stat-block__label--action">
-                  Employee cost
-                  <ng-container
-                    [ngTemplateOutlet]="detailInfo"
-                    [ngTemplateOutletContext]="{
-                      type: 'employee-cost',
-                      title: 'Employee cost summary',
-                    }"
-                  />
-                </span>
-                <strong class="stat-block__value">{{ cost.employeeCost | currency: currency }}</strong>
-                <small>Payroll allocation</small>
-              </div>
-              <div class="stat-block">
-                <span class="stat-block__label">Operational expense</span>
-                <strong class="stat-block__value">{{ cost.operationalExpense | currency: currency }}</strong>
-                <small>Fuel + regular expense</small>
-              </div>
-              <div class="stat-block stat-block--emphasis">
-                <span class="stat-block__label">Total project cost</span>
-                <strong class="stat-block__value">{{ cost.totalProjectCost | currency: currency }}</strong>
-                <small>All cost categories</small>
-              </div>
-            </div>
-
-            <div class="module-card__divider"></div>
-
-            <div class="payment-row payment-row--ops">
-              <span class="payment-row__title">
-                <i [class]="icons.COMMON.GAUGE"></i>
-                Operational breakdown
+              <span class="pf-eyebrow">Project P&amp;L</span>
+              <strong class="pf-hero__value">
+                {{ profit.netProfit | currency: cur : 'symbol' : money : locale }}
+              </strong>
+              <span class="pf-hero__sub">
+                {{ v.isLoss ? 'Costs are higher than revenue on this project.' : 'Left after every project cost.' }}
               </span>
-              <div class="payment-row__items">
-                <div>
-                  <span class="stat-block__label stat-block__label--action">
-                    Fuel
-                    <ng-container
-                      [ngTemplateOutlet]="detailInfo"
-                      [ngTemplateOutletContext]="{
-                        type: 'fuel-employee',
-                        title: 'Fuel expense — employee summary',
-                      }"
-                    />
-                  </span>
-                  <strong>{{ ops.fuelExpense.totalFuelExpense | currency: currency }}</strong>
-                </div>
-                <div>
-                  <span class="stat-block__label stat-block__label--action">
-                    Expense
-                    <button
-                      type="button"
-                      class="info-btn"
-                      title="Expense breakdown — category &amp; employee summary"
-                      (click)="openRegularExpenseDetailDialog()"
-                    >
-                      <i [class]="icons.COMMON.INFO_CIRCLE"></i>
-                    </button>
-                  </span>
-                  <strong>{{ ops.regularExpense.totalRegularExpense | currency: currency }}</strong>
-                </div>
-                <div>
-                  <span>Total operational</span>
-                  <strong>{{ cost.operationalExpense | currency: currency }}</strong>
-                </div>
-              </div>
             </div>
           </div>
 
-          <div class="pl-outcome">
-            <header class="pl-outcome__head">
-              <h3 class="pl-outcome__title">Profit summary</h3>
-              <p class="pl-outcome__subtitle">After project costs</p>
+          <dl class="pf-kpis">
+            <div
+              class="pf-kpi pf-kpi--fill"
+              data-tone="revenue"
+            >
+              <dt>Revenue</dt>
+              <dd>{{ profit.revenue | currency: cur : 'symbol' : money : locale }}</dd>
+              <small>Work billed, GST excluded</small>
+            </div>
+            <div
+              class="pf-kpi"
+              data-tone="vendor"
+            >
+              <dt>Total cost</dt>
+              <dd>{{ profit.projectCost.totalProjectCost | currency: cur : 'symbol' : money : locale }}</dd>
+              <small>{{ profit.expenseRatioPercentage | number: '1.0-1' : locale }}% of revenue</small>
+            </div>
+            <div
+              class="pf-kpi"
+              [attr.data-tone]="profit.grossProfit < 0 ? 'loss' : 'profit'"
+            >
+              <dt>Gross profit</dt>
+              <dd>{{ profit.grossProfit | currency: cur : 'symbol' : money : locale }}</dd>
+              <small>{{ profit.grossMarginPercentage | number: '1.0-1' : locale }}% after vendor cost</small>
+            </div>
+            <div
+              class="pf-kpi"
+              [attr.data-tone]="v.isLoss ? 'loss' : 'profit'"
+            >
+              <dt>{{ v.isLoss ? 'Net loss' : 'Net profit' }}</dt>
+              <dd>{{ profit.netProfit | currency: cur : 'symbol' : money : locale }}</dd>
+              <small>{{ profit.profitMarginPercentage | number: '1.0-1' : locale }}% margin</small>
+            </div>
+          </dl>
+
+          <p class="pf-basis">
+            <i
+              class="pi pi-info-circle"
+              aria-hidden="true"
+            ></i>
+            <span>
+              All revenue, cost and profit figures
+              <strong>exclude GST</strong>
+              . GST collected from the contractor is paid to the government, and GST paid to vendors comes back as input
+              credit — so neither is income or cost.
+            </span>
+          </p>
+        </div>
+      </section>
+
+      <div class="pf-grid">
+        <!-- ── P&L statement ──────────────────────────────────────────────── -->
+        <section class="pf-card">
+          <header class="pf-card__head">
+            <span
+              class="pf-card__icon"
+              data-tone="vendor"
+              aria-hidden="true"
+            >
+              <i class="pi pi-list"></i>
+            </span>
+            <div>
+              <h2>Profit &amp; loss statement</h2>
+              <p>How revenue becomes profit. Click a line to see its entries in the breakdown below.</p>
+            </div>
+          </header>
+
+          <ol class="pf-lines">
+            @for (line of v.statement; track line.key) {
+              <li
+                class="pf-line"
+                [attr.data-kind]="line.kind"
+                [attr.data-tone]="line.tone"
+                [class.pf-line--open]="line.detail && breakdownType() === line.detail.type"
+              >
+                <span
+                  class="pf-line__icon"
+                  aria-hidden="true"
+                >
+                  <i [class]="line.icon"></i>
+                </span>
+
+                <div class="pf-line__text">
+                  <span class="pf-line__label">
+                    @if (line.kind === 'cost') {
+                      <span
+                        class="pf-line__op"
+                        aria-hidden="true"
+                      >
+                        −
+                      </span>
+                    } @else if (line.kind !== 'revenue') {
+                      <span
+                        class="pf-line__op"
+                        aria-hidden="true"
+                      >
+                        =
+                      </span>
+                    }
+                    {{ line.label }}
+                  </span>
+                  <span class="pf-line__hint">{{ line.hint }}</span>
+                  @if (line.share !== undefined) {
+                    <span
+                      class="pf-line__bar"
+                      aria-hidden="true"
+                    >
+                      <span [style.width.%]="line.share > 100 ? 100 : line.share"></span>
+                    </span>
+                  }
+                </div>
+
+                <div class="pf-line__figure">
+                  <strong>{{ line.amount | currency: cur : 'symbol' : money : locale }}</strong>
+                  @if (line.share !== undefined) {
+                    <small>{{ line.share | number: '1.0-1' : locale }}% of revenue</small>
+                  }
+                  @if (line.margin !== undefined) {
+                    <small class="pf-line__margin">{{ line.margin | number: '1.0-1' : locale }}% margin</small>
+                  }
+                </div>
+
+                @if (line.detail; as detail) {
+                  <button
+                    type="button"
+                    class="pf-line__more"
+                    [class.pf-line__more--on]="breakdownType() === detail.type"
+                    [attr.aria-label]="'Show ' + detail.title + ' breakdown'"
+                    pTooltip="Show breakdown below"
+                    tooltipPosition="left"
+                    (click)="showBreakdown(detail.type)"
+                  >
+                    <i
+                      class="pi pi-arrow-down"
+                      aria-hidden="true"
+                    ></i>
+                  </button>
+                } @else {
+                  <span
+                    class="pf-line__more pf-line__more--blank"
+                    aria-hidden="true"
+                  ></span>
+                }
+              </li>
+            }
+          </ol>
+        </section>
+
+        <aside class="pf-side">
+          <!-- ── GST position ─────────────────────────────────────────────── -->
+          <section class="pf-card">
+            <header class="pf-card__head">
+              <span
+                class="pf-card__icon"
+                data-tone="fuel"
+                aria-hidden="true"
+              >
+                <i class="pi pi-percentage"></i>
+              </span>
+              <div>
+                <h2>GST position</h2>
+                <p>Not part of profit — collected and paid on behalf of the government.</p>
+              </div>
             </header>
 
-            <article class="profit-tile profit-tile--gross">
-              <span class="profit-tile__icon profit-tile__icon--gross">
-                <i [class]="icons.COMMON.ARROW_UP"></i>
-              </span>
-              <div class="profit-tile__content">
-                <div class="profit-tile__row">
-                  <span class="profit-tile__label">Gross profit</span>
-                  <strong
-                    class="profit-tile__value"
-                    [class.positive]="profit.grossProfit >= 0"
-                    [class.negative]="profit.grossProfit < 0"
-                  >
-                    {{ profit.grossProfit | currency: currency }}
-                  </strong>
-                </div>
-                <span class="profit-tile__hint">Revenue minus total project cost</span>
+            <div class="pf-gst">
+              <div class="pf-gst__row">
+                <span>
+                  GST charged to contractor
+                  <small>On sales invoices</small>
+                </span>
+                <b>{{ v.gst.outputGst | currency: cur : 'symbol' : money : locale }}</b>
               </div>
-            </article>
-
-            <article
-              class="profit-tile profit-tile--net"
-              [class.profit-tile--loss]="profit.netProfit < 0"
-            >
-              <span class="profit-tile__icon profit-tile__icon--net">
-                <i [class]="icons.COMMON.CHART_LINE"></i>
-              </span>
-              <div class="profit-tile__content">
-                <div class="profit-tile__row">
-                  <span class="profit-tile__label">Net profit</span>
-                  <span
-                    class="profit-tile__badge"
-                    [class.negative]="profit.netProfit < 0"
-                  >
-                    {{ profit.profitMarginPercentage | number: pctFmt : locale }}% margin
+              <div class="pf-gst__row">
+                <span>
+                  − Input credit on vendor GST
+                  <small>GST on vendor invoices we claim back</small>
+                </span>
+                <b>{{ v.gst.inputGstCredit | currency: cur : 'symbol' : money : locale }}</b>
+              </div>
+              <div class="pf-gst__result">
+                <span>
+                  Net GST to deposit
+                  <small>Paid to the government in GST returns</small>
+                </span>
+                <strong>{{ v.gst.netGstPayable | currency: cur : 'symbol' : money : locale }}</strong>
+              </div>
+              @if (v.gst.nonCreditableGst) {
+                <p class="pf-note">
+                  <i
+                    class="pi pi-info-circle"
+                    aria-hidden="true"
+                  ></i>
+                  <span>
+                    <strong>{{ v.gst.nonCreditableGst | currency: cur : 'symbol' : money : locale }}</strong>
+                    GST on freelancer invoices gives no credit, so it is counted in vendor cost.
                   </span>
-                </div>
-                <strong
-                  class="profit-tile__value profit-tile__value--hero"
-                  [class.positive]="profit.netProfit >= 0"
-                  [class.negative]="profit.netProfit < 0"
-                >
-                  {{ profit.netProfit | currency: currency }}
-                </strong>
-                <span class="profit-tile__hint">Bottom line for this project</span>
-              </div>
-            </article>
-          </div>
-        </div>
-      </div>
-    </article>
-
-    <p-dialog
-      [header]="detailDialogTitle()"
-      [modal]="true"
-      [maximizable]="true"
-      [resizable]="false"
-      appendTo="body"
-      [style]="{ width: 'min(920px, 92vw)' }"
-      [contentStyle]="{ maxHeight: '70vh', overflow: 'auto' }"
-      [visible]="detailDialogVisible()"
-      (visibleChange)="onDetailDialogVisibilityChange($event)"
-    >
-      <div class="detail-dialog-body">
-        @if (detailDialogType() === 'regular-expense-detail') {
-          <div class="detail-dialog-toolbar">
-            <div
-              class="detail-view-toggle"
-              role="tablist"
-              aria-label="Expense breakdown view"
-            >
-              @for (option of regularExpenseViewOptions; track option.value) {
-                <button
-                  type="button"
-                  class="detail-view-toggle__btn"
-                  role="tab"
-                  [attr.aria-selected]="regularExpenseDetailView() === option.value"
-                  [class.detail-view-toggle__btn--active]="regularExpenseDetailView() === option.value"
-                  (click)="setRegularExpenseDetailView(option.value)"
-                >
-                  {{ option.label }}
-                </button>
+                </p>
               }
             </div>
-          </div>
-        }
-        @for (section of detailSections(vm); track section.emptyDescription) {
-          @if (section.title) {
-            <h4 class="detail-dialog-sections__title">{{ section.title }}</h4>
-          }
-          @if (section.rows.length) {
-            <div class="detail-table-wrap">
-              <table class="detail-table">
-                <colgroup>
-                  @for (col of section.columns; track col.field) {
-                    <col [style.width]="detailColWidth(col)" />
+          </section>
+
+          <!-- ── Billing progress ─────────────────────────────────────────── -->
+          <section class="pf-card">
+            <header class="pf-card__head">
+              <span
+                class="pf-card__icon"
+                data-tone="employee"
+                aria-hidden="true"
+              >
+                <i class="pi pi-file-check"></i>
+              </span>
+              <div>
+                <h2>Billing progress</h2>
+                <p>PO value invoiced so far (GST included on both sides).</p>
+              </div>
+            </header>
+
+            @for (bill of v.billing; track bill.key) {
+              <div
+                class="pf-bill"
+                [attr.data-tone]="bill.key === 'sales' ? 'revenue' : 'vendor'"
+              >
+                <div class="pf-bill__head">
+                  <span>{{ bill.label }}</span>
+                  <strong>{{ bill.percent | number: '1.0-0' : locale }}%</strong>
+                </div>
+                <div
+                  class="pf-progress"
+                  aria-hidden="true"
+                >
+                  <span [style.width.%]="bill.percent"></span>
+                </div>
+                <div class="pf-bill__meta">
+                  <span>
+                    {{ bill.invoiced | currency: cur : 'symbol' : money : locale }} of
+                    {{ bill.poValue | currency: cur : 'symbol' : money : locale }} · {{ bill.poLabel }}
+                  </span>
+                  @if (bill.remaining > 0) {
+                    <span class="pf-bill__left">
+                      {{ bill.remainingLabel }}: {{ bill.remaining | currency: cur : 'symbol' : money : locale }}
+                    </span>
                   }
-                </colgroup>
-                <thead>
-                  <tr>
-                    @for (col of section.columns; track col.field) {
-                      <th
-                        class="detail-table__head-cell"
-                        [class.detail-table__head-cell--amount]="col.amount"
-                        scope="col"
-                      >
-                        {{ col.header }}
-                      </th>
-                    }
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (row of section.rows; track $index) {
-                    <tr class="detail-table__row">
-                      @for (col of section.columns; track col.field) {
-                        <td
-                          class="detail-table__cell"
-                          [class.detail-table__cell--amount]="col.amount"
-                        >
-                          @switch (col.type) {
-                            @case ('avatar') {
-                              <div class="detail-table__entity">
-                                <img
-                                  [src]="getAvatarUrl($any(row)[col.field])"
-                                  [alt]="$any(row)[col.field]"
-                                  class="detail-table__avatar"
-                                  loading="lazy"
-                                />
-                                <div class="detail-table__entity-text">
-                                  <span class="detail-table__entity-name">
-                                    {{ $any(row)[col.field] }}
-                                  </span>
-                                  @if (col.subtitleField && $any(row)[col.subtitleField]) {
-                                    <span class="detail-table__entity-sub">
-                                      {{ col.subtitlePrefix ?? '' }}{{ $any(row)[col.subtitleField] }}
-                                    </span>
-                                  }
-                                </div>
-                              </div>
-                            }
-                            @case ('vehicle') {
-                              <div class="detail-table__entity">
-                                <span
-                                  class="detail-table__vehicle-icon"
-                                  aria-hidden="true"
-                                >
-                                  <i [class]="icons.COMMON.CAR"></i>
-                                </span>
-                                <div class="detail-table__entity-text">
-                                  <span class="detail-table__entity-name">
-                                    {{ $any(row)[col.field] }}
-                                  </span>
-                                  <span class="detail-table__entity-sub">Registration no.</span>
-                                </div>
-                              </div>
-                            }
-                            @case ('expense-category') {
-                              {{ expenseCategoryLabel($any(row)[col.field]) }}
-                            }
-                            @case ('currency') {
-                              {{ $any(row)[col.field] | currency: currency }}
-                            }
-                            @case ('date') {
-                              {{ $any(row)[col.field] | date: 'dd MMM yyyy' : undefined : locale }}
-                            }
-                            @default {
-                              {{ $any(row)[col.field] }}
-                            }
-                          }
-                        </td>
-                      }
-                    </tr>
-                  }
-                </tbody>
-              </table>
+                </div>
+              </div>
+            }
+          </section>
+        </aside>
+      </div>
+
+      <!-- ── Money still to move ────────────────────────────────────────────── -->
+      <div class="pf-cash">
+        @for (flow of [v.receivable, v.payable]; track flow.side) {
+          @let ring = cashCharts()?.[flow.side];
+          <section
+            class="pf-card pf-flow"
+            [attr.data-tone]="flow.side === 'in' ? 'revenue' : 'vendor'"
+          >
+            <header class="pf-card__head">
+              <span
+                class="pf-card__icon"
+                aria-hidden="true"
+              >
+                <i [class]="flow.side === 'in' ? 'pi pi-arrow-down-left' : 'pi pi-arrow-up-right'"></i>
+              </span>
+              <div>
+                <h2>{{ flow.title }}</h2>
+                <p>{{ flow.subtitle }}</p>
+              </div>
+            </header>
+
+            <div class="pf-flow__summary">
+              <div
+                class="pf-ring pf-ring--small"
+                role="img"
+                [attr.aria-label]="(flow.progress | number: '1.0-0' : locale) + '% ' + flow.settledLabel"
+              >
+                @if (ring) {
+                  <app-charts [chartConfig]="ring" />
+                } @else {
+                  <span
+                    class="pf-ring__empty"
+                    aria-hidden="true"
+                  ></span>
+                }
+                <div class="pf-ring__center">
+                  <strong>{{ (flow.progress > 100 ? 100 : flow.progress) | number: '1.0-0' : locale }}%</strong>
+                  <small>{{ flow.settledLabel }}</small>
+                </div>
+              </div>
+
+              <div class="pf-flow__figures">
+                <div class="pf-flow__outstanding">
+                  <span>{{ flow.outstandingLabel }}</span>
+                  <strong [class.pf-zero]="flow.outstanding <= 0">
+                    {{ flow.outstanding | currency: cur : 'symbol' : money : locale }}
+                  </strong>
+                </div>
+                <div class="pf-flow__settled">
+                  <span
+                    class="pf-swatch pf-swatch--tone"
+                    aria-hidden="true"
+                  ></span>
+                  {{ flow.settled | currency: cur : 'symbol' : money : locale }} {{ flow.settledLabel }}
+                </div>
+              </div>
             </div>
-          } @else {
-            <app-empty-messages
-              [icon]="icons.COMMON.INFO_CIRCLE"
-              title="No records found"
-              [description]="section.emptyDescription"
-            />
-          }
+
+            <dl class="pf-steps">
+              @for (step of flow.steps; track step.label) {
+                <div
+                  class="pf-step"
+                  [class.pf-step--subtotal]="step.sign === 'equals'"
+                >
+                  <dt>
+                    <span class="pf-step__op">
+                      {{ step.sign === 'minus' ? '−' : step.sign === 'equals' ? '=' : '' }}
+                    </span>
+                    <span>
+                      {{ step.label }}
+                      @if (step.hint) {
+                        <small>{{ step.hint }}</small>
+                      }
+                    </span>
+                  </dt>
+                  <dd>{{ step.amount | currency: cur : 'symbol' : money : locale }}</dd>
+                </div>
+              }
+            </dl>
+
+            @if (flow.note; as note) {
+              <p class="pf-note">
+                <i
+                  class="pi pi-info-circle"
+                  aria-hidden="true"
+                ></i>
+                <span>
+                  <strong>{{ note.amount | currency: cur : 'symbol' : money : locale }}</strong>
+                  {{ note.text }}
+                </span>
+              </p>
+            }
+          </section>
         }
       </div>
 
-      <ng-template #footer>
-        <p-button
-          label="Close"
-          [icon]="icons.ACTIONS.CHECK"
-          (onClick)="closeDetailDialog()"
-        />
-      </ng-template>
-    </p-dialog>
-  } @else {
-    <section class="empty-panel">
-      <app-empty-messages
-        [icon]="icons.COMMON.EXCLAMATION_TRIANGLE"
-        title="Unable to load profitability"
-        description="Something went wrong while fetching data. Re-select the project or refresh the page."
+      <!-- Breakdown of every statement line, on the page itself -->
+      <app-profitability-breakdown
+        #breakdown
+        [report]="vm"
+        [(type)]="breakdownType"
       />
-    </section>
-  }
+    } @else {
+      <section class="pf-empty">
+        <app-empty-messages
+          [icon]="icons.COMMON.EXCLAMATION_TRIANGLE"
+          title="Unable to load profitability"
+          description="Something went wrong while fetching data. Re-select the project or refresh the page."
+        />
+      </section>
+    }
   }
 </div>

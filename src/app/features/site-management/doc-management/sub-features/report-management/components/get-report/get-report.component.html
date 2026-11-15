@@ -30,6 +30,11 @@
   (onSearch)="onSearchChange($event)"
 />
 
+<app-workspace-doc-metrics
+  kind="report"
+  [side]="docRouteContext() ?? null"
+/>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"

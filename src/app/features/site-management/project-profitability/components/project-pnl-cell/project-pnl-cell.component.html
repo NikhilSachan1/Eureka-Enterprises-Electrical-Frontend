@@ -1,0 +1,73 @@
+@let state = entry();
+
+@if (!state || state.loading) {
+  <div
+    class="pnl pnl--loading"
+    aria-label="Loading P&L"
+  >
+    <span class="pnl__skeleton pnl__skeleton--value"></span>
+    <span class="pnl__skeleton pnl__skeleton--bar"></span>
+    <span class="pnl__skeleton pnl__skeleton--meta"></span>
+  </div>
+} @else if (state.error) {
+  <span class="pnl-note">
+    <i
+      class="pi pi-exclamation-triangle"
+      aria-hidden="true"
+    ></i>
+    Couldn't load P&amp;L
+  </span>
+} @else if (view(); as v) {
+  @if (!v.hasActivity) {
+    <span class="pnl-note">
+      <i
+        class="pi pi-minus-circle"
+        aria-hidden="true"
+      ></i>
+      No billing yet
+    </span>
+  } @else {
+    <button
+      type="button"
+      class="pnl"
+      [attr.data-tone]="v.isLoss ? 'loss' : 'profit'"
+      [pTooltip]="'Revenue ' + v.revenue + ' · Cost ' + v.cost + ' · Net ' + v.net + ' (GST excluded)'"
+      tooltipPosition="top"
+      aria-label="Open profitability"
+      (click)="openProfitability($event)"
+    >
+      <span class="pnl__head">
+        <span class="pnl__margin">
+          <i
+            [class]="v.isLoss ? 'pi pi-arrow-down-right' : 'pi pi-arrow-up-right'"
+            aria-hidden="true"
+          ></i>
+          @if (v.hasRevenue) {
+            {{ v.margin | number: '1.0-1' }}%
+          } @else {
+            Loss
+          }
+        </span>
+        <span class="pnl__go">
+          <i
+            class="pi pi-chevron-right"
+            aria-hidden="true"
+          ></i>
+        </span>
+      </span>
+      <span
+        class="pnl__bar"
+        aria-hidden="true"
+      >
+        <span
+          class="pnl__bar-cost"
+          [style.width.%]="v.costShare"
+        ></span>
+      </span>
+      <span class="pnl__meta">
+        <b>{{ v.net }}</b>
+        net · {{ v.revenue }} revenue
+      </span>
+    </button>
+  }
+}

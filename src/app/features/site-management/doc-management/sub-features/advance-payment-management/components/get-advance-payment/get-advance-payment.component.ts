@@ -60,10 +60,13 @@ import {
   resolveAdvancePaymentVendorName,
 } from '../../utils/advance-payment-table-row.util';
 
+import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+
 @Component({
   selector: 'app-get-advance-payment',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    WorkspaceDocMetricsComponent,
     PageHeaderComponent,
     DataTableComponent,
     DocWorkspaceContextComponent,

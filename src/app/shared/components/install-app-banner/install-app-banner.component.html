@@ -1,6 +1,7 @@
 @if (visible()) {
   <aside
     class="install-banner"
+    [class.install-banner--desktop]="!pwaInstall.isMobile()"
     role="dialog"
     aria-labelledby="install-banner-title"
   >
@@ -26,17 +27,24 @@
             class="pi pi-upload"
             aria-label="Share"
           ></i>
-          Share, then <strong>Add to Home Screen</strong>.
+          Share, then
+          <strong>Add to Home Screen</strong>
         </p>
-      } @else {
+      } @else if (pwaInstall.isMacSafari) {
         <p class="install-banner__text">
-          Mark attendance and add expenses faster, right from your home screen.
+          In the menu bar, choose
+          <strong>File → Add to Dock</strong>
+          to open it in its own window.
         </p>
+      } @else if (pwaInstall.isMobile()) {
+        <p class="install-banner__text">Mark attendance and add expenses faster, right from your home screen.</p>
+      } @else {
+        <p class="install-banner__text">Open it in its own window and launch it straight from your taskbar or dock.</p>
       }
     </div>
 
     <div class="install-banner__actions">
-      @if (!pwaInstall.isIos) {
+      @if (!pwaInstall.isIos && !pwaInstall.isMacSafari) {
         <button
           type="button"
           class="install-banner__install"

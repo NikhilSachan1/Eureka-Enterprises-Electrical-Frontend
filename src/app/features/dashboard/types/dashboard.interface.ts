@@ -32,11 +32,7 @@ export interface IDashboardTodayAttendanceRow {
   readonly statusTone: StatusSeverity;
 }
 
-export type TDashboardOpsAttentionKind =
-  | 'calibration'
-  | 'warranty'
-  | 'fleet'
-  | 'service';
+export type TDashboardOpsAttentionKind = 'calibration' | 'fleet' | 'service';
 
 export type TDashboardOpsAttentionDomain = 'asset' | 'vehicle' | 'service';
 
@@ -92,8 +88,6 @@ export interface IDashboardKpmMetricRow {
   readonly gapParty?: 'CONTRACTOR' | 'VENDOR';
   /** The document the gap belongs to (po, jmc, report, …); gaps are listed under it. */
   readonly gapGroup?: string;
-  /** How long the oldest document in the gap has been waiting, in days. */
-  readonly gapOldestDays?: number;
 }
 
 /** Big-number tile at the top of the dashboard. */

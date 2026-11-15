@@ -8,7 +8,7 @@ export const PayPaymentSheetItemRequestSchema = z
     paymentMode: z.string().trim().nullable(),
     paidFromAccount: uuidField.nullable(),
     paidDate: dateField,
-    transactionId: z.string().trim().min(1),
+    transactionId: z.string().trim().nullable(),
     bookPaymentId: uuidField.optional(),
   })
   .strict()
@@ -35,12 +35,15 @@ export const PayPaymentSheetItemRequestSchema = z
         };
       }
 
+      // Cash has no source account and no UTR — always sent as null, whatever the form held.
+      const isCash = (paymentMode ?? '').toLowerCase() === 'cash';
+
       return {
         paymentMode: paymentMode ?? '',
-        paidFromAccountId: paidFromAccount ?? null,
+        paidFromAccountId: isCash ? null : (paidFromAccount ?? null),
         category: EExpenseCategory.SETTLEMENT,
         paidDate: transferDate,
-        transactionId,
+        transactionId: isCash ? null : transactionId?.trim() || null,
       };
     }
   );
