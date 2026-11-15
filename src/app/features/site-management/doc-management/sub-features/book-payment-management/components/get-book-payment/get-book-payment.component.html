@@ -26,10 +26,35 @@
 
 <app-page-header
   [pageHeaderConfig]="pageHeaderConfig()"
-  [initialSearch]="searchTerm()"
   (headerButtonClick)="onHeaderButtonClick($event)"
-  (onSearch)="onSearchChange($event)"
-/>
+>
+  <div
+    headerFilter
+    class="book-payment-header-filters"
+  >
+    <p-iconfield class="book-payment-header-filters__search">
+      <p-inputicon class="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        [(ngModel)]="searchInput"
+        (ngModelChange)="onSearchInput($event)"
+        placeholder="Search by Invoice / Advance Number"
+        class="w-full"
+      />
+    </p-iconfield>
+    <app-input-field
+      [inputFieldConfig]="paymentTypeFilterFieldConfig"
+      [fieldValue]="selectedPaymentType()"
+      (onFieldChange)="onPaymentTypeFilterChange($event)"
+    />
+    <app-input-field
+      [inputFieldConfig]="transferFilterFieldConfig"
+      [fieldValue]="selectedTransfer()"
+      (onFieldChange)="onTransferFilterChange($event)"
+    />
+  </div>
+</app-page-header>
 
 <app-workspace-doc-metrics
   kind="bookPayment"
