@@ -435,12 +435,20 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       if (!dropdown) {
         return;
       }
-      const selectedIds = selectedDropdownIds(value);
+      // A paginated list only holds the pages loaded so far, so a `filterOptions.include` list
+      // (e.g. the workspace narrowing contractors to the chosen project's) could match nothing.
+      // Pin those ids like selected values: they are fetched by id and always present.
+      const pinnedIds = [
+        ...new Set([
+          ...selectedDropdownIds(value),
+          ...this.includedOptionIds(),
+        ]),
+      ];
       untracked(() => {
         this.paginatedDropdownService.sync(
           this.paginatedDropdownSessionId,
           dropdown,
-          selectedIds
+          pinnedIds
         );
       });
     });
@@ -758,6 +766,16 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     return nextOptions;
   }
 
+  /** Ids a dropdown is narrowed to through `filterOptions.include`, if any. */
+  private includedOptionIds(): string[] {
+    const config = this.inputFieldConfig();
+    const filterOptions =
+      config.selectConfig?.filterOptions ??
+      config.multiSelectConfig?.filterOptions ??
+      config.autocompleteConfig?.filterOptions;
+    return filterOptions?.include ?? [];
+  }
+
   private paginatedDropdownQuery(): {
     dropdownName: string;
     filterByRole?: string[];
@@ -895,7 +913,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       }
     };
     wrapper.addEventListener('scroll', onScroll, { passive: true });
-    this.paginatedScrollCleanup = () =>
+    this.paginatedScrollCleanup = (): void =>
       wrapper.removeEventListener('scroll', onScroll);
   }
 
@@ -1044,8 +1062,9 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         dynamicDropdown.dropdownName
       )
     ) {
-      return this.paginatedDropdownService.watch(this.paginatedDropdownSessionId)
-        .initialLoading;
+      return this.paginatedDropdownService.watch(
+        this.paginatedDropdownSessionId
+      ).initialLoading;
     }
 
     return (
