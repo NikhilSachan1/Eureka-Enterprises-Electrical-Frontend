@@ -8,6 +8,10 @@
     [class.btn-tip-pass]="isDisabled"
     [pTooltip]="tip"
     [tooltipDisabled]="!tip"
+    [attr.tabindex]="isDisabled && tip ? 0 : null"
+    [attr.aria-label]="isDisabled && tip ? tip : null"
+    (click)="onWrapperClick($event)"
+    (keydown.enter)="onWrapperClick($event)"
   >
     <p-button
       [type]="buttonConfig.type || ALL_BUTTON_TYPES.BUTTON"

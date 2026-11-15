@@ -1099,6 +1099,12 @@ export class DataTableComponent {
           icon: this.resolveRowActionMenuIcon(action),
           disabled: this.isActionDisabled(action, rowData),
           ...(tip ? { tooltipOptions: { tooltipLabel: tip } } : {}),
+          // Shown under a disabled item: phones have no hover for the tooltip.
+          state: {
+            disabledReason: this.isActionDisabled(action, rowData)
+              ? this.resolveDisableReasonTooltip(action, rowData)
+              : undefined,
+          },
           command: (): void => {
             this.onRowActionClick(action.id, rowData);
           },
