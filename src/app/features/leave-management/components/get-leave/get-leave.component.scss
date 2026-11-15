@@ -1,0 +1,21 @@
+.leave-group-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.leave-day-date {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-variant-numeric: tabular-nums;
+
+  &__day {
+    font-weight: 600;
+  }
+
+  &__weekday {
+    font-size: 0.75rem;
+    color: var(--p-text-muted-color);
+  }
+}

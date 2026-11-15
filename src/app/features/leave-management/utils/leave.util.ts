@@ -1,4 +1,43 @@
-import { EButtonActionType } from '@shared/types';
+import { EButtonActionType, EPrimeNGSeverity } from '@shared/types';
+import { StatusUtil } from '@shared/utility';
+
+/** "3 Approved", coloured like the status itself. */
+export interface ILeaveStatusChip {
+  status: string;
+  label: string;
+  severity: EPrimeNGSeverity;
+}
+
+const LEAVE_STATUS_ORDER = [
+  'approved',
+  'pending',
+  'rejected',
+  'cancelled',
+] as const;
+
+const titleCase = (value: string): string =>
+  value.charAt(0).toUpperCase() + value.slice(1);
+
+/** One chip per status that has days, e.g. [3 Approved] [1 Rejected]. */
+export const buildLeaveStatusChips = (
+  counts: Partial<Record<string, number>>
+): ILeaveStatusChip[] =>
+  LEAVE_STATUS_ORDER.filter(status => (counts[status] ?? 0) > 0).map(
+    status => ({
+      status,
+      label: `${counts[status]} ${titleCase(status)}`,
+      severity: StatusUtil.getSeverity(titleCase(status)) as EPrimeNGSeverity,
+    })
+  );
+
+/** "fullDay" → "Full Day", "CASUAL_LEAVE" → "Casual Leave". */
+export const formatLeaveLabel = (value: string | null | undefined): string =>
+  (value ?? '')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, char => char.toUpperCase())
+    .trim();
 
 /**
  * Leave start date (calendar day) is today or already passed.

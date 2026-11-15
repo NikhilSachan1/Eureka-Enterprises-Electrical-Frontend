@@ -33,6 +33,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { SliderModule } from 'primeng/slider';
 import { FormsModule } from '@angular/forms';
+import { CheckboxModule } from 'primeng/checkbox';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { PanelModule } from 'primeng/panel';
@@ -102,6 +103,7 @@ import {
     InputIconModule,
     SliderModule,
     FormsModule,
+    CheckboxModule,
     ToolbarModule,
     TooltipModule,
     MenuModule,
@@ -180,6 +182,80 @@ export class DataTableComponent {
   filterData = output<TableLazyLoadEvent>();
   attachmentClick = output<Record<string, unknown>>();
   selectionChange = output<Record<string, unknown>[]>();
+  /** "Clear Selection" in the bulk bar (useful when the parent owns the selection). */
+  selectionCleared = output<void>();
+
+  /**
+   * Controlled selection: ids (`tableUniqueId`) of the rows to show as selected. When unset the
+   * table keeps its own selection, as before.
+   */
+  selectedRowIds = input<readonly string[] | undefined>(undefined);
+
+  /**
+   * Rows the bulk bar works on instead of the ticked rows of this table — for a selection that
+   * spans nested tables (e.g. days of several applications). Bulk buttons show from one row.
+   */
+  bulkSelectionRows = input<Record<string, unknown>[] | undefined>(undefined);
+
+  /**
+   * Child rows: an expanded row shows these as lighter rows of the same table, cell by cell in
+   * the same columns (instead of `rowExpansionTemplate`'s free panel). Receives the row as
+   * displayed (mapped) data.
+   */
+  childRows = input<
+    ((row: Record<string, unknown>) => Record<string, unknown>[]) | undefined
+  >(undefined);
+  /** Child cell content per column `field`; context `{ $implicit: child, parent, column }`. */
+  childCellTemplates = input<Record<string, TemplateRef<unknown>>>({});
+  /** Child row checkbox state; ticking emits {@link childSelectionToggle}. */
+  isChildSelected = input<(child: Record<string, unknown>) => boolean>(
+    () => false
+  );
+  childSelectionToggle = output<Record<string, unknown>>();
+  /** A row whose children are only partly ticked shows "–"; clicking it emits {@link partialRowToggle}. */
+  isRowPartiallySelected = input<
+    ((row: Record<string, unknown>) => boolean) | undefined
+  >(undefined);
+  partialRowToggle = output<Record<string, unknown>>();
+  /** Actions on each child row (same rules as row actions: permission, hide/disable, reason). */
+  childRowActions = input<Partial<ITableActionConfig>[]>([]);
+  childRowActionClick = output<ITableActionClickEvent>();
+
+  protected getVisibleChildRowActions(
+    child: Record<string, unknown>
+  ): ITableActionConfig[] {
+    return (this.childRowActions() as ITableActionConfig[]).filter(action =>
+      this.isActionVisible(action, child)
+    );
+  }
+
+  protected onChildRowActionClick(
+    actionType: EButtonActionType,
+    child: Record<string, unknown>
+  ): void {
+    this.childRowActionClick.emit({
+      actionType,
+      selectedRows: [this.extractOriginalData(child)],
+    });
+  }
+
+  protected isPartiallySelected(row: Record<string, unknown>): boolean {
+    return this.isRowPartiallySelected()?.(row) ?? false;
+  }
+
+  /** Rows (original data) the bulk bar counts, checks and emits. */
+  protected readonly bulkRows = computed(
+    () =>
+      this.bulkSelectionRows() ??
+      this.selectedTableRows().map(row => this.extractOriginalData(row))
+  );
+
+  /** Bulk bar threshold: own selection needs 2 rows (1 uses row actions); a parent's needs 1. */
+  protected readonly showBulkBar = computed(() =>
+    this.bulkSelectionRows()
+      ? this.bulkRows().length > 0
+      : this.bulkRows().length > 1
+  );
 
   protected readonly rowSelectable = ({
     data,
@@ -295,8 +371,9 @@ export class DataTableComponent {
 
   protected readonly hasRowExpansion = computed(
     () =>
-      this.rowExpansionTemplate() !== null &&
-      this.rowExpansionTemplate() !== undefined
+      !!this.childRows() ||
+      (this.rowExpansionTemplate() !== null &&
+        this.rowExpansionTemplate() !== undefined)
   );
   protected readonly expandedRowKeys = signal<Record<string, boolean>>({});
 
@@ -490,17 +567,50 @@ export class DataTableComponent {
       }
     });
 
+    // Controlled selection: mirror the parent's ids onto the rows of this page.
+    effect(() => {
+      const ids = this.selectedRowIds();
+      if (!ids) {
+        return;
+      }
+      const idPath = this.tableConfig().tableUniqueId;
+      const wanted = new Set(ids);
+      const rows = this.tableData().filter(row => {
+        const id = this.normalizeRowIdForSelection(row, idPath);
+        return id !== null && wanted.has(id);
+      });
+      untracked(() => {
+        const current = this.selectedTableRows()
+          .map(row => this.normalizeRowIdForSelection(row, idPath))
+          .join('|');
+        const next = rows
+          .map(row => this.normalizeRowIdForSelection(row, idPath))
+          .join('|');
+        if (current !== next) {
+          this.selectedTableRows.set(rows);
+        }
+      });
+    });
+
     effect(() => {
       if (!this.showBulkSelectionCheckbox()) {
         return;
       }
 
       const idPath = this.tableConfig().tableUniqueId;
-      const selectedRows = this.selectedTableRows()
-        .filter(row => !this.isRowSelectionDisabled(row))
-        .map(row => this.extractOriginalData(row));
-      const selectionKey = selectedRows
-        .map(row => String(row['userId'] ?? row[idPath] ?? ''))
+      const selected = this.selectedTableRows().filter(
+        row => !this.isRowSelectionDisabled(row)
+      );
+      const selectedRows = selected.map(row => this.extractOriginalData(row));
+      // Row id first: several rows can share a userId (e.g. days of one employee's leave).
+      const selectionKey = selected
+        .map(row =>
+          String(
+            this.normalizeRowIdForSelection(row, idPath) ??
+              this.extractOriginalData(row)['userId'] ??
+              ''
+          )
+        )
         .join('|');
 
       if (selectionKey === this.lastEmittedSelectionKey) {
@@ -552,6 +662,7 @@ export class DataTableComponent {
     if (table) {
       table.selection = [];
     }
+    this.selectionCleared.emit();
   }
 
   /**
@@ -846,11 +957,12 @@ export class DataTableComponent {
       return action.disableWhen(this.extractOriginalData(rowData));
     }
 
-    // Bulk action: disable if ANY selected row returns true
-    const selectedRows = this.selectedTableRows().map(row =>
-      this.extractOriginalData(row)
-    );
-    return selectedRows.some(row => action.disableWhen?.(row) ?? false);
+    // Bulk action: disable if ANY selected row is blocked ('all': only if every one is).
+    const isBlocked = (row: Record<string, unknown>): boolean =>
+      action.disableWhen?.(row) ?? false;
+    return action.bulkDisableMode === 'all'
+      ? this.bulkRows().length > 0 && this.bulkRows().every(isBlocked)
+      : this.bulkRows().some(isBlocked);
   }
 
   /** Adds `disabledTooltip` for row/bulk buttons when `disableReason` applies. */
@@ -868,17 +980,20 @@ export class DataTableComponent {
     action: ITableActionConfig,
     rowData?: Record<string, unknown>
   ): string | undefined {
-    if (!action.disableReason || !this.isActionDisabled(action, rowData)) {
+    if (
+      (!action.disableReason && !(action.bulkDisableReason && !rowData)) ||
+      !this.isActionDisabled(action, rowData)
+    ) {
       return undefined;
     }
     if (rowData) {
-      return action.disableReason(this.extractOriginalData(rowData));
+      return action.disableReason?.(this.extractOriginalData(rowData));
     }
-    const selected = this.selectedTableRows().map(row =>
-      this.extractOriginalData(row)
-    );
-    const blocking = selected.find(r => action.disableWhen?.(r));
-    return blocking ? action.disableReason(blocking) : undefined;
+    if (action.bulkDisableReason) {
+      return action.bulkDisableReason(this.bulkRows());
+    }
+    const blocking = this.bulkRows().find(r => action.disableWhen?.(r));
+    return blocking ? action.disableReason?.(blocking) : undefined;
   }
 
   /**
@@ -897,7 +1012,7 @@ export class DataTableComponent {
     if (action.hideWhen) {
       const originalRowData = rowData
         ? this.extractOriginalData(rowData)
-        : this.selectedTableRows().map(row => this.extractOriginalData(row))[0];
+        : this.bulkRows()[0];
 
       if (originalRowData && action.hideWhen(originalRowData)) {
         return false;
@@ -1010,9 +1125,7 @@ export class DataTableComponent {
     registerActiveBulkTable(this);
     this.bulkActionClick.emit({
       actionType,
-      selectedRows: this.selectedTableRows().map(row =>
-        this.extractOriginalData(row)
-      ),
+      selectedRows: this.bulkRows(),
     });
   }
 

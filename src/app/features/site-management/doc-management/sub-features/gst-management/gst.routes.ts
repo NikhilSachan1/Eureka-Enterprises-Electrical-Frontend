@@ -3,7 +3,7 @@ import { APP_PERMISSION } from '@core/constants';
 import { permissionGuard } from '@core/guards';
 import { ROUTES } from '@shared/constants';
 
-/** Project workspace child: GST summary register. */
+/** Contractor / vendor workspace tab: GST summary register for that side. */
 export const GST_MANAGEMENT_ROUTES: Routes = [
   {
     path: ROUTES.SITE.PROJECT.GST_SUMMARY,

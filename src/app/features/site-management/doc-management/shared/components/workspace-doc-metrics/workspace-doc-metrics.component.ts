@@ -19,6 +19,10 @@ import { IMetricGroup } from '@shared/types';
 import { applyGroupMetricValueLoading } from '@shared/utility/metric.util';
 import { Subscription } from 'rxjs';
 import { EDocContext } from '../../../types/doc.enum';
+import {
+  getGstVerifyPortalName,
+  getTdsVerifyPortalName,
+} from '../../utils/tax-register-status.util';
 import { IDocumentMetricsGetResponseDto } from '../../schemas/get-document-metrics.schema';
 import { DocumentMetricsService } from '../../services/document-metrics.service';
 
@@ -82,7 +86,8 @@ export class WorkspaceDocMetricsComponent {
       this.workspaceContext.filterSubmitVersion();
       const filters = this.workspaceContext.filters();
       const side = this.side();
-      untracked(() => this.load({ ...filters, docType: side }));
+      const doc = this.kind();
+      untracked(() => this.load({ ...filters, docType: side, doc }));
     });
   }
 
@@ -116,7 +121,7 @@ export class WorkspaceDocMetricsComponent {
         title: TITLES[kind],
         icon: ICONS.COMMON.FILE,
         layout: 'kpi',
-        metrics: [{ label: '', value: all?.[kind].total ?? 0 }],
+        metrics: [{ label: '', value: all?.[kind]?.total ?? 0 }],
       },
     ];
 
@@ -167,7 +172,7 @@ export class WorkspaceDocMetricsComponent {
       case 'report':
       case 'invoice':
       case 'bookPayment':
-        return all?.[kind].unlockRequests ?? 0;
+        return all?.[kind]?.unlockRequests ?? 0;
       default:
         return null;
     }
@@ -192,7 +197,7 @@ export class WorkspaceDocMetricsComponent {
                 icon: ICONS.COMMON.EXCLAMATION_TRIANGLE,
                 layout: 'kpi',
                 metrics: [
-                  { label: '', value: all?.jmc.signedCopyMissing ?? 0 },
+                  { label: '', value: all?.jmc?.signedCopyMissing ?? 0 },
                 ],
               },
             ];
@@ -230,7 +235,7 @@ export class WorkspaceDocMetricsComponent {
             metrics: [
               {
                 label: '',
-                value: all?.bookPayment.transferPendingCount ?? 0,
+                value: all?.bookPayment?.transferPendingCount ?? 0,
               },
             ],
           },
@@ -254,10 +259,15 @@ export class WorkspaceDocMetricsComponent {
       }
       case 'gst': {
         const gst = all?.gst;
+        const side = this.side();
+        // Only vendor GST release is booked first ("in process"); client GST is just received.
+        const isSales = side === EDocContext.SALES;
         return [
           {
             id: 'gstVerification',
-            title: 'Portal verification',
+            title: side
+              ? `${getGstVerifyPortalName(side)} verification`
+              : 'Portal verification',
             icon: ICONS.COMMON.CHART,
             metrics: [
               { label: 'Verified', value: gst?.verified ?? 0 },
@@ -274,8 +284,13 @@ export class WorkspaceDocMetricsComponent {
                 value: gst?.holdPending ?? 0,
                 subtitle: this.money(gst?.holdPendingAmount),
               },
-              { label: 'In process', value: gst?.holdInProcess ?? 0 },
-              { label: 'Settled', value: gst?.holdSettled ?? 0 },
+              ...(isSales
+                ? []
+                : [{ label: 'In process', value: gst?.holdInProcess ?? 0 }]),
+              {
+                label: isSales ? 'Received' : side ? 'Released' : 'Settled',
+                value: gst?.holdSettled ?? 0,
+              },
             ],
           },
         ];
@@ -285,7 +300,9 @@ export class WorkspaceDocMetricsComponent {
         const groups: IMetricGroup[] = [
           {
             id: 'tdsVerification',
-            title: 'Verification (26Q / 26AS)',
+            title: this.side()
+              ? `${getTdsVerifyPortalName(this.side() as EDocContext)} verification`
+              : 'Verification (26Q / 26AS)',
             icon: ICONS.COMMON.CHART,
             metrics: [
               { label: 'Verified', value: tds?.verified ?? 0 },
@@ -297,7 +314,7 @@ export class WorkspaceDocMetricsComponent {
         if (!this.side() || isVendor) {
           groups.push({
             id: 'tdsChallan',
-            title: 'Challan (vendor)',
+            title: isVendor ? 'Challan' : 'Challan (vendor)',
             icon: ICONS.COMMON.CLOCK,
             metrics: [
               { label: 'Deposited', value: tds?.challanDeposited ?? 0 },

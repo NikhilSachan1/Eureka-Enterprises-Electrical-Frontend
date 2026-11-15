@@ -1,1 +1,84 @@
-<app-view-detail [drawerDetails]="leaveDetails" />
+<ng-template
+  #leaveDayWise
+  let-entry
+>
+  @let view = entry.value;
+  <div class="day-wise">
+    <!-- Split of the days by status -->
+    <div
+      class="day-wise__bar"
+      aria-hidden="true"
+    >
+      @for (segment of view.segments; track segment.status) {
+        <span
+          [style.flex]="segment.count"
+          [style.background]="segment.color"
+        ></span>
+      }
+    </div>
+    <div class="day-wise__chips">
+      @for (chip of view.chips; track chip.status) {
+        <app-status-tag
+          [value]="chip.label"
+          [config]="{ severity: chip.severity }"
+        />
+      }
+    </div>
+
+    <!-- One card per decision: which days, who, when, why -->
+    @for (decision of view.groups; track decision.key) {
+      <article class="decision">
+        <header class="decision__head">
+          <span class="decision__count">
+            {{ decision.dates.length }} {{ decision.dates.length === 1 ? 'day' : 'days' }}
+          </span>
+          <app-status-tag [value]="decision.statusLabel" />
+        </header>
+
+        <div class="decision__days">
+          @for (date of decision.dates; track date) {
+            <span class="decision__day">
+              <span class="decision__day-num">{{ date | date: 'dd' }}</span>
+              <span class="decision__day-name">{{ date | date: 'EEE' }}</span>
+            </span>
+          }
+        </div>
+
+        @if (decision.decidedBy; as by) {
+          <div class="decision__by">
+            <img
+              [src]="by.avatar"
+              [alt]="by.name"
+            />
+            <span>
+              <strong>{{ by.name }}</strong>
+              @if (by.at) {
+                <span class="decision__muted">
+                  · {{ by.at | date: APP_CONFIG.DATE_FORMATS.DEFAULT }},
+                  {{ by.at | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
+                </span>
+              }
+            </span>
+          </div>
+        } @else if (decision.isPending) {
+          <p class="decision__waiting">
+            <i class="pi pi-clock"></i>
+            Waiting for approval
+          </p>
+        }
+
+        @if (decision.remark) {
+          <div class="decision__remark">
+            <span class="decision__remark-label">Remark</span>
+            <p>{{ decision.remark }}</p>
+          </div>
+        }
+      </article>
+    }
+  </div>
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="leaveDetails"
+  [customTemplates]="{ leaveDayWise: leaveDayWise }"
+/>

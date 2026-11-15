@@ -31,10 +31,7 @@ const GAP_DOC_PATH: Record<string, string> = {
   'gst-release-not-transferred': WORKSPACE_DOC.BOOK_PAYMENT,
 };
 
-/**
- * Gaps settled in the project's GST / TDS summary rather than a contractor / vendor document
- * list. Those summaries sit directly under the workspace and cover both sides.
- */
+/** Gaps settled in the GST / TDS summary tab of the contractor / vendor side. */
 const GAP_TAX_SUMMARY_PATH: Record<string, string> = {
   'gst-not-verified': ROUTES.SITE.PROJECT.GST_SUMMARY,
   'gst-release-pending': ROUTES.SITE.PROJECT.GST_SUMMARY,
@@ -62,25 +59,13 @@ export function documentGapListCommands(
   partyType?: string | null
 ): string[] {
   const party = documentGapParty(partyType) ?? 'vendor';
-  const taxSummary = GAP_TAX_SUMMARY_PATH[key];
-
-  if (taxSummary) {
-    return [
-      '/',
-      ROUTE_BASE_PATHS.SITE.BASE,
-      ROUTE_BASE_PATHS.SITE.PROJECT,
-      ROUTES.SITE.PROJECT.WORKSPACE,
-      taxSummary,
-    ];
-  }
-
   return [
     '/',
     ROUTE_BASE_PATHS.SITE.BASE,
     ROUTE_BASE_PATHS.SITE.PROJECT,
     ROUTES.SITE.PROJECT.WORKSPACE,
     PARTY_PATH[party],
-    GAP_DOC_PATH[key] ?? WORKSPACE_DOC.PO,
+    GAP_TAX_SUMMARY_PATH[key] ?? GAP_DOC_PATH[key] ?? WORKSPACE_DOC.PO,
   ];
 }
 

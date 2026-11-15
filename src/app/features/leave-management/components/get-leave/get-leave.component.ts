@@ -11,21 +11,30 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
 import {
+  filterActionableLeaveDays,
+  getActionableLeaveDays,
   LEAVE_ACTION_CONFIG_MAP,
-  LEAVE_TABLE_ENHANCED_CONFIG,
+  LEAVE_DAY_ROW_ACTIONS_CONFIG,
+  LEAVE_NO_ACTIONABLE_DAY_MESSAGE,
+  LEAVE_GROUP_TABLE_ENHANCED_CONFIG,
   SEARCH_FILTER_LEAVE_FORM_CONFIG,
 } from '@features/leave-management/config';
 import {
   ILeaveGetBaseResponseDto,
   ILeaveGetFormDto,
-  ILeaveGetResponseDto,
   ILeaveGetStatsResponseDto,
+  ILeaveGroupGetBaseResponseDto,
+  ILeaveGroupGetResponseDto,
 } from '@features/leave-management/types/leave.dto';
-import { ILeave } from '@features/leave-management/types/leave.interface';
+import {
+  ILeaveDay,
+  ILeaveGroup,
+} from '@features/leave-management/types/leave.interface';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
+  NotificationService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -36,10 +45,10 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
-  IEnhancedTableConfig,
   IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
+  ITableActionConfig,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -53,11 +62,14 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import {
   applyGroupMetricValueLoading,
   getMappedValueFromArrayOfObjects,
 } from '@shared/utility';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { buildLeaveStatusChips } from '@features/leave-management/utils/leave.util';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-get-leave',
@@ -66,6 +78,8 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
     MetricsCardComponent,
     SearchFilterComponent,
     DataTableComponent,
+    StatusTagComponent,
+    DatePipe,
   ],
   templateUrl: './get-leave.component.html',
   styleUrl: './get-leave.component.scss',
@@ -87,8 +101,66 @@ export class GetLeaveComponent implements OnInit {
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
+  private readonly notificationService = inject(NotificationService);
 
+  /** One row per leave application (the days applied together). */
   protected table!: IEnhancedTable;
+  /** Applications on the current page. */
+  private readonly groups = signal<ILeaveGroupGetBaseResponseDto[]>([]);
+
+  /**
+   * The page's selection, kept as days: ticking an application ticks all its days, unticking a
+   * day unticks its application. The bulk bar works on these days.
+   */
+  private readonly selectedDayIds = signal<ReadonlySet<string>>(new Set());
+
+  /** Applications whose every day is selected — shown ticked in the main table. */
+  protected readonly selectedGroupIds = computed(() => {
+    const days = this.selectedDayIds();
+    return this.groups()
+      .filter(group => group.records.every(day => days.has(day.id)))
+      .map(group => group.groupId);
+  });
+
+  /** Selected days, for the bulk bar. */
+  protected readonly selectedDays = computed(() => {
+    const days = this.selectedDayIds();
+    return this.groups()
+      .flatMap(group => group.records)
+      .filter(day => days.has(day.id));
+  });
+
+  /** Approve / reject / cancel on each day row, styled like the row actions above. */
+  protected dayRowActions: Partial<ITableActionConfig>[] = [];
+
+  /** One day of an expanded application. */
+  protected handleLeaveDayActionClick(
+    event: ITableActionClickEvent<ILeaveGetBaseResponseDto>
+  ): void {
+    this.openLeaveActionDialog(event.actionType, event.selectedRows, false);
+  }
+
+  /** Day rows of an expanded application. */
+  protected readonly daysOf = (
+    row: Record<string, unknown>
+  ): Record<string, unknown>[] =>
+    (row as unknown as ILeaveGroup).days as unknown as Record<
+      string,
+      unknown
+    >[];
+
+  protected readonly isDayRowSelected = (
+    day: Record<string, unknown>
+  ): boolean => this.selectedDayIds().has(String(day['id']));
+
+  /** Some, not all, of its days ticked: the row shows "–". */
+  protected readonly isGroupPartiallySelected = (
+    row: Record<string, unknown>
+  ): boolean => {
+    const days = (row as unknown as ILeaveGroup).days ?? [];
+    const ticked = days.filter(day => this.selectedDayIds().has(day.id)).length;
+    return ticked > 0 && ticked < days.length;
+  };
   protected tableFilterData!: TableLazyLoadEvent;
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
   private readonly leaveStats = signal<ILeaveGetStatsResponseDto | null>(null);
@@ -100,8 +172,17 @@ export class GetLeaveComponent implements OnInit {
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
-      LEAVE_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
+      LEAVE_GROUP_TABLE_ENHANCED_CONFIG
     );
+    // Same defaults (outlined buttons) as every table's row actions.
+    this.dayRowActions = this.dataTableService
+      .createTable({
+        tableConfig: {},
+        headers: [],
+        rowActions: LEAVE_DAY_ROW_ACTIONS_CONFIG,
+        bulkActions: [],
+      })
+      .getRowActions() as unknown as Partial<ITableActionConfig>[];
     this.searchFilterConfig = SEARCH_FILTER_LEAVE_FORM_CONFIG;
   }
 
@@ -110,13 +191,13 @@ export class GetLeaveComponent implements OnInit {
     const paramData = this.prepareParamData();
 
     this.leaveService
-      .getLeaveList(paramData)
+      .getLeaveGroupList(paramData)
       .pipe(
         finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: ILeaveGetResponseDto) => {
+        next: (response: ILeaveGroupGetResponseDto) => {
           const { records, stats, totalRecords } = response;
 
           this.appConfigurationService.runAfterTouchedConfiguration(
@@ -149,22 +230,88 @@ export class GetLeaveComponent implements OnInit {
     return queryFilterParams;
   }
 
-  private mapTableData(response: ILeaveGetBaseResponseDto[]): ILeave[] {
-    return response.map((record: ILeaveGetBaseResponseDto) => {
+  private mapTableData(groups: ILeaveGroupGetBaseResponseDto[]): ILeaveGroup[] {
+    this.groups.set(groups);
+    this.selectedDayIds.set(new Set());
+    return groups.map(group => {
       return {
-        id: record.id,
-        leaveDate: [record.fromDate, record.toDate],
-        reason: record.reason,
-        approvalStatus: getMappedValueFromArrayOfObjects(
-          this.appConfigurationService.approvalStatus(),
-          record.approvalStatus
-        ),
-        employeeName: `${record.user.firstName} ${record.user.lastName}`,
-        employeeCode: record.user.employeeId,
-        originalRawData: record,
+        id: group.groupId,
+        leaveDate: [group.fromDate, group.toDate],
+        dayCountLabel:
+          group.dayCount === 1 ? '1 day' : `${group.dayCount} days`,
+        reason: group.reason,
+        approvalStatus: group.approvalStatus,
+        statusChips: buildLeaveStatusChips(group.statusCounts),
+        employeeName: `${group.user.firstName} ${group.user.lastName}`,
+        employeeCode: group.user.employeeId,
+        days: group.records.map(day => this.mapLeaveDay(day)),
+        originalRawData: group,
       };
     });
   }
+
+  private mapLeaveDay(day: ILeaveGetBaseResponseDto): ILeaveDay {
+    return {
+      id: day.id,
+      leaveDay: day.fromDate,
+      approvalStatus: this.statusLabel(day.approvalStatus),
+      originalRawData: day,
+    };
+  }
+
+  private statusLabel(status: string): string {
+    return getMappedValueFromArrayOfObjects(
+      this.appConfigurationService.approvalStatus(),
+      status
+    );
+  }
+
+  /** Main table ticks: a newly ticked application adds all its days, an unticked one drops them. */
+  protected onGroupSelectionChange(rows: Record<string, unknown>[]): void {
+    const ticked = new Set(
+      (rows as ILeaveGroupGetBaseResponseDto[]).map(group => group.groupId)
+    );
+    const shown = new Set(this.selectedGroupIds());
+    if (ticked.size === shown.size && [...ticked].every(id => shown.has(id))) {
+      return; // the table only echoed our own selection
+    }
+
+    const days = new Set(this.selectedDayIds());
+    for (const group of this.groups()) {
+      if (ticked.has(group.groupId) && !shown.has(group.groupId)) {
+        group.records.forEach(day => days.add(day.id));
+      } else if (!ticked.has(group.groupId) && shown.has(group.groupId)) {
+        group.records.forEach(day => days.delete(day.id));
+      }
+    }
+    this.selectedDayIds.set(days);
+  }
+
+  /** Tick / untick one day row. */
+  protected toggleDay(dayId: string): void {
+    const days = new Set(this.selectedDayIds());
+    if (days.has(dayId)) {
+      days.delete(dayId);
+    } else {
+      days.add(dayId);
+    }
+    this.selectedDayIds.set(days);
+  }
+
+  /** A partly ticked application's "–" ticks all its days. */
+  protected selectAllDays(group: ILeaveGroup): void {
+    const days = new Set(this.selectedDayIds());
+    group.days.forEach(day => days.add(day.id));
+    this.selectedDayIds.set(days);
+  }
+
+  protected clearDaySelection(): void {
+    this.selectedDayIds.set(new Set());
+  }
+
+  /** Only applications of more than one day open into their days. */
+  protected readonly hasSeveralDays = (row: Record<string, unknown>): boolean =>
+    Array.isArray(row['days']) && row['days'].length > 1;
 
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
     this.tableFilterData = tableFilterData;
@@ -254,8 +401,9 @@ export class GetLeaveComponent implements OnInit {
     return String(value).trim();
   }
 
+  /** Application row / bulk: acts on the days of the application(s) the action applies to. */
   protected handleLeaveTableActionClick(
-    event: ITableActionClickEvent<ILeaveGetBaseResponseDto>,
+    event: ITableActionClickEvent<ILeaveGroupGetBaseResponseDto>,
     isBulk: boolean
   ): void {
     const { actionType, selectedRows } = event;
@@ -265,6 +413,42 @@ export class GetLeaveComponent implements OnInit {
       this.showLeaveDetailsDrawer(selectedFirstRow);
       return;
     }
+
+    const days = getActionableLeaveDays(actionType, selectedRows);
+    if (!days.length) {
+      return;
+    }
+    this.openLeaveActionDialog(
+      actionType,
+      days,
+      isBulk || selectedRows.length > 1
+    );
+  }
+
+  /** Bulk bar: the selected days that the action allows. */
+  protected handleLeaveBulkActionClick(
+    event: ITableActionClickEvent<ILeaveGetBaseResponseDto>
+  ): void {
+    const days = filterActionableLeaveDays(
+      event.actionType,
+      event.selectedRows
+    );
+    if (!days.length) {
+      this.notificationService.error(
+        LEAVE_NO_ACTIONABLE_DAY_MESSAGE[event.actionType] ??
+          'None of the selected days can take this action.'
+      );
+      return;
+    }
+    this.openLeaveActionDialog(event.actionType, days, true);
+  }
+
+  private openLeaveActionDialog(
+    actionType: EButtonActionType,
+    selectedRows: ILeaveGetBaseResponseDto[],
+    isBulk: boolean
+  ): void {
+    const [selectedFirstRow] = selectedRows;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
@@ -282,7 +466,10 @@ export class GetLeaveComponent implements OnInit {
       dynamicComponentInputs.dialogActionType = actionType;
     }
 
-    const recordDetail = this.prepareLeaveRecordDetail(selectedFirstRow);
+    const recordDetail = this.prepareLeaveRecordDetail(
+      selectedFirstRow,
+      selectedRows
+    );
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
@@ -295,12 +482,15 @@ export class GetLeaveComponent implements OnInit {
   }
 
   private prepareLeaveRecordDetail(
-    selectedRow: ILeaveGetBaseResponseDto
+    selectedRow: ILeaveGetBaseResponseDto,
+    days: ILeaveGetBaseResponseDto[]
   ): IDataViewDetailsWithEntity {
+    const lastDay = days[days.length - 1] ?? selectedRow;
     const entryData: IDataViewDetails['entryData'] = [
       {
-        label: 'Leave Date',
-        value: [selectedRow.fromDate, selectedRow.toDate],
+        label:
+          days.length > 1 ? `Leave Date (${days.length} days)` : 'Leave Date',
+        value: [selectedRow.fromDate, lastDay.toDate],
         type: EDataType.RANGE,
         dataType: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
@@ -327,14 +517,14 @@ export class GetLeaveComponent implements OnInit {
     };
   }
 
-  private showLeaveDetailsDrawer(rowData: ILeaveGetBaseResponseDto): void {
-    this.logger.logUserAction('Opening leave details drawer', rowData);
+  private showLeaveDetailsDrawer(group: ILeaveGroupGetBaseResponseDto): void {
+    this.logger.logUserAction('Opening leave details drawer', group);
 
     this.drawerService.showDrawer(GetLeaveDetailComponent, {
       header: `Leave Details`,
-      subtitle: `Detailed view of leave`,
+      subtitle: `Day-wise status of the leave`,
       componentData: {
-        leave: rowData,
+        group,
       },
     });
   }

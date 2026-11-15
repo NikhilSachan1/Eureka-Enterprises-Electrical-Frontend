@@ -760,6 +760,8 @@ export class GetProjectWorkspaceComponent {
           REPORT_DOC.TABLE_VIEW,
           INVOICE_DOC.TABLE_VIEW,
           BANK_TRANSFER_DOC.TABLE_VIEW,
+          GST.TABLE_VIEW,
+          TDS.TABLE_VIEW,
         ]),
       },
       {
@@ -775,19 +777,9 @@ export class GetProjectWorkspaceComponent {
           PAYMENT_REQUEST_DOC.TABLE_VIEW,
           BANK_TRANSFER_DOC.TABLE_VIEW,
           BOOK_PAYMENT_DOC.TABLE_VIEW,
+          GST.TABLE_VIEW,
+          TDS.TABLE_VIEW,
         ]),
-      },
-      {
-        route: ROUTES.SITE.PROJECT.GST_SUMMARY,
-        label: 'GST Summary',
-        icon: this.icons.COMMON.TAG,
-        visible: this.appPermissionService.hasPermission(GST.TABLE_VIEW),
-      },
-      {
-        route: ROUTES.SITE.PROJECT.TDS_SUMMARY,
-        label: 'TDS Summary',
-        icon: this.icons.COMMON.TAG,
-        visible: this.appPermissionService.hasPermission(TDS.TABLE_VIEW),
       },
       {
         route: ROUTES.SITE.PROJECT.DAILY_PROGRESS,

@@ -7,8 +7,6 @@ import {
   DOC_MANAGEMENT_CONTRACTOR_DOC_ROUTES,
   DOC_MANAGEMENT_VENDOR_DOC_ROUTES,
 } from '@features/site-management/doc-management/doc.routes';
-import { GST_MANAGEMENT_ROUTES } from '@features/site-management/doc-management/sub-features/gst-management/gst.routes';
-import { TDS_MANAGEMENT_ROUTES } from '@features/site-management/doc-management/sub-features/tds-management/tds.routes';
 import { DSR_MANAGEMENT_DAILY_PROGRESS_ROUTES } from '@features/site-management/dsr-management/dsr.routes';
 import { PROJECT_WORKSPACE_PROFITABILITY_ROUTES } from '@features/site-management/project-profitability/profitability.routes';
 import { PROJECT_WORKSPACE_SITE_ALLOCATION_ROUTES } from './site-allocation.routes';
@@ -86,8 +84,6 @@ export const PROJECT_MANAGEMENT_ROUTES: Routes = [
       ...PROJECT_WORKSPACE_PROFITABILITY_ROUTES,
       ...DOC_MANAGEMENT_CONTRACTOR_DOC_ROUTES,
       ...DOC_MANAGEMENT_VENDOR_DOC_ROUTES,
-      ...GST_MANAGEMENT_ROUTES,
-      ...TDS_MANAGEMENT_ROUTES,
       ...DSR_MANAGEMENT_DAILY_PROGRESS_ROUTES,
       ...PROJECT_WORKSPACE_SITE_ALLOCATION_ROUTES,
     ],

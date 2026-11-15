@@ -49,6 +49,13 @@ export interface IDataViewDetails {
   approvalBy?: IUserAuditInfo;
   createdBy?: IUserAuditInfo;
   updatedBy?: IUserAuditInfo;
+  /** Each step someone took on the record (verified, released, …), oldest first. */
+  auditTrail?: IAuditTrailStep[];
+}
+
+export interface IAuditTrailStep extends IUserAuditInfo {
+  /** What was done, e.g. "Verified in 26Q". */
+  action: string;
 }
 
 export interface IDataViewDetailsWithEntity {

@@ -25,11 +25,6 @@
     class="gst-header-filters"
   >
     <app-input-field
-      [inputFieldConfig]="partyTypeFilterFieldConfig"
-      [fieldValue]="selectedPartyType()"
-      (onFieldChange)="onPartyTypeFilterChange($event)"
-    />
-    <app-input-field
       [inputFieldConfig]="isVerifiedFilterFieldConfig"
       [fieldValue]="selectedIsVerified()"
       (onFieldChange)="onIsVerifiedFilterChange($event)"
@@ -42,7 +37,10 @@
   </div>
 </app-page-header>
 
-<app-workspace-doc-metrics kind="gst" />
+<app-workspace-doc-metrics
+  kind="gst"
+  [side]="docContext"
+/>
 
 <app-data-table
   #dataTable

@@ -3,6 +3,8 @@ import { APP_PERMISSION } from '@core/constants';
 import { permissionGuard } from '@core/guards';
 import { ROUTES } from '@shared/constants';
 import { EDocContext } from './types/doc.enum';
+import { GST_MANAGEMENT_ROUTES } from './sub-features/gst-management/gst.routes';
+import { TDS_MANAGEMENT_ROUTES } from './sub-features/tds-management/tds.routes';
 
 const { WORKSPACE_DOC } = ROUTES.SITE.PROJECT;
 const {
@@ -16,7 +18,7 @@ const {
   BANK_TRANSFER_DOC,
 } = APP_PERMISSION;
 
-/** Sales (contractor): PO, JMC, Report, Invoice, Bank Transfer. */
+/** Sales (contractor): PO, JMC, Report, Invoice, Bank Transfer, GST, TDS. */
 const DOC_WORKSPACE_SALES_CHILDREN: Routes = [
   {
     path: WORKSPACE_DOC.PO,
@@ -63,6 +65,8 @@ const DOC_WORKSPACE_SALES_CHILDREN: Routes = [
     canActivate: [permissionGuard],
     data: { permissions: [BANK_TRANSFER_DOC.TABLE_VIEW] },
   },
+  ...GST_MANAGEMENT_ROUTES,
+  ...TDS_MANAGEMENT_ROUTES,
 ];
 
 /** Purchase (vendor): same as sales + Advance Payment, Payment Request, and Book Payment. */
@@ -139,6 +143,8 @@ const DOC_WORKSPACE_PURCHASE_CHILDREN: Routes = [
     canActivate: [permissionGuard],
     data: { permissions: [BANK_TRANSFER_DOC.TABLE_VIEW] },
   },
+  ...GST_MANAGEMENT_ROUTES,
+  ...TDS_MANAGEMENT_ROUTES,
 ];
 
 /** Project workspace: contractor (sales) documents. */

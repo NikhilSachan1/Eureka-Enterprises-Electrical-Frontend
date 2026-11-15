@@ -11,7 +11,9 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   getGstRevertDisableReason,
   getGstSettleDisableReason,
+  getGstVerifyPortalName,
 } from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
+import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { IGstEntryGetBaseResponseDto } from '../../types/gst.dto';
 
 export const GST_ENTRY_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -68,9 +70,15 @@ export const GST_ENTRY_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] =
     },
   ];
 
-const buildGstEntryTableRowActionsConfig = (): Partial<
-  ITableActionConfig<IGstEntryGetBaseResponseDto>
->[] => [
+/** Settle wording per side: we release vendor GST, the client pays contractor GST to us. */
+const SETTLE_TOOLTIP: Record<EDocContext, string> = {
+  [EDocContext.PURCHASE]: 'Book the held GST release to the vendor',
+  [EDocContext.SALES]: 'Mark the held GST received from the client',
+};
+
+const buildGstEntryTableRowActionsConfig = (
+  side: EDocContext | null
+): Partial<ITableActionConfig<IGstEntryGetBaseResponseDto>>[] => [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View GST entry details',
@@ -78,7 +86,9 @@ const buildGstEntryTableRowActionsConfig = (): Partial<
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
-    tooltip: 'Verify on GST portal (GSTR-2B / GSTR-1)',
+    tooltip: side
+      ? `Verify in ${getGstVerifyPortalName(side)}`
+      : 'Verify on GST portal (GSTR-2B / GSTR-1)',
     disableWhen: (row: IGstEntryGetBaseResponseDto) => row.isVerified,
     disableReason: (row: IGstEntryGetBaseResponseDto) =>
       row.isVerified ? 'This entry is already verified.' : undefined,
@@ -95,7 +105,9 @@ const buildGstEntryTableRowActionsConfig = (): Partial<
   },
   {
     id: EButtonActionType.PAID,
-    tooltip: 'Settle held GST (book release to vendor / mark received)',
+    tooltip: side
+      ? SETTLE_TOOLTIP[side]
+      : 'Settle held GST (book release to vendor / mark received)',
     permission: [APP_PERMISSION.GST.RELEASE],
     disableWhen: (row: IGstEntryGetBaseResponseDto) =>
       !!getGstSettleDisableReason(row),
@@ -104,14 +116,15 @@ const buildGstEntryTableRowActionsConfig = (): Partial<
   },
 ];
 
-const buildGstEntryTableBulkActionsConfig = (): Partial<
-  ITableActionConfig<IGstEntryGetBaseResponseDto>
->[] => [
+const buildGstEntryTableBulkActionsConfig = (
+  side: EDocContext | null
+): Partial<ITableActionConfig<IGstEntryGetBaseResponseDto>>[] => [
   {
     id: EButtonActionType.PAID,
     label: 'Settle Held GST',
-    tooltip:
-      'Book the held GST release to the vendor / mark it received from the client',
+    tooltip: side
+      ? SETTLE_TOOLTIP[side]
+      : 'Book the held GST release to the vendor / mark it received from the client',
     permission: [APP_PERMISSION.GST.RELEASE],
     disableWhen: (row: IGstEntryGetBaseResponseDto) =>
       !!getGstSettleDisableReason(row),
@@ -124,11 +137,20 @@ const buildGstEntryTableBulkActionsConfig = (): Partial<
   },
 ];
 
-export function createGstEntryTableEnhancedConfig(): IEnhancedTableConfig<IGstEntryGetBaseResponseDto> {
+/** GST register for one side; verification is named after the side's return. */
+export function createGstEntryTableEnhancedConfig(
+  side: EDocContext | null
+): IEnhancedTableConfig<IGstEntryGetBaseResponseDto> {
+  const headers = GST_ENTRY_TABLE_HEADERS_CONFIG.map(header =>
+    side && header.field === 'verificationStatusLabel'
+      ? { ...header, header: getGstVerifyPortalName(side) }
+      : header
+  );
+
   return {
     tableConfig: GST_ENTRY_TABLE_CONFIG,
-    headers: GST_ENTRY_TABLE_HEADERS_CONFIG,
-    rowActions: buildGstEntryTableRowActionsConfig(),
-    bulkActions: buildGstEntryTableBulkActionsConfig(),
+    headers,
+    rowActions: buildGstEntryTableRowActionsConfig(side),
+    bulkActions: buildGstEntryTableBulkActionsConfig(side),
   };
 }

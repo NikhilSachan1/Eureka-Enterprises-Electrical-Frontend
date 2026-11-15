@@ -188,15 +188,8 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
         approvalStatus: record.isVerified ? 'approved' : 'pending',
       },
       entryData,
-      ...(record.isVerified && record.verifiedByUser
-        ? {
-            approvalBy: {
-              user: record.verifiedByUser,
-              date: record.verifiedAt,
-              notes: record.verifyRemarks,
-            },
-          }
-        : {}),
+      // Verified, reverted, released / challan: who did each step, oldest first.
+      auditTrail: record.auditTrail,
     };
 
     return {

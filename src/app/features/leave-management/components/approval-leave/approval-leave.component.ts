@@ -55,13 +55,22 @@ export class ApprovalLeaveComponent
 
   protected readonly EButtonActionTypeEnum = EButtonActionType;
 
-  protected readonly shouldShowAttendanceStatus = computed(() => {
-    const { fromDate } = this.selectedRecord()[0];
-    return shouldShowAttendanceStatusField(
+  /** Earliest selected day: attendance is asked when any selected day has started. */
+  private readonly earliestFromDate = computed(
+    () =>
+      new Date(
+        Math.min(
+          ...this.selectedRecord().map(row => new Date(row.fromDate).getTime())
+        )
+      )
+  );
+
+  protected readonly shouldShowAttendanceStatus = computed(() =>
+    shouldShowAttendanceStatusField(
       this.dialogActionType(),
-      new Date(fromDate)
-    );
-  });
+      this.earliestFromDate()
+    )
+  );
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -76,8 +85,7 @@ export class ApprovalLeaveComponent
     }
 
     const actionType = this.dialogActionType();
-    const { fromDate: fromDateString } = record[0];
-    const fromDate = new Date(fromDateString);
+    const fromDate = this.earliestFromDate();
 
     this.form = this.formService.createForm<ILeaveActionUIFormDto>(
       APPROVAL_ACTION_LEAVE_FORM_CONFIG,
@@ -103,8 +111,6 @@ export class ApprovalLeaveComponent
   private prepareFormData(): ILeaveActionFormDto {
     const record = this.selectedRecord();
     const formData = this.form.getData();
-    const [{ fromDate: fromDateRaw }] = record;
-    const fromDate = new Date(fromDateRaw);
 
     let actionTypeValue!: ETableActionTypeValue;
 
@@ -117,16 +123,19 @@ export class ApprovalLeaveComponent
     }
 
     const isApprove = this.dialogActionType() === EButtonActionType.APPROVE;
-    // Future leave: do not send attendance — API rejects attendance when the period has not started.
     const attendanceStatus = isApprove
-      ? isLeaveStartOnOrBeforeToday(fromDate)
-        ? EAttendanceStatus.LEAVE
-        : undefined
+      ? EAttendanceStatus.LEAVE
       : formData.attendanceStatus;
+    // Days not started yet get no attendance — the API rejects it for them. A multi-day
+    // application can have both kinds, so this is decided per day.
+    const futureLeaveIds = record
+      .filter(row => !isLeaveStartOnOrBeforeToday(new Date(row.fromDate)))
+      .map(row => row.id);
 
     return {
       ...formData,
       attendanceStatus,
+      futureLeaveIds,
       leaveIds: record.map((row: ILeaveGetBaseResponseDto) => row.id),
       approvalStatus: actionTypeValue as unknown as EApprovalStatus,
     };

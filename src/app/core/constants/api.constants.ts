@@ -84,7 +84,8 @@ export const API_ROUTES = {
       `fuel-expenses/${fuelExpenseId}/history`,
   },
   LEAVE: {
-    LIST: 'leave',
+    /** One row per leave submission, with its days. */
+    GROUPS: 'leave/groups',
     APPLY: 'leave/apply',
     FORCE: 'leave/force',
     APPROVAL_ACTION: 'leave/approval',
@@ -216,8 +217,9 @@ export const API_ROUTES = {
     METRICS: 'document-metrics',
   },
   SITE: {
+    /** A project's (site's) activity timeline, by project id. */
     TIMELINE: {
-      GET: (siteId: string) => `analytics/sites/${siteId}/timeline`,
+      GET: (projectId: string) => `analytics/sites/${projectId}/timeline`,
     },
     PROFITABILITY: {
       GET: 'analytics/profitability/detail',

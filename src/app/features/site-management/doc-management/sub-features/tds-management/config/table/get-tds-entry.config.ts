@@ -11,7 +11,9 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   getTdsChallanDisableReason,
   getTdsVerifyDisableReason,
+  getTdsVerifyPortalName,
 } from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
+import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { ITdsEntryGetBaseResponseDto } from '../../types/tds.dto';
 
 export const TDS_ENTRY_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -68,9 +70,9 @@ export const TDS_ENTRY_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] =
     },
   ];
 
-const buildTdsEntryTableRowActionsConfig = (): Partial<
-  ITableActionConfig<ITdsEntryGetBaseResponseDto>
->[] => [
+const buildTdsEntryTableRowActionsConfig = (
+  side: EDocContext | null
+): Partial<ITableActionConfig<ITdsEntryGetBaseResponseDto>>[] => [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View TDS entry details',
@@ -87,7 +89,9 @@ const buildTdsEntryTableRowActionsConfig = (): Partial<
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
-    tooltip: 'Verify in 26Q (vendor) / Form 26AS (contractor)',
+    tooltip: side
+      ? `Verify in ${getTdsVerifyPortalName(side)}`
+      : 'Verify in 26Q (vendor) / Form 26AS (contractor)',
     disableWhen: (row: ITdsEntryGetBaseResponseDto) =>
       !!getTdsVerifyDisableReason(row),
     disableReason: (row: ITdsEntryGetBaseResponseDto) =>
@@ -110,7 +114,7 @@ const buildTdsEntryTableBulkActionsConfig = (): Partial<
   {
     id: EButtonActionType.PAID,
     label: 'Record Challan',
-    tooltip: 'Record one TDS challan for the selected vendor entries',
+    tooltip: 'Record one TDS challan for the selected entries',
     permission: [APP_PERMISSION.TDS.RELEASE],
     disableWhen: (row: ITdsEntryGetBaseResponseDto) =>
       !!getTdsChallanDisableReason(row),
@@ -123,11 +127,28 @@ const buildTdsEntryTableBulkActionsConfig = (): Partial<
   },
 ];
 
-export function createTdsEntryTableEnhancedConfig(): IEnhancedTableConfig<ITdsEntryGetBaseResponseDto> {
+/**
+ * TDS register for one side. Contractor TDS is deposited by the client, so that side has no
+ * deposit column and no challan actions; verification is named after the side's portal.
+ */
+export function createTdsEntryTableEnhancedConfig(
+  side: EDocContext | null
+): IEnhancedTableConfig<ITdsEntryGetBaseResponseDto> {
+  const isSales = side === EDocContext.SALES;
+  const headers = TDS_ENTRY_TABLE_HEADERS_CONFIG.filter(
+    header => !(isSales && header.field === 'depositStatusLabel')
+  ).map(header =>
+    side && header.field === 'verificationStatusLabel'
+      ? { ...header, header: getTdsVerifyPortalName(side) }
+      : header
+  );
+
   return {
     tableConfig: TDS_ENTRY_TABLE_CONFIG,
-    headers: TDS_ENTRY_TABLE_HEADERS_CONFIG,
-    rowActions: buildTdsEntryTableRowActionsConfig(),
-    bulkActions: buildTdsEntryTableBulkActionsConfig(),
+    headers,
+    rowActions: buildTdsEntryTableRowActionsConfig(side).filter(
+      action => !(isSales && action.id === EButtonActionType.PAID)
+    ),
+    bulkActions: isSales ? [] : buildTdsEntryTableBulkActionsConfig(),
   };
 }
