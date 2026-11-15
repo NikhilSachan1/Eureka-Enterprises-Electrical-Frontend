@@ -82,7 +82,8 @@ export class WorkspaceDocMetricsComponent {
       this.workspaceContext.filterSubmitVersion();
       const filters = this.workspaceContext.filters();
       const side = this.side();
-      untracked(() => this.load({ ...filters, docType: side }));
+      const doc = this.kind();
+      untracked(() => this.load({ ...filters, docType: side, doc }));
     });
   }
 
@@ -116,7 +117,7 @@ export class WorkspaceDocMetricsComponent {
         title: TITLES[kind],
         icon: ICONS.COMMON.FILE,
         layout: 'kpi',
-        metrics: [{ label: '', value: all?.[kind].total ?? 0 }],
+        metrics: [{ label: '', value: all?.[kind]?.total ?? 0 }],
       },
     ];
 
@@ -167,7 +168,7 @@ export class WorkspaceDocMetricsComponent {
       case 'report':
       case 'invoice':
       case 'bookPayment':
-        return all?.[kind].unlockRequests ?? 0;
+        return all?.[kind]?.unlockRequests ?? 0;
       default:
         return null;
     }
@@ -192,7 +193,7 @@ export class WorkspaceDocMetricsComponent {
                 icon: ICONS.COMMON.EXCLAMATION_TRIANGLE,
                 layout: 'kpi',
                 metrics: [
-                  { label: '', value: all?.jmc.signedCopyMissing ?? 0 },
+                  { label: '', value: all?.jmc?.signedCopyMissing ?? 0 },
                 ],
               },
             ];
@@ -230,7 +231,7 @@ export class WorkspaceDocMetricsComponent {
             metrics: [
               {
                 label: '',
-                value: all?.bookPayment.transferPendingCount ?? 0,
+                value: all?.bookPayment?.transferPendingCount ?? 0,
               },
             ],
           },
