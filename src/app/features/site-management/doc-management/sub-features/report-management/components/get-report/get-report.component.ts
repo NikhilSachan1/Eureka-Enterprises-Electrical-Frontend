@@ -53,10 +53,13 @@ import { ProjectWorkspaceContextService } from '@features/site-management/projec
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 
+import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+
 @Component({
   selector: 'app-get-report',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    WorkspaceDocMetricsComponent,
     PageHeaderComponent,
     DataTableComponent,
     DocReferenceComponent,
@@ -82,7 +85,9 @@ export class GetReportComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
-  protected readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly docRouteContext = signal<EDocContext | undefined>(
+    undefined
+  );
   protected readonly searchTerm = signal<string>('');
 
   protected readonly pageHeaderConfig = computed(

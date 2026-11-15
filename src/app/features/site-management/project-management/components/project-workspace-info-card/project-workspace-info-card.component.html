@@ -154,6 +154,7 @@
       styleClass="pov-people"
       [dismissable]="true"
       appendTo="body"
+      (onHide)="onPeopleHide(peoplePopover)"
     >
       @let list = people();
       <div

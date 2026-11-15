@@ -66,10 +66,13 @@ import {
   buildInvoiceTaxGstAmountSegments,
 } from '../../utils/invoice-table-row.util';
 
+import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+
 @Component({
   selector: 'app-get-invoice',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    WorkspaceDocMetricsComponent,
     PageHeaderComponent,
     DataTableComponent,
     UnlockRequestComponent,

@@ -13,6 +13,11 @@
   (onSearch)="onSearchChange($event)"
 />
 
+<app-workspace-doc-metrics
+  kind="invoice"
+  [side]="docRouteContext() ?? null"
+/>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"

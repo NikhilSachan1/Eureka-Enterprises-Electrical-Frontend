@@ -70,10 +70,13 @@ import {
 } from '../../utils/po-table-row.util';
 import { buildPoTaxSettlementSegments } from '../../utils/po-tax-settlement.util';
 
+import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+
 @Component({
   selector: 'app-get-po',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    WorkspaceDocMetricsComponent,
     PageHeaderComponent,
     DataTableComponent,
     UnlockRequestComponent,

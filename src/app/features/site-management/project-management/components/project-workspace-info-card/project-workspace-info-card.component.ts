@@ -112,6 +112,14 @@ export class ProjectWorkspaceInfoCardComponent {
       })
   );
 
+  /** Count whose list is open, and one clicked while another was open. */
+  private openKind: TPeopleKind | null = null;
+  private pendingOpen: {
+    list: IPeopleList;
+    kind: TPeopleKind;
+    target: HTMLElement;
+  } | null = null;
+
   /** List in the people popover, set by the count that opened it. */
   protected readonly people = signal<IPeopleList>({
     title: '',
@@ -183,8 +191,42 @@ export class ProjectWorkspaceInfoCardComponent {
         items: this.team(),
       },
     };
+    const target = event.currentTarget as HTMLElement;
+
+    // Same count again: close.
+    if (this.openKind === kind) {
+      popover.hide();
+      return;
+    }
+
+    // Another count is open: close it, then open this one once it has gone (onPeopleHide).
+    // Toggling directly fails here — the outside-click handler starts closing the panel and
+    // Popover ignores toggles while that animation runs, so the second count needed a 2nd click.
+    if (this.openKind) {
+      this.pendingOpen = { list: lists[kind], kind, target };
+      popover.hide();
+      return;
+    }
+
     this.people.set(lists[kind]);
-    popover.toggle(event);
+    this.openKind = kind;
+    popover.show(event, target);
+  }
+
+  /** Popover closed: open the count that was clicked while it was open, if any. */
+  protected onPeopleHide(popover: Popover): void {
+    const pending = this.pendingOpen;
+    this.pendingOpen = null;
+    this.openKind = null;
+    if (!pending) {
+      return;
+    }
+    // Next tick: Popover finishes tearing down the closed panel right after emitting onHide.
+    setTimeout(() => {
+      this.people.set(pending.list);
+      this.openKind = pending.kind;
+      popover.show(null, pending.target);
+    });
   }
 
   private partyItems(rows: ({ name?: string | null } | null)[]): IPeopleItem[] {
