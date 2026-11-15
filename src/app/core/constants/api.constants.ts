@@ -212,6 +212,8 @@ export const API_ROUTES = {
   },
   DOCUMENT_STATUS: {
     PO_BREAKDOWN: 'document-status/po-breakdown',
+    /** Counts and amounts for the workspace document tabs. */
+    METRICS: 'document-metrics',
   },
   SITE: {
     TIMELINE: {

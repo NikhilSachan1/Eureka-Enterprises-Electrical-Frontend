@@ -55,10 +55,13 @@ import { DocReferenceHierarchy } from '@features/site-management/doc-management/
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 import { getBookPaymentTypeLabel } from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
 
+import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+
 @Component({
   selector: 'app-get-book-payment',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    WorkspaceDocMetricsComponent,
     PageHeaderComponent,
     DataTableComponent,
     DocReferenceComponent,

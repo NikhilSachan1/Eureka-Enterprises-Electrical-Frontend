@@ -211,9 +211,12 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
       | ISiteAllocationGetBaseResponseDto['updatedByUser']
   ): ISiteAllocationHistory['lastUpdatedBy'] {
     const fullName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
+    if (!fullName) {
+      return null;
+    }
 
     return {
-      fullName: fullName || '—',
+      fullName,
       employeeId: user?.employeeId ?? '',
     };
   }
@@ -328,10 +331,11 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
           ? [allocatedAt]
           : [];
 
+    const role = record.role?.trim();
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Role',
-        value: record.role?.trim() || '—',
+        value: role !== undefined && role !== '' ? role : '—',
       },
       {
         label: 'Period',
