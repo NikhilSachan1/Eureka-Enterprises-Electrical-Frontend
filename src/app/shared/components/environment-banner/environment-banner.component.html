@@ -1,32 +1,15 @@
 @if (showBanner) {
-  @switch (environment) {
-    @case (EEnvironment.LOCAL) {
-      <div
-        class="environment-ribbon environment-ribbon--local"
-        role="status"
-        aria-label="Local, non-production environment"
-      >
-        <span
-          class="environment-ribbon__band"
-          aria-hidden="true"
-        >
-          Local
-        </span>
-      </div>
-    }
-    @case (EEnvironment.DEVELOPMENT) {
-      <div
-        class="environment-ribbon environment-ribbon--uat"
-        role="status"
-        aria-label="UAT, non-production environment"
-      >
-        <span
-          class="environment-ribbon__band"
-          aria-hidden="true"
-        >
-          UAT
-        </span>
-      </div>
-    }
-  }
+  <div
+    [class]="'environment-ribbon environment-ribbon--' + variant"
+    role="status"
+    [attr.aria-label]="ariaLabel"
+  >
+    <span
+      class="environment-ribbon__band"
+      aria-hidden="true"
+    >
+      <span class="environment-ribbon__app">{{ appLabel }}</span>
+      <span class="environment-ribbon__api">API · {{ apiLabel }}</span>
+    </span>
+  </div>
 }
