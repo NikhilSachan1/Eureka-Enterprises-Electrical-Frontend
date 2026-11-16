@@ -135,6 +135,11 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
+      {
+        label: 'Lock status',
+        value: record.isLocked ? 'Locked' : 'Unlocked',
+        type: EDataType.STATUS,
+      },
       ...(record.paidFromAccount
         ? [
             {

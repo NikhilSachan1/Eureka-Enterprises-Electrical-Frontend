@@ -4,6 +4,7 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
 import { AddBankTransferComponent } from '../../components/add-bank-transfer/add-bank-transfer.component';
 import { EditBankTransferComponent } from '../../components/edit-bank-transfer/edit-bank-transfer.component';
 import { DeleteBankTransferComponent } from '../../components/delete-bank-transfer/delete-bank-transfer.component';
+import { LockBankTransferComponent } from '../../components/lock-bank-transfer/lock-bank-transfer.component';
 import { SendEmailPaymentAdviceComponent } from '../../components/send-email-payment-advice/send-email-payment-advice.component';
 
 export function getBankTransferActionConfigMap(
@@ -35,6 +36,24 @@ export function getBankTransferActionConfigMap(
     [EButtonActionType.DELETE]: {
       dialogConfig: DELETE_CONFIRMATION_DIALOG_CONFIG,
       dynamicComponent: DeleteBankTransferComponent,
+    },
+
+    [EButtonActionType.LOCK]: {
+      dialogConfig: {
+        header: isSales ? 'Lock Bank Received' : 'Lock Bank Transfer',
+        message:
+          'Lock this record? It cannot be edited or deleted until an admin unlocks it.',
+      },
+      dynamicComponent: LockBankTransferComponent,
+    },
+
+    [EButtonActionType.UNLOCK]: {
+      dialogConfig: {
+        header: isSales ? 'Unlock Bank Received' : 'Unlock Bank Transfer',
+        message:
+          'Unlock this record so it can be edited or deleted? It locks again after the next edit.',
+      },
+      dynamicComponent: LockBankTransferComponent,
     },
 
     [EButtonActionType.SEND_EMAIL]: {

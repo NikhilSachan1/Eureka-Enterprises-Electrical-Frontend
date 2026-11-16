@@ -26,6 +26,8 @@ export {
 
 export { DeleteBankTransferResponseSchema } from './delete-bank-transfer.schema';
 
+export { LockBankTransferResponseSchema } from './lock-bank-transfer.schema';
+
 export {
   SendEmailBankTransferRequestSchema,
   SendEmailBankTransferResponseSchema,
