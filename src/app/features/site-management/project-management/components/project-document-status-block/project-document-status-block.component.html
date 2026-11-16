@@ -35,10 +35,13 @@
     />
   </div>
 
-  <app-project-document-status-detail
-    [visible]="detailVisible()"
-    (visibleChange)="onDetailVisibleChange($event)"
-    [project]="target"
-    [breakdownSnapshot]="detailSnapshot()"
-  />
+  <!-- The detail (and its graph library) loads the first time it is opened. -->
+  @defer (when detailVisible()) {
+    <app-project-document-status-detail
+      [visible]="detailVisible()"
+      (visibleChange)="onDetailVisibleChange($event)"
+      [project]="target"
+      [breakdownSnapshot]="detailSnapshot()"
+    />
+  }
 }

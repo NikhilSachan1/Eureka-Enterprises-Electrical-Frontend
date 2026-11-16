@@ -1,7 +1,12 @@
 <div class="chart-container">
-  <p-chart
-    [type]="chartConfig().chartType"
-    [data]="chartData()"
-    [options]="chartOptions()"
-  />
+  <!-- chart.js loads when the chart scrolls into view. -->
+  @defer (on viewport) {
+    <app-chart-canvas
+      [type]="chartConfig().chartType"
+      [data]="chartData()"
+      [options]="chartOptions()"
+    />
+  } @placeholder {
+    <div class="chart-loading"></div>
+  }
 </div>

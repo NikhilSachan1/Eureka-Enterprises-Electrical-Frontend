@@ -27,10 +27,7 @@ import {
 } from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import {
-  getMappedValueFromArrayOfObjects,
-  toTitleCase,
-} from '@shared/utility';
+import { getMappedValueFromArrayOfObjects, toTitleCase } from '@shared/utility';
 import { PopoverModule, Popover } from 'primeng/popover';
 import { SIDEBAR_FOOTER_POPOVER_CLASS } from '../sidebar-popover.util';
 
@@ -64,7 +61,12 @@ export class SidebarUserProfileComponent implements OnInit {
   protected readonly isSubmitting = signal(false);
   protected readonly menuOpen = signal(false);
 
-  readonly primaryOptions = primaryUserOptions;
+  /** System users have no employee record, so "My Profile" has nothing to show. */
+  readonly primaryOptions = computed(() =>
+    this.authService.user()?.isSystemUser
+      ? primaryUserOptions.filter(option => option.id !== 'profile')
+      : primaryUserOptions
+  );
   readonly secondaryOptions = secondaryUserOptions;
 
   readonly user = computed(() => this.authService.user());
@@ -85,7 +87,9 @@ export class SidebarUserProfileComponent implements OnInit {
     }));
   });
 
-  readonly activeRoleId = computed(() => this.authService.user()?.activeRole ?? '');
+  readonly activeRoleId = computed(
+    () => this.authService.user()?.activeRole ?? ''
+  );
 
   readonly activeRoleName = computed(() =>
     getMappedValueFromArrayOfObjects(

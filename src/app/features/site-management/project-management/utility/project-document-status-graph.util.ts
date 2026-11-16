@@ -1,4 +1,3 @@
-import type { Edge, Node } from '@swimlane/ngx-graph';
 import { APP_CONFIG } from '@core/config';
 import { transformDateFormat } from '@shared/utility/date-time.util';
 import {
@@ -19,6 +18,8 @@ import {
 import {
   IDocGraph,
   IDocGraphBuildContext,
+  IDocGraphLink as Edge,
+  IDocGraphNode as Node,
   IGraphCardView,
 } from '../types/project-document-status-detail.interface';
 import {
@@ -30,9 +31,6 @@ import {
   isGstSettled,
   needsAdditionalBookPayment,
 } from './project-document-status-chain.util';
-
-const NODE_WIDTH = 252;
-const NODE_HEIGHT = 122;
 
 export function buildPoDocumentGraph(
   po: IPoBreakdownRecord,
@@ -93,38 +91,9 @@ export function buildPoDocumentGraph(
   return { nodes, links };
 }
 
-/** Single-node graph when no PO exists yet — makes the first missing step explicit. */
-export function buildMissingPoGraph(ctx: IDocGraphBuildContext): IDocGraph {
-  const nodes: Node[] = [];
-
-  pushNode(
-    nodes,
-    'missing-po',
-    createExpectedMissingNode(EDocChainStage.PO, ctx, {
-      statusLabel: 'Not created',
-    })
-  );
-
-  return { nodes, links: [] };
-}
-
-function graphNodeClass(data: IDocChainNodeVm): string {
-  if (data.isNotApplicable) {
-    return 'doc-chain-card doc-chain-card--not-applicable';
-  }
-
-  if (data.isExpectedMissing) {
-    return 'doc-chain-card doc-chain-card--expected-missing';
-  }
-
-  return 'doc-chain-card';
-}
-
+/** What one line of the document tree shows for a document. */
 export function buildGraphCardView(data: IDocChainNodeVm): IGraphCardView {
-  const formattedDate = formatGraphDocDate(data.docDate);
-
   return {
-    className: graphNodeClass(data),
     stageTone: graphStageTone(data.stage),
     stageIcon: graphStageIcon(data.stage),
     state: data.state.toLowerCase(),
@@ -132,10 +101,8 @@ export function buildGraphCardView(data: IDocChainNodeVm): IGraphCardView {
     docName: data.docName,
     primaryText: graphPrimaryText(data),
     isPlaceholder: !hasDocNumber(data) || !!data.isNotApplicable,
-    dateLabel: graphDateFactLabel(data.stage),
-    formattedDate,
+    formattedDate: formatGraphDocDate(data.docDate),
     amount: data.amount,
-    hasFacts: Boolean(data.amount) || formattedDate !== '—',
     missingFileLabel: data.missingFileLabel ?? null,
   };
 }
@@ -247,10 +214,6 @@ function expectedMissingPrimaryText(
     default:
       return `${docName} not created yet`;
   }
-}
-
-function graphDateFactLabel(stage: EDocChainStage): string {
-  return stage === EDocChainStage.REPORT ? 'Upload date' : 'Date';
 }
 
 function formatGraphDocDate(value: string | null | undefined): string {
@@ -437,7 +400,7 @@ function appendInvoiceTax(
   invoice: IPoBreakdownInvoice,
   ctx: IDocGraphBuildContext
 ): void {
-  const gst = invoice.gst;
+  const { gst, tds } = invoice;
   if (gst && gst.gstAmount > 0) {
     const gstNodeId = `${invoice.id}-gst`;
     pushNode(nodes, gstNodeId, gstNodeData(gst, ctx));
@@ -456,7 +419,6 @@ function appendInvoiceTax(
     }
   }
 
-  const tds = invoice.tds;
   if (tds && tds.tdsAmount > 0) {
     const tdsNodeId = `${invoice.id}-tds`;
     pushNode(nodes, tdsNodeId, tdsNodeData(tds, ctx));
@@ -1133,7 +1095,6 @@ function pushNode(nodes: Node[], id: string, data: IDocChainNodeVm): void {
     id,
     label: data.docName,
     data,
-    dimension: { width: NODE_WIDTH, height: NODE_HEIGHT },
   });
 }
 

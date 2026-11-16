@@ -2,12 +2,11 @@
   [modal]="true"
   [(visible)]="visible"
   appendTo="body"
-  [style]="{ width: '70rem' }"
+  [style]="{ width: '76rem' }"
   [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
   [maximizable]="true"
-  [contentStyle]="{ padding: '0', overflow: 'hidden' }"
+  [contentStyle]="{ padding: '0', overflow: 'auto' }"
   (onShow)="onDialogShow()"
-  (onHide)="onDialogHide()"
 >
   <ng-template #header>
     <div class="flex items-center gap-3 w-full min-w-0 pr-2">
@@ -139,52 +138,43 @@
 
               @if (expanded) {
                 <div class="docstat-po-card__body">
-                  <div class="po-summary po-summary--staged">
-                    <div class="po-summary__stage po-summary__stage--flow">
-                      @for (item of metrics.approvals; track item.label; let last = $last) {
-                        <div class="po-summary__stage-item">
-                          <span class="po-summary__label">{{ item.label }}</span>
+                  <div class="po-summary">
+                    <!-- One column per step: how many of its documents are done, as a bar. -->
+                    <ol class="po-stages">
+                      @for (item of metrics.approvals; track item.label) {
+                        <li
+                          class="po-stage"
+                          [attr.data-tone]="item.tone"
+                        >
+                          <span class="po-stage__label">{{ item.label }}</span>
+                          <span class="po-stage__value">{{ item.value }}</span>
                           <span
-                            class="po-summary__value"
-                            [attr.data-tone]="item.tone"
-                          >
-                            {{ item.value }}
-                          </span>
-                        </div>
-                        @if (!last) {
-                          <span
-                            class="po-summary__stage-sep"
+                            class="po-stage__bar"
                             aria-hidden="true"
                           >
-                            <i class="pi pi-chevron-right"></i>
+                            <span [style.width.%]="stageProgress(item.value)"></span>
                           </span>
-                        }
+                        </li>
                       }
-                    </div>
-                    <div class="po-summary__stage po-summary__stage--amounts">
+                    </ol>
+                    <dl class="po-amounts">
                       @for (item of metrics.amounts; track item.label) {
-                        <div class="po-summary__stage-item">
-                          <span class="po-summary__label">{{ item.label }}</span>
-                          <span
-                            class="po-summary__value"
+                        <div class="po-amount">
+                          <dt class="po-amount__label">{{ item.label }}</dt>
+                          <dd
+                            class="po-amount__value"
                             [attr.data-tone]="item.tone"
                           >
                             {{ item.value }}
-                          </span>
+                          </dd>
                         </div>
                       }
-                    </div>
+                    </dl>
                   </div>
 
-                  @let graph = poGraph(po);
-                  <ng-container
-                    *ngTemplateOutlet="
-                      docChainGraph;
-                      context: {
-                        graph: graph,
-                        graphClass: 'docstat__graph',
-                      }
-                    "
+                  <app-doc-chain-tree
+                    [graph]="poGraph(po)"
+                    (openStage)="openWorkspaceDoc($event)"
                   />
                 </div>
               }
@@ -204,123 +194,3 @@
     </section>
   </div>
 </p-dialog>
-
-<ng-template
-  #graphNodeCard
-  let-node="node"
->
-  @let card = buildGraphCardView(node.data);
-  <div
-    xmlns="http://www.w3.org/1999/xhtml"
-    class="doc-chain-card-host"
-  >
-    <div
-      [class]="card.className"
-      [attr.data-stage]="card.stageTone"
-      [attr.data-state]="card.state"
-    >
-      <div class="doc-chain-card__head">
-        <span class="doc-chain-card__identity">
-          <i
-            [class]="'doc-chain-card__icon ' + card.stageIcon"
-            aria-hidden="true"
-          ></i>
-          <span class="doc-chain-card__type">{{ card.docName }}</span>
-          @if (card.missingFileLabel) {
-            <span
-              class="doc-chain-card__file-missing"
-              [attr.title]="card.missingFileLabel + ' uploaded'"
-            >
-              {{ card.missingFileLabel }}
-            </span>
-          }
-        </span>
-        <div class="doc-chain-card__actions">
-          <span class="doc-chain-card__badge">
-            <span
-              class="doc-chain-card__badge-dot"
-              aria-hidden="true"
-            ></span>
-            {{ card.statusLabel }}
-          </span>
-          <button
-            type="button"
-            class="doc-chain-card__open"
-            [attr.aria-label]="'Open ' + card.docName + ' in project workspace'"
-            (click)="navigateToWorkspaceDoc(node.data.stage, $event)"
-          >
-            <i
-              [class]="icons.COMMON.EXTERNAL_LINK"
-              aria-hidden="true"
-            ></i>
-          </button>
-        </div>
-      </div>
-
-      <div class="doc-chain-card__body">
-        <div
-          class="doc-chain-card__ref"
-          [class.doc-chain-card__ref--placeholder]="card.isPlaceholder"
-        >
-          {{ card.primaryText }}
-        </div>
-
-        @if (card.hasFacts) {
-          <div class="doc-chain-card__facts">
-            @if (card.amount) {
-              <div class="doc-chain-card__fact">
-                <span class="doc-chain-card__fact-label">Amount</span>
-                <span class="doc-chain-card__fact-value">{{ formatCurrency(card.amount) }}</span>
-              </div>
-            }
-            @if (card.formattedDate !== '—') {
-              <div class="doc-chain-card__fact">
-                <span class="doc-chain-card__fact-label">{{ card.dateLabel }}</span>
-                <span class="doc-chain-card__fact-value">{{ card.formattedDate }}</span>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template
-  #docChainGraph
-  let-graph="graph"
-  let-graphClass="graphClass"
->
-  <div [class]="graphClass">
-    <ngx-graph
-      [nodes]="graph.nodes"
-      [links]="graph.links"
-      [layout]="graphLayout"
-      [layoutSettings]="graphLayoutSettings"
-      [enableDrag]="false"
-      [enablePan]="true"
-      [enableZoom]="true"
-      [autoZoom]="true"
-      [autoCenter]="true"
-      [minZoomLevel]="0.15"
-      [maxZoomLevel]="4"
-      [animate]="false"
-      [zoomToFit$]="graphZoomToFit$"
-      (drawComplete)="onGraphDrawComplete()"
-    >
-      <ng-template
-        #nodeTemplate
-        let-node
-      >
-        <svg:g>
-          <svg:foreignObject
-            [attr.width]="node.dimension.width"
-            [attr.height]="node.dimension.height"
-          >
-            <ng-container *ngTemplateOutlet="graphNodeCard; context: { node: node }" />
-          </svg:foreignObject>
-        </svg:g>
-      </ng-template>
-    </ngx-graph>
-  </div>
-</ng-template>

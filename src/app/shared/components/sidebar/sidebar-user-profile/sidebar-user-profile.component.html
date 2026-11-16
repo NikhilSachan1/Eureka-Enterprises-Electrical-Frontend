@@ -95,7 +95,8 @@
         <div class="menu-divider"></div>
       }
 
-      @for (option of primaryOptions; track option.id) {
+      @let primaryList = primaryOptions();
+      @for (option of primaryList; track option.id) {
         <button
           type="button"
           class="menu-item"
@@ -106,7 +107,9 @@
         </button>
       }
 
-      <div class="menu-divider"></div>
+      @if (primaryList.length) {
+        <div class="menu-divider"></div>
+      }
 
       @for (option of secondaryOptions; track option.id) {
         @let isDanger = option.variant === 'danger';

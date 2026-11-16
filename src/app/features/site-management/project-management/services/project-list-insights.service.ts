@@ -212,8 +212,9 @@ function groupBySite(
 ): Map<string, TBreakdownRecord[]> {
   const grouped = new Map<string, TBreakdownRecord[]>();
   for (const record of records) {
-    // The API sends the site on each PO record; the schema keeps it as a passthrough field.
-    const { siteId } = record as { siteId?: string };
+    // The API sends the PO's project as `site: { id }` (older responses: `siteId`).
+    const siteId =
+      record.site?.id ?? (record as { siteId?: string }).siteId ?? undefined;
     if (siteId) {
       const list = grouped.get(siteId) ?? [];
       list.push(record);

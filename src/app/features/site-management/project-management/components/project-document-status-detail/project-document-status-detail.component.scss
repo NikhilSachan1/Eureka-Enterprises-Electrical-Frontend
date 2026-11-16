@@ -172,422 +172,120 @@
   font-weight: 600;
 }
 
-.po-summary--staged {
+// ── PO summary: steps as progress columns, then the money ──
+.po-summary {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   border: 1px solid #e2e8f0;
-  border-radius: 0.375rem;
+  border-radius: 0.625rem;
   overflow: hidden;
-  max-width: 100%;
   background: #fff;
-  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
 }
 
-.po-summary__stage {
-  &--flow {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.125rem 0;
-    padding: 0.35rem 0.45rem;
-    background: color-mix(in srgb, var(--primary-color) 6%, #fff);
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  &--amounts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(6.25rem, 1fr));
-    background: #fff;
-  }
+// Tone colours shared by the step bars and the amounts.
+[data-tone] {
+  --tone: #64748b;
+  --tone-soft: #e2e8f0;
+}
+[data-tone="ok"] {
+  --tone: #16a34a;
+  --tone-soft: #dcfce7;
+}
+[data-tone="warn"] {
+  --tone: #ea580c;
+  --tone-soft: #ffedd5;
+}
+[data-tone="danger"] {
+  --tone: #dc2626;
+  --tone-soft: #fee2e2;
 }
 
-.po-summary__stage-item {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.25rem;
-  padding: 0.3rem 0.45rem;
-  min-width: 0;
-  white-space: nowrap;
+.po-stages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.po-summary__stage-sep {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  padding: 0 0.0625rem;
-  color: var(--text-secondary-color);
-  opacity: 0.55;
-
-  i {
-    font-size: 0.5625rem;
-    line-height: 1;
-  }
-}
-
-.po-summary__label {
-  font-size: 0.625rem;
-  font-weight: 600;
-  line-height: 1.2;
-  text-transform: uppercase;
-  color: var(--text-secondary-color);
-}
-
-.po-summary__value {
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary-color);
-
-  &[data-tone="danger"] {
-    color: #dc2626;
-  }
-
-  &[data-tone="warn"] {
-    color: #ea580c;
-  }
-
-  &[data-tone="ok"] {
-    color: #16a34a;
-  }
-}
-
-.docstat__graph {
-  width: 100%;
-  min-width: 0;
-  min-height: 280px;
-  height: min(420px, 52vh);
-  margin-top: 0;
-  padding: 1.25rem;
-  box-sizing: border-box;
-  border: 1px solid var(--border-light-color);
-  border-radius: 0.5rem;
-  background: #f8fafc;
-  overflow: hidden;
-  position: relative;
-  isolation: isolate;
-
-  ngx-graph {
-    display: block;
-    width: 100%;
-    height: 100%;
-    min-height: inherit;
-  }
-
-  ::ng-deep .ngx-graph-outer,
-  ::ng-deep .ngx-graph {
-    width: 100%;
-    height: 100%;
-    min-height: inherit;
-    background: transparent;
-  }
-
-  ::ng-deep .edge {
-    stroke: #94a3b8;
-    stroke-width: 1.5px;
-    fill: none;
-    opacity: 0.7;
-  }
-
-  ::ng-deep marker path {
-    fill: #94a3b8;
-  }
-
-  ::ng-deep .doc-chain-card-host {
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
-    padding: 4px;
-  }
-
-  ::ng-deep .doc-chain-card {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
-}
-
-.doc-chain-card {
-  --status-accent: #94a3b8;
-  --badge-bg: #f1f5f9;
-  --badge-text: #475569;
-  --stage-accent: #64748b;
-
-  box-sizing: border-box;
+.po-stage {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 100%;
-  border: 1px solid var(--status-accent);
-  border-radius: 0.5rem;
-  background: #fff;
-  color: var(--text-primary-color);
-  box-shadow: 0 1px 3px rgb(15 23 42 / 0.06);
-  overflow: hidden;
+  gap: 0.25rem;
+  padding: 0.625rem 0.75rem;
+  min-width: 0;
 
-  &[data-stage="po"] {
-    --stage-accent: #0284c7;
+  & + & {
+    border-left: 1px solid #f1f5f9;
   }
 
-  &[data-stage="jmc"] {
-    --stage-accent: #7c3aed;
-  }
-
-  &[data-stage="report"] {
-    --stage-accent: #059669;
-  }
-
-  &[data-stage="invoice"] {
-    --stage-accent: #d97706;
-  }
-
-  &[data-stage="payment"] {
-    --stage-accent: #db2777;
-  }
-
-  &[data-stage="tax"] {
-    --stage-accent: #2563eb;
-  }
-
-  &[data-stage="advance"] {
-    --stage-accent: #0d9488;
-  }
-
-  &[data-state="done"] {
-    --status-accent: #16a34a;
-    --badge-bg: #f0fdf4;
-    --badge-text: #15803d;
-  }
-
-  &[data-state="pending"] {
-    --status-accent: #ea580c;
-    --badge-bg: #fff7ed;
-    --badge-text: #c2410c;
-  }
-
-  &[data-state="rejected"] {
-    --status-accent: #dc2626;
-    --badge-bg: #fef2f2;
-    --badge-text: #b91c1c;
-  }
-
-  &[data-state="missing"] {
-    --status-accent: #94a3b8;
-    --badge-bg: #f8fafc;
-    --badge-text: #64748b;
-  }
-
-  &[data-state="partial"] {
-    --status-accent: #ca8a04;
-    --badge-bg: #fefce8;
-    --badge-text: #a16207;
-  }
-
-  &__head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.375rem;
-    min-width: 0;
-    padding: 0.5rem 0.625rem;
-    border-bottom: 1px solid #f1f5f9;
-  }
-
-  &__actions {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.1875rem;
-    flex: 0 0 auto;
-    flex-shrink: 0;
-    margin-left: auto;
-  }
-
-  &__open {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 1.125rem;
-    height: 1.125rem;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    border-radius: 0.25rem;
-    background: transparent;
+  &__label {
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
     color: var(--text-secondary-color);
-    cursor: pointer;
-    transition:
-      color 0.15s ease,
-      background-color 0.15s ease;
-
-    i {
-      font-size: 0.6875rem;
-      line-height: 1;
-    }
-
-    &:hover,
-    &:focus-visible {
-      color: var(--stage-accent);
-      background: rgb(15 23 42 / 0.05);
-      outline: none;
-    }
   }
 
-  &__identity {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    flex: 1 1 auto;
-    min-width: 0;
+  &__value {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    color: var(--tone, var(--text-primary-color));
   }
 
-  &__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.375rem;
-    height: 1.375rem;
-    border-radius: 0.3125rem;
-    font-size: 0.6875rem;
-    color: var(--stage-accent);
-    background: #f8fafc;
-    flex-shrink: 0;
-  }
-
-  &__type {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    line-height: 1.2;
-    color: var(--text-primary-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  // Document exists, but its file / proof was never uploaded.
-  &__file-missing {
-    flex: 0 0 auto;
-    padding: 0.0625rem 0.375rem;
+  &__bar {
+    display: block;
+    height: 0.25rem;
     border-radius: 999px;
+    background: var(--tone-soft, #e2e8f0);
+    overflow: hidden;
+
+    span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--tone, #64748b);
+    }
+  }
+}
+
+.po-amounts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  margin: 0;
+  background: #f8fafc;
+}
+
+.po-amount {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.5rem 0.75rem;
+  min-width: 0;
+
+  & + & {
+    border-left: 1px solid #e2e8f0;
+  }
+
+  &__label {
     font-size: 0.625rem;
     font-weight: 600;
-    line-height: 1.3;
-    white-space: nowrap;
-    color: #b91c1c;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-  }
-
-  &__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    flex-shrink: 0;
-    padding: 0.125rem 0.4375rem;
-    border-radius: 0.25rem;
-    font-size: 0.5625rem;
-    font-weight: 600;
-    line-height: 1.2;
-    color: var(--badge-text);
-    background: var(--badge-bg);
-    white-space: nowrap;
-  }
-
-  &__badge-dot {
-    flex-shrink: 0;
-    width: 0.3125rem;
-    height: 0.3125rem;
-    border-radius: 999px;
-    background: var(--status-accent);
-  }
-
-  &__body {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.375rem;
-    min-width: 0;
-    padding: 0.5rem 0.625rem;
-  }
-
-  &__ref {
-    font-size: 0.8125rem;
-    font-weight: 600;
-    line-height: 1.3;
-    font-variant-numeric: tabular-nums;
-    color: var(--text-primary-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-    &--placeholder {
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--text-secondary-color);
-    }
-  }
-
-  &__facts {
-    display: flex;
-    gap: 0.75rem;
-    padding-top: 0.375rem;
-    border-top: 1px solid #f1f5f9;
-  }
-
-  &__fact {
-    display: flex;
-    flex: 1 1 0;
-    flex-direction: column;
-    gap: 0.125rem;
-    min-width: 0;
-  }
-
-  &__fact-label {
-    font-size: 0.5625rem;
-    font-weight: 600;
-    line-height: 1.2;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--text-secondary-color);
   }
 
-  &__fact-value {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    line-height: 1.25;
+  &__value {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
-    color: var(--text-primary-color);
+    color: var(--tone, var(--text-primary-color));
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  &--expected-missing {
-    border-style: dashed;
-    border-color: #d97706;
-    background: #fff;
-
-    --status-accent: #d97706;
-    --badge-bg: #fff7ed;
-    --badge-text: #c2410c;
-
-    .doc-chain-card__ref--placeholder {
-      color: #b45309;
-    }
-  }
-
-  &--not-applicable {
-    background: #f8fafc;
-
-    .doc-chain-card__ref--placeholder {
-      color: var(--text-secondary-color);
-      font-weight: 600;
-    }
   }
 }
 
@@ -601,11 +299,11 @@
     justify-content: flex-start;
   }
 
-  .po-summary__stage--amounts {
+  .po-amounts {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .po-summary__stage-item {
-    justify-content: center;
+  .po-amount + .po-amount {
+    border-left: 0;
   }
 }

@@ -94,6 +94,15 @@ const buildBankTransferTableRowActionsConfig = (
   const isPurchase = docContext === EDocContext.PURCHASE;
   const isSales = docContext === EDocContext.SALES;
   const entityLabel = isSales ? 'bank received' : 'bank transfer';
+  const isLocked = (row: IBankTransferGetBaseResponseDto): boolean =>
+    row.isLocked === true;
+  const lockedReason = `This ${entityLabel} is locked. An admin must unlock it first.`;
+  /** Creator check first, then the lock. */
+  const editOrDeleteDisableReason = (
+    row: IBankTransferGetBaseResponseDto
+  ): string | undefined =>
+    recordCreatorDisableReason(entityLabel, row.createdBy, loggedInUserId) ??
+    (isLocked(row) ? lockedReason : undefined);
 
   return [
     {
@@ -107,19 +116,29 @@ const buildBankTransferTableRowActionsConfig = (
       ...COMMON_ROW_ACTIONS.EDIT,
       tooltip: isSales ? 'Edit bank received' : 'Edit bank transfer',
       disableWhen: (row: IBankTransferGetBaseResponseDto) =>
-        isNotRecordCreator(row.createdBy, loggedInUserId),
-      disableReason: (row: IBankTransferGetBaseResponseDto) =>
-        recordCreatorDisableReason(entityLabel, row.createdBy, loggedInUserId),
+        isNotRecordCreator(row.createdBy, loggedInUserId) || isLocked(row),
+      disableReason: editOrDeleteDisableReason,
       permission: [APP_PERMISSION.BANK_TRANSFER_DOC.EDIT],
     },
     {
       ...COMMON_ROW_ACTIONS.DELETE,
       tooltip: isSales ? 'Delete bank received' : 'Delete bank transfer',
       disableWhen: (row: IBankTransferGetBaseResponseDto) =>
-        isNotRecordCreator(row.createdBy, loggedInUserId),
-      disableReason: (row: IBankTransferGetBaseResponseDto) =>
-        recordCreatorDisableReason(entityLabel, row.createdBy, loggedInUserId),
+        isNotRecordCreator(row.createdBy, loggedInUserId) || isLocked(row),
+      disableReason: editOrDeleteDisableReason,
       permission: [APP_PERMISSION.BANK_TRANSFER_DOC.DELETE],
+    },
+    {
+      id: EButtonActionType.UNLOCK,
+      tooltip: isSales ? 'Unlock bank received' : 'Unlock bank transfer',
+      hideWhen: (row: IBankTransferGetBaseResponseDto) => !isLocked(row),
+      permission: [APP_PERMISSION.BANK_TRANSFER_DOC.LOCK],
+    },
+    {
+      id: EButtonActionType.LOCK,
+      tooltip: isSales ? 'Lock bank received' : 'Lock bank transfer',
+      hideWhen: isLocked,
+      permission: [APP_PERMISSION.BANK_TRANSFER_DOC.LOCK],
     },
     {
       id: EButtonActionType.SEND_EMAIL,

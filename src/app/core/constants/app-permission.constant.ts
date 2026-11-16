@@ -326,6 +326,7 @@ export const APP_PERMISSION = {
     ADD: 'financials.bank-transfers.create',
     EDIT: 'financials.bank-transfers.update',
     DELETE: 'financials.bank-transfers.delete',
+    LOCK: 'financials.bank-transfers.lock',
     SEND_EMAIL: 'financials.payment-advices.email',
   },
   DSR: {

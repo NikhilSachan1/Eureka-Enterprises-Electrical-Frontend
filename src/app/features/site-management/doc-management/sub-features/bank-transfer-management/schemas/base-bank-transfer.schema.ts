@@ -24,6 +24,8 @@ export const BankTransferBaseSchema = z.looseObject({
   proofFileName: z.string().nullable(),
   paidFromAccountId: uuidField.nullable().optional(),
   remarks: z.string().nullable(),
+  /** Locked on create; an admin unlocks it before it can be edited or deleted. */
+  isLocked: z.boolean().optional(),
 });
 
 const bankTransferMoneyFieldSchema = z.coerce

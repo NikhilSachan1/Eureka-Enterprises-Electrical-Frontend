@@ -15,10 +15,16 @@
   height: 100%;
 }
 
-.chart-container ::ng-deep p-chart {
+.chart-container ::ng-deep p-chart,
+.chart-container app-chart-canvas,
+.chart-loading {
   display: block;
   min-height: 0;
   height: 100%;
+}
+
+.chart-loading {
+  min-height: 8rem;
 }
 
 .chart-container ::ng-deep canvas {

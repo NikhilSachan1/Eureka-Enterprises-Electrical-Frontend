@@ -34,20 +34,32 @@ import {
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 import { StatusUtil, toTitleCase } from '@shared/utility';
 import { ICONS } from '@shared/constants';
-import { CardModule } from 'primeng/card';
-import { Divider } from 'primeng/divider';
 import { Tag } from 'primeng/tag';
 import { ReadMoreComponent } from '../read-more/read-more.component';
 import { APP_PERMISSION } from '@core/constants';
-import { AppPermissionDirective } from '@shared/directives/app-permission.directive';
 import { APP_CONFIG } from '@core/config';
+
+/** One "who did what" line of the activity timeline. */
+interface IDetailActivity {
+  verb: string;
+  name: string;
+  avatar: string;
+  date: string | null | undefined;
+  notes: string | null | undefined;
+}
+
+/** A record of the drawer, laid out: fields, files, activity. */
+interface IDetailView {
+  detail: IDataViewDetails;
+  fields: IDetailEntryData[];
+  attachments: IDetailEntryData[];
+  activity: IDetailActivity[];
+}
 
 @Component({
   selector: 'app-view-detail',
   imports: [
-    CardModule,
     Tag,
-    Divider,
     NgTemplateOutlet,
     DatePipe,
     DecimalPipe,
@@ -56,7 +68,6 @@ import { APP_CONFIG } from '@core/config';
     NgClass,
     CurrencyPipe,
     ReadMoreComponent,
-    AppPermissionDirective,
   ],
   templateUrl: './view-detail.component.html',
   styleUrl: './view-detail.component.scss',
@@ -78,6 +89,31 @@ export class ViewDetailComponent {
   /** `true`: show entity header without permission check. `false`: gated by `SIDEBAR_INITIALS`. */
   showEntityHeader = input<boolean>(false);
   attachmentClick = output<IDetailEntryData>();
+
+  /** Every record of the drawer, laid out for the template. */
+  protected readonly detailViews = computed((): IDetailView[] =>
+    (this.drawerDetails()?.details ?? []).map(detail =>
+      this.buildDetailView(detail)
+    )
+  );
+
+  /**
+   * The person / party header: always when asked for (`showEntityHeader`), otherwise only for
+   * roles allowed to see it.
+   */
+  protected readonly showHero = computed(
+    () =>
+      !!this.drawerDetails()?.entity &&
+      (this.showEntityHeader() ||
+        this.permissionService.hasPermission(
+          APP_PERMISSION.UI.COMMON.SIDEBAR_INITIALS
+        ))
+  );
+
+  /** One record: its status sits in the title row instead of above the fields. */
+  protected readonly isSingleRecord = computed(
+    () => this.detailViews().length === 1
+  );
 
   protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly icons = ICONS;
@@ -179,18 +215,75 @@ export class ViewDetailComponent {
     this.viewAttachment(fileKeys);
   }
 
-  protected getAttachmentEntries(
-    entryData: IDetailEntryData[]
-  ): IDetailEntryData[] {
-    return this.getVisibleEntries(entryData).filter(
-      entry => entry.type === EDataType.ATTACHMENTS
-    );
-  }
-
   protected getVisibleEntries(
     entryData: IDetailEntryData[]
   ): IDetailEntryData[] {
     return this.permissionService.filterByPermission(entryData);
+  }
+
+  /** Fields that need the full width: lists, long text, custom blocks. */
+  protected isFullRow(entry: IDetailEntryData): boolean {
+    return (
+      entry.type === EDataType.CHIP_LIST ||
+      entry.type === EDataType.TEXT_WITH_READ_MORE ||
+      (!!entry.customTemplateKey && entry.detailTemplateFullRow !== false)
+    );
+  }
+
+  private buildDetailView(detail: IDataViewDetails): IDetailView {
+    const visible = this.getVisibleEntries(detail.entryData);
+
+    return {
+      detail,
+      fields: visible.filter(entry => entry.type !== EDataType.ATTACHMENTS),
+      attachments: visible.filter(
+        entry => entry.type === EDataType.ATTACHMENTS
+      ),
+      activity: this.buildActivity(detail),
+    };
+  }
+
+  /** Added, approved / rejected, the audit trail and the last update, oldest first. */
+  private buildActivity(detail: IDataViewDetails): IDetailActivity[] {
+    const items: IDetailActivity[] = [];
+    const add = (
+      verb: string,
+      info: IDataViewDetails['createdBy'] | undefined
+    ): void => {
+      const name = this.getUserName(info?.user);
+      if (!info || !this.shouldShowMetaAuditActor(name)) {
+        return;
+      }
+      const note = info.notes?.trim() ?? '';
+      items.push({
+        verb,
+        name,
+        avatar: this.getAvatarUrl(name),
+        date: info.date,
+        notes: note.length > 0 ? note : null,
+      });
+    };
+
+    add('Added', detail.createdBy);
+    if (this.shouldShowApprovalAuditBlock(detail)) {
+      add(
+        this.getApprovalStatusDisplay(detail.status?.approvalStatus ?? ''),
+        detail.approvalBy
+      );
+    }
+    for (const step of detail.auditTrail ?? []) {
+      add(step.action, step);
+    }
+    add('Updated', detail.updatedBy);
+
+    const time = (value: string | null | undefined): number =>
+      value ? new Date(value).getTime() || 0 : 0;
+    return items
+      .map((item, index) => ({ item, index }))
+      .sort(
+        (a, b) => time(a.item.date) - time(b.item.date) || a.index - b.index
+      )
+      .map(({ item }) => item);
   }
 
   protected getUserName(user: IUserInfo | null | undefined): string {

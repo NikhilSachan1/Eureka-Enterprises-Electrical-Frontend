@@ -1,0 +1,160 @@
+<div class="dct">
+  <div class="dct__tools">
+    <button
+      type="button"
+      class="dct__chip"
+      [attr.aria-pressed]="gapsOnly()"
+      [disabled]="!gapTotal()"
+      (click)="toggleGapsOnly()"
+    >
+      Only with gaps
+      @if (gapTotal()) {
+        <span class="dct__chip-count">{{ gapTotal() }}</span>
+      }
+    </button>
+    <button
+      type="button"
+      class="dct__chip"
+      (click)="expandAll()"
+    >
+      Expand all
+    </button>
+    <button
+      type="button"
+      class="dct__chip"
+      (click)="collapseAll()"
+    >
+      Collapse all
+    </button>
+
+    <span
+      class="dct__legend"
+      aria-hidden="true"
+    >
+      <span data-state="done">Done</span>
+      <span data-state="pending">Pending</span>
+      <span data-state="rejected">Rejected</span>
+      <span data-state="missing">Not made yet</span>
+    </span>
+  </div>
+
+  <ul
+    class="dct__tree"
+    role="tree"
+    aria-label="Document chain"
+  >
+    <ng-container *ngTemplateOutlet="branch; context: { $implicit: roots() }" />
+  </ul>
+</div>
+
+<ng-template
+  #branch
+  let-nodes
+>
+  @for (node of nodes; track node.id) {
+    @if (isShown(node)) {
+      @let expanded = isOpen(node);
+      @let card = node.card;
+      <li
+        class="dct__item"
+        role="treeitem"
+        aria-selected="false"
+        [attr.aria-expanded]="node.children.length ? expanded : null"
+      >
+        <div
+          class="dct__row"
+          [class.dct__row--placeholder]="card.isPlaceholder"
+          [attr.data-state]="card.state"
+        >
+          <button
+            type="button"
+            class="dct__twisty"
+            [class.dct__twisty--leaf]="!node.children.length"
+            [attr.aria-label]="(expanded ? 'Fold ' : 'Unfold ') + card.docName"
+            [disabled]="!node.children.length"
+            (click)="toggle(node)"
+          >
+            @if (node.children.length) {
+              <i [class]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i>
+            }
+          </button>
+
+          <span
+            class="dct__icon"
+            [attr.data-stage]="card.stageTone"
+            aria-hidden="true"
+          >
+            <i [class]="card.stageIcon"></i>
+          </span>
+
+          <span class="dct__main">
+            <span class="dct__name">{{ card.docName }}</span>
+            <span
+              class="dct__ref"
+              [class.dct__ref--placeholder]="card.isPlaceholder"
+            >
+              {{ card.primaryText }}
+            </span>
+            @if (card.missingFileLabel) {
+              <span class="dct__file">{{ card.missingFileLabel }}</span>
+            }
+          </span>
+
+          <span class="dct__facts">
+            @if (formatAmount(card.amount); as amount) {
+              <span class="dct__amount">{{ amount }}</span>
+            }
+            @if (card.formattedDate !== '—') {
+              <span class="dct__date">{{ card.formattedDate }}</span>
+            }
+          </span>
+
+          <span class="dct__end">
+            @if (node.children.length && !expanded && node.gapCount) {
+              <span
+                class="dct__gaps"
+                [attr.title]="node.gapCount + ' inside need attention'"
+              >
+                {{ node.gapCount }} to do
+              </span>
+            }
+            <span
+              class="dct__status"
+              [attr.data-state]="card.state"
+            >
+              <span
+                class="dct__status-dot"
+                aria-hidden="true"
+              ></span>
+              {{ card.statusLabel }}
+            </span>
+            @if (canOpen(node)) {
+              <button
+                type="button"
+                class="dct__open"
+                [attr.aria-label]="'Open ' + card.docName + ' in project workspace'"
+                (click)="open(node, $event)"
+              >
+                <i [class]="icons.COMMON.EXTERNAL_LINK"></i>
+              </button>
+            } @else {
+              <span
+                class="dct__open dct__open--empty"
+                aria-hidden="true"
+              ></span>
+            }
+          </span>
+        </div>
+
+        @if (expanded) {
+          <ul
+            class="dct__children"
+            role="group"
+          >
+            <ng-container *ngTemplateOutlet="branch; context: { $implicit: node.children }" />
+          </ul>
+        }
+      </li>
+    }
+  }
+</ng-template>

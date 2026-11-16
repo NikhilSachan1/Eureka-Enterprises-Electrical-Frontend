@@ -46,7 +46,7 @@ import {
   FileUploadModule,
 } from 'primeng/fileupload';
 import { TextareaModule } from 'primeng/textarea';
-import { EditorModule } from 'primeng/editor';
+import { RichTextEditorComponent } from './rich-text-editor/rich-text-editor.component';
 import { InputOtpModule } from 'primeng/inputotp';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonComponent } from '@shared/components/button/button.component';
@@ -137,7 +137,7 @@ const TOUCH_DATEPICKER_QUERY =
     RadioButtonModule,
     FileUploadModule,
     TextareaModule,
-    EditorModule,
+    RichTextEditorComponent,
     InputOtpModule,
     AutoCompleteModule,
     ButtonComponent,
