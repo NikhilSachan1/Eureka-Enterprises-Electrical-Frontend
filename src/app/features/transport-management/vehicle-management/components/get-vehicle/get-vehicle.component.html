@@ -3,7 +3,10 @@
   (headerButtonClick)="onHeaderButtonClick($event)"
 />
 
-<app-metrics-card [metricGroups]="metricGroups()" />
+<app-metrics-card
+  [metricGroups]="metricGroups()"
+  [filterTarget]="searchFilterRef()"
+/>
 
 @if (showVehicleScopeTabs()) {
   <app-nav-tabs
@@ -163,7 +166,8 @@
   @let dateFormat = ALL_APP_CONFIG.DATE_FORMATS.DEFAULT;
   @let hasNextServiceInfo = data.nextServiceDueKm > 0 || (data.kmToNextService !== null && data.kmToNextService !== 0);
   @let hasLastServiceInfo = data.lastServiceDate || data.lastServiceKm > 0;
-  @let hasCurrentOdometerRow = data.currentOdometerKm !== null && data.currentOdometerKm !== undefined && data.currentOdometerKm !== '';
+  @let hasCurrentOdometerRow =
+    data.currentOdometerKm !== null && data.currentOdometerKm !== undefined && data.currentOdometerKm !== '';
   @let hasLastMeta = data.lastServiceDate || data.lastServiceKm > 0 || data.kmSinceLastService > 0;
   @let hasData = hasNextServiceInfo || hasLastServiceInfo || hasCurrentOdometerRow || hasLastMeta;
 

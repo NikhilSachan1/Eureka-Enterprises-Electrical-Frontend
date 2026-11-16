@@ -51,6 +51,18 @@ export class EnvironmentService {
   }
 
   /**
+   * Environment of the API this build talks to, read from the API base URL host:
+   * localhost / 127.0.0.1 → local, a host with "uat" or "dev" → uat, anything else → production.
+   */
+  get apiEnvironment(): EEnvironment {
+    return this._apiEnvironment;
+  }
+
+  private readonly _apiEnvironment = resolveApiEnvironment(
+    this._environment.API_BASE_URL
+  );
+
+  /**
    * Get the API base URL
    */
   get apiBaseUrl(): string {
@@ -63,4 +75,27 @@ export class EnvironmentService {
   get isLoggingEnabled(): boolean {
     return this._environment.ENABLE_LOGGING;
   }
+}
+
+function resolveApiEnvironment(apiBaseUrl: string): EEnvironment {
+  let host: string;
+  try {
+    host = new URL(apiBaseUrl).hostname.toLowerCase();
+  } catch {
+    // Relative URL: the API is served from the same host as the app.
+    host = typeof location === 'undefined' ? '' : location.hostname;
+  }
+
+  if (
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host === '0.0.0.0' ||
+    host.endsWith('.local')
+  ) {
+    return EEnvironment.LOCAL;
+  }
+  if (/(^|[.-])(uat|dev|staging)([.-]|$)/.test(host)) {
+    return EEnvironment.DEVELOPMENT;
+  }
+  return EEnvironment.PRODUCTION;
 }

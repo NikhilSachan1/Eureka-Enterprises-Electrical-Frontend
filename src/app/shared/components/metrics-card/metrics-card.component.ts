@@ -6,7 +6,12 @@ import {
   input,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EDataType, IMetric, IMetricGroup } from '@shared/types';
+import {
+  EDataType,
+  IMetric,
+  IMetricFilterTarget,
+  IMetricGroup,
+} from '@shared/types';
 
 const METRIC_GROUP_ACCENT_PALETTE = [
   { light: '#059669', dark: '#047857' },
@@ -41,6 +46,12 @@ export class MetricsCardComponent {
 
   // Input: Grouped metrics array (new)
   metricGroups = input<IMetricGroup[]>();
+
+  /**
+   * The list's search filter (`[filterTarget]="searchFilter"` with `#searchFilter` on
+   * `app-search-filter`). Metrics with a `filter` then filter the list when clicked.
+   */
+  filterTarget = input<IMetricFilterTarget | null>();
 
   protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly ICONS = ICONS;
@@ -97,9 +108,57 @@ export class MetricsCardComponent {
     return metric.icon ?? StatusUtil.getIcon(metric.label);
   }
 
-  /** Tooltip copy when `metric.description` is set (optional per screen). */
+  /** Tooltip: `metric.description` when set, plus what a click does on filterable metrics. */
   getMetricTooltip(metric: IMetric): string {
-    return metric.description?.trim() ?? '';
+    const description = metric.description?.trim() ?? '';
+    if (!this.isMetricClickable(metric)) {
+      return description;
+    }
+    const hint = this.getMetricClickHint(metric);
+    return description ? `${description}\n${hint}` : hint;
+  }
+
+  protected isMetricClickable(metric: IMetric): boolean {
+    const target = this.filterTarget();
+    return (
+      !!target && !!metric.filter && target.canApplyMetricFilter(metric.filter)
+    );
+  }
+
+  protected isMetricActive(metric: IMetric): boolean {
+    const target = this.filterTarget();
+    return (
+      !!target &&
+      !!metric.filter &&
+      target.canApplyMetricFilter(metric.filter) &&
+      target.isMetricFilterActive(metric.filter)
+    );
+  }
+
+  protected onMetricClick(metric: IMetric, event?: Event): void {
+    const target = this.filterTarget();
+    if (
+      !target ||
+      !metric.filter ||
+      !target.canApplyMetricFilter(metric.filter)
+    ) {
+      return;
+    }
+    // Space would scroll the page; Enter would also submit a surrounding form.
+    event?.preventDefault();
+    target.applyMetricFilter(metric.filter);
+  }
+
+  private getMetricClickHint(metric: IMetric): string {
+    const clearsOnly = Object.values(metric.filter ?? {}).every(
+      value => value === null
+    );
+    if (clearsOnly) {
+      return 'Click to show all records';
+    }
+    return this.isMetricActive(metric)
+      ? 'Click to clear this filter'
+      : 'Click to show only these records';
   }
 
   /**

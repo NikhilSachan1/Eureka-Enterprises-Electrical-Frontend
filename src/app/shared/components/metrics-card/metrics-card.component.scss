@@ -38,7 +38,7 @@
 
   // Group colour strip.
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0 0 auto;
     height: 3px;
@@ -180,6 +180,52 @@
     flex-direction: column;
     text-align: center;
   }
+
+  // Filters the list on click.
+  &--clickable {
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--row-accent);
+      outline-offset: 1px;
+    }
+
+    &:hover .metric-stat__label-text {
+      color: var(--text-primary-color);
+    }
+  }
+
+  &--active {
+    background: color-mix(in srgb, var(--row-accent) 14%, transparent);
+    box-shadow: inset 3px 0 0 var(--row-accent);
+
+    .metric-stat__label,
+    .metric-stat__value {
+      color: var(--text-primary-color);
+      font-weight: 700;
+    }
+  }
+}
+
+.metric-hero--clickable {
+  margin: 0 -0.5rem;
+  padding-inline: 0.5rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--mc-accent) 7%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mc-accent);
+    outline-offset: 1px;
+  }
+}
+
+.metric-hero--active {
+  background: color-mix(in srgb, var(--mc-accent) 10%, transparent);
 }
 
 .metric-stat__label {
@@ -249,7 +295,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .metric-stat {
+  .metric-stat,
+  .metric-hero--clickable {
     transition: none;
   }
 }

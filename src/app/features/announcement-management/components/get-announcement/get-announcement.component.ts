@@ -179,9 +179,21 @@ export class GetAnnouncementComponent implements OnInit {
         title: 'Acknowledgment Status',
         icon: ICONS.COMMON.MEGAPHONE,
         metrics: [
-          { label: 'Total', value: stats?.total ?? 0 },
-          { label: 'Acknowledged', value: stats?.acknowledged ?? 0 },
-          { label: 'Pending', value: stats?.pending ?? 0 },
+          {
+            label: 'Total',
+            value: stats?.total ?? 0,
+            filter: { announcementStatus: null },
+          },
+          {
+            label: 'Acknowledged',
+            value: stats?.acknowledged ?? 0,
+            filter: { announcementStatus: 'acknowledged' },
+          },
+          {
+            label: 'Pending',
+            value: stats?.pending ?? 0,
+            filter: { announcementStatus: 'pending' },
+          },
         ],
       },
     ];

@@ -178,6 +178,7 @@ export class GetAssetEventHistoryComponent implements OnInit {
           this.appConfigurationService.assetEventStatuses(),
           record.eventType
         ),
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- blank text shows as "-" too
         remarks: record.metadata?.reason?.trim() || '-',
         eventTypeCode: record.eventType,
         lossDetails: record.metadata
@@ -269,11 +270,31 @@ export class GetAssetEventHistoryComponent implements OnInit {
         title: 'Status Events',
         icon: ICONS.ASSET.BOX,
         metrics: [
-          { label: 'Available', value: stats?.byEventType?.AVAILABLE ?? 0 },
-          { label: 'Assigned', value: stats?.byEventType?.ASSIGNED ?? 0 },
-          { label: 'Lost', value: stats?.byEventType?.LOST ?? 0 },
-          { label: 'Recovered', value: stats?.byEventType?.RECOVERED ?? 0 },
-          { label: 'Retired', value: stats?.byEventType?.RETIRED ?? 0 },
+          {
+            label: 'Available',
+            value: stats?.byEventType?.AVAILABLE ?? 0,
+            filter: { assetEventTypes: 'AVAILABLE' },
+          },
+          {
+            label: 'Assigned',
+            value: stats?.byEventType?.ASSIGNED ?? 0,
+            filter: { assetEventTypes: 'ASSIGNED' },
+          },
+          {
+            label: 'Lost',
+            value: stats?.byEventType?.LOST ?? 0,
+            filter: { assetEventTypes: 'LOST' },
+          },
+          {
+            label: 'Recovered',
+            value: stats?.byEventType?.RECOVERED ?? 0,
+            filter: { assetEventTypes: 'RECOVERED' },
+          },
+          {
+            label: 'Retired',
+            value: stats?.byEventType?.RETIRED ?? 0,
+            filter: { assetEventTypes: 'RETIRED' },
+          },
         ],
       },
       {
@@ -284,22 +305,27 @@ export class GetAssetEventHistoryComponent implements OnInit {
           {
             label: 'Handover Initiated',
             value: stats?.byEventType?.HANDOVER_INITIATED ?? 0,
+            filter: { assetEventTypes: 'HANDOVER_INITIATED' },
           },
           {
             label: 'Handover Accepted',
             value: stats?.byEventType?.HANDOVER_ACCEPTED ?? 0,
+            filter: { assetEventTypes: 'HANDOVER_ACCEPTED' },
           },
           {
             label: 'Handover Rejected',
             value: stats?.byEventType?.HANDOVER_REJECTED ?? 0,
+            filter: { assetEventTypes: 'HANDOVER_REJECTED' },
           },
           {
             label: 'Handover Cancelled',
             value: stats?.byEventType?.HANDOVER_CANCELLED ?? 0,
+            filter: { assetEventTypes: 'HANDOVER_CANCELLED' },
           },
           {
             label: 'Deallocated',
             value: stats?.byEventType?.DEALLOCATED ?? 0,
+            filter: { assetEventTypes: 'DEALLOCATED' },
           },
         ],
       },
@@ -311,18 +337,22 @@ export class GetAssetEventHistoryComponent implements OnInit {
           {
             label: 'Return Initiated',
             value: stats?.byEventType?.RETURN_INITIATED ?? 0,
+            filter: { assetEventTypes: 'RETURN_INITIATED' },
           },
           {
             label: 'Return Accepted',
             value: stats?.byEventType?.RETURN_ACCEPTED ?? 0,
+            filter: { assetEventTypes: 'RETURN_ACCEPTED' },
           },
           {
             label: 'Return Rejected',
             value: stats?.byEventType?.RETURN_REJECTED ?? 0,
+            filter: { assetEventTypes: 'RETURN_REJECTED' },
           },
           {
             label: 'Return Cancelled',
             value: stats?.byEventType?.RETURN_CANCELLED ?? 0,
+            filter: { assetEventTypes: 'RETURN_CANCELLED' },
           },
         ],
       },

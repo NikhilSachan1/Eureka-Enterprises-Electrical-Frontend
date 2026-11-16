@@ -1,11 +1,15 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
 @if (hasAssetSelected()) {
-  <app-metrics-card [metricGroups]="metricGroups()" />
+  <app-metrics-card
+    [metricGroups]="metricGroups()"
+    [filterTarget]="searchFilter"
+  />
 }
 
 <div class="search-filter-wrapper">
   <app-search-filter
+    #searchFilter
     [tableRef]="dataTable.dt()"
     [searchFilterConfig]="searchFilterConfig"
     [prefillValues]="prefillValues()"

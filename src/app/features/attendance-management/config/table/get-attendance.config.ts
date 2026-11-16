@@ -114,7 +114,7 @@ const REGULARIZE_DISABLED_BEFORE_SHIFT_END_REASON = (endTime: string): string =>
 const APPROVE_DISABLED_ON_HOLIDAY_REASON =
   'Approval is not allowed on scheduled holidays.';
 const APPROVE_DISABLED_ON_LEAVE_REASON =
-  'Approval is not allowed for leave days.';
+  'This is a leave day. Approve it from Leave > Leave Requests.';
 const APPROVE_DISABLED_NOT_MARKED_REASON =
   'Approval is available only after the employee checks in.';
 const APPROVE_DISABLED_REGULARIZED_REASON =
@@ -131,7 +131,7 @@ const APPROVE_DISABLED_ALREADY_APPROVED_REASON =
 const REJECT_DISABLED_ON_HOLIDAY_REASON =
   'Rejection is not allowed on scheduled holidays.';
 const REJECT_DISABLED_ON_LEAVE_REASON =
-  'Rejection is not allowed for leave days.';
+  'This is a leave day. Reject it from Leave > Leave Requests.';
 const REJECT_DISABLED_NOT_MARKED_REASON =
   'Rejection is available only after the employee checks in.';
 const REJECT_DISABLED_REGULARIZED_REASON =
@@ -148,7 +148,7 @@ const REJECT_DISABLED_ALREADY_REJECTED_REASON =
 const BULK_APPROVE_DISABLED_ON_HOLIDAY_REASON =
   'Some selected records are holidays and cannot be approved.';
 const BULK_APPROVE_DISABLED_ON_LEAVE_REASON =
-  'Some selected records are leave days and cannot be approved.';
+  'Some selected records are leave days. Approve them from Leave > Leave Requests.';
 const BULK_APPROVE_DISABLED_NOT_MARKED_REASON =
   'Some selected records do not have a check-in and cannot be approved.';
 const BULK_APPROVE_DISABLED_REGULARIZED_REASON =
@@ -165,7 +165,7 @@ const BULK_APPROVE_DISABLED_ALREADY_APPROVED_REASON =
 const BULK_REJECT_DISABLED_ON_HOLIDAY_REASON =
   'Some selected records are holidays and cannot be rejected.';
 const BULK_REJECT_DISABLED_ON_LEAVE_REASON =
-  'Some selected records are leave days and cannot be rejected.';
+  'Some selected records are leave days. Reject them from Leave > Leave Requests.';
 const BULK_REJECT_DISABLED_NOT_MARKED_REASON =
   'Some selected records do not have a check-in and cannot be rejected.';
 const BULK_REJECT_DISABLED_REGULARIZED_REASON =

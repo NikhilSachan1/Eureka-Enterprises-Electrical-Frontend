@@ -1,3 +1,5 @@
+import type { SafeResourceUrl } from '@angular/platform-browser';
+
 // Input interface - what users provide
 export interface IGalleryInputData {
   mediaKey: string;
@@ -9,6 +11,8 @@ export interface IGalleryResolvedItem extends IGalleryInputData {
   fileExtension: string;
   fileIcon: string;
   hasError?: boolean;
+  /** Word / Excel / PowerPoint: Microsoft's Office viewer for this file (null otherwise). */
+  officeViewerUrl?: SafeResourceUrl | null;
 }
 
 export interface IGalleryConfig {

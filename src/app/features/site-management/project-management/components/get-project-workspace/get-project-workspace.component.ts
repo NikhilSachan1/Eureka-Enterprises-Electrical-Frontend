@@ -173,6 +173,14 @@ export class GetProjectWorkspaceComponent {
       );
     });
 
+    // Document tabs filter through the workspace filter bar when a metric is clicked.
+    effect(() => {
+      const searchFilter = this.searchFilterRef() ?? null;
+      untracked(() =>
+        this.workspaceContext.setMetricFilterTarget(searchFilter)
+      );
+    });
+
     effect(() => {
       const tab = this.activeFilterTab();
       const docContext = this.workspaceDocContext();

@@ -383,22 +383,34 @@ export class GetPaymentSheetComponent implements OnInit {
         title: 'Total',
         icon: ICONS.COMMON.LIST,
         layout: 'kpi',
-        metrics: [{ label: 'Payment sheets', value: stats?.total ?? 0 }],
+        metrics: [
+          {
+            label: 'Payment sheets',
+            value: stats?.total ?? 0,
+            filter: { paymentSheetStatus: null, currentStage: null },
+          },
+        ],
       },
       {
         id: 'payment-sheet-draft-exceptions',
         title: 'Incomplete',
         icon: ICONS.COMMON.FILE,
         metrics: [
-          { label: 'Draft', value: stats?.draft ?? 0 },
+          {
+            label: 'Draft',
+            value: stats?.draft ?? 0,
+            filter: { paymentSheetStatus: 'DRAFT', currentStage: null },
+          },
           {
             label: 'Returned',
             value: stats?.returned ?? 0,
+            filter: { paymentSheetStatus: 'RETURNED', currentStage: null },
             icon: ICONS.COMMON.ARROW_LEFT,
           },
           {
             label: 'Rejected',
             value: stats?.rejected ?? 0,
+            filter: { paymentSheetStatus: 'REJECTED', currentStage: null },
             icon: ICONS.ACTIONS.BAN,
           },
         ],
@@ -411,21 +423,25 @@ export class GetPaymentSheetComponent implements OnInit {
           {
             label: 'HR Review',
             value: stats?.hrReview ?? 0,
+            filter: { paymentSheetStatus: null, currentStage: 'HR_REVIEW' },
             icon: ICONS.COMMON.USER,
           },
           {
             label: 'Admin Review',
             value: stats?.adminReview ?? 0,
+            filter: { paymentSheetStatus: null, currentStage: 'ADMIN_REVIEW' },
             icon: ICONS.COMMON.USER,
           },
           {
             label: 'Account Review',
             value: stats?.processing ?? 0,
+            filter: { paymentSheetStatus: null, currentStage: 'PROCESSING' },
             icon: ICONS.PAYROLL.WALLET,
           },
           {
             label: 'Completed',
             value: stats?.completed ?? 0,
+            filter: { paymentSheetStatus: 'COMPLETED', currentStage: null },
             icon: ICONS.ACTIONS.CHECK_CIRCLE,
           },
         ],

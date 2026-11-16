@@ -168,6 +168,7 @@ export class GetVehicleEventHistoryComponent implements OnInit {
           this.appConfigurationService.vehicleEventStatuses(),
           record.eventType
         ),
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- blank text shows as "-" too
         remarks: record.metadata?.reason?.trim() || '-',
         createdAt: record.createdAt,
         documentKeys: record.documentKeys,
@@ -241,8 +242,16 @@ export class GetVehicleEventHistoryComponent implements OnInit {
         title: 'Status Events',
         icon: ICONS.COMMON.CAR,
         metrics: [
-          { label: 'Available', value: stats?.byEventType?.AVAILABLE ?? 0 },
-          { label: 'Assigned', value: stats?.byEventType?.ASSIGNED ?? 0 },
+          {
+            label: 'Available',
+            value: stats?.byEventType?.AVAILABLE ?? 0,
+            filter: { vehicleEventTypes: 'AVAILABLE' },
+          },
+          {
+            label: 'Assigned',
+            value: stats?.byEventType?.ASSIGNED ?? 0,
+            filter: { vehicleEventTypes: 'ASSIGNED' },
+          },
         ],
       },
       {
@@ -253,22 +262,27 @@ export class GetVehicleEventHistoryComponent implements OnInit {
           {
             label: 'Handover Initiated',
             value: stats?.byEventType?.HANDOVER_INITIATED ?? 0,
+            filter: { vehicleEventTypes: 'HANDOVER_INITIATED' },
           },
           {
             label: 'Handover Accepted',
             value: stats?.byEventType?.HANDOVER_ACCEPTED ?? 0,
+            filter: { vehicleEventTypes: 'HANDOVER_ACCEPTED' },
           },
           {
             label: 'Handover Rejected',
             value: stats?.byEventType?.HANDOVER_REJECTED ?? 0,
+            filter: { vehicleEventTypes: 'HANDOVER_REJECTED' },
           },
           {
             label: 'Handover Cancelled',
             value: stats?.byEventType?.HANDOVER_CANCELLED ?? 0,
+            filter: { vehicleEventTypes: 'HANDOVER_CANCELLED' },
           },
           {
             label: 'Deallocated',
             value: stats?.byEventType?.DEALLOCATED ?? 0,
+            filter: { vehicleEventTypes: 'DEALLOCATED' },
           },
         ],
       },
@@ -280,18 +294,22 @@ export class GetVehicleEventHistoryComponent implements OnInit {
           {
             label: 'Return Initiated',
             value: stats?.byEventType?.RETURN_INITIATED ?? 0,
+            filter: { vehicleEventTypes: 'RETURN_INITIATED' },
           },
           {
             label: 'Return Accepted',
             value: stats?.byEventType?.RETURN_ACCEPTED ?? 0,
+            filter: { vehicleEventTypes: 'RETURN_ACCEPTED' },
           },
           {
             label: 'Return Rejected',
             value: stats?.byEventType?.RETURN_REJECTED ?? 0,
+            filter: { vehicleEventTypes: 'RETURN_REJECTED' },
           },
           {
             label: 'Return Cancelled',
             value: stats?.byEventType?.RETURN_CANCELLED ?? 0,
+            filter: { vehicleEventTypes: 'RETURN_CANCELLED' },
           },
         ],
       },
