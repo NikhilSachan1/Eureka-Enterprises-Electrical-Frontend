@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import { uuidField } from '@shared/schemas';
+import { roundCurrencyAmount } from '@shared/utility/number.util';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 
 export const InvoiceDropdownGetRequestSchema = z
@@ -14,16 +15,19 @@ export const InvoiceDropdownGetRequestSchema = z
     forDocument,
   }));
 
+/** Amounts are rounded to paise so a float tail never reaches the form or a comparison. */
+const moneyField = z.number().transform(roundCurrencyAmount);
+
 const InvoiceDropdownMetaSchema = z.looseObject({
-  taxableAmount: z.number(),
-  gstAmount: z.number(),
-  tdsAmount: z.number(),
-  totalAmount: z.number(),
+  taxableAmount: moneyField,
+  gstAmount: moneyField,
+  tdsAmount: moneyField,
+  totalAmount: moneyField,
   isGstHold: z.boolean().optional(),
-  bookedTotal: z.number().optional(),
-  paidTotal: z.number().optional(),
-  advanceSettledAmount: z.number().optional(),
-  remaining: z.number().optional(),
+  bookedTotal: moneyField.optional(),
+  paidTotal: moneyField.optional(),
+  advanceSettledAmount: moneyField.optional(),
+  remaining: moneyField.optional(),
 });
 
 export const InvoiceDropdownRecordSchema = z.looseObject({
