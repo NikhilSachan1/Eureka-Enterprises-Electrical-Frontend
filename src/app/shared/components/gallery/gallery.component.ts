@@ -24,7 +24,11 @@ import {
   IAttachmentsGetResponseDto,
   IGalleryResolvedItem,
 } from '@shared/types';
-import { getMediaTypeFromUrl, getFileExtension } from '@shared/utility';
+import {
+  getMediaTypeFromUrl,
+  getFileExtension,
+  getOfficeViewerUrl,
+} from '@shared/utility';
 import { GalleriaModule } from 'primeng/galleria';
 import { ImageModule } from 'primeng/image';
 import { ButtonComponent } from '../button/button.component';
@@ -151,8 +155,15 @@ export class GalleryComponent {
                 ? getMediaTypeFromUrl(dummyUrl)
                 : 'unsupported';
               const fileExtension = dummyUrl ? getFileExtension(dummyUrl) : '';
+              const officeUrl = hasError
+                ? null
+                : getOfficeViewerUrl(actualUrl, fileExtension);
 
               return {
+                // Fixed Microsoft origin + our encoded file link, so trusting it is safe.
+                officeViewerUrl: officeUrl
+                  ? this.sanitizer.bypassSecurityTrustResourceUrl(officeUrl)
+                  : null,
                 mediaKey: item.mediaKey,
                 actualMediaUrl: actualUrl,
                 mediaType,
