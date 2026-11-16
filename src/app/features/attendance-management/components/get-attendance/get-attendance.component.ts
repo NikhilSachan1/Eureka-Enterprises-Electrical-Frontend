@@ -175,14 +175,14 @@ export class GetAttendanceComponent implements OnInit {
         employeeCode: record.user.employeeId,
         attendanceType: record.attendanceType,
         assignedDrivers: record.assignedDrivers ?? [],
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- a blank name counts as no project
         projectName: record.site?.name?.trim() || null,
         projectLocation: formatProjectLocation(record.site),
         site: record.site ?? null,
         assignmentSnapshot: {
           vehicleDisplay: record.vehicle?.registrationNo ?? null,
           vehicleBrandModel: formatVehicleBrandModel(record.vehicle),
-          assignedDriverDisplay:
-            getAssignedDriverDisplayName(record) ?? null,
+          assignedDriverDisplay: getAssignedDriverDisplayName(record) ?? null,
           assignedEmployeeDisplay:
             getAssignedEmployeeDisplayName(record) ?? null,
         },
@@ -207,7 +207,11 @@ export class GetAttendanceComponent implements OnInit {
         icon: ICONS.COMMON.LIST,
         layout: 'kpi',
         metrics: [
-          { label: 'Total records', value: stats?.attendance?.total ?? 0 },
+          {
+            label: 'Total records',
+            value: stats?.attendance?.total ?? 0,
+            filter: { attendanceStatus: null, approvalStatus: null },
+          },
         ],
       },
       {
@@ -215,10 +219,26 @@ export class GetAttendanceComponent implements OnInit {
         title: 'Attendance overview',
         icon: ICONS.ATTENDANCE.CALENDAR,
         metrics: [
-          { label: 'Present', value: stats?.attendance?.present ?? 0 },
-          { label: 'Absent', value: stats?.attendance?.absent ?? 0 },
-          { label: 'Leave', value: stats?.attendance?.leave ?? 0 },
-          { label: 'Holiday', value: stats?.attendance?.holiday ?? 0 },
+          {
+            label: 'Present',
+            value: stats?.attendance?.present ?? 0,
+            filter: { attendanceStatus: 'present' },
+          },
+          {
+            label: 'Absent',
+            value: stats?.attendance?.absent ?? 0,
+            filter: { attendanceStatus: 'absent' },
+          },
+          {
+            label: 'Leave',
+            value: stats?.attendance?.leave ?? 0,
+            filter: { attendanceStatus: 'leave' },
+          },
+          {
+            label: 'Holiday',
+            value: stats?.attendance?.holiday ?? 0,
+            filter: { attendanceStatus: 'holiday' },
+          },
         ],
       },
       {
@@ -226,12 +246,21 @@ export class GetAttendanceComponent implements OnInit {
         title: 'Check-in status',
         icon: ICONS.ATTENDANCE.CHECK_IN,
         metrics: [
-          { label: 'Checked In', value: stats?.attendance?.checkedIn ?? 0 },
+          {
+            label: 'Checked In',
+            value: stats?.attendance?.checkedIn ?? 0,
+            filter: { attendanceStatus: 'checkedIn' },
+          },
           {
             label: 'Not Checked In Yet',
             value: stats?.attendance?.notCheckedInYet ?? 0,
+            filter: { attendanceStatus: 'notCheckedInYet' },
           },
-          { label: 'Checked Out', value: stats?.attendance?.checkedOut ?? 0 },
+          {
+            label: 'Checked Out',
+            value: stats?.attendance?.checkedOut ?? 0,
+            filter: { attendanceStatus: 'checkedOut' },
+          },
         ],
       },
       {
@@ -239,9 +268,21 @@ export class GetAttendanceComponent implements OnInit {
         title: 'Approval',
         icon: ICONS.ACTIONS.CHECK_CIRCLE,
         metrics: [
-          { label: 'Pending', value: stats?.approval?.pending ?? 0 },
-          { label: 'Approved', value: stats?.approval?.approved ?? 0 },
-          { label: 'Rejected', value: stats?.approval?.rejected ?? 0 },
+          {
+            label: 'Pending',
+            value: stats?.approval?.pending ?? 0,
+            filter: { approvalStatus: 'pending' },
+          },
+          {
+            label: 'Approved',
+            value: stats?.approval?.approved ?? 0,
+            filter: { approvalStatus: 'approved' },
+          },
+          {
+            label: 'Rejected',
+            value: stats?.approval?.rejected ?? 0,
+            filter: { approvalStatus: 'rejected' },
+          },
         ],
       },
     ];
@@ -310,14 +351,14 @@ export class GetAttendanceComponent implements OnInit {
           selectedRow.status === EAttendanceStatus.APPROVAL_PENDING
             ? 'Approval Pending'
             : getMappedValueFromArrayOfObjects(
-              this.appConfigurationService.attendanceStatus(),
-              selectedRow.status
-            ),
+                this.appConfigurationService.attendanceStatus(),
+                selectedRow.status
+              ),
         type: EDataType.STATUS,
       },
       {
         label: 'Project',
-        value: (() => {
+        value: ((): string => {
           const name = selectedRow.site?.name?.trim();
           if (!name) {
             return 'N/A';

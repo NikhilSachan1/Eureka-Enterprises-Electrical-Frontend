@@ -57,12 +57,15 @@ const TITLES: Record<TWorkspaceDocMetricsKind, string> = {
   selector: 'app-workspace-doc-metrics',
   imports: [MetricsCardComponent],
   providers: [IndianCurrencyPipe],
-  template: `<app-metrics-card [metricGroups]="groups()" />`,
+  template: `<app-metrics-card
+    [metricGroups]="groups()"
+    [filterTarget]="workspaceContext.metricFilterTarget()"
+  />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceDocMetricsComponent {
   private readonly metricsService = inject(DocumentMetricsService);
-  private readonly workspaceContext = inject(ProjectWorkspaceContextService);
+  protected readonly workspaceContext = inject(ProjectWorkspaceContextService);
   private readonly currencyPipe = inject(IndianCurrencyPipe);
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
@@ -121,7 +124,13 @@ export class WorkspaceDocMetricsComponent {
         title: TITLES[kind],
         icon: ICONS.COMMON.FILE,
         layout: 'kpi',
-        metrics: [{ label: '', value: all?.[kind]?.total ?? 0 }],
+        metrics: [
+          {
+            label: '',
+            value: all?.[kind]?.total ?? 0,
+            filter: { approvalStatus: null },
+          },
+        ],
       },
     ];
 
@@ -138,9 +147,27 @@ export class WorkspaceDocMetricsComponent {
         title: 'By approval',
         icon: ICONS.COMMON.CHART,
         metrics: [
-          { label: 'Approved', value: doc?.approved ?? 0 },
-          { label: 'Pending', value: doc?.pending ?? 0 },
-          { label: 'Rejected', value: doc?.rejected ?? 0 },
+          {
+            label: 'Approved',
+            value: doc?.approved ?? 0,
+            filter: { approvalStatus: 'approved' },
+          },
+          {
+            label: 'Pending',
+            value: doc?.pending ?? 0,
+            filter: {
+              approvalStatus: [
+                'pending',
+                'pending approval',
+                'approval pending',
+              ],
+            },
+          },
+          {
+            label: 'Rejected',
+            value: doc?.rejected ?? 0,
+            filter: { approvalStatus: 'rejected' },
+          },
         ],
       });
     }

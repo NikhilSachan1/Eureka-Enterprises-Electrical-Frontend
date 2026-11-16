@@ -242,9 +242,21 @@ export class GetEmployeeComponent implements OnInit {
         title: 'Employee Counts',
         icon: ICONS.EMPLOYEE.GROUP,
         metrics: [
-          { label: 'Total Employees', value: stats?.total ?? 0 },
-          { label: 'Active Employees', value: stats?.active ?? 0 },
-          { label: 'Inactive Employees', value: stats?.inactive ?? 0 },
+          {
+            label: 'Total Employees',
+            value: stats?.total ?? 0,
+            filter: { employeeStatus: null },
+          },
+          {
+            label: 'Active Employees',
+            value: stats?.active ?? 0,
+            filter: { employeeStatus: 'active' },
+          },
+          {
+            label: 'Inactive Employees',
+            value: stats?.inactive ?? 0,
+            filter: { employeeStatus: ['inactive', 'archived'] },
+          },
         ],
       },
       {

@@ -22,12 +22,15 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged, filter, map, merge } from 'rxjs';
 import {
+  EDataType,
   IButtonConfig,
   IEnhancedForm,
   IFormConfig,
   IInputFieldsConfig,
+  IMetricFilterTarget,
   IOptionDropdown,
   ITableSearchFilterFormConfig,
+  TMetricFilter,
 } from '@shared/types';
 import {
   AppConfigurationService,
@@ -97,7 +100,7 @@ interface IAppliedFilterChip {
   styleUrl: './search-filter.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SearchFilterComponent implements OnInit {
+export class SearchFilterComponent implements OnInit, IMetricFilterTarget {
   protected readonly ICONS = ICONS;
   protected readonly searchFieldName = SEARCH_FIELD_NAME;
   /** Unique per instance so chip → field lookups never hit another filter bar on the page. */
@@ -471,6 +474,61 @@ export class SearchFilterComponent implements OnInit {
     this.onSubmit();
   }
 
+  canApplyMetricFilter(metricFilter: TMetricFilter): boolean {
+    // Read the signal so cards re-check once the form exists.
+    this.appliedValues();
+    if (!this.form) {
+      return false;
+    }
+    const entries = Object.entries(metricFilter);
+    // Each value needs its field, and an option to match once the options have loaded.
+    const valueFieldsAvailable = entries.every(
+      ([fieldName, value]) =>
+        value === null ||
+        (this.isMetricFilterField(fieldName) &&
+          this.matchMetricFieldOption(fieldName, value).matched !== false)
+    );
+    return (
+      valueFieldsAvailable &&
+      entries.some(([fieldName]) => this.isMetricFilterField(fieldName))
+    );
+  }
+
+  isMetricFilterActive(metricFilter: TMetricFilter): boolean {
+    const applied = this.appliedValues();
+    if (!this.form) {
+      return false;
+    }
+    const entries = this.resolveMetricFilter(metricFilter);
+    return (
+      entries.length > 0 &&
+      entries.every(([fieldName, value]) =>
+        value === null
+          ? !hasFilterValue(applied[fieldName])
+          : normalizeForCompare(applied[fieldName]) ===
+            normalizeForCompare(value)
+      )
+    );
+  }
+
+  applyMetricFilter(metricFilter: TMetricFilter): void {
+    if (!this.canApplyMetricFilter(metricFilter)) {
+      return;
+    }
+    const entries = this.resolveMetricFilter(metricFilter);
+    // Clicking the metric that is already applied takes its filter off again.
+    const clear =
+      this.isMetricFilterActive(metricFilter) &&
+      entries.some(([, value]) => value !== null);
+
+    entries.forEach(([fieldName, value]) => {
+      const control = this.form.formGroup.get(fieldName);
+      control?.setValue(clear ? null : value);
+      control?.markAsDirty();
+    });
+    this.onSubmit();
+  }
+
   protected toggleFilters(): void {
     const expanded = !this.filtersExpanded();
     this.filtersExpanded.set(expanded);
@@ -698,7 +756,44 @@ export class SearchFilterComponent implements OnInit {
     return findOptionLabel(this.resolveOptions(config), value) ?? String(value);
   }
 
-  /** Static options plus already-loaded configuration dropdowns; used only for chip labels. */
+  private isMetricFilterField(fieldName: string): boolean {
+    return (
+      !!this.form.fieldConfigs[fieldName] && this.isFieldVisible(fieldName)
+    );
+  }
+
+  /** Metric filter as form values: tokens matched to option values, multi-selects as arrays. */
+  private resolveMetricFilter(
+    metricFilter: TMetricFilter
+  ): [string, unknown][] {
+    return Object.entries(metricFilter)
+      .filter(([fieldName]) => this.isMetricFilterField(fieldName))
+      .map(([fieldName, token]) => {
+        if (token === null) {
+          return [fieldName, null];
+        }
+        const { value } = this.matchMetricFieldOption(fieldName, token);
+        return [
+          fieldName,
+          this.form.fieldConfigs[fieldName]?.fieldType ===
+          EDataType.MULTI_SELECT
+            ? [value]
+            : value,
+        ];
+      });
+  }
+
+  private matchMetricFieldOption(
+    fieldName: string,
+    token: string | readonly string[]
+  ): { value: unknown; matched: boolean | null } {
+    return matchMetricOption(
+      this.resolveOptions(this.form.fieldConfigs[fieldName]),
+      typeof token === 'string' ? [token] : token
+    );
+  }
+
+  /** Static options plus already-loaded configuration dropdowns; used for chip labels and metric filters. */
   private resolveOptions(
     config: IInputFieldsConfig | undefined
   ): IOptionDropdown[] {
@@ -847,6 +942,33 @@ function findOptionLabel(
   value: unknown
 ): string | null {
   return options.find(option => option.value === value)?.label ?? null;
+}
+
+/** Comparable option text: lower case, letters and digits only ("Work Completed" → "workcompleted"). */
+function metricToken(value: unknown): string {
+  return String(value ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
+/**
+ * Option value for the first candidate matching an option's value, then its label.
+ * `matched` is null while there are no options yet; the first candidate is then used as is.
+ */
+function matchMetricOption(
+  options: IOptionDropdown[],
+  candidates: readonly string[]
+): { value: unknown; matched: boolean | null } {
+  for (const candidate of candidates) {
+    const token = metricToken(candidate);
+    const match =
+      options.find(option => metricToken(option.value) === token) ??
+      options.find(option => metricToken(option.label) === token);
+    if (match) {
+      return { value: match.value, matched: true };
+    }
+  }
+  return { value: candidates[0], matched: options.length ? false : null };
 }
 
 function readStorage(key: string): string | null {

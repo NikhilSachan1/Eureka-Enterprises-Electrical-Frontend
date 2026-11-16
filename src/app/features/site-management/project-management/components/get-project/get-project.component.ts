@@ -288,28 +288,66 @@ export class GetProjectComponent implements OnInit {
         title: 'Total projects',
         icon: ICONS.SITE.BUILDING,
         layout: 'kpi',
-        metrics: [{ label: '', value: stats?.totalSites ?? 0 }],
+        metrics: [
+          {
+            label: '',
+            value: stats?.totalSites ?? 0,
+            filter: { projectStatus: null, projectType: null },
+          },
+        ],
       },
       {
         id: 'status',
         title: 'By Status',
         icon: ICONS.COMMON.CHART,
         metrics: [
-          { label: 'Upcoming', value: stats?.upcomingSites ?? 0 },
-          { label: 'Ongoing', value: stats?.ongoingSites ?? 0 },
-          { label: 'Hold', value: stats?.holdSites ?? 0 },
-          { label: 'Completed', value: stats?.completedSites ?? 0 },
-          { label: 'Work Completed', value: stats?.workCompletedSites ?? 0 },
+          {
+            label: 'Upcoming',
+            value: stats?.upcomingSites ?? 0,
+            filter: { projectStatus: 'upcoming' },
+          },
+          {
+            label: 'Ongoing',
+            value: stats?.ongoingSites ?? 0,
+            filter: { projectStatus: 'ongoing' },
+          },
+          {
+            label: 'Hold',
+            value: stats?.holdSites ?? 0,
+            filter: { projectStatus: ['hold', 'on hold'] },
+          },
+          {
+            label: 'Completed',
+            value: stats?.completedSites ?? 0,
+            filter: { projectStatus: 'completed' },
+          },
+          {
+            label: 'Work Completed',
+            value: stats?.workCompletedSites ?? 0,
+            filter: { projectStatus: 'work completed' },
+          },
         ],
       },
       {
         id: 'projectType',
         title: 'By Project Type',
         icon: ICONS.COMMON.TAG,
-        metrics: [
-          { label: 'Electrical', icon: ICONS.COMMON.BOLT, value: 0 },
-          { label: 'Civil', icon: ICONS.SITE.BUILDING, value: 0 },
-        ],
+        // One row per configured site type; a site with several types counts under each.
+        metrics: this.appConfigurationService.projectSiteTypes().map(option => {
+          const value = String(option.value);
+          const variant = projectSiteTypeTagVariant(value);
+          return {
+            label: option.label,
+            icon:
+              variant === 'electrical'
+                ? ICONS.COMMON.BOLT
+                : variant === 'civil'
+                  ? ICONS.SITE.BUILDING
+                  : ICONS.COMMON.TAG,
+            value: stats?.siteTypeCounts?.[value] ?? 0,
+            filter: { projectType: value },
+          };
+        }),
       },
     ];
 

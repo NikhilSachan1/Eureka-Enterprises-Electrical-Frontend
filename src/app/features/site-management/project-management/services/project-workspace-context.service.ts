@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { IMetricFilterTarget } from '@shared/types';
 import { IProjectOverviewGetResponseDto } from '../types/project.dto';
 import { IProjectWorkspaceSearchFilterFormDto } from '../types/project.interface';
 
@@ -22,6 +23,15 @@ export class ProjectWorkspaceContextService {
   readonly activeProjectId = this.activeProjectIdSignal.asReadonly();
 
   readonly selectedProjectId = signal<string | undefined>(undefined);
+
+  /** The workspace filter bar; metrics in the tabs filter through it. */
+  private readonly metricFilterTargetSignal =
+    signal<IMetricFilterTarget | null>(null);
+  readonly metricFilterTarget = this.metricFilterTargetSignal.asReadonly();
+
+  setMetricFilterTarget(target: IMetricFilterTarget | null): void {
+    this.metricFilterTargetSignal.set(target);
+  }
 
   setActiveProjectId(projectId: string | undefined): void {
     this.activeProjectIdSignal.set(projectId);

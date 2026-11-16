@@ -104,6 +104,8 @@ export class GetFuelExpenseComponent implements OnInit {
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly authService = inject(AuthService);
   private readonly dataTable = viewChild(DataTableComponent);
+  /** Metrics filter the list through it. */
+  protected readonly searchFilterRef = viewChild(SearchFilterComponent);
 
   protected readonly ledgerTabMode = ETabMode.CONTENT;
   protected readonly ledgerTabs: ITabItem[] = [
@@ -421,10 +423,26 @@ export class GetFuelExpenseComponent implements OnInit {
         title: 'Approval Status',
         icon: ICONS.ACTIONS.CHECK_CIRCLE,
         metrics: [
-          { label: 'Total', value: stats?.approval?.total ?? 0 },
-          { label: 'Approved', value: stats?.approval?.approved ?? 0 },
-          { label: 'Pending', value: stats?.approval?.pending ?? 0 },
-          { label: 'Rejected', value: stats?.approval?.rejected ?? 0 },
+          {
+            label: 'Total',
+            value: stats?.approval?.total ?? 0,
+            filter: { approvalStatus: null },
+          },
+          {
+            label: 'Approved',
+            value: stats?.approval?.approved ?? 0,
+            filter: { approvalStatus: 'approved' },
+          },
+          {
+            label: 'Pending',
+            value: stats?.approval?.pending ?? 0,
+            filter: { approvalStatus: 'pending' },
+          },
+          {
+            label: 'Rejected',
+            value: stats?.approval?.rejected ?? 0,
+            filter: { approvalStatus: 'rejected' },
+          },
         ],
       },
       {

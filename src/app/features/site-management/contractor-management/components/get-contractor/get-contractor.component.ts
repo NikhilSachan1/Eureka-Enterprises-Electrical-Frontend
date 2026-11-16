@@ -180,15 +180,29 @@ export class GetContractorComponent implements OnInit {
         title: 'Total contractors',
         icon: ICONS.COMMON.USERS,
         layout: 'kpi',
-        metrics: [{ label: '', value: stats?.totalContractors ?? 0 }],
+        metrics: [
+          {
+            label: '',
+            value: stats?.totalContractors ?? 0,
+            filter: { contractorStatus: null },
+          },
+        ],
       },
       {
         id: 'status',
         title: 'Status',
         icon: ICONS.COMMON.CHART,
         metrics: [
-          { label: 'Active', value: stats?.activeContractors ?? 0 },
-          { label: 'Inactive', value: stats?.inactiveContractors ?? 0 },
+          {
+            label: 'Active',
+            value: stats?.activeContractors ?? 0,
+            filter: { contractorStatus: 'active' },
+          },
+          {
+            label: 'Inactive',
+            value: stats?.inactiveContractors ?? 0,
+            filter: { contractorStatus: ['inactive', 'archived'] },
+          },
         ],
       },
     ];
