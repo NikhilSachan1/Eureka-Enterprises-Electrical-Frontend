@@ -11,6 +11,7 @@ import {
   DeleteBankTransferResponseSchema,
   EditBankTransferRequestSchema,
   EditBankTransferResponseSchema,
+  LockBankTransferResponseSchema,
   SendEmailBankTransferRequestSchema,
   SendEmailBankTransferResponseSchema,
 } from '../schemas';
@@ -23,6 +24,7 @@ import {
   IDeleteBankTransferResponseDto,
   IEditBankTransferFormDto,
   IEditBankTransferResponseDto,
+  ILockBankTransferResponseDto,
   ISendEmailBankTransferFormDto,
   ISendEmailBankTransferResponseDto,
 } from '../types/bank-transfer.dto';
@@ -125,6 +127,36 @@ export class BankTransferService {
             );
           } else {
             this.logger.logUserAction('Delete Bank Transfer Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /** Admin locks (`lock: true`) or unlocks a transfer; unlocked ones can be edited / deleted. */
+  setBankTransferLock(
+    bankTransferId: string,
+    lock: boolean
+  ): Observable<ILockBankTransferResponseDto> {
+    const label = lock ? 'Lock Bank Transfer' : 'Unlock Bank Transfer';
+    this.logger.logUserAction(`${label} Request`, { bankTransferId });
+
+    const { LOCK, UNLOCK } = API_ROUTES.SITE.DOCUMENT.BANK_TRANSFER;
+    return this.apiService
+      .patchValidated(
+        (lock ? LOCK : UNLOCK)(bankTransferId),
+        { response: LockBankTransferResponseSchema },
+        {}
+      )
+      .pipe(
+        tap((response: ILockBankTransferResponseDto) => {
+          this.logger.logUserAction(`${label} Response`, response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(`${label} Error`, error);
+          } else {
+            this.logger.logUserAction(`${label} Error`, error);
           }
           return throwError(() => error);
         })

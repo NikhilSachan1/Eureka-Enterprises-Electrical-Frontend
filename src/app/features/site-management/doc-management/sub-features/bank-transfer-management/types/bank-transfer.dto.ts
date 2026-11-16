@@ -8,6 +8,7 @@ import {
   BankTransferGetRequestSchema,
   BankTransferGetResponseSchema,
   DeleteBankTransferResponseSchema,
+  LockBankTransferResponseSchema,
   EditBankTransferRequestSchema,
   EditBankTransferResponseSchema,
   SendEmailBankTransferRequestSchema,
@@ -70,6 +71,10 @@ export type IEditBankTransferResponseDto = z.infer<
 
 export type IDeleteBankTransferResponseDto = z.infer<
   typeof DeleteBankTransferResponseSchema
+>;
+
+export type ILockBankTransferResponseDto = z.infer<
+  typeof LockBankTransferResponseSchema
 >;
 
 export type ISendEmailBankTransferFormDto = z.input<

@@ -73,6 +73,10 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
     icon: ICONS.ACTIONS.CHECK_CIRCLE,
     severity: 'success',
   },
+  /** Admin locks a record directly (action id `lock`). */
+  lock: { icon: ICONS.SECURITY.LOCK, severity: 'secondary' },
+  /** Admin unlocks a record directly (action id `unlock`). */
+  unlock: { icon: ICONS.SECURITY.LOCK_OPEN, severity: 'warning' },
   /** Reject pending unlock request. Matches action id `unlockRequestReject` → key `unlockrequestreject`. */
   unlockrequestreject: {
     icon: ICONS.ACTIONS.TIMES,

@@ -419,6 +419,10 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
       ...(actionType === EButtonActionType.EDIT
         ? { docContext: this.docRouteContext() }
         : {}),
+      ...(actionType === EButtonActionType.LOCK ||
+      actionType === EButtonActionType.UNLOCK
+        ? { lock: actionType === EButtonActionType.LOCK }
+        : {}),
       onSuccess: () => this.loadBankTransferList(),
     };
 

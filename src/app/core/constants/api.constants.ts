@@ -384,6 +384,8 @@ export const API_ROUTES = {
         LIST: 'bank-transfers',
         GET_BY_ID: (id: string) => `bank-transfers/${id}`,
         DELETE: (id: string) => `bank-transfers/${id}`,
+        LOCK: (id: string) => `bank-transfers/${id}/lock`,
+        UNLOCK: (id: string) => `bank-transfers/${id}/unlock`,
       },
       PAYMENT_ADVICE: {
         EMAIL: (id: string) => `payment-advices/${id}/email`,
