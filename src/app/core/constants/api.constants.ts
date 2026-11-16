@@ -402,6 +402,8 @@ export const API_ROUTES = {
         GET_BY_ID: (id: string) => `tds/register/${id}`,
         VERIFY: (id: string) => `tds/register/${id}/verify`,
         REVERT: (id: string) => `tds/register/${id}/revert`,
+        REVERT_CHALLAN: (paymentId: string) =>
+          `tds/payments/${paymentId}/revert`,
         PAYMENT_RELEASE: 'tds/payments',
       },
     },

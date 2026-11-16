@@ -97,6 +97,7 @@ export enum EButtonActionType {
   UNLOCK_REQUEST_REJECT = 'unlockRequestReject',
   LOCK = 'lock',
   UNLOCK = 'unlock',
+  REVERT_CHALLAN = 'revertChallan',
   SETTLE_ADVANCE = 'settleAdvance',
   UNSETTLE_ADVANCE = 'unsettleAdvance',
   SEND_EMAIL = 'sendEmail',

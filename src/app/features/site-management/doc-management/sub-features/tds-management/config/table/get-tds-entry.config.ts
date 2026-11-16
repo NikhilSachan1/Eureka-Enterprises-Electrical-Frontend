@@ -106,7 +106,28 @@ const buildTdsEntryTableRowActionsConfig = (
       !row.isVerified ? 'Only verified entries can be reverted.' : undefined,
     permission: [APP_PERMISSION.TDS.REJECT],
   },
+  {
+    id: EButtonActionType.REVERT_CHALLAN,
+    tooltip: 'Revert TDS challan',
+    disableWhen: (row: ITdsEntryGetBaseResponseDto) =>
+      !!getTdsRevertChallanDisableReason(row),
+    disableReason: getTdsRevertChallanDisableReason,
+    permission: [APP_PERMISSION.TDS.REVERT_CHALLAN],
+  },
 ];
+
+/** A challan can be reverted only once its 26Q verification is undone (26Q needs the challan). */
+function getTdsRevertChallanDisableReason(
+  row: ITdsEntryGetBaseResponseDto
+): string | undefined {
+  if (!row.tdsPaymentId) {
+    return 'No challan is recorded for this entry.';
+  }
+  if (row.isVerified) {
+    return 'Revert the 26Q verification first.';
+  }
+  return undefined;
+}
 
 const buildTdsEntryTableBulkActionsConfig = (): Partial<
   ITableActionConfig<ITdsEntryGetBaseResponseDto>
@@ -146,8 +167,14 @@ export function createTdsEntryTableEnhancedConfig(
   return {
     tableConfig: TDS_ENTRY_TABLE_CONFIG,
     headers,
+    // Contractor TDS is deposited by the client: no challan to record or revert.
     rowActions: buildTdsEntryTableRowActionsConfig(side).filter(
-      action => !(isSales && action.id === EButtonActionType.PAID)
+      action =>
+        !(
+          isSales &&
+          (action.id === EButtonActionType.PAID ||
+            action.id === EButtonActionType.REVERT_CHALLAN)
+        )
     ),
     bulkActions: isSales ? [] : buildTdsEntryTableBulkActionsConfig(),
   };

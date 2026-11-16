@@ -185,4 +185,38 @@ export class TdsService {
         })
       );
   }
+
+  /** Reverts a whole recorded challan; its entries go back to challan pending. */
+  revertTdsChallan(
+    tdsPaymentId: string,
+    formData: IRevertTdsEntryFormDto
+  ): Observable<IRevertTdsEntryResponseDto> {
+    this.logger.logUserAction('Revert TDS Challan Request', { tdsPaymentId });
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.TDS.REVERT_CHALLAN(tdsPaymentId),
+        {
+          response: RevertTdsEntryResponseSchema,
+          request: RevertTdsEntryRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IRevertTdsEntryResponseDto) => {
+          this.logger.logUserAction('Revert TDS Challan Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Revert TDS Challan Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Revert TDS Challan Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
 }

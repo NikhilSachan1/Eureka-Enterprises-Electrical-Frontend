@@ -7,6 +7,7 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
 import { AddTdsPaymentReleaseComponent } from '../../components/add-tds-payment-release/add-tds-payment-release.component';
 import { VerifyTdsEntryComponent } from '../../components/verify-tds-entry/verify-tds-entry.component';
 import { RevertTdsEntryComponent } from '../../components/revert-tds-entry/revert-tds-entry.component';
+import { RevertTdsChallanComponent } from '../../components/revert-tds-challan/revert-tds-challan.component';
 
 const CHALLAN_CONFIG: IDialogActionConfig = {
   dialogConfig: {
@@ -53,6 +54,16 @@ const REVERT_CONFIG: IDialogActionConfig = {
   dynamicComponent: RevertTdsEntryComponent,
 };
 
+const REVERT_CHALLAN_CONFIG: IDialogActionConfig = {
+  dialogConfig: {
+    ...REJECT_CONFIRMATION_DIALOG_CONFIG,
+    header: 'Revert TDS challan?',
+    message:
+      'Revert the whole challan this entry was deposited with? Every entry in it goes back to challan pending, so its invoice can be unlocked and the challan recorded again.',
+  },
+  dynamicComponent: RevertTdsChallanComponent,
+};
+
 /** Dialog for a TDS register action, worded for the side (vendor vs client) of the entry. */
 export function getTdsActionConfig(
   actionType: string,
@@ -65,6 +76,8 @@ export function getTdsActionConfig(
       return VERIFY_CONFIG[partyType];
     case EButtonActionType.REJECT:
       return REVERT_CONFIG;
+    case EButtonActionType.REVERT_CHALLAN:
+      return REVERT_CHALLAN_CONFIG;
     default:
       return undefined;
   }
