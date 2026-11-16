@@ -42,6 +42,7 @@ export {
 export {
   getMediaTypeFromUrl,
   getFileExtension,
+  getOfficeViewerUrl,
   isAllowedUploadFileType,
 } from './media.util';
 export {

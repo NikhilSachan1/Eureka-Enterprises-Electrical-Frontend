@@ -52,6 +52,23 @@
               }
             </div>
           </div>
+        } @else if (file.officeViewerUrl) {
+          <!-- Word / Excel / PowerPoint, rendered by Microsoft's Office viewer. -->
+          <div class="gallery-viewer__office">
+            <div class="gallery-viewer__office-bar">
+              <i [ngClass]="file.fileIcon"></i>
+              <span class="gallery-viewer__office-name">.{{ file.fileExtension }} preview</span>
+              <app-button
+                [buttonConfig]="downloadButtonConfig"
+                (onButtonClick)="downloadFile(file.actualMediaUrl)"
+              />
+            </div>
+            <iframe
+              [src]="file.officeViewerUrl"
+              [title]="file.mediaKey"
+              class="gallery-viewer__office-embed"
+            ></iframe>
+          </div>
         } @else if (file.mediaType !== 'image' && file.mediaType !== 'pdf' && !file.hasError) {
           <div class="gallery-viewer__file-state">
             <div class="gallery-viewer__file-state-icon">
