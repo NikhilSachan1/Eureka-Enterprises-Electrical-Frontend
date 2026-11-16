@@ -350,6 +350,7 @@ export const APP_PERMISSION = {
     RELEASE: 'financials.tds.release-payment',
     APPROVE: 'financials.tds.verify',
     REJECT: 'financials.tds.revert',
+    REVERT_CHALLAN: 'financials.tds.revert-challan',
   },
   PAYMENT_SHEET: {
     VIEW_LIST: 'financials.payment-sheets.view-list',
