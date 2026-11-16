@@ -1,4 +1,5 @@
 import { EDataType } from '@shared/types';
+import { roundCurrencyAmount } from '@shared/utility/number.util';
 import type { IDocWorkspaceContextView } from '@features/site-management/doc-management/shared/types/doc-workspace-context.interface';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { EDocReferenceHierarchyKind } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
@@ -179,7 +180,8 @@ export function parseAdvancePaymentAmount(value: unknown): number | null {
     return null;
   }
   const amount = Number(value);
-  return Number.isFinite(amount) ? amount : null;
+  // Rounded to paise: it is used as a form cap, and a float tail would refuse the exact amount.
+  return Number.isFinite(amount) ? roundCurrencyAmount(amount) : null;
 }
 
 export function shouldDisableAdvancePaymentApprove(
