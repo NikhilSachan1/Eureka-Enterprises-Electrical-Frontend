@@ -127,6 +127,11 @@ export const PoBreakdownRecordSchema = z.looseObject({
   isSystemGenerated: z.coerce.boolean().optional(),
   totalAmount: z.coerce.number(),
   partyName: z.string().nullable(),
+  /** The project (site) of the PO — the key for grouping a multi-site response. */
+  site: z
+    .looseObject({ id: uuidField, name: z.string().nullable().optional() })
+    .nullable()
+    .optional(),
   advances: z.array(PoBreakdownAdvanceSchema).default([]),
   jmcs: z.array(PoBreakdownJmcSchema).default([]),
 });
