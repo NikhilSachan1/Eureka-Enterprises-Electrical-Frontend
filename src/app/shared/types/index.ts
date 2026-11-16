@@ -118,6 +118,8 @@ export type {
   IMetric,
   IMetricGroup,
   IMetricGroupLayout,
+  IMetricFilterTarget,
+  TMetricFilter,
 } from './metric/metric-data.interface';
 export type { INotificationOptions } from './notification/notification.interface';
 export type { IBulkOperationResponseNotificationConfig } from './notification/bulk-operation-response-notification.interface';

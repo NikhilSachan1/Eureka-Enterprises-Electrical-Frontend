@@ -19,10 +19,14 @@
   @if (isNonEmployeeTab()) {
     <app-get-non-employee />
   } @else {
-    <app-metrics-card [metricGroups]="metricGroups()" />
+    <app-metrics-card
+      [metricGroups]="metricGroups()"
+      [filterTarget]="searchFilter"
+    />
 
     <div class="search-filter-wrapper">
       <app-search-filter
+        #searchFilter
         [tableRef]="dataTable.dt()"
         [searchFilterConfig]="searchFilterConfig"
       />

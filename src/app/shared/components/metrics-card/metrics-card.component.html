@@ -30,8 +30,18 @@
           @if (heroMetric) {
             @let heroColors = getColorScheme(heroMetric.label);
             @let heroTip = getMetricTooltip(heroMetric);
+            @let heroClickable = isMetricClickable(heroMetric);
             <div
               class="metric-hero"
+              [class.metric-hero--clickable]="heroClickable"
+              [class.metric-hero--active]="isMetricActive(heroMetric)"
+              [attr.role]="heroClickable ? 'button' : null"
+              [attr.tabindex]="heroClickable ? 0 : null"
+              [attr.aria-pressed]="heroClickable ? isMetricActive(heroMetric) : null"
+              [attr.aria-label]="heroClickable ? (heroMetric.label || group.title) + ': ' + heroMetric.value : null"
+              (click)="onMetricClick(heroMetric)"
+              (keydown.enter)="onMetricClick(heroMetric, $event)"
+              (keydown.space)="onMetricClick(heroMetric, $event)"
               [style.--row-accent]="heroColors.primary"
               [pTooltip]="heroTip"
               [tooltipDisabled]="!heroTip"
@@ -113,8 +123,17 @@
     </div>
   } @else {
     @let metricTip = getMetricTooltip(metric);
+    @let clickable = isMetricClickable(metric);
     <div
       class="metric-stat"
+      [class.metric-stat--clickable]="clickable"
+      [class.metric-stat--active]="isMetricActive(metric)"
+      [attr.role]="clickable ? 'button' : null"
+      [attr.tabindex]="clickable ? 0 : null"
+      [attr.aria-pressed]="clickable ? isMetricActive(metric) : null"
+      (click)="onMetricClick(metric)"
+      (keydown.enter)="onMetricClick(metric, $event)"
+      (keydown.space)="onMetricClick(metric, $event)"
       [style.--row-accent]="colors.primary"
       [pTooltip]="metricTip"
       [tooltipDisabled]="!metricTip"

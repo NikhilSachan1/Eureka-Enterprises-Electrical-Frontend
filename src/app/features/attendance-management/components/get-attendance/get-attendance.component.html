@@ -6,10 +6,12 @@
 <app-metrics-card
   class="metrics-card--attendance-summary"
   [metricGroups]="metricGroups()"
+  [filterTarget]="searchFilter"
 />
 
 <div class="search-filter-wrapper">
   <app-search-filter
+    #searchFilter
     [tableRef]="dataTable.dt()"
     [searchFilterConfig]="searchFilterConfig"
   />
@@ -47,60 +49,53 @@
   let-row
 >
   @let snap = row.assignmentSnapshot;
-  @let hasAssignment =
-    !!snap?.assignedDriverDisplay ||
-    !!snap?.assignedEmployeeDisplay ||
-    !!snap?.vehicleDisplay;
+  @let hasAssignment = !!snap?.assignedDriverDisplay || !!snap?.assignedEmployeeDisplay || !!snap?.vehicleDisplay;
 
   @if (hasAssignment) {
-  <div class="attendance-assignment-details">
-    @if (snap.vehicleDisplay) {
-      <div class="attendance-assignment-details__row">
-        <span
-          class="attendance-assignment-details__icon attendance-assignment-details__icon--vehicle"
-          aria-hidden="true"
-        >
-          <i [class]="ALL_ICONS.COMMON.CAR"></i>
-        </span>
-        <div class="attendance-assignment-details__text">
-          <span class="attendance-assignment-details__label">Vehicle</span>
-          <span class="attendance-assignment-details__value">{{ snap.vehicleDisplay }}</span>
-          @if (snap.vehicleBrandModel) {
-            <span class="attendance-assignment-details__meta">
-              {{ snap.vehicleBrandModel | textCase: 'title' }}
-            </span>
-          }
-        </div>
-      </div>
-    }
-
-    @if (snap.assignedDriverDisplay || snap.assignedEmployeeDisplay) {
-      <div class="attendance-assignment-details__row">
-        <span
-          class="attendance-assignment-details__icon attendance-assignment-details__icon--person"
-          aria-hidden="true"
-        >
-          <i [class]="ALL_ICONS.COMMON.USER"></i>
-        </span>
-        <div class="attendance-assignment-details__text">
-          <span class="attendance-assignment-details__label">
-            @if (snap.assignedDriverDisplay) {
-              {{
-                snap.assignedDriverDisplay.includes(',')
-                  ? 'Assigned Drivers'
-                  : 'Assigned Driver'
-              }}
-            } @else {
-              Assigned Engineer
+    <div class="attendance-assignment-details">
+      @if (snap.vehicleDisplay) {
+        <div class="attendance-assignment-details__row">
+          <span
+            class="attendance-assignment-details__icon attendance-assignment-details__icon--vehicle"
+            aria-hidden="true"
+          >
+            <i [class]="ALL_ICONS.COMMON.CAR"></i>
+          </span>
+          <div class="attendance-assignment-details__text">
+            <span class="attendance-assignment-details__label">Vehicle</span>
+            <span class="attendance-assignment-details__value">{{ snap.vehicleDisplay }}</span>
+            @if (snap.vehicleBrandModel) {
+              <span class="attendance-assignment-details__meta">
+                {{ snap.vehicleBrandModel | textCase: 'title' }}
+              </span>
             }
-          </span>
-          <span class="attendance-assignment-details__value">
-            {{ snap.assignedDriverDisplay || snap.assignedEmployeeDisplay }}
-          </span>
+          </div>
         </div>
-      </div>
-    }
-  </div>
+      }
+
+      @if (snap.assignedDriverDisplay || snap.assignedEmployeeDisplay) {
+        <div class="attendance-assignment-details__row">
+          <span
+            class="attendance-assignment-details__icon attendance-assignment-details__icon--person"
+            aria-hidden="true"
+          >
+            <i [class]="ALL_ICONS.COMMON.USER"></i>
+          </span>
+          <div class="attendance-assignment-details__text">
+            <span class="attendance-assignment-details__label">
+              @if (snap.assignedDriverDisplay) {
+                {{ snap.assignedDriverDisplay.includes(',') ? 'Assigned Drivers' : 'Assigned Driver' }}
+              } @else {
+                Assigned Engineer
+              }
+            </span>
+            <span class="attendance-assignment-details__value">
+              {{ snap.assignedDriverDisplay || snap.assignedEmployeeDisplay }}
+            </span>
+          </div>
+        </div>
+      }
+    </div>
   } @else {
     <span class="attendance-assignment-details__empty">No vehicle or driver</span>
   }
@@ -116,7 +111,7 @@
   [rowActions]="table.rowActions()"
   [customBodyTemplates]="{
     attendanceProjectDetails: attendanceProjectDetails,
-    attendanceAssignmentDetails: attendanceAssignmentDetails
+    attendanceAssignmentDetails: attendanceAssignmentDetails,
   }"
   (rowActionClick)="handleAttendanceTableActionClick($any($event), false)"
   (bulkActionClick)="handleAttendanceTableActionClick($any($event), true)"

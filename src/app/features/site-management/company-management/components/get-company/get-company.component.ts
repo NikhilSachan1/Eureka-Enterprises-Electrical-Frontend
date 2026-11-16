@@ -173,15 +173,29 @@ export class GetCompanyComponent implements OnInit {
         title: 'Total companies',
         icon: ICONS.SITE.BUILDING,
         layout: 'kpi',
-        metrics: [{ label: '', value: stats?.totalCompanies ?? 0 }],
+        metrics: [
+          {
+            label: '',
+            value: stats?.totalCompanies ?? 0,
+            filter: { companyStatus: null },
+          },
+        ],
       },
       {
         id: 'status',
         title: 'Status',
         icon: ICONS.COMMON.CHART,
         metrics: [
-          { label: 'Active', value: stats?.activeCompanies ?? 0 },
-          { label: 'Inactive', value: stats?.inactiveCompanies ?? 0 },
+          {
+            label: 'Active',
+            value: stats?.activeCompanies ?? 0,
+            filter: { companyStatus: 'active' },
+          },
+          {
+            label: 'Inactive',
+            value: stats?.inactiveCompanies ?? 0,
+            filter: { companyStatus: ['inactive', 'archived'] },
+          },
         ],
       },
     ];

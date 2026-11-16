@@ -371,9 +371,21 @@ export class GetWorkforceAllocationComponent implements OnInit {
         title: 'Workforce Overview',
         icon: ICONS.EMPLOYEE.GROUP,
         metrics: [
-          { label: 'Total Employees', value: stats?.total ?? 0 },
-          { label: 'Allocated', value: stats?.allocated ?? 0 },
-          { label: 'Free', value: stats?.free ?? 0 },
+          {
+            label: 'Total Employees',
+            value: stats?.total ?? 0,
+            filter: { allocatedStatus: null },
+          },
+          {
+            label: 'Allocated',
+            value: stats?.allocated ?? 0,
+            filter: { allocatedStatus: 'allocated' },
+          },
+          {
+            label: 'Free',
+            value: stats?.free ?? 0,
+            filter: { allocatedStatus: 'free' },
+          },
         ],
       },
     ];

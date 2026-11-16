@@ -131,6 +131,8 @@ export class GetVehicleComponent implements OnInit {
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly galleryService = inject(GalleryService);
   private readonly dataTable = viewChild(DataTableComponent);
+  /** Metrics filter the list through it. */
+  protected readonly searchFilterRef = viewChild(SearchFilterComponent);
 
   protected readonly vehicleTabMode = ETabMode.CONTENT;
   private readonly vehicleScopeCounts = signal<
@@ -463,13 +465,26 @@ export class GetVehicleComponent implements OnInit {
         title: 'Vehicle Overview',
         icon: ICONS.COMMON.CAR,
         metrics: [
-          { label: 'Total', value: stats?.total ?? 0 },
-          { label: 'Available', value: stats?.byStatus?.available ?? 0 },
-          { label: 'Assigned', value: stats?.byStatus?.assigned ?? 0 },
+          {
+            label: 'Total',
+            value: stats?.total ?? 0,
+            filter: { vehicleStatus: null },
+          },
+          {
+            label: 'Available',
+            value: stats?.byStatus?.available ?? 0,
+            filter: { vehicleStatus: 'AVAILABLE' },
+          },
+          {
+            label: 'Assigned',
+            value: stats?.byStatus?.assigned ?? 0,
+            filter: { vehicleStatus: 'ASSIGNED' },
+          },
           {
             label: 'Initiated',
             icon: ICONS.ACTIONS.SEND,
             value: stats?.handover?.initiated ?? 0,
+            filter: { vehicleStatus: 'INITIATED' },
           },
         ],
       },
@@ -481,15 +496,22 @@ export class GetVehicleComponent implements OnInit {
           {
             label: 'PUC Expiring Soon',
             value: stats?.pucStatus?.expiringSoon ?? 0,
+            filter: { vehiclePUCStatus: 'expiring soon' },
           },
-          { label: 'PUC Expired', value: stats?.pucStatus?.expired ?? 0 },
+          {
+            label: 'PUC Expired',
+            value: stats?.pucStatus?.expired ?? 0,
+            filter: { vehiclePUCStatus: 'expired' },
+          },
           {
             label: 'Insurance Expiring Soon',
             value: stats?.insuranceStatus?.expiringSoon ?? 0,
+            filter: { vehicleInsuranceStatus: 'expiring soon' },
           },
           {
             label: 'Insurance Expired',
             value: stats?.insuranceStatus?.expired ?? 0,
+            filter: { vehicleInsuranceStatus: 'expired' },
           },
         ],
       },
@@ -501,11 +523,13 @@ export class GetVehicleComponent implements OnInit {
           {
             label: 'Service Due Soon',
             value: stats?.serviceDueStatus?.dueSoon ?? 0,
+            filter: { vehicleServiceDueStatus: 'due soon' },
           },
           {
             label: 'Service Overdue',
             icon: ICONS.STATUS.EXPIRED,
             value: stats?.serviceDueStatus?.overdue ?? 0,
+            filter: { vehicleServiceDueStatus: 'overdue' },
           },
         ],
       },

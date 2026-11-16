@@ -119,6 +119,8 @@ export class GetAssetComponent implements OnInit {
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly galleryService = inject(GalleryService);
   private readonly dataTable = viewChild(DataTableComponent);
+  /** Metrics filter the list through it. */
+  protected readonly searchFilterRef = viewChild(SearchFilterComponent);
 
   protected readonly assetTabMode = ETabMode.CONTENT;
   private readonly assetScopeCounts = signal<
@@ -383,26 +385,26 @@ export class GetAssetComponent implements OnInit {
     return response.map((record: IAssetGetBaseResponseDto) => {
       const latestEvent = record.latestEvent
         ? {
-          ...record.latestEvent,
-          eventTypeCode: record.latestEvent.eventType,
-          eventType: this.allowedLatestEventTypes.has(
-            record.latestEvent.eventType
-          )
-            ? getMappedValueFromArrayOfObjects(
-              this.appConfigurationService.assetEventStatuses(),
+            ...record.latestEvent,
+            eventTypeCode: record.latestEvent.eventType,
+            eventType: this.allowedLatestEventTypes.has(
               record.latestEvent.eventType
             )
-            : '',
-          fromUserName: record.latestEvent.fromUserUser
-            ? `${record.latestEvent.fromUserUser.firstName} ${record.latestEvent.fromUserUser.lastName}`
-            : '-',
-          toUserName: record.latestEvent.toUserUser
-            ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
-            : '-',
-          createdByName: record.latestEvent.createdByUser
-            ? `${record.latestEvent.createdByUser.firstName} ${record.latestEvent.createdByUser.lastName}`
-            : '-',
-        }
+              ? getMappedValueFromArrayOfObjects(
+                  this.appConfigurationService.assetEventStatuses(),
+                  record.latestEvent.eventType
+                )
+              : '',
+            fromUserName: record.latestEvent.fromUserUser
+              ? `${record.latestEvent.fromUserUser.firstName} ${record.latestEvent.fromUserUser.lastName}`
+              : '-',
+            toUserName: record.latestEvent.toUserUser
+              ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
+              : '-',
+            createdByName: record.latestEvent.createdByUser
+              ? `${record.latestEvent.createdByUser.firstName} ${record.latestEvent.createdByUser.lastName}`
+              : '-',
+          }
         : null;
 
       return {
@@ -419,9 +421,9 @@ export class GetAssetComponent implements OnInit {
         assetAssigneeCode: record.assignedToUser?.employeeId ?? null,
         calibrationFrom: record.calibrationFrom
           ? getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.assetCalibrationSources(),
-            record.calibrationFrom
-          )
+              this.appConfigurationService.assetCalibrationSources(),
+              record.calibrationFrom
+            )
           : '-',
         calibrationStatus: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.assetCalibrationStatuses(),
@@ -458,15 +460,36 @@ export class GetAssetComponent implements OnInit {
         title: 'Overview',
         icon: ICONS.ASSET.BOX,
         metrics: [
-          { label: 'Total', value: stats?.total ?? 0 },
-          { label: 'Available', value: stats?.byStatus?.available ?? 0 },
-          { label: 'Assigned', value: stats?.byStatus?.assigned ?? 0 },
-          { label: 'Lost', value: stats?.byStatus?.lost ?? 0 },
-          { label: 'Retired', value: stats?.byStatus?.retired ?? 0 },
+          {
+            label: 'Total',
+            value: stats?.total ?? 0,
+            filter: { assetStatus: null },
+          },
+          {
+            label: 'Available',
+            value: stats?.byStatus?.available ?? 0,
+            filter: { assetStatus: 'AVAILABLE' },
+          },
+          {
+            label: 'Assigned',
+            value: stats?.byStatus?.assigned ?? 0,
+            filter: { assetStatus: 'ASSIGNED' },
+          },
+          {
+            label: 'Lost',
+            value: stats?.byStatus?.lost ?? 0,
+            filter: { assetStatus: 'LOST' },
+          },
+          {
+            label: 'Retired',
+            value: stats?.byStatus?.retired ?? 0,
+            filter: { assetStatus: 'RETIRED' },
+          },
           {
             label: 'Initiated',
             icon: ICONS.ACTIONS.SEND,
             value: stats?.handover?.initiated ?? 0,
+            filter: { assetStatus: 'INITIATED' },
           },
         ],
       },
@@ -478,10 +501,12 @@ export class GetAssetComponent implements OnInit {
           {
             label: 'Calibrated Assets',
             value: stats?.byAssetType?.calibrated ?? 0,
+            filter: { assetType: 'CALIBRATED' },
           },
           {
             label: 'Non Calibrated Assets',
             value: stats?.byAssetType?.nonCalibrated ?? 0,
+            filter: { assetType: 'NON_CALIBRATED' },
           },
         ],
       },
@@ -493,16 +518,23 @@ export class GetAssetComponent implements OnInit {
           {
             label: 'Calibration Expiring Soon',
             value: stats?.calibration?.expiringSoon ?? 0,
+            filter: { assetCalibrationStatus: 'expiring soon' },
           },
           {
             label: 'Calibration Expired',
             value: stats?.calibration?.expired ?? 0,
+            filter: { assetCalibrationStatus: 'expired' },
           },
           {
             label: 'Warranty Expiring Soon',
             value: stats?.warranty?.expiringSoon ?? 0,
+            filter: { assetWarrantyStatus: 'expiring soon' },
           },
-          { label: 'Warranty Expired', value: stats?.warranty?.expired ?? 0 },
+          {
+            label: 'Warranty Expired',
+            value: stats?.warranty?.expired ?? 0,
+            filter: { assetWarrantyStatus: 'expired' },
+          },
         ],
       },
     ];
@@ -724,9 +756,9 @@ export class GetAssetComponent implements OnInit {
       isBulk
         ? null
         : this.prepareAssetRecordDetail(
-          selectedFirstRow,
-          EButtonActionType.DOWNLOAD
-        ),
+            selectedFirstRow,
+            EButtonActionType.DOWNLOAD
+          ),
       isBulk,
       !isBulk,
       {

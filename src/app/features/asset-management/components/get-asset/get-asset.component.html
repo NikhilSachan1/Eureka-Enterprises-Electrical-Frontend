@@ -3,7 +3,10 @@
   (headerButtonClick)="onHeaderButtonClick($event)"
 />
 
-<app-metrics-card [metricGroups]="metricGroups()" />
+<app-metrics-card
+  [metricGroups]="metricGroups()"
+  [filterTarget]="searchFilterRef()"
+/>
 
 @if (showAssetScopeTabs()) {
   <app-nav-tabs

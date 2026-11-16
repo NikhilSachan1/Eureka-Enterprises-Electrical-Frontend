@@ -182,15 +182,29 @@ export class GetVendorComponent implements OnInit {
         title: 'Total vendors',
         icon: ICONS.COMMON.BRIEFCASE,
         layout: 'kpi',
-        metrics: [{ label: '', value: stats?.totalVendors ?? 0 }],
+        metrics: [
+          {
+            label: '',
+            value: stats?.totalVendors ?? 0,
+            filter: { vendorStatus: null, vendorType: null },
+          },
+        ],
       },
       {
         id: 'status',
         title: 'Status',
         icon: ICONS.COMMON.CHART,
         metrics: [
-          { label: 'Active', value: stats?.activeVendors ?? 0 },
-          { label: 'Inactive', value: stats?.inactiveVendors ?? 0 },
+          {
+            label: 'Active',
+            value: stats?.activeVendors ?? 0,
+            filter: { vendorStatus: 'active' },
+          },
+          {
+            label: 'Inactive',
+            value: stats?.inactiveVendors ?? 0,
+            filter: { vendorStatus: ['inactive', 'archived'] },
+          },
         ],
       },
       {
@@ -198,10 +212,15 @@ export class GetVendorComponent implements OnInit {
         title: 'Vendor types',
         icon: ICONS.COMMON.TAG,
         metrics: [
-          { label: 'Freelancers', value: stats?.freelancerVendors ?? 0 },
+          {
+            label: 'Freelancers',
+            value: stats?.freelancerVendors ?? 0,
+            filter: { vendorType: 'freelancer' },
+          },
           {
             label: 'GST registered',
             value: stats?.gstRegisteredVendors ?? 0,
+            filter: { vendorType: 'gst registered' },
           },
         ],
       },

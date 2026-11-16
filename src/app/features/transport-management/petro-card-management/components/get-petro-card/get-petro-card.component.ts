@@ -172,9 +172,21 @@ export class GetPetroCardComponent implements OnInit {
         title: 'Card Status',
         icon: ICONS.COMMON.CREDIT_CARD,
         metrics: [
-          { label: 'Total', value: stats?.total ?? 0 },
-          { label: 'Available', value: stats?.available ?? 0 },
-          { label: 'Assigned', value: stats?.allocated ?? 0 },
+          {
+            label: 'Total',
+            value: stats?.total ?? 0,
+            filter: { petroCardStatus: null },
+          },
+          {
+            label: 'Available',
+            value: stats?.available ?? 0,
+            filter: { petroCardStatus: 'available' },
+          },
+          {
+            label: 'Assigned',
+            value: stats?.allocated ?? 0,
+            filter: { petroCardStatus: ['allocated', 'assigned'] },
+          },
         ],
       },
     ];
