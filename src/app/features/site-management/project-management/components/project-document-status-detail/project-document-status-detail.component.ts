@@ -11,11 +11,9 @@ import {
   untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
-import { GraphComponent, LayoutService, Orientation } from '@swimlane/ngx-graph';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PaginatorState } from 'primeng/paginator';
@@ -27,8 +25,11 @@ import { IndianCurrencyPipe } from '@shared/pipes/indian-currency.pipe';
 import { AvatarService, RouterNavigationService } from '@shared/services';
 import { DialogModule } from 'primeng/dialog';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { finalize, Subject } from 'rxjs';
-import { IPoBreakdownRecord, IPoPanelMetrics } from '../../types/po-breakdown.interface';
+import { finalize } from 'rxjs';
+import {
+  IPoBreakdownRecord,
+  IPoPanelMetrics,
+} from '../../types/po-breakdown.interface';
 import {
   EMPTY_PROJECT_DOCUMENT_STATUS,
   IProjectDocumentStatusTarget,
@@ -39,10 +40,7 @@ import { EDocChainStage } from '../../types/project-document-status-detail.enum'
 import { IProject } from '../../types/project.interface';
 import { DocumentStatusService } from '../../services/document-status.service';
 import { mapPoBreakdownRecords } from '../../utility/po-breakdown.mapper';
-import {
-  buildGraphCardView,
-  buildPoDocumentGraph,
-} from '../../utility/project-document-status-graph.util';
+import { buildPoDocumentGraph } from '../../utility/project-document-status-graph.util';
 import { buildPoPanelMetrics } from '../../utility/project-document-status-detail.util';
 import {
   buildProjectDocumentStatusSummary,
@@ -62,17 +60,17 @@ import {
   TWorkspaceDocStatusScope,
 } from '../../utility/workspace-document-status-row.util';
 import { ProjectDocumentStatusComponent } from '../project-document-status/project-document-status.component';
+import { DocChainTreeComponent } from './doc-chain-tree/doc-chain-tree.component';
 
 @Component({
   selector: 'app-project-document-status-detail',
-  providers: [IndianCurrencyPipe, LayoutService],
+  providers: [IndianCurrencyPipe],
   imports: [
-    NgTemplateOutlet,
     DialogModule,
     TagModule,
     FormsModule,
     SelectButtonModule,
-    GraphComponent,
+    DocChainTreeComponent,
     ProgressSpinnerModule,
     StatusTagComponent,
     EmptyMessagesComponent,
@@ -91,7 +89,6 @@ export class ProjectDocumentStatusDetailComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly graphCache = new Map<string, IDocGraph>();
   private loadVersion = 0;
-  private graphFitPass = 0;
   protected readonly pageSize =
     APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE;
 
@@ -103,17 +100,6 @@ export class ProjectDocumentStatusDetailComponent {
   readonly workspaceScope = input<TWorkspaceDocStatusScope | null>(null);
 
   protected readonly icons = ICONS;
-  protected readonly graphLayout = 'dagreNodesOnly';
-  protected readonly graphLayoutSettings = {
-    orientation: Orientation.LEFT_TO_RIGHT,
-    marginX: 72,
-    marginY: 40,
-  };
-  protected readonly graphZoomToFit$ = new Subject<{
-    autoCenter?: boolean;
-    force?: boolean;
-  }>();
-  protected readonly buildGraphCardView = buildGraphCardView;
 
   protected readonly docContext = signal<EDocContext>(EDocContext.SALES);
   protected readonly records = signal<IPoBreakdownRecord[]>([]);
@@ -159,17 +145,16 @@ export class ProjectDocumentStatusDetailComponent {
   protected readonly isSales = computed(() =>
     isContractorDocContext(this.docContext())
   );
-  protected readonly usesSnapshot = computed(() => this.breakdownSnapshot() !== null);
+  protected readonly usesSnapshot = computed(
+    () => this.breakdownSnapshot() !== null
+  );
   protected readonly sanitizedBreakdownSnapshot = computed(() => {
     const snapshot = this.breakdownSnapshot();
     if (!snapshot) {
       return null;
     }
 
-    return sanitizePoBreakdownSnapshot(
-      snapshot,
-      this.docContextAvailability()
-    );
+    return sanitizePoBreakdownSnapshot(snapshot, this.docContextAvailability());
   });
   protected readonly activeContextSnapshot = computed(() => {
     const snapshot = this.sanitizedBreakdownSnapshot();
@@ -177,7 +162,12 @@ export class ProjectDocumentStatusDetailComponent {
       return null;
     }
 
-    if (!isProjectDocContextAvailable(this.docContextAvailability(), this.docContext())) {
+    if (
+      !isProjectDocContextAvailable(
+        this.docContextAvailability(),
+        this.docContext()
+      )
+    ) {
       return null;
     }
 
@@ -377,8 +367,6 @@ export class ProjectDocumentStatusDetailComponent {
     }
 
     this.expandedPoId.set(poId);
-    this.graphFitPass = 0;
-    this.scheduleGraphZoomToFit();
   }
 
   protected missingCount(record: IPoBreakdownRecord): number {
@@ -415,6 +403,16 @@ export class ProjectDocumentStatusDetailComponent {
     return graph;
   }
 
+  /** "3/4" → 75: how far a step got, for its bar. */
+  protected stageProgress(value: string): number {
+    const match = /^\s*(\d+)\s*\/\s*(\d+)\s*$/.exec(value);
+    if (!match) {
+      return 0;
+    }
+    const [, done, total] = match.map(Number);
+    return total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0;
+  }
+
   protected formatCurrency(value: number): string {
     if (value <= 0) {
       return '—';
@@ -423,29 +421,12 @@ export class ProjectDocumentStatusDetailComponent {
   }
 
   protected onDialogShow(): void {
-    this.graphFitPass = 0;
     this.applyAutoExpandPoPanel(this.displayRecords());
     this.syncExpandedPoPanel();
-    this.scheduleGraphZoomToFit();
   }
 
-  protected onDialogHide(): void {
-    this.graphFitPass = 0;
-  }
-
-  protected onGraphDrawComplete(): void {
-    if (this.graphFitPass >= 2) {
-      return;
-    }
-
-    this.graphFitPass += 1;
-    this.scheduleGraphZoomToFit();
-  }
-
-  protected navigateToWorkspaceDoc(stage: EDocChainStage, event: Event): void {
-    event.stopPropagation();
-    event.preventDefault();
-
+  /** A document line's "open" button: its list in the project workspace. */
+  protected openWorkspaceDoc(stage: EDocChainStage): void {
     const projectId = this.project().id;
     if (!projectId) {
       return;
@@ -456,14 +437,6 @@ export class ProjectDocumentStatusDetailComponent {
       { projectId }
     );
     this.visible.set(false);
-  }
-
-  private scheduleGraphZoomToFit(): void {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        this.graphZoomToFit$.next({ autoCenter: true, force: true });
-      });
-    });
   }
 
   private getContextPoCount(context: EDocContext): number {
@@ -478,10 +451,7 @@ export class ProjectDocumentStatusDetailComponent {
       this.docContext() === context &&
       !this.loading() &&
       !this.loadError() &&
-      isProjectDocContextAvailable(
-        this.docContextAvailability(),
-        context
-      )
+      isProjectDocContextAvailable(this.docContextAvailability(), context)
     ) {
       return this.displayTotalRecords();
     }
