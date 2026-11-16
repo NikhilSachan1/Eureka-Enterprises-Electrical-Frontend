@@ -1,300 +1,249 @@
-@let drawerDetail = drawerDetails()?.details;
+@let views = detailViews();
+@let singleRecord = isSingleRecord();
+@let entity = drawerDetails()?.entity;
+@let firstStatus = views[0]?.detail?.status;
 
-@if (showEntityHeader()) {
-  @let entityDetailsForced = drawerDetails()?.entity;
-  @if (entityDetailsForced) {
-    <div class="flex items-center gap-3 mb-4">
-      <img
-        [src]="_avtarImageUrl()"
-        [alt]="entityDetailsForced.name"
-        class="w-8 h-8 rounded-full"
-        loading="lazy"
-      />
-
-      <div>
-        <h3 class="text-sm font-semibold">{{ entityDetailsForced.name }}</h3>
-        <p class="text-xs">{{ entityDetailsForced.subtitle }}</p>
-      </div>
+<!-- Title: who / what the record is, and (for one record) its status. -->
+<ng-template
+  #statusPills
+  let-status
+>
+  @let entryType = status?.entryType ?? '';
+  @let approvalStatus = status?.approvalStatus ?? '';
+  @if (entryType || approvalStatus) {
+    <div class="vd-pills">
+      @if (entryType) {
+        <p-tag
+          [value]="entryType | textCase: 'title'"
+          [severity]="entryType === ALL_ENTRY_TYPES.PENALTY ? 'danger' : 'info'"
+          [rounded]="true"
+        />
+      }
+      @if (approvalStatus) {
+        <p-tag
+          [value]="getApprovalStatusDisplay(approvalStatus)"
+          [severity]="getApprovalStatusColor(approvalStatus)"
+          [rounded]="true"
+        />
+      }
     </div>
   }
-} @else {
-  <ng-container *appHasPermission="APP_PERMISSION.UI.COMMON.SIDEBAR_INITIALS">
-    @let entityDetails = drawerDetails()?.entity;
-    @if (entityDetails) {
-      <div class="flex items-center gap-3 mb-4">
-        <img
-          [src]="_avtarImageUrl()"
-          [alt]="entityDetails.name"
-          class="w-8 h-8 rounded-full"
-          loading="lazy"
-        />
+</ng-template>
 
-        <div>
-          <h3 class="text-sm font-semibold">{{ entityDetails.name }}</h3>
-          <p class="text-xs">{{ entityDetails.subtitle }}</p>
-        </div>
-      </div>
+<ng-template
+  #entityHero
+  let-entity
+>
+  <div class="vd-hero">
+    <img
+      [src]="_avtarImageUrl()"
+      [alt]="entity.name"
+      class="vd-hero__avatar"
+      loading="lazy"
+    />
+    <div class="vd-hero__text">
+      <h3 class="vd-hero__name">{{ entity.name }}</h3>
+      @if (entity.subtitle) {
+        <p class="vd-hero__sub">{{ entity.subtitle }}</p>
+      }
+    </div>
+    @if (singleRecord) {
+      <ng-container *ngTemplateOutlet="statusPills; context: { $implicit: firstStatus }" />
     }
-  </ng-container>
+  </div>
+</ng-template>
+
+@let heroShown = showHero();
+@if (heroShown && entity) {
+  <ng-container *ngTemplateOutlet="entityHero; context: { $implicit: entity }" />
 }
 
-@if (drawerDetail && drawerDetail.length > 0) {
-  @for (detail of drawerDetail; track $index) {
-    @let visibleEntryData = getVisibleEntries(detail.entryData);
-
-    @if (visibleEntryData && visibleEntryData.length > 0) {
-      <p-card class="mb-4 view-detail-card">
-        @let entryType = detail.status?.entryType ?? '';
-        @let approvalStatus = detail.status?.approvalStatus ?? '';
-
-        @if (entryType || approvalStatus) {
-          <div class="flex items-center gap-2 mb-4">
-            @if (entryType && entryType !== '') {
-              <p-tag
-                [value]="entryType | textCase: 'title'"
-                [severity]="entryType === ALL_ENTRY_TYPES.PENALTY ? 'danger' : 'info'"
-              />
+<!-- One field's value, by its type. -->
+<ng-template
+  #fieldValue
+  let-entry
+  let-entryType="entryType"
+>
+  @if (entry.customTemplateKey && customTemplates()[entry.customTemplateKey]) {
+    @if (entry.detailTemplatePlain) {
+      <ng-container
+        [ngTemplateOutlet]="customTemplates()[entry.customTemplateKey]"
+        [ngTemplateOutletContext]="{ $implicit: entry }"
+      />
+    } @else {
+      <div class="view-detail-custom-template">
+        <ng-container
+          [ngTemplateOutlet]="customTemplates()[entry.customTemplateKey]"
+          [ngTemplateOutletContext]="{ $implicit: entry }"
+        />
+      </div>
+    }
+  } @else if (entry.value !== null && entry.value !== undefined && entry.value !== '') {
+    @if (entry.prefix) {
+      <span class="vd-affix">{{ entry.prefix }}</span>
+    }
+    @if (entry.type === ALL_DATA_TYPES.DATE) {
+      {{ entry.value.toString() | date: entry.format }}
+    } @else if (entry.type === ALL_DATA_TYPES.RANGE) {
+      @let rangeValues = getRangeValuesForDisplay($any(entry.value));
+      @let rangeDataType = entry.dataType;
+      @if (rangeValues && rangeValues.length > 0) {
+        @for (item of rangeValues; track $index; let isLast = $last) {
+          @switch (rangeDataType) {
+            @case (ALL_DATA_TYPES.DATE) {
+              {{ item | date: entry.format }}
             }
+            @case (ALL_DATA_TYPES.NUMBER) {
+              {{ $any(item) | number: entry.format }}
+            }
+            @case (ALL_DATA_TYPES.CURRENCY) {
+              {{ $any(item) | currency: entry.format ?? APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
+            }
+            @default {
+              {{ item }}
+            }
+          }
+          @if (!isLast) {
+            <span class="vd-arrow">→</span>
+          }
+        }
+      } @else {
+        <span class="vd-empty">N/A</span>
+      }
+    } @else if (entry.type === ALL_DATA_TYPES.TIME) {
+      {{ entry.value.toString() | date: entry.format }}
+    } @else if (entry.type === ALL_DATA_TYPES.DURATION) {
+      {{ +entry.value | secondsToDhms }}
+    } @else if (entry.type === ALL_DATA_TYPES.STATUS) {
+      @let colorClass = getColor(entry.value.toString());
+      <span [ngClass]="`${colorClass.text}`">
+        {{ entry.value.toString() | textCase: 'title' }}
+      </span>
+    } @else if (entry.type === ALL_DATA_TYPES.CURRENCY) {
+      @let txn = entry.metadata?.transactionType;
+      @let colorClass =
+        entryType === ALL_ENTRY_TYPES.PENALTY
+          ? 'text-yellow-600'
+          : txn === 'debit' || entryType === 'debit'
+            ? 'text-red-600'
+            : txn === 'credit' || entryType === 'credit'
+              ? 'text-green-600'
+              : '';
+      <span
+        class="vd-money"
+        [ngClass]="colorClass"
+      >
+        {{ entry.value.toString() | currency: entry.format ?? APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
+      </span>
+    } @else if (entry.type === ALL_DATA_TYPES.TEXT_WITH_READ_MORE) {
+      <app-read-more [text]="entry.value.toString()" />
+    } @else {
+      {{ entry.value }}
+    }
+    @if (entry.suffix) {
+      <span class="vd-affix">{{ entry.suffix }}</span>
+    }
+  } @else {
+    <span class="vd-empty">N/A</span>
+  }
+</ng-template>
 
-            @if (approvalStatus && approvalStatus !== '') {
-              <p-tag
-                [value]="getApprovalStatusDisplay(approvalStatus)"
-                [severity]="getApprovalStatusColor(approvalStatus)"
-              />
+@for (view of views; track $index) {
+  @let detail = view.detail;
+  @let entryType = detail.status?.entryType ?? '';
+
+  @if (view.fields.length || view.attachments.length) {
+    <article class="vd-record view-detail-card">
+      @if (!singleRecord || !heroShown) {
+        <ng-container *ngTemplateOutlet="statusPills; context: { $implicit: detail.status }" />
+      }
+
+      @if (view.fields.length) {
+        <dl class="vd-fields">
+          @for (entry of view.fields; track entry.label) {
+            <div
+              class="vd-field view-detail-field"
+              [class.vd-field--full]="isFullRow(entry)"
+            >
+              <dt class="vd-field__label view-detail-label">{{ entry.label }}</dt>
+              <dd class="vd-field__value view-detail-value">
+                <ng-container *ngTemplateOutlet="fieldValue; context: { $implicit: entry, entryType: entryType }" />
+              </dd>
+            </div>
+          }
+        </dl>
+      }
+
+      @if (view.attachments.length) {
+        <section class="vd-section">
+          <h4 class="vd-section__title">Files</h4>
+          <div class="vd-files">
+            @for (attachmentEntry of view.attachments; track attachmentEntry.label) {
+              @let attachmentCount = $any(attachmentEntry.value)?.length ?? 0;
+              @let hasAttachments = attachmentCount > 0;
+              <button
+                type="button"
+                class="vd-file"
+                [class.vd-file--empty]="!hasAttachments"
+                [disabled]="!hasAttachments"
+                (click)="handleAttachmentEntryClick(attachmentEntry)"
+              >
+                <span
+                  class="vd-file__icon"
+                  aria-hidden="true"
+                >
+                  <i [class]="hasAttachments ? icons.COMMON.PAPERCLIP : icons.ACTIONS.BAN"></i>
+                </span>
+                <span class="vd-file__text">
+                  <span class="vd-file__name">{{ attachmentEntry.label }}</span>
+                  <span class="vd-file__meta">
+                    {{
+                      hasAttachments ? attachmentCount + (attachmentCount === 1 ? ' file' : ' files') : 'Not uploaded'
+                    }}
+                  </span>
+                </span>
+                @if (hasAttachments) {
+                  <span class="vd-file__go">View</span>
+                }
+              </button>
             }
           </div>
-        }
+        </section>
+      }
 
-        <div class="view-detail-grid grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-          @for (entry of visibleEntryData; track entry.label) {
-            @if (entry.type !== ALL_DATA_TYPES.ATTACHMENTS) {
-              <div
-                class="view-detail-field flex flex-col gap-1"
-                [class.sm:col-span-2]="
-                  entry.type === ALL_DATA_TYPES.CHIP_LIST ||
-                  (entry.customTemplateKey && entry.detailTemplateFullRow !== false)
-                "
-              >
-                <span class="view-detail-label text-xs font-semibold uppercase tracking-wider">{{ entry.label }}</span>
-                <div class="view-detail-value text-sm font-medium">
-                  @if (entry.customTemplateKey && customTemplates()[entry.customTemplateKey]) {
-                    @if (entry.detailTemplatePlain) {
-                      <ng-container
-                        [ngTemplateOutlet]="customTemplates()[entry.customTemplateKey]"
-                        [ngTemplateOutletContext]="{ $implicit: entry }"
-                      />
-                    } @else {
-                      <div class="view-detail-custom-template">
-                        <ng-container
-                          [ngTemplateOutlet]="customTemplates()[entry.customTemplateKey]"
-                          [ngTemplateOutletContext]="{ $implicit: entry }"
-                        />
-                      </div>
-                    }
-                  } @else if (entry.value !== null && entry.value !== undefined) {
-                    @if (entry.prefix) {
-                      <span class="view-detail-prefix">{{ entry.prefix }}</span>
-                    }
-                    @if (entry.type === ALL_DATA_TYPES.DATE) {
-                      {{ entry.value.toString() | date: entry.format }}
-                    } @else if (entry.type === ALL_DATA_TYPES.RANGE) {
-                      @let rangeValues = getRangeValuesForDisplay($any(entry.value));
-                      @let rangeDataType = entry.dataType;
-                      @if (rangeValues && rangeValues.length > 0) {
-                        @for (item of rangeValues; track $index; let isLast = $last) {
-                          @switch (rangeDataType) {
-                            @case (ALL_DATA_TYPES.DATE) {
-                              {{ item | date: entry.format }}
-                            }
-                            @case (ALL_DATA_TYPES.NUMBER) {
-                              {{ $any(item) | number: entry.format }}
-                            }
-                            @case (ALL_DATA_TYPES.CURRENCY) {
-                              {{ $any(item) | currency: entry.format ?? APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
-                            }
-                            @default {
-                              {{ item }}
-                            }
-                          }
-                          @if (!isLast) {
-                            <span class="mx-1 text-text-secondary">→</span>
-                          }
-                        }
-                      } @else {
-                        N/A
-                      }
-                    } @else if (entry.type === ALL_DATA_TYPES.TIME) {
-                      {{ entry.value.toString() | date: entry.format }}
-                    } @else if (entry.type === ALL_DATA_TYPES.DURATION) {
-                      {{ +entry.value | secondsToDhms }}
-                    } @else if (entry.type === ALL_DATA_TYPES.STATUS) {
-                      @let colorClass = getColor(entry.value.toString());
-                      <span [ngClass]="`${colorClass.text}`">
-                        {{ entry.value.toString() | textCase: 'title' }}
-                      </span>
-                    } @else if (entry.type === ALL_DATA_TYPES.CURRENCY) {
-                      @let txn = entry.metadata?.transactionType;
-                      @let colorClass =
-                        entryType === ALL_ENTRY_TYPES.PENALTY
-                          ? 'text-yellow-600 font-semibold'
-                          : txn === 'debit' || entryType === 'debit'
-                            ? 'text-red-600 font-semibold'
-                            : txn === 'credit' || entryType === 'credit'
-                              ? 'text-green-600 font-semibold'
-                              : 'view-detail-currency';
-                      <span [ngClass]="colorClass">
-                        {{ entry.value.toString() | currency: entry.format ?? APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
-                      </span>
-                    } @else if (entry.type === ALL_DATA_TYPES.TEXT_WITH_READ_MORE) {
-                      <app-read-more [text]="entry.value.toString()" />
-                    } @else {
-                      {{ entry.value }}
-                    }
-                    @if (entry.suffix) {
-                      <span class="view-detail-suffix">{{ entry.suffix }}</span>
-                    }
-                  } @else {
-                    N/A
+      <!-- Who did what, oldest first. -->
+      @if (view.activity.length) {
+        <section class="vd-section">
+          <h4 class="vd-section__title">Activity</h4>
+          <ol class="vd-activity">
+            @for (item of view.activity; track $index) {
+              <li class="vd-activity__item">
+                <img
+                  class="vd-activity__avatar"
+                  [src]="item.avatar"
+                  [alt]="item.name"
+                  loading="lazy"
+                />
+                <div class="vd-activity__body">
+                  <p class="vd-activity__line">
+                    {{ item.verb }} by
+                    <strong>{{ item.name }}</strong>
+                  </p>
+                  @if (item.date) {
+                    <p class="vd-activity__time">
+                      {{ item.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }},
+                      {{ item.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
+                    </p>
+                  }
+                  @if (item.notes) {
+                    <p class="vd-activity__note">{{ item.notes }}</p>
                   }
                 </div>
-              </div>
+              </li>
             }
-          }
-        </div>
-
-        @for (attachmentEntry of getAttachmentEntries(detail.entryData); track attachmentEntry.label) {
-          <p-divider />
-          @let attachmentCount = $any(attachmentEntry.value).length;
-          @let hasAttachments = attachmentCount > 0;
-          <div
-            class="view-detail-attachment flex items-center gap-3 rounded-lg border px-4 py-3 transition-all hover:shadow-sm"
-            [class.view-detail-attachment--has]="hasAttachments"
-            [class.view-detail-attachment--empty]="!hasAttachments"
-            [tabindex]="hasAttachments ? 0 : -1"
-            role="button"
-            (click)="hasAttachments && handleAttachmentEntryClick(attachmentEntry)"
-          >
-            <i
-              [class]="
-                `${hasAttachments ? icons.COMMON.PAPERCLIP : icons.ACTIONS.BAN} text-lg view-detail-attachment-icon`
-              "
-              [class.view-detail-attachment-icon--has]="hasAttachments"
-              [class.view-detail-attachment-icon--empty]="!hasAttachments"
-            ></i>
-            <span class="text-sm font-semibold flex-1 view-detail-attachment-label">
-              @if (hasAttachments) {
-                {{ attachmentCount }} {{ attachmentEntry.label }}
-              } @else {
-                No {{ attachmentEntry.label }}
-              }
-            </span>
-            @if (hasAttachments) {
-              <i [class]="`${icons.COMMON.CHEVRON_RIGHT} view-detail-attachment-chevron`"></i>
-            }
-          </div>
-        }
-
-        @if (detail.approvalBy && shouldShowApprovalAuditBlock(detail)) {
-          @let approvalBy = detail.approvalBy;
-          @let approvalByName = getUserName(approvalBy.user);
-          <p-divider />
-          <div class="space-y-1 view-detail-meta">
-            <p class="text-xs">
-              {{ getApprovalStatusDisplay(detail.status?.approvalStatus ?? '') }} by
-              <span class="font-semibold">{{ approvalByName }}</span>
-              @if (approvalBy.date) {
-                at
-                <span class="font-semibold">
-                  {{ approvalBy.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
-                </span>
-                on
-                <span class="font-semibold">
-                  {{ approvalBy.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-                </span>
-              }
-            </p>
-            @if (approvalBy.notes && approvalBy.notes !== '') {
-              <p class="text-xs italic">"{{ approvalBy.notes }}"</p>
-            }
-          </div>
-        }
-
-        @for (step of detail.auditTrail ?? []; track $index) {
-          @let stepByName = getUserName(step.user);
-          @if (shouldShowMetaAuditActor(stepByName)) {
-            <p-divider />
-            <div class="space-y-1 view-detail-meta">
-              <p class="text-xs">
-                {{ step.action }} by
-                <span class="font-semibold">{{ stepByName }}</span>
-                @if (step.date) {
-                  at
-                  <span class="font-semibold">
-                    {{ step.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
-                  </span>
-                  on
-                  <span class="font-semibold">
-                    {{ step.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-                  </span>
-                }
-              </p>
-              @if (step.notes && step.notes !== '') {
-                <p class="text-xs italic">"{{ step.notes }}"</p>
-              }
-            </div>
-          }
-        }
-
-        @if (detail.createdBy) {
-          @let createdByName = getUserName(detail.createdBy.user);
-          @if (shouldShowMetaAuditActor(createdByName)) {
-            <p-divider />
-            <div class="space-y-1 view-detail-meta">
-              <p class="text-xs">
-                Added by
-                <span class="font-semibold">{{ createdByName }}</span>
-                at
-                <span class="font-semibold">
-                  {{ detail.createdBy.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
-                </span>
-                on
-                <span class="font-semibold">
-                  {{ detail.createdBy.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-                </span>
-              </p>
-
-              @if (detail.createdBy.notes && detail.createdBy.notes !== '') {
-                <p class="text-xs italic">"{{ detail.createdBy.notes }}"</p>
-              }
-            </div>
-          }
-        }
-
-        @if (detail.updatedBy) {
-          @let updatedByName = getUserName(detail.updatedBy.user);
-          @if (shouldShowMetaAuditActor(updatedByName)) {
-            <p-divider />
-            <div class="space-y-1 view-detail-meta">
-              <p class="text-xs">
-                Updated by
-                <span class="font-semibold">{{ updatedByName }}</span>
-                at
-                <span class="font-semibold">
-                  {{ detail.updatedBy.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
-                </span>
-                on
-                <span class="font-semibold">
-                  {{ detail.updatedBy.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-                </span>
-              </p>
-
-              @if (detail.updatedBy.notes && detail.updatedBy.notes !== '') {
-                <p class="text-xs italic">"{{ detail.updatedBy.notes }}"</p>
-              }
-            </div>
-          }
-        }
-      </p-card>
-    }
+          </ol>
+        </section>
+      }
+    </article>
   }
 }
