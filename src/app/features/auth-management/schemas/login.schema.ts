@@ -24,6 +24,7 @@ export const LoginResponseSchema = z.looseObject({
   profilePicture: z.string().min(1).nullable(),
   roles: z.array(z.string()).min(1),
   activeRole: z.string().min(1),
+  isSystemUser: z.boolean().optional(),
   expiresIn: z.string().min(1),
   userId: uuidField,
 });

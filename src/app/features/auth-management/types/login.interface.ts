@@ -11,6 +11,8 @@ export interface ILoggedInUserDetails {
   permissions: IAppPermission;
   roles: string[];
   activeRole: string;
+  /** Login-only account (no employee profile), e.g. an accounts user. */
+  isSystemUser?: boolean;
 }
 
 export interface IImpersonationSession {

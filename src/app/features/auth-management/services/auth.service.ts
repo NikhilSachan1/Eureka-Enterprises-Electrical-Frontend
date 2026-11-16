@@ -475,6 +475,7 @@ export class AuthService {
       permissions: [],
       roles: response.roles,
       activeRole: response.activeRole,
+      isSystemUser: response.isSystemUser ?? false,
     };
   }
 
