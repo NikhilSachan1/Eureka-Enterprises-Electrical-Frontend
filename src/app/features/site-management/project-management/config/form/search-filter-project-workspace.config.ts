@@ -19,8 +19,13 @@ type WorkspaceSearchFilterFieldsConfig = {
   [K in keyof IProjectWorkspaceSearchFilterFormDto]: WorkspaceSearchFilterFieldConfig;
 };
 
-const { GST_SUMMARY, TDS_SUMMARY, WORKSPACE_DOC, DAILY_PROGRESS } =
-  ROUTES.SITE.PROJECT;
+const {
+  GST_SUMMARY,
+  TDS_SUMMARY,
+  WORKSPACE_DOC,
+  DAILY_PROGRESS,
+  ALLOCATION_HISTORY,
+} = ROUTES.SITE.PROJECT;
 const ALL_DOC_TABS = Object.values(WORKSPACE_DOC);
 const GST_TDS_AND_DOC_TABS = [GST_SUMMARY, TDS_SUMMARY, ...ALL_DOC_TABS];
 const WORKSPACE_TABS_EXCEPT_PROFITABILITY = [
@@ -108,9 +113,13 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
     dateRange: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
       label: 'start - end date',
-      visibleOnTabs: WORKSPACE_TABS_EXCEPT_PROFITABILITY.filter(
-        tab => tab !== WORKSPACE_DOC.PAYMENT_REQUEST
-      ),
+      // On allocation history it finds who was on the project at any time in the range.
+      visibleOnTabs: [
+        ...WORKSPACE_TABS_EXCEPT_PROFITABILITY.filter(
+          tab => tab !== WORKSPACE_DOC.PAYMENT_REQUEST
+        ),
+        ALLOCATION_HISTORY,
+      ],
       dateConfig: {
         ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange.dateConfig,
         maxDate: new Date(),
