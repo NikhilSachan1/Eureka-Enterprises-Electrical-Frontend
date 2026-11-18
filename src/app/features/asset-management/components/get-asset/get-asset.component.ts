@@ -411,6 +411,7 @@ export class GetAssetComponent implements OnInit {
         id: record.id,
         assetId: record.assetId,
         name: record.name,
+        serialNumber: record.serialNumber ?? '-',
         category: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.assetCategories(),
           record.category

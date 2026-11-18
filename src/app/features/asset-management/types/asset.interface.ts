@@ -8,7 +8,6 @@ export interface IAsset
   extends Omit<
     IAssetGetBaseResponseDto,
     | 'model'
-    | 'serialNumber'
     | 'assetType'
     | 'calibrationFrequency'
     | 'calibrationStartDate'
