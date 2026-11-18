@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import {
+  dateField,
   FilterSchema,
   isoDateTimeField,
   onlyDateStringField,
@@ -7,7 +8,7 @@ import {
   uuidField,
 } from '@shared/schemas';
 import { EmployeeBaseSchema } from '@features/employee-management/schemas/base-employee.schema';
-import { makeFieldsNullable } from '@shared/utility';
+import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
 
 const { sortOrder, sortField, pageSize, page } = FilterSchema.shape;
 
@@ -15,19 +16,26 @@ export const SiteAllocationGetRequestSchema = z
   .object({
     projectName: uuidField.optional(),
     employeeName: uuidField.optional(),
+    /** Workspace date filter: allocations active on any day in this range. */
+    dateRange: z.array(dateField).nullable().optional(),
     sortOrder,
     sortField,
     pageSize,
     page,
   })
   .strict()
-  .transform(({ projectName, employeeName, ...rest }) => ({
-    ...rest,
-    siteId: projectName,
-    userId: employeeName,
-    includeUser: true,
-    includeSite: true,
-  }));
+  .transform(({ projectName, employeeName, dateRange, ...rest }) => {
+    const [start, end] = dateRange ?? [];
+    return {
+      ...rest,
+      siteId: projectName,
+      userId: employeeName,
+      periodFrom: start ? transformDateFormat(start) : undefined,
+      periodTo: end ? transformDateFormat(end) : undefined,
+      includeUser: true,
+      includeSite: true,
+    };
+  });
 
 const SiteAllocationSiteSchema = z.looseObject({
   name: z.string(),

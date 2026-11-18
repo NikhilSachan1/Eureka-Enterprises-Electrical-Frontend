@@ -29,6 +29,11 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     primaryFieldHighlight: true,
   },
   {
+    field: 'serialNumber',
+    header: 'Serial Number',
+    showSort: false,
+  },
+  {
     field: 'category',
     header: 'Asset Category',
     serverSideFilterAndSortConfig: {
