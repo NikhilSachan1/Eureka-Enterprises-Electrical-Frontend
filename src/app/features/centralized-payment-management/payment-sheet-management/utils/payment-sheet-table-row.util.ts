@@ -1,5 +1,6 @@
 import {
   EPaymentSheetItemStatus,
+  EPaymentSheetSourceType,
   EPaymentSheetStage,
   EPaymentSheetStatus,
   EPaymentSheetWorkflowRole,
@@ -146,13 +147,22 @@ export function getPaymentSheetWorkflowOwnerLabel(
   return 'the assigned reviewer';
 }
 
-/** Only an advance line can go up. Admin review is decrease-only, apart from its first amount. */
+/**
+ * Advance lines and employee expense/fuel lines can go up; on an employee line the amount above
+ * the due is paid as advance. Vendor and wallet lines stay capped. Admin review is decrease-only,
+ * apart from an advance line's first amount.
+ */
 export function canIncreasePaymentSheetItemAmount(
   row: PaymentSheetTableActionRow
 ): boolean {
+  if (isPaymentSheetAdminReview(row)) {
+    return !!row.isAdvancePayment && row.payableAmount <= 0;
+  }
+
   return (
-    !!row.isAdvancePayment &&
-    (!isPaymentSheetAdminReview(row) || row.payableAmount <= 0)
+    !!row.isAdvancePayment ||
+    row.sourceType === EPaymentSheetSourceType.EXPENSE ||
+    row.sourceType === EPaymentSheetSourceType.FUEL_EXPENSE
   );
 }
 
