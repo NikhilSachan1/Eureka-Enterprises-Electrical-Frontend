@@ -11,10 +11,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgClass } from '@angular/common';
 import { ICONS } from '@shared/constants';
-import {
-  ConfirmationDialogService,
-  RouterNavigationService,
-} from '@shared/services';
+import { RouterNavigationService } from '@shared/services';
 import { formatRelativeTime } from '@shared/utility';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { TooltipModule } from 'primeng/tooltip';
@@ -39,7 +36,6 @@ export class NotificationBellComponent {
 
   private readonly inbox = inject(NotificationInboxService);
   private readonly routerNavigation = inject(RouterNavigationService);
-  private readonly confirmationDialog = inject(ConfirmationDialogService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly ICONS = ICONS;
@@ -80,7 +76,8 @@ export class NotificationBellComponent {
     if (this.bootstrapLoading()) {
       return;
     }
-    this.confirmationDialog.closeDialog();
+    // No closeDialog() here: the old notification popup is gone, and closing would
+    // also drop whatever dialog the user had open.
     this.inbox.dismissAlert();
     this.bellPopover.toggle(event);
   }
@@ -91,13 +88,14 @@ export class NotificationBellComponent {
 
   onPanelShow(): void {
     this.panelOpen.set(true);
-    this.confirmationDialog.closeDialog();
+    this.inbox.setPanelOpen(true);
     this.inbox.dismissAlert();
     this.inbox.setStatusFilter(this.hasUnread() ? 'unread' : 'all');
   }
 
   onPanelHide(): void {
     this.panelOpen.set(false);
+    this.inbox.setPanelOpen(false);
   }
 
   /** Tab switch uses bootstrap cache only — no API. */

@@ -5,6 +5,9 @@
 <!-- Page search: Ctrl/Cmd+K anywhere, or the Search button in the sidebar -->
 <app-command-palette />
 
+<!-- New-notification toasts (own PrimeNG toast key; never blocks the page) -->
+<app-notification-toast />
+
 @if (!authService.isImpersonating()) {
   <app-install-app-banner />
 }

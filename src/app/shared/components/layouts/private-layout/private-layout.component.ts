@@ -4,6 +4,7 @@ import { AuthService } from '@features/auth-management/services/auth.service';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { InstallAppBannerComponent } from '../../install-app-banner/install-app-banner.component';
 import { CommandPaletteComponent } from '../../command-palette/command-palette.component';
+import { NotificationToastComponent } from '@features/notification-management/components/notification-toast/notification-toast.component';
 
 @Component({
   selector: 'app-private-layout',
@@ -12,6 +13,7 @@ import { CommandPaletteComponent } from '../../command-palette/command-palette.c
     RouterOutlet,
     InstallAppBannerComponent,
     CommandPaletteComponent,
+    NotificationToastComponent,
   ],
   templateUrl: './private-layout.component.html',
   styleUrl: './private-layout.component.scss',

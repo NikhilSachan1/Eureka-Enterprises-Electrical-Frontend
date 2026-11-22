@@ -1,11 +1,10 @@
 import { DOCUMENT } from '@angular/common';
-import { computed, inject, Injectable, NgZone, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { APP_CONFIG } from '@core/config';
 import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
-import { ICONS } from '@shared/constants';
-import { ConfirmationDialogService } from '@shared/services';
-import { EButtonActionType, EButtonSeverity, EDialogSize } from '@shared/types';
+import { RouterNavigationService } from '@shared/services';
+import { MessageService } from 'primeng/api';
 import {
   catchError,
   distinctUntilChanged,
@@ -30,6 +29,11 @@ import {
   NotificationReadAllResponseSchema,
 } from '../schemas';
 import {
+  NOTIFICATION_TOAST_KEY,
+  NOTIFICATION_TOAST_LIFE_MS,
+} from '../constants/notification-toast.constants';
+import { INotificationToastData } from '../types/notification-toast.interface';
+import {
   INotificationGetFormDto,
   INotificationGetResponseDto,
   INotificationListItemDto,
@@ -49,23 +53,20 @@ interface NotificationBucket {
 
 const EMPTY_BUCKET: NotificationBucket = { records: [], totalRecords: 0 };
 
-/** Same idea as announcements: wait for ConfirmDialog host after app init. */
-const ALERT_DIALOG_OPEN_DELAY_MS = 600;
-
 @Injectable({
   providedIn: 'root',
 })
 export class NotificationInboxService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
-  private readonly confirmationDialog = inject(ConfirmationDialogService);
-  private readonly ngZone = inject(NgZone);
+  private readonly messageService = inject(MessageService);
+  private readonly routerNavigation = inject(RouterNavigationService);
   private readonly document = inject(DOCUMENT);
 
   /** Open bell panel (registered by NotificationBellComponent). */
   private viewNotificationsHandler?: () => void;
-  private alertDialogTimer?: ReturnType<typeof setTimeout>;
-  private alertDialogMessage: string | null = null;
+  /** Bell panel is open: new items show there, so no toast on top of it. */
+  private panelOpen = false;
 
   private readonly _unreadCount = signal(0);
   readonly unreadCount = this._unreadCount.asReadonly();
@@ -77,10 +78,6 @@ export class NotificationInboxService {
   readonly bootstrapError = this._bootstrapError.asReadonly();
 
   private readonly _bootstrapped = signal(false);
-
-  /** Inline tip next to the bell (not a global toast). */
-  private readonly _alertMessage = signal<string | null>(null);
-  readonly alertMessage = this._alertMessage.asReadonly();
 
   private readonly _badgePulse = signal(false);
   readonly badgePulse = this._badgePulse.asReadonly();
@@ -223,13 +220,11 @@ export class NotificationInboxService {
     this.pollSubscription?.unsubscribe();
     this.pollSubscription = undefined;
     this.lastPollAt = 0;
-    this.clearAlertDialogTimer();
+    this.clearNotificationToast();
     this._allBucket.set(EMPTY_BUCKET);
     this._unreadBucket.set(EMPTY_BUCKET);
     this._unreadCount.set(0);
     this.lastSeenUnreadCount = 0;
-    this._alertMessage.set(null);
-    this.alertDialogMessage = null;
     this._badgePulse.set(false);
     this._bootstrapped.set(false);
     this._bootstrapLoading.set(false);
@@ -246,11 +241,38 @@ export class NotificationInboxService {
     this.viewNotificationsHandler = undefined;
   }
 
+  /** Bell tells the inbox when its panel opens or closes. */
+  setPanelOpen(open: boolean): void {
+    this.panelOpen = open;
+  }
+
+  /** The user has looked (opened the panel): stop the pulse and drop the toast. */
   dismissAlert(): void {
-    this.clearAlertDialogTimer();
-    this.alertDialogMessage = null;
-    this._alertMessage.set(null);
+    this.clearNotificationToast();
     this._badgePulse.set(false);
+  }
+
+  /**
+   * Toast click. One notification with a page: go straight there and mark it read (as a
+   * click in the bell panel does). Several, or no page: open the bell panel.
+   */
+  openFromToast(data: INotificationToastData | null): void {
+    this.clearNotificationToast();
+
+    if (!data?.route) {
+      this.viewNotificationsHandler?.();
+      return;
+    }
+
+    this._badgePulse.set(false);
+    void this.routerNavigation.navigateByUrl(data.route);
+
+    if (data.notificationId) {
+      // Best effort: the page opens either way; a failed mark leaves it unread.
+      this.markAsRead(data.notificationId)
+        .pipe(catchError(() => EMPTY))
+        .subscribe();
+    }
   }
 
   retryBootstrap(): void {
@@ -341,8 +363,8 @@ export class NotificationInboxService {
   }
 
   /**
-   * Bootstrap: tip when any unread exist.
-   * Background: tip only when unread rises above what the user last saw
+   * Bootstrap (login): no toast; the badge count and pulse already say there is unread.
+   * Background: a toast only when unread rises above what the user last saw
    * (read → 1, then a new one → 2 still alerts).
    */
   private notifyIfNewUnread(nextCount: number, isBootstrap: boolean): void {
@@ -350,89 +372,78 @@ export class NotificationInboxService {
 
     if (isBootstrap) {
       if (nextCount > 0) {
-        this.showAlert(
-          nextCount === 1
-            ? 'You have 1 unread notification'
-            : `You have ${nextCount} unread notifications`
-        );
+        this._badgePulse.set(true);
       }
       this.lastSeenUnreadCount = nextCount;
       return;
     }
 
     if (nextCount > this.lastSeenUnreadCount) {
-      const added = nextCount - this.lastSeenUnreadCount;
-      this.showAlert(
-        added === 1
-          ? 'New notification received'
-          : `${added} new notifications received`
-      );
-      this.lastSeenUnreadCount = nextCount;
-      return;
+      this.showNewNotificationToast(nextCount - this.lastSeenUnreadCount);
     }
 
     this.lastSeenUnreadCount = nextCount;
   }
 
-  private showAlert(message: string): void {
-    this._alertMessage.set(message);
+  /** Non-blocking toast for new notifications; never covers a dialog the user is in. */
+  private showNewNotificationToast(added: number): void {
     this._badgePulse.set(true);
-    this.scheduleAlertDialog(message);
-  }
 
-  private scheduleAlertDialog(message: string): void {
-    this.clearAlertDialogTimer();
-    this.alertDialogMessage = message;
-
-    this.ngZone.runOutsideAngular(() => {
-      this.alertDialogTimer = setTimeout(() => {
-        this.ngZone.run(() => this.openAlertDialog(message));
-      }, ALERT_DIALOG_OPEN_DELAY_MS);
-    });
-  }
-
-  private openAlertDialog(message: string): void {
-    if (this.alertDialogMessage !== message) {
+    if (this.panelOpen) {
       return;
     }
 
-    this.confirmationDialog.showConfirmationDialog(
-      EButtonActionType.VIEW,
-      {
-        dialogConfig: {
-          header: 'Notifications',
-          message,
-          icon: ICONS.COMMON.BELL,
-          size: EDialogSize.SMALL,
-          dismissableMask: true,
-          acceptButtonProps: {
-            label: 'View',
-            id: EButtonActionType.VIEW,
-            icon: ICONS.ACTIONS.EYE,
-            severity: EButtonSeverity.PRIMARY,
-          },
-          rejectButtonProps: {
-            label: 'Later',
-            icon: ICONS.ACTIONS.TIMES,
-            severity: EButtonSeverity.SECONDARY,
-          },
-        },
-        onAccept: () => this.viewNotificationsHandler?.(),
-      },
-      null,
-      false,
-      false
-    );
+    const newest = this.newestUnread();
+    const single = added === 1 ? newest : null;
+    // A blank route means "no page": the click then opens the bell panel.
+    const singleRoute = single?.route?.trim();
+    const data: INotificationToastData = single
+      ? {
+          heading: single.title,
+          detail: single.message === '' ? null : single.message,
+          count: 1,
+          notificationId: single.id,
+          route: singleRoute === '' ? null : (singleRoute ?? null),
+        }
+      : {
+          heading:
+            added === 1 ? 'New notification' : `${added} new notifications`,
+          detail: newest ? `Latest: ${newest.title}` : null,
+          count: added,
+          notificationId: null,
+          route: null,
+        };
 
-    this.alertDialogMessage = null;
-    this._alertMessage.set(null);
+    this.addNotificationToast(data);
   }
 
-  private clearAlertDialogTimer(): void {
-    if (this.alertDialogTimer !== undefined) {
-      clearTimeout(this.alertDialogTimer);
-      this.alertDialogTimer = undefined;
+  private addNotificationToast(data: INotificationToastData): void {
+    // One toast at a time: a newer arrival replaces the previous one.
+    this.clearNotificationToast();
+    this.messageService.add({
+      key: NOTIFICATION_TOAST_KEY,
+      severity: 'info',
+      summary: data.heading,
+      detail: data.detail ?? undefined,
+      life: NOTIFICATION_TOAST_LIFE_MS,
+      data,
+    });
+  }
+
+  private newestUnread(): INotificationListItemDto | null {
+    const { records } = this._unreadBucket();
+
+    if (!records.length) {
+      return null;
     }
+
+    return records.reduce((newest, record) =>
+      record.createdAt > newest.createdAt ? record : newest
+    );
+  }
+
+  private clearNotificationToast(): void {
+    this.messageService.clear(NOTIFICATION_TOAST_KEY);
   }
 
   private setUnreadCount(count: number): void {
