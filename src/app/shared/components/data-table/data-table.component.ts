@@ -48,6 +48,7 @@ import {
   ITableActionClickEvent,
   EButtonActionType,
   EButtonVariant,
+  EButtonSeverity,
   IGalleryInputData,
   EDataType,
 } from '@shared/types';
@@ -1158,8 +1159,11 @@ export class DataTableComponent {
   protected getClearSelectionButtonConfig(): Partial<IButtonConfig> {
     return {
       id: EButtonActionType.CLEAR_SELECTION,
-      label: 'Clear Selection',
+      label: 'Clear',
       icon: this.icons.ACTIONS.TIMES,
+      variant: EButtonVariant.TEXT,
+      severity: EButtonSeverity.SECONDARY,
+      tooltip: 'Clear selection',
     };
   }
 

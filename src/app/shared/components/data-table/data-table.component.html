@@ -52,40 +52,6 @@
   </div>
 }
 
-@if (showBulkBar() && showBulkActionBar()) {
-  <p-panel class="bulk-action-panel">
-    <!-- Top Row: Selection Count + Clear Selection Button -->
-    <div class="flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
-        <div class="bulk-action-icon-wrap w-7 h-7 rounded-md flex items-center justify-center">
-          <i [class]="`${icons.ACTIONS.CHECK_CIRCLE} text-white text-sm`"></i>
-        </div>
-        <span class="font-semibold">{{ selectedCount }} selected</span>
-      </div>
-
-      <app-button
-        [buttonConfig]="getClearSelectionButtonConfig()"
-        (onButtonClick)="clearSelection()"
-        pTooltip="Clear Selection"
-        tooltipPosition="top"
-      />
-    </div>
-
-    @let visibleBulkActions = getVisibleBulkActions();
-    @if (visibleBulkActions.length > 0) {
-      <div class="flex items-center gap-2 flex-wrap mt-3 pt-3 border-t">
-        @for (button of visibleBulkActions; track button.id) {
-          <app-button
-            [buttonConfig]="resolveActionButtonConfig(button)"
-            [showDisabledButton]="isActionDisabled(button)"
-            (onButtonClick)="onBulkActionClick(button.id)"
-          />
-        }
-      </div>
-    }
-  </p-panel>
-}
-
 <!-- Table always present for ViewChild reference, conditionally hidden -->
 <p-panel
   class="data-table-panel"
@@ -711,6 +677,58 @@
         </div>
       }
     }
+  </div>
+}
+
+<!--
+  Bulk actions: a bar that floats at the bottom of the screen while rows are selected.
+  It sits after the table (sticky, not above it), so selecting rows never pushes the
+  table down, and it stays within this table's width (no overlap with the sidebar).
+-->
+@if (showBulkBar() && showBulkActionBar()) {
+  @let visibleBulkActions = getVisibleBulkActions();
+  <div
+    class="bulk-bar"
+    role="toolbar"
+    aria-label="Actions for selected rows"
+  >
+    <div class="bulk-bar__inner">
+      <span
+        class="bulk-bar__count"
+        aria-live="polite"
+      >
+        <span
+          class="bulk-bar__check"
+          aria-hidden="true"
+        >
+          <i [class]="icons.ACTIONS.CHECK"></i>
+        </span>
+        {{ selectedCount }}
+        <span class="bulk-bar__count-label">&nbsp;selected</span>
+      </span>
+
+      @if (visibleBulkActions.length > 0) {
+        <span
+          class="bulk-bar__divider"
+          aria-hidden="true"
+        ></span>
+        <div class="bulk-bar__actions">
+          @for (button of visibleBulkActions; track button.id) {
+            <app-button
+              [buttonConfig]="resolveActionButtonConfig(button)"
+              [showDisabledButton]="isActionDisabled(button)"
+              (onButtonClick)="onBulkActionClick(button.id)"
+            />
+          }
+        </div>
+      }
+
+      <app-button
+        class="bulk-bar__clear"
+        [buttonConfig]="getClearSelectionButtonConfig()"
+        (onButtonClick)="clearSelection()"
+      />
+    </div>
   </div>
 }
 

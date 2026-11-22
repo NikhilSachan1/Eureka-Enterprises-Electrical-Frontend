@@ -178,7 +178,10 @@ $secondary-active-border: color-mix(in srgb, var(--primary-color) 28%, transpare
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
+  overflow: hidden; // fallback for browsers without `clip`
+  // `clip` cuts overflow the same way but is not a scroll container, so sticky
+  // children (e.g. the table's floating bulk-action bar) still stick to the page.
+  overflow: clip;
 }
 
 .nav-tabs-vertical {
