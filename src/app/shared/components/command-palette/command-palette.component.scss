@@ -1,0 +1,213 @@
+// The dialog shell is rendered by PrimeNG, so it is reached through ::ng-deep.
+:host ::ng-deep .command-palette-dialog {
+  width: min(40rem, calc(100vw - 2rem));
+  margin-top: 12vh;
+  border-radius: 0.875rem;
+  overflow: hidden;
+  border: 1px solid var(--border-light-color);
+  box-shadow: var(--shadow-md);
+
+  .p-dialog-content {
+    padding: 0;
+    border-radius: 0.875rem;
+    background: var(--background-paper-color);
+  }
+}
+
+.cp-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cp {
+  display: flex;
+  flex-direction: column;
+  max-height: min(32rem, 70vh);
+  color: var(--text-primary-color);
+}
+
+.cp__search {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border-light-color);
+}
+
+.cp__search-icon {
+  font-size: 1rem;
+  color: var(--text-secondary-color);
+}
+
+.cp__input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text-primary-color);
+
+  &::placeholder {
+    color: var(--text-secondary-color);
+    opacity: 0.8;
+  }
+}
+
+.cp__results {
+  flex: 1;
+  margin: 0;
+  padding: 0.4rem;
+  overflow-y: auto;
+  list-style: none;
+  overscroll-behavior: contain;
+}
+
+.cp__option {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.55rem;
+  cursor: pointer;
+
+  &--active {
+    background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+
+    .cp__option-icon {
+      color: var(--primary-color);
+      background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+    }
+
+    .cp__option-go {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+.cp__option-icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary-color);
+  background: color-mix(in srgb, var(--text-secondary-color) 10%, transparent);
+}
+
+.cp__option-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cp__option-label {
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cp__match {
+  padding: 0;
+  border-radius: 0.15rem;
+  color: var(--primary-color);
+  background: transparent;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.15rem;
+}
+
+.cp__option-trail {
+  overflow: hidden;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary-color);
+}
+
+.cp__option-go {
+  flex: none;
+  font-size: 0.75rem;
+  color: var(--primary-color);
+  opacity: 0;
+  transform: translateX(-0.25rem);
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+
+.cp__empty {
+  margin: 0;
+  padding: 2rem 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary-color);
+}
+
+.cp__hints {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.55rem 1rem;
+  border-top: 1px solid var(--border-light-color);
+  font-size: 0.7rem;
+  color: var(--text-secondary-color);
+}
+
+.cp__kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  margin-right: 0.2rem;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--border-light-color);
+  border-bottom-width: 2px;
+  border-radius: 0.3rem;
+  font-family: inherit;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-secondary-color);
+  background: var(--background-paper-color);
+}
+
+:host-context(.dark-theme) {
+  ::ng-deep .command-palette-dialog {
+    border-color: var(--border-dark-color);
+  }
+
+  .cp__search,
+  .cp__hints,
+  .cp__kbd {
+    border-color: var(--border-dark-color);
+  }
+}
+
+// Phones: hints take room and there is no physical keyboard to use them.
+@media (max-width: 640px) {
+  :host ::ng-deep .command-palette-dialog {
+    margin-top: 1rem;
+  }
+
+  .cp__hints {
+    display: none;
+  }
+}

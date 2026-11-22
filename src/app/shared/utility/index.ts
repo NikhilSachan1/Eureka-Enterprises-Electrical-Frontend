@@ -90,3 +90,8 @@ export {
   canSeeHandoverScopeTabs,
   handoverScopeTabQuery,
 } from './handover-scope-tab.util';
+export {
+  buildCommandPaletteEntries,
+  searchCommandPaletteEntries,
+  splitLabelForHighlight,
+} from './command-palette.util';

@@ -206,3 +206,11 @@ export type {
   ILineItemsTableConfig,
   IResolvedLineItemsTableConfig,
 } from './line-items-table/line-items-table.interface';
+export type {
+  ICommandPaletteEntry,
+  ICommandPaletteTextPart,
+} from './command-palette/command-palette.interface';
+export type {
+  TCommandPaletteBuildLink,
+  TCommandPaletteJoinBasePath,
+} from './command-palette/command-palette.types';

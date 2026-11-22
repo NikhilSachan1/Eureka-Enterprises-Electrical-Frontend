@@ -11,6 +11,8 @@ import {
 } from '@angular/core';
 import { fadeInOut } from '@shared/animations';
 import { MenuService, ThemeService } from '@core/services';
+import { ICONS } from '@shared/constants';
+import { CommandPaletteService } from '@shared/services/command-palette.service';
 import { NgClass } from '@angular/common';
 import { SidebarHeaderComponent } from './sidebar-header/sidebar-header.component';
 import { SidebarUserProfileComponent } from './sidebar-user-profile/sidebar-user-profile.component';
@@ -44,6 +46,8 @@ import {
 export class SidebarComponent {
   readonly menuService = inject(MenuService);
   readonly themeService = inject(ThemeService);
+  protected readonly commandPalette = inject(CommandPaletteService);
+  protected readonly ICONS = ICONS;
   private readonly destroyRef = inject(DestroyRef);
   private readonly sidebarEl = viewChild<ElementRef<HTMLElement>>('sidebarEl');
 

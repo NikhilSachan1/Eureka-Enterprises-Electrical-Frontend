@@ -43,6 +43,28 @@
 
     <app-sidebar-user-profile [isSidebarCollapsed]="!sidebarVisible() && !hoverExpanded()" />
 
+    @let collapsed = !sidebarVisible() && !hoverExpanded();
+    <button
+      type="button"
+      class="sidebar-search"
+      [class.sidebar-search--collapsed]="collapsed"
+      [attr.aria-label]="collapsed ? 'Search pages (' + commandPalette.shortcutLabel + ')' : null"
+      [attr.aria-keyshortcuts]="commandPalette.ariaKeyShortcuts"
+      (click)="commandPalette.open()"
+    >
+      <i
+        [class]="ICONS.COMMON.SEARCH + ' sidebar-search__icon'"
+        aria-hidden="true"
+      ></i>
+      <span class="sidebar-search__label">Search pages</span>
+      <kbd
+        class="sidebar-search__kbd"
+        aria-hidden="true"
+      >
+        {{ commandPalette.shortcutLabel }}
+      </kbd>
+    </button>
+
     <div class="sidebar-content">
       <app-sidebar-menu [isCollapsed]="!sidebarVisible() && !hoverExpanded()" />
     </div>

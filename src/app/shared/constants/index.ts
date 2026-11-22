@@ -17,3 +17,8 @@ export {
   CONFIGURATION_KEYS,
 } from './app-configuration.constants';
 export { DOC_TAB_SEARCH_QUERY_KEY, readDocTabSearch } from './query.constants';
+export {
+  COMMAND_PALETTE_SHORTCUT_KEY,
+  COMMAND_PALETTE_TRAIL_SEPARATOR,
+  COMMAND_PALETTE_SCORE,
+} from './command-palette.constants';
