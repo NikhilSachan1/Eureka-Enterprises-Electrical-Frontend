@@ -74,7 +74,9 @@ export class GetPetroCardWalletComponent implements OnInit {
   private readonly walletService = inject(PetroCardWalletService);
   private readonly dataTableService = inject(TableService);
   private readonly tableParams = inject(TableServerSideParamsBuilderService);
-  private readonly confirmationDialogService = inject(ConfirmationDialogService);
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService
+  );
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly EBankDetailsDisplayMode = EBankDetailsDisplayMode;
@@ -161,11 +163,10 @@ export class GetPetroCardWalletComponent implements OnInit {
       return;
     }
     this.rechargeTable.setLoading(true);
-    const params =
-      this.tableParams.buildQueryParams<IWalletRechargeGetFormDto>(
-        this.rechargeFilterData,
-        this.rechargeTable.getHeaders()
-      );
+    const params = this.tableParams.buildQueryParams<IWalletRechargeGetFormDto>(
+      this.rechargeFilterData,
+      this.rechargeTable.getHeaders()
+    );
 
     this.walletService
       .getRecharges(params)
@@ -236,7 +237,14 @@ export class GetPetroCardWalletComponent implements OnInit {
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
-      { label: 'Reference', value: referenceNumber || '-' },
+      {
+        label: 'Reference',
+        // Same as before: no reference (null or empty) shows a dash.
+        value:
+          referenceNumber === null || referenceNumber === ''
+            ? '-'
+            : referenceNumber,
+      },
     ];
     const recordDetail: IDataViewDetailsWithEntity = {
       details: [{ entryData }],
