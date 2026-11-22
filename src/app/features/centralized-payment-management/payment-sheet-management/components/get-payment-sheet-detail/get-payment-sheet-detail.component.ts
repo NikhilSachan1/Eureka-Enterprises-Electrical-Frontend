@@ -16,7 +16,7 @@ import { APP_CONFIG } from '@core/config';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
-import { TPaymentSheetAmountTileVariant } from '@features/centralized-payment-management/shared/types/payment-sheet-amounts-cell.interface';
+import { IPaymentSheetAmountsView } from '@features/centralized-payment-management/shared/types/payment-sheet-amounts-cell.interface';
 import { PaymentOutstandingSectionComponent } from '@features/centralized-payment-management/shared/components/payment-outstanding-section/payment-outstanding-section.component';
 import {
   EPaymentOutstandingSectionContext,
@@ -45,6 +45,7 @@ import {
   mapPaidFromAccountToBankDetails,
 } from '@shared/utility';
 import {
+  EBankDetailsDisplayMode,
   EButtonActionType,
   EDataType,
   EDrawerSize,
@@ -99,6 +100,7 @@ import {
   hasPaymentSheetAdvanceWithoutAmount,
   isPaymentSheetItemRejected,
 } from '../../utils/payment-sheet-table-row.util';
+import { buildPaymentSheetLineAmountsView } from '../../utils/payment-sheet-amounts-view.util';
 
 @Component({
   selector: 'app-get-payment-sheet-detail',
@@ -119,6 +121,7 @@ import {
 })
 export class GetPaymentSheetDetailComponent implements OnInit {
   protected readonly APP_CONFIG = APP_CONFIG;
+  protected readonly EBankDetailsDisplayMode = EBankDetailsDisplayMode;
   protected readonly ICONS = ICONS;
 
   protected readonly paidAtDateFormat =
@@ -296,67 +299,10 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     this.applyDetail(resolvedDetail);
   }
 
-  protected getRemainingAmount(row: IPaymentSheetDetailItemRow): number {
-    return Math.max(0, row.remainingAmount);
-  }
-
-  protected isFullyCovered(row: IPaymentSheetDetailItemRow): boolean {
-    if (row.isAdvancePayment) {
-      return false;
-    }
-
-    if (row.documentKind === 'Advance') {
-      return (row.settledAmount ?? 0) >= row.actualDue && row.actualDue > 0;
-    }
-
-    return row.remainingAmount <= 0;
-  }
-
-  protected amountLeftLabel(row: IPaymentSheetDetailItemRow): string {
-    if (row.isAdvancePayment) {
-      return row.actualDue < 0 ? 'Advance Given' : 'No Due';
-    }
-
-    return row.documentKind === 'Advance' ? 'Amount' : 'Actual Due';
-  }
-
-  protected amountLeftVariant(
+  protected amountsView(
     row: IPaymentSheetDetailItemRow
-  ): TPaymentSheetAmountTileVariant {
-    if (!row.isAdvancePayment) {
-      return 'due';
-    }
-
-    return row.actualDue < 0 ? 'advance' : 'neutral';
-  }
-
-  /** A negative balance is advance the employee already holds, so it reads as a plain amount. */
-  protected amountLeftValue(row: IPaymentSheetDetailItemRow): number {
-    return row.isAdvancePayment ? Math.abs(row.actualDue) : row.actualDue;
-  }
-
-  protected amountFooterLabel(row: IPaymentSheetDetailItemRow): string {
-    if (row.isAdvancePayment) {
-      return 'Total Advance';
-    }
-
-    return row.documentKind === 'Advance' ? 'Settled' : 'Remaining';
-  }
-
-  protected amountFooterValue(row: IPaymentSheetDetailItemRow): number {
-    if (row.isAdvancePayment) {
-      return Math.abs(row.actualDue) + row.payableAmount;
-    }
-
-    if (row.documentKind === 'Advance') {
-      return row.settledAmount ?? 0;
-    }
-
-    return this.getRemainingAmount(row);
-  }
-
-  protected amountSettledLabel(row: IPaymentSheetDetailItemRow): string {
-    return row.documentKind === 'Advance' ? 'Fully settled' : 'Fully covered';
+  ): IPaymentSheetAmountsView {
+    return buildPaymentSheetLineAmountsView(row);
   }
 
   protected hasCompanyProjectContext(row: IPaymentSheetDetailItemRow): boolean {
@@ -752,18 +698,8 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       payableAmount: item.payableAmount,
       remainingAmount: item.remainingAmount,
       isAdvancePayment: item.isAdvance ?? false,
-      beneficiaryName: item.user
-        ? `${item.user.firstName} ${item.user.lastName}`.trim()
-        : item.vendor?.name
-          ? item.vendor.name
-          : item.sourceType === EPaymentSheetSourceType.PETRO_CARD_WALLET
-            ? 'Petro Card Wallet'
-            : '-',
-      beneficiaryCode: item.user?.employeeId
-        ? item.user.employeeId
-        : item.sourceType === EPaymentSheetSourceType.PETRO_CARD_WALLET
-          ? 'Wallet recharge'
-          : this.formatVendorLocation(item.vendor),
+      beneficiaryName: this.resolveBeneficiaryName(item),
+      beneficiaryCode: this.resolveBeneficiaryCode(item),
       itemStatus: item.itemStatus,
       paidAt: item.paidAt ?? null,
       utrNumber: item.utrNumber ?? null,
@@ -902,6 +838,31 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         };
       });
     });
+  }
+
+  // Truthiness checks on purpose: an empty name or employee ID falls through to the next option.
+  private resolveBeneficiaryName(item: IPaymentSheetItemDetailDto): string {
+    if (item.user) {
+      return `${item.user.firstName} ${item.user.lastName}`.trim();
+    }
+
+    if (item.vendor?.name) {
+      return item.vendor.name;
+    }
+
+    return item.sourceType === EPaymentSheetSourceType.PETRO_CARD_WALLET
+      ? 'Petro Card Wallet'
+      : '-';
+  }
+
+  private resolveBeneficiaryCode(item: IPaymentSheetItemDetailDto): string {
+    if (item.user?.employeeId) {
+      return item.user.employeeId;
+    }
+
+    return item.sourceType === EPaymentSheetSourceType.PETRO_CARD_WALLET
+      ? 'Wallet recharge'
+      : this.formatVendorLocation(item.vendor);
   }
 
   private formatVendorLocation(

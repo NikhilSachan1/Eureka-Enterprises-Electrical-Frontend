@@ -147,19 +147,7 @@
           #itemAmountsCell
           let-row
         >
-          <app-payment-sheet-amounts-cell
-            [leftLabel]="amountLeftLabel(row)"
-            [leftAmount]="amountLeftValue(row)"
-            [leftVariant]="amountLeftVariant(row)"
-            [rightLabel]="row.isAdvancePayment ? 'Advance Payable' : 'Payable'"
-            [rightAmount]="row.payableAmount"
-            rightVariant="payable"
-            [footerLabel]="amountFooterLabel(row)"
-            [footerAmount]="amountFooterValue(row)"
-            [isAdvanceFooter]="!!row.isAdvancePayment"
-            [settledLabel]="amountSettledLabel(row)"
-            [isSettled]="isFullyCovered(row)"
-          />
+          <app-payment-sheet-amounts-cell [view]="amountsView(row)" />
         </ng-template>
 
         <ng-template
@@ -384,7 +372,10 @@
           #bankDetailsCell
           let-row
         >
-          <app-bank-details-cell [bankDetails]="row.bankDetails" />
+          <app-bank-details-cell
+            [bankDetails]="row.bankDetails"
+            [displayMode]="EBankDetailsDisplayMode.TILE"
+          />
         </ng-template>
 
         <ng-template

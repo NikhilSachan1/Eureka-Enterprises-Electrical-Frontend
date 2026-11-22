@@ -21,6 +21,8 @@ export function createEditPaymentSheetItemFormConfig(
       numberConfig: {
         mode: EInputNumberMode.Currency,
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+        // Blocks the minus sign, so the amount cannot be typed negative.
+        minimumBoundaryValue: 0,
         ...(allowIncrease
           ? {}
           : { maximumBoundaryValue: originalPayableAmount }),
@@ -36,12 +38,13 @@ export function createEditPaymentSheetItemFormConfig(
       id: 'reason',
       fieldName: 'reason',
       label: 'Reason',
-      placeholder: 'Required when reducing the payable amount',
+      placeholder: 'Required when changing the payable amount',
       conditionalValidators: [
         {
           dependsOn: 'amount',
+          // Any change, up or down, needs a reason (frontend-only rule).
           shouldApply: (amount: unknown) =>
-            Number(amount) < originalPayableAmount,
+            Math.abs(Number(amount) - originalPayableAmount) > 0.001,
           validators: [Validators.required],
         },
       ],

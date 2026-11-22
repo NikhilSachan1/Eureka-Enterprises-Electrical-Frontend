@@ -1,12 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   OnInit,
+  signal,
+  Signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
+import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
+import { IPaymentSheetAmountsView } from '@features/centralized-payment-management/shared/types/payment-sheet-amounts-cell.interface';
 import { FormBase } from '@shared/base/form.base';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
@@ -20,12 +25,17 @@ import {
   IUpdatePaymentSheetItemResponseDto,
 } from '../../types/payment-sheet.dto';
 import { IPaymentSheetDetailItemRow } from '../../types/payment-sheet-detail.interface';
+import { buildPaymentSheetLineAmountsView } from '../../utils/payment-sheet-amounts-view.util';
 import { canIncreasePaymentSheetItemAmount } from '../../utils/payment-sheet-table-row.util';
 
 @Component({
   selector: 'app-edit-payment-sheet-item',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [InputFieldComponent, ReactiveFormsModule],
+  imports: [
+    InputFieldComponent,
+    PaymentSheetAmountsCellComponent,
+    ReactiveFormsModule,
+  ],
   templateUrl: './edit-payment-sheet-item.component.html',
   styleUrl: './edit-payment-sheet-item.component.scss',
 })
@@ -44,6 +54,25 @@ export class EditPaymentSheetItemComponent
   protected readonly onSuccess = input.required<() => void>();
 
   private itemId?: string;
+  private readonly previewRow = signal<IPaymentSheetDetailItemRow | null>(null);
+  private amountTracked?: Signal<number | null | undefined>;
+
+  /** The sheet's amounts cell, redrawn live for the amount being typed. */
+  protected readonly preview = computed((): IPaymentSheetAmountsView | null => {
+    const row = this.previewRow();
+
+    if (!row) {
+      return null;
+    }
+
+    const amount = Math.max(0, Number(this.amountTracked?.() ?? 0) || 0);
+
+    return buildPaymentSheetLineAmountsView({
+      ...row,
+      payableAmount: amount,
+      remainingAmount: Math.max(0, row.actualDue - amount),
+    });
+  });
 
   ngOnInit(): void {
     const rows = this.selectedRecord();
@@ -73,6 +102,14 @@ export class EditPaymentSheetItemComponent
         },
       }
     );
+
+    // Vendor amounts are allocation-based and not edited here, so they get no preview.
+    if (!item.bookPaymentId) {
+      this.amountTracked = this.formService.trackFieldChanges<
+        number | null | undefined
+      >(this.form.formGroup, 'amount', this.destroyRef);
+      this.previewRow.set(item);
+    }
   }
 
   onDialogAccept(): void {
