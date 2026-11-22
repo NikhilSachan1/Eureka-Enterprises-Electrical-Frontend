@@ -291,10 +291,17 @@ export class EditConfigurationComponent
       });
   }
 
+  /** Edit page: reset brings back the saved details, so the button says "Undo". */
+  protected override resetRestoresSavedDetails(): boolean {
+    return true;
+  }
+
   protected onReset(): void {
-    const defaults = this.initialConfigurationData();
-    this.onResetSingleForm(defaults ?? {});
-    this.resetValueRootFromRow();
+    this.confirmResetSingleForm(() => {
+      const defaults = this.initialConfigurationData();
+      this.onResetSingleForm(defaults ?? {});
+      this.resetValueRootFromRow();
+    });
   }
 
   private resetValueRootFromRow(): void {

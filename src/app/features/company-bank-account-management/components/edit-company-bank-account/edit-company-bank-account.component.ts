@@ -151,8 +151,15 @@ export class EditCompanyBankAccountComponent
       });
   }
 
+  /** Edit page: reset brings back the saved details, so the button says "Undo". */
+  protected override resetRestoresSavedDetails(): boolean {
+    return true;
+  }
+
   protected onReset(): void {
-    this.onResetSingleForm(this.initialCompanyBankAccountData() ?? {});
+    this.confirmResetSingleForm(() => {
+      this.onResetSingleForm(this.initialCompanyBankAccountData() ?? {});
+    });
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

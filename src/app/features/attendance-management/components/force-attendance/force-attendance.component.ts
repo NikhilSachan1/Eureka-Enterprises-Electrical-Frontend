@@ -204,7 +204,9 @@ export class ForceAttendanceComponent
   }
 
   protected onReset(): void {
-    this.onResetSingleForm();
+    this.confirmResetSingleForm(() => {
+      this.onResetSingleForm();
+    });
   }
 
   private getSelectedAttendanceStatus(): EAttendanceStatus | null {

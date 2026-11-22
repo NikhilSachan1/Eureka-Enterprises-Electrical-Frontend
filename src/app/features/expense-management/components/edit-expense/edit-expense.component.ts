@@ -157,8 +157,15 @@ export class EditExpenseComponent
       });
   }
 
+  /** Edit page: reset brings back the saved details, so the button says "Undo". */
+  protected override resetRestoresSavedDetails(): boolean {
+    return true;
+  }
+
   protected onReset(): void {
-    this.onResetSingleForm(this.initialExpenseData() ?? {});
+    this.confirmResetSingleForm(() => {
+      this.onResetSingleForm(this.initialExpenseData() ?? {});
+    });
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

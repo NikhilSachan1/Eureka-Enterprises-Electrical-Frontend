@@ -106,7 +106,9 @@ export class AddContractorComponent
   }
 
   protected onReset(): void {
-    this.onResetSingleForm();
+    this.confirmResetSingleForm(() => {
+      this.onResetSingleForm();
+    });
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

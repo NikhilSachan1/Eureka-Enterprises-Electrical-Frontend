@@ -12,6 +12,26 @@ export const COMMON_FORM_ACTIONS = {
     severity: EButtonSeverity.SECONDARY,
     tooltip: 'Reset the form',
   },
+  /** Single-step add page: empties the form. Quiet (text) and placed away from Submit. */
+  CLEAR_FORM: {
+    id: EButtonActionType.RESET,
+    label: 'Clear form',
+    icon: ICONS.COMMON.ERASER,
+    variant: EButtonVariant.TEXT,
+    severity: EButtonSeverity.SECONDARY,
+    tooltip: 'Clear every field on this form',
+    disabledTooltip: 'Nothing has been filled in yet',
+  },
+  /** Single-step edit page: puts the saved details back. */
+  UNDO_FORM_CHANGES: {
+    id: EButtonActionType.RESET,
+    label: 'Undo changes',
+    icon: ICONS.COMMON.UNDO,
+    variant: EButtonVariant.TEXT,
+    severity: EButtonSeverity.SECONDARY,
+    tooltip: 'Put the saved details back',
+    disabledTooltip: 'No changes to undo',
+  },
   /** Multi-step add form: wipes every step. Kept quiet (text) and away from Submit. */
   CLEAR_ALL_STEPS: {
     id: EButtonActionType.RESET,

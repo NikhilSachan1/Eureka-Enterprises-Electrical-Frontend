@@ -122,8 +122,10 @@ export class AddExpenseComponent
   }
 
   protected onReset(): void {
-    this.onResetSingleForm();
-    this.filingTarget()?.reset();
+    this.confirmResetSingleForm(() => {
+      this.onResetSingleForm();
+      this.filingTarget()?.reset();
+    });
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

@@ -192,9 +192,13 @@ export class AddConfigurationComponent
   }
 
   protected onReset(): void {
-    this.onResetSingleForm();
-    const type = this.trackedFormFields.configurationType?.() as string | null;
-    this.valueRoot.set(createEmptyNode(mapConfigurationTypeToKind(type)));
+    this.confirmResetSingleForm(() => {
+      this.onResetSingleForm();
+      const type = this.trackedFormFields.configurationType?.() as
+        | string
+        | null;
+      this.valueRoot.set(createEmptyNode(mapConfigurationTypeToKind(type)));
+    });
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

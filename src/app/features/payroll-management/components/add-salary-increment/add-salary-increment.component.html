@@ -104,7 +104,9 @@
 
   <div class="button-container">
     <app-button
-      [buttonConfig]="form.buttonConfigs['reset']"
+      class="form-reset-action"
+      [buttonConfig]="resetButtonConfig()"
+      [showDisabledButton]="!formDirty()"
       (onButtonClick)="onReset()"
     />
 

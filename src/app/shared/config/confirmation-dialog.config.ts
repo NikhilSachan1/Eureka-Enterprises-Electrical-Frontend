@@ -175,3 +175,23 @@ export function buildResetAllStepsDialogConfig(
     },
   };
 }
+
+/** Single-step page form. `undo` = edit page, where the saved details come back. */
+export function buildResetFormDialogConfig(
+  undo: boolean
+): Partial<IDialogConfig> {
+  return {
+    ...FORM_RESET_DIALOG_BASE_CONFIG,
+    header: undo ? 'Undo your changes?' : 'Clear this form?',
+    message: undo
+      ? 'The saved details will be shown again and your changes discarded.'
+      : 'Everything you entered on this form will be removed. This cannot be undone.',
+    icon: undo ? ICONS.COMMON.UNDO : ICONS.COMMON.ERASER,
+    acceptButtonProps: {
+      label: undo ? 'Undo changes' : 'Clear form',
+      id: EButtonActionType.RESET,
+      icon: undo ? ICONS.COMMON.UNDO : ICONS.COMMON.ERASER,
+      severity: EButtonSeverity.DANGER,
+    },
+  };
+}

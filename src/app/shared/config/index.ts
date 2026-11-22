@@ -8,6 +8,7 @@ export {
   UNSAVED_CHANGES_DIALOG_CONFIG,
   buildResetStepDialogConfig,
   buildResetAllStepsDialogConfig,
+  buildResetFormDialogConfig,
 } from './confirmation-dialog.config';
 export {
   DEFAULT_TABLE_CONFIG,

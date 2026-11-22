@@ -161,3 +161,8 @@ p-dialog .form {
 .multi-step-button-container {
   justify-content: space-between;
 }
+
+// Single-step pages: the reset sits at the far left, Submit stays on the right.
+.button-container > .form-reset-action {
+  margin-right: auto;
+}

@@ -7,8 +7,10 @@ import {
   Directive,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { COMMON_FORM_ACTIONS } from '@shared/config/common-form-actions.config';
 import {
   buildResetAllStepsDialogConfig,
+  buildResetFormDialogConfig,
   buildResetStepDialogConfig,
 } from '@shared/config/confirmation-dialog.config';
 import {
@@ -22,12 +24,14 @@ import { UnsavedChangesService } from '@core/services/unsaved-changes.service';
 import { IPendingSave, IUnsavedChangesAware } from '@core/types';
 import {
   EButtonActionType,
+  IButtonConfig,
   IEnhancedMultiStepForm,
   IEnhancedForm,
   ITrackedForm,
   IStepperConfig,
 } from '@shared/types';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import { Subscription } from 'rxjs';
 
 @Directive()
 export abstract class FormBase<
@@ -89,7 +93,20 @@ export abstract class FormBase<
   // ---------------------------------------------------------------------
   // Single-step form (optional)
   // ---------------------------------------------------------------------
-  protected form!: IEnhancedForm<TSingle>;
+  private _form!: IEnhancedForm<TSingle>;
+  private formDirtySubscription?: Subscription;
+
+  /** Has the user changed the single-step form? Drives its reset button. */
+  protected readonly formDirty = signal(false);
+
+  protected get form(): IEnhancedForm<TSingle> {
+    return this._form;
+  }
+
+  protected set form(value: IEnhancedForm<TSingle>) {
+    this._form = value;
+    this.trackFormDirty(value?.formGroup);
+  }
   // ---------------------------------------------------------------------
   // Constructor
   // ---------------------------------------------------------------------
@@ -140,6 +157,23 @@ export abstract class FormBase<
       );
       this.trackStepDirty(Number(stepKey), formGroup);
     });
+  }
+
+  /** Same as trackStepDirty, for the single-step form; follows the form if it is replaced. */
+  private trackFormDirty(
+    formGroup: IEnhancedForm<Record<string, unknown>>['formGroup'] | undefined
+  ): void {
+    this.formDirtySubscription?.unsubscribe();
+
+    if (!formGroup) {
+      this.formDirty.set(false);
+      return;
+    }
+
+    this.formDirty.set(formGroup.dirty);
+    this.formDirtySubscription = formGroup.events
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.formDirty.set(formGroup.dirty));
   }
 
   /**
@@ -327,6 +361,46 @@ export abstract class FormBase<
   /** Edit forms override with true: their reset restores the saved details, not blank. */
   protected resetRestoresSavedDetails(): boolean {
     return false;
+  }
+
+  /**
+   * Single-step page forms: wrap the page's own reset in this. Nothing changed → nothing
+   * happens; otherwise the user confirms first.
+   */
+  protected confirmResetSingleForm(reset: () => void): void {
+    if (!this.formDirty()) {
+      return;
+    }
+
+    this.resetConfirmDialogService.showConfirmationDialog(
+      EButtonActionType.RESET,
+      {
+        dialogConfig: buildResetFormDialogConfig(
+          this.resetRestoresSavedDetails()
+        ),
+        onAccept: reset,
+      },
+      null,
+      false,
+      false
+    );
+  }
+
+  private cachedResetButtonConfig?: Partial<IButtonConfig>;
+
+  /**
+   * The page form's reset button: its own config, labelled "Clear form" on add pages and
+   * "Undo changes" on edit pages. Built once, so the button input stays stable.
+   */
+  protected resetButtonConfig(): Partial<IButtonConfig> {
+    this.cachedResetButtonConfig ??= {
+      ...this.form?.buttonConfigs?.['reset'],
+      ...(this.resetRestoresSavedDetails()
+        ? COMMON_FORM_ACTIONS.UNDO_FORM_CHANGES
+        : COMMON_FORM_ACTIONS.CLEAR_FORM),
+    };
+
+    return this.cachedResetButtonConfig;
   }
 
   /** Step label as shown on the stepper, e.g. "Bank"; "Step 3" when it has none. */
