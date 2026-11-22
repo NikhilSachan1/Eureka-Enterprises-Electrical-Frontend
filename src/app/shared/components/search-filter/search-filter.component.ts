@@ -36,6 +36,7 @@ import {
   AppConfigurationService,
   FormService,
   SearchFilterUrlRestoreService,
+  TableFilterResetService,
 } from '@shared/services';
 import { InputFieldComponent } from '../input-field/input-field.component';
 import { NgTemplateOutlet } from '@angular/common';
@@ -109,6 +110,7 @@ export class SearchFilterComponent implements OnInit, IMetricFilterTarget {
     viewChild<ElementRef<HTMLInputElement>>('searchInput');
   private readonly formService = inject(FormService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly tableFilterReset = inject(TableFilterResetService);
   private readonly permissionService = inject(AppPermissionService);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
@@ -275,6 +277,17 @@ export class SearchFilterComponent implements OnInit, IMetricFilterTarget {
         queueMicrotask(() => this.syncTableState(table));
       });
       onCleanup(() => subscription.unsubscribe());
+    });
+
+    // Let the table's "Clear filters" empty state run this filter's own reset.
+    effect(onCleanup => {
+      const table = this.tableRefValue();
+      if (!table) {
+        return;
+      }
+      const reset = (): void => this.onReset();
+      this.tableFilterReset.register(table, reset);
+      onCleanup(() => this.tableFilterReset.unregister(table, reset));
     });
 
     this.destroyRef.onDestroy(() => {

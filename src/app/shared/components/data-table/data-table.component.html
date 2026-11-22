@@ -498,11 +498,7 @@
           [colSpan]="emptyMessageColSpan()"
           class="text-center py-12"
         >
-          <app-empty-messages
-            [icon]="tableConfig().emptyMessageIcon"
-            [title]="tableConfig().emptyMessage"
-            [description]="tableConfig().emptyMessageDescription"
-          />
+          <ng-container [ngTemplateOutlet]="emptyState" />
         </td>
       </tr>
     </ng-template>
@@ -598,11 +594,7 @@
       </div>
     } @else if (tableData().length === 0) {
       <div class="row-card-list__state">
-        <app-empty-messages
-          [icon]="tableConfig().emptyMessageIcon"
-          [title]="tableConfig().emptyMessage"
-          [description]="tableConfig().emptyMessageDescription"
-        />
+        <ng-container [ngTemplateOutlet]="emptyState" />
       </div>
     } @else {
       @let layout = cardLayoutColumns();
@@ -1046,5 +1038,32 @@
         />
       }
     }
+  }
+</ng-template>
+
+<!--
+  Empty result. With search/filters applied it says "nothing matches" and offers
+  "Clear filters"; otherwise it shows the table's own "no records yet" message.
+-->
+<ng-template #emptyState>
+  @if (hasActiveFilters()) {
+    <app-empty-messages
+      [icon]="filteredEmptyState.icon"
+      [title]="filteredEmptyState.title"
+      [description]="filteredEmptyState.description"
+    >
+      @if (canClearFilters()) {
+        <app-button
+          [buttonConfig]="clearFiltersButtonConfig"
+          (onButtonClick)="clearFilters()"
+        />
+      }
+    </app-empty-messages>
+  } @else {
+    <app-empty-messages
+      [icon]="tableConfig().emptyMessageIcon"
+      [title]="tableConfig().emptyMessage"
+      [description]="tableConfig().emptyMessageDescription"
+    />
   }
 </ng-template>

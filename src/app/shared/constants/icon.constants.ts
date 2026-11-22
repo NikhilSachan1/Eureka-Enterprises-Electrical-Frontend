@@ -16,6 +16,8 @@ export const ICONS = {
     ARROW_RIGHT_LEFT: 'pi pi-arrow-right-arrow-left',
     SEARCH: 'pi pi-search',
     FILTER: 'pi pi-filter',
+    /** Filters applied but nothing matches; "Clear filters". */
+    FILTER_SLASH: 'pi pi-filter-slash',
     /** Small close / remove cross (chips, clear input). */
     CLOSE: 'pi pi-times',
     INFO_CIRCLE: 'pi pi-info-circle',

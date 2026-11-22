@@ -17,3 +17,4 @@ export { ReferenceEntityDropdownCacheService } from './app-configuration/referen
 export { PaginatedDropdownService } from './paginated-dropdown.service';
 export { SearchFilterUrlRestoreService } from './search-filter-url-restore.service';
 export { CommandPaletteService } from './command-palette.service';
+export { TableFilterResetService } from './table-filter-reset.service';

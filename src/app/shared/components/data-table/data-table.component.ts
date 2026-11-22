@@ -63,6 +63,7 @@ import {
   AvatarService,
   GalleryService,
   SearchFilterUrlRestoreService,
+  TableFilterResetService,
 } from '@shared/services';
 import {
   ICONS,
@@ -82,6 +83,8 @@ import { ReadMoreComponent } from '../read-more/read-more.component';
 import { PaginatorComponent } from '../paginator/paginator.component';
 import { registerActiveBulkTable } from './active-bulk-table';
 import {
+  DATA_TABLE_CLEAR_FILTERS_BUTTON_CONFIG,
+  DATA_TABLE_FILTERED_EMPTY_STATE,
   DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
   DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
   DEFAULT_READ_MORE_CONFIG,
@@ -163,10 +166,36 @@ export class DataTableComponent {
     SearchFilterUrlRestoreService
   );
   private readonly destroyRef = inject(DestroyRef);
+  private readonly tableFilterReset = inject(TableFilterResetService);
+
+  protected readonly filteredEmptyState = DATA_TABLE_FILTERED_EMPTY_STATE;
+  protected readonly clearFiltersButtonConfig =
+    DATA_TABLE_CLEAR_FILTERS_BUTTON_CONFIG;
 
   protected readonly showTableLoading = computed(
     () => this.loading() || this.searchFilterUrlRestore.hasPendingRestore()
   );
+
+  /**
+   * True when search or a filter is applied to the table, so an empty result means
+   * "nothing matches" rather than "no records yet".
+   */
+  protected hasActiveFilters(): boolean {
+    const filters = this.dt().filters ?? {};
+    return Object.values(filters).some(entry =>
+      (Array.isArray(entry) ? entry : [entry]).some(meta =>
+        hasFilterValue(meta?.value)
+      )
+    );
+  }
+
+  protected canClearFilters(): boolean {
+    return this.tableFilterReset.canReset(this.dt());
+  }
+
+  protected clearFilters(): void {
+    this.tableFilterReset.reset(this.dt());
+  }
 
   protected resolveDateLocale(col?: Partial<IDataTableHeaderConfig>): string {
     return (
@@ -1218,4 +1247,12 @@ export class DataTableComponent {
       this.attachmentClick.emit(rowData ?? {});
     }
   }
+}
+
+/** A filter counts as applied when it holds something other than null, '' or []. */
+function hasFilterValue(value: unknown): boolean {
+  if (value === null || value === undefined || value === '') {
+    return false;
+  }
+  return !Array.isArray(value) || value.length > 0;
 }
