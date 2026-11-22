@@ -720,7 +720,7 @@ export const ADD_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
 
 const ADD_EMPLOYEE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
-    ...COMMON_FORM_ACTIONS.RESET,
+    ...COMMON_FORM_ACTIONS.CLEAR_ALL_STEPS,
   },
   submit: {
     ...COMMON_FORM_ACTIONS.SUBMIT,

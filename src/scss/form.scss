@@ -155,3 +155,9 @@ p-dialog .form {
     }
   }
 }
+
+// Multi-step pages: the form-wide reset sits at the far left, away from Submit,
+// so "clear everything" is never one slip from "save".
+.multi-step-button-container {
+  justify-content: space-between;
+}

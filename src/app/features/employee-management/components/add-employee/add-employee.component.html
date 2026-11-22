@@ -6,6 +6,7 @@
     [(activeStep)]="activeStep"
     [stepErrors]="stepErrors()"
     [stepValid]="stepValid()"
+    [stepDirty]="stepDirty()"
     (nextStepRequested)="onStepperNextRequested()"
     (previousStepRequested)="onStepperPreviousRequested()"
     (resetRequested)="onStepperResetRequested()"
@@ -23,6 +24,7 @@
     @let form = multiStepForm;
     <app-button
       [buttonConfig]="form.buttonConfigs['reset']"
+      [showDisabledButton]="!anyStepDirty()"
       (onButtonClick)="onReset()"
     />
 

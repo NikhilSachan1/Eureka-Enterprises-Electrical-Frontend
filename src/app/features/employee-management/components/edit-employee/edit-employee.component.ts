@@ -312,8 +312,13 @@ export class EditEmployeeComponent
     }, 100);
   }
 
+  /** Edit: reset brings back the saved employee details, so the buttons say "Undo". */
+  protected override resetRestoresSavedDetails(): boolean {
+    return true;
+  }
+
   protected onReset(): void {
-    this.onResetMultiStepForm(this.initialEmployeeData() ?? {});
+    this.confirmResetMultiStepForm(this.initialEmployeeData() ?? {});
   }
 
   protected override onResetParticularForm(

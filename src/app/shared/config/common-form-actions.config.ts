@@ -1,5 +1,9 @@
 import { ICONS } from '@shared/constants';
-import { EButtonActionType, EButtonSeverity } from '@shared/types';
+import {
+  EButtonActionType,
+  EButtonSeverity,
+  EButtonVariant,
+} from '@shared/types';
 
 export const COMMON_FORM_ACTIONS = {
   RESET: {
@@ -7,6 +11,26 @@ export const COMMON_FORM_ACTIONS = {
     label: 'Reset',
     severity: EButtonSeverity.SECONDARY,
     tooltip: 'Reset the form',
+  },
+  /** Multi-step add form: wipes every step. Kept quiet (text) and away from Submit. */
+  CLEAR_ALL_STEPS: {
+    id: EButtonActionType.RESET,
+    label: 'Clear all steps',
+    icon: ICONS.COMMON.ERASER,
+    variant: EButtonVariant.TEXT,
+    severity: EButtonSeverity.SECONDARY,
+    tooltip: 'Clear every step of this form',
+    disabledTooltip: 'Nothing has been filled in yet',
+  },
+  /** Multi-step edit form: every step goes back to the saved details. */
+  UNDO_ALL_CHANGES: {
+    id: EButtonActionType.RESET,
+    label: 'Undo all changes',
+    icon: ICONS.COMMON.UNDO,
+    variant: EButtonVariant.TEXT,
+    severity: EButtonSeverity.SECONDARY,
+    tooltip: 'Put every step back to the saved details',
+    disabledTooltip: 'No changes to undo',
   },
   SUBMIT: {
     id: EButtonActionType.SUBMIT,

@@ -252,7 +252,7 @@ export class AddEmployeeComponent
   }
 
   protected onReset(): void {
-    this.onResetMultiStepForm(this.initialEmployeeData() ?? {});
+    this.confirmResetMultiStepForm(this.initialEmployeeData() ?? {});
   }
 
   protected override onResetParticularForm(

@@ -1,5 +1,18 @@
-import { effect, inject, signal, DestroyRef, Directive } from '@angular/core';
 import {
+  computed,
+  effect,
+  inject,
+  signal,
+  DestroyRef,
+  Directive,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  buildResetAllStepsDialogConfig,
+  buildResetStepDialogConfig,
+} from '@shared/config/confirmation-dialog.config';
+import {
+  ConfirmationDialogService,
   FormService,
   NotificationService,
   LoadingService,
@@ -8,6 +21,7 @@ import { LoggerService } from '@core/services';
 import { UnsavedChangesService } from '@core/services/unsaved-changes.service';
 import { IPendingSave, IUnsavedChangesAware } from '@core/types';
 import {
+  EButtonActionType,
   IEnhancedMultiStepForm,
   IEnhancedForm,
   ITrackedForm,
@@ -31,6 +45,10 @@ export abstract class FormBase<
   protected readonly destroyRef = inject(DestroyRef);
   protected readonly loadingService = inject(LoadingService);
   private readonly unsavedChangesService = inject(UnsavedChangesService);
+  // Uniquely named: many subclasses inject their own `confirmationDialogService`.
+  private readonly resetConfirmDialogService = inject(
+    ConfirmationDialogService
+  );
 
   // ---------------------------------------------------------------------
   // State (Signals)
@@ -40,6 +58,12 @@ export abstract class FormBase<
   protected readonly stepErrors = signal<Record<number, boolean>>({});
   protected readonly stepValid = signal<Record<number, boolean>>({});
   protected readonly attemptedSteps = signal<Set<number>>(new Set());
+
+  /** Per step: has the user changed anything there? Drives the reset buttons. */
+  protected readonly stepDirty = signal<Record<number, boolean>>({});
+  protected readonly anyStepDirty = computed(() =>
+    Object.values(this.stepDirty()).some(Boolean)
+  );
 
   // ---------------------------------------------------------------------
   // Multi-step form (optional)
@@ -114,7 +138,33 @@ export abstract class FormBase<
         formGroup,
         this.destroyRef
       );
+      this.trackStepDirty(Number(stepKey), formGroup);
     });
+  }
+
+  /**
+   * `events` also fires on pristine/dirty changes (a field's markAsDirty reaches the step's
+   * group), so the state is right even when a value is set before the field is marked dirty.
+   */
+  private trackStepDirty(
+    step: number,
+    formGroup: IEnhancedForm<Record<string, unknown>>['formGroup']
+  ): void {
+    if (isNaN(step)) {
+      return;
+    }
+
+    const update = (): void =>
+      this.stepDirty.update(state =>
+        state[step] === formGroup.dirty
+          ? state
+          : { ...state, [step]: formGroup.dirty }
+      );
+
+    update();
+    formGroup.events
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(update);
   }
 
   // ---------------------------------------------------------------------
@@ -219,8 +269,81 @@ export abstract class FormBase<
     this.activeStep.set(Math.max(1, current - 1));
   }
 
+  /** Step reset: nothing typed → nothing to do; otherwise confirm, naming the step. */
   protected onStepperResetRequested(): void {
-    this.onResetParticularForm();
+    const step = this.activeStep();
+
+    if (!this.stepDirty()[step]) {
+      return;
+    }
+
+    this.resetConfirmDialogService.showConfirmationDialog(
+      EButtonActionType.RESET,
+      {
+        dialogConfig: buildResetStepDialogConfig(
+          this.getStepName(step),
+          this.resetRestoresSavedDetails()
+        ),
+        onAccept: () => this.onResetParticularForm(),
+      },
+      null,
+      false,
+      false
+    );
+  }
+
+  /**
+   * The form-wide reset on multi-step pages. Confirms first and lists the steps that would
+   * lose input; does nothing when no step was changed.
+   */
+  protected confirmResetMultiStepForm(
+    initialData?: Partial<Record<string, Partial<T>>>
+  ): void {
+    const changedSteps = Object.entries(this.stepDirty())
+      .filter(([, dirty]) => dirty)
+      .map(([step]) => Number(step))
+      .sort((a, b) => a - b);
+
+    if (!changedSteps.length) {
+      return;
+    }
+
+    this.resetConfirmDialogService.showConfirmationDialog(
+      EButtonActionType.RESET,
+      {
+        dialogConfig: buildResetAllStepsDialogConfig(
+          changedSteps.map(step => this.getStepLabel(step)),
+          this.stepperConfig?.steps.length ?? changedSteps.length,
+          this.resetRestoresSavedDetails()
+        ),
+        onAccept: () => this.onResetMultiStepForm(initialData),
+      },
+      null,
+      false,
+      false
+    );
+  }
+
+  /** Edit forms override with true: their reset restores the saved details, not blank. */
+  protected resetRestoresSavedDetails(): boolean {
+    return false;
+  }
+
+  /** Step label as shown on the stepper, e.g. "Bank"; "Step 3" when it has none. */
+  private getStepLabel(step: number): string {
+    return (
+      this.stepperConfig?.steps.find(stepConfig => stepConfig.value === step)
+        ?.label ?? `Step ${step}`
+    );
+  }
+
+  /** For sentences: "Bank step", or "Step 3" when the step has no label. */
+  private getStepName(step: number): string {
+    const label = this.stepperConfig?.steps.find(
+      stepConfig => stepConfig.value === step
+    )?.label;
+
+    return label ? `${label} step` : `Step ${step}`;
   }
 
   protected onResetParticularForm(initialData?: Partial<T>): void {

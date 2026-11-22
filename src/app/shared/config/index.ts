@@ -6,6 +6,8 @@ export {
   CANCEL_CONFIRMATION_DIALOG_CONFIG,
   PLAIN_CONFIRMATION_DIALOG_CONFIG,
   UNSAVED_CHANGES_DIALOG_CONFIG,
+  buildResetStepDialogConfig,
+  buildResetAllStepsDialogConfig,
 } from './confirmation-dialog.config';
 export {
   DEFAULT_TABLE_CONFIG,
@@ -60,6 +62,7 @@ export {
   DEFAULT_STEPPER_NEXT_BUTTON_CONFIG,
   DEFAULT_STEPPER_BACK_BUTTON_CONFIG,
   DEFAULT_STEPPER_RESET_BUTTON_CONFIG,
+  STEPPER_UNDO_STEP_BUTTON_CONFIG,
 } from './stepper.config';
 export {
   DEFAULT_BAR_CHART_OPTIONS,

@@ -115,3 +115,63 @@ export const UNSAVED_CHANGES_DIALOG_CONFIG: Partial<IDialogConfig> = {
     severity: EButtonSeverity.SECONDARY,
   },
 };
+
+const FORM_RESET_DIALOG_BASE_CONFIG: Partial<IDialogConfig> = {
+  ...CONFIRMATION_DIALOG_CONFIG,
+  size: EDialogSize.SMALL,
+  rejectButtonProps: {
+    label: 'Keep editing',
+    icon: ICONS.ACTIONS.TIMES,
+    severity: EButtonSeverity.SECONDARY,
+  },
+};
+
+/**
+ * Multi-step form, one step (`stepName` e.g. "Bank step"). `undo` = edit form, where the step goes back to the saved
+ * details instead of blank.
+ */
+export function buildResetStepDialogConfig(
+  stepName: string,
+  undo: boolean
+): Partial<IDialogConfig> {
+  return {
+    ...FORM_RESET_DIALOG_BASE_CONFIG,
+    header: undo ? `Undo changes on ${stepName}?` : `Clear ${stepName}?`,
+    message: undo
+      ? 'This step goes back to the saved details. Other steps are not touched.'
+      : 'Everything you entered on this step will be removed. Other steps are not touched.',
+    icon: undo ? ICONS.COMMON.UNDO : ICONS.COMMON.ERASER,
+    acceptButtonProps: {
+      label: undo ? 'Undo step' : 'Clear step',
+      id: EButtonActionType.RESET,
+      icon: undo ? ICONS.COMMON.UNDO : ICONS.COMMON.ERASER,
+      severity: EButtonSeverity.DANGER,
+    },
+  };
+}
+
+/** Multi-step form, every step: names the steps that will lose input. */
+export function buildResetAllStepsDialogConfig(
+  changedStepLabels: string[],
+  totalSteps: number,
+  undo: boolean
+): Partial<IDialogConfig> {
+  const count = changedStepLabels.length;
+  const stepWord = count === 1 ? 'step' : 'steps';
+  const stepList = changedStepLabels.join(', ');
+
+  return {
+    ...FORM_RESET_DIALOG_BASE_CONFIG,
+    header: undo ? 'Undo all changes?' : 'Clear all steps?',
+    message: undo
+      ? `Your changes on ${count} ${stepWord} (${stepList}) will be discarded and the saved details shown again.`
+      : `What you entered on ${count} of ${totalSteps} ${totalSteps === 1 ? 'step' : 'steps'} (${stepList}) will be removed. This cannot be undone.`,
+    icon: undo ? ICONS.COMMON.UNDO : ICONS.COMMON.ERASER,
+    acceptButtonProps: {
+      label: undo ? 'Undo all' : 'Clear all',
+      id: EButtonActionType.RESET,
+      icon: undo ? ICONS.COMMON.UNDO : ICONS.COMMON.ERASER,
+      severity: EButtonSeverity.DANGER,
+    },
+  };
+}

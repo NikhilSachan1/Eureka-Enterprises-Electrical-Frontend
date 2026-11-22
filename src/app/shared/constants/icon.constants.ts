@@ -63,6 +63,10 @@ export const ICONS = {
     UPLOAD: 'pi pi-upload',
     COPY: 'pi pi-copy',
     REFRESH: 'pi pi-refresh',
+    /** Clear typed input (form / step reset). */
+    ERASER: 'pi pi-eraser',
+    /** Put edited input back to the saved values. */
+    UNDO: 'pi pi-undo',
     /** Train / direction (dropdowns). */
     COMPASS: 'pi pi-compass',
     TAG: 'pi pi-tag',
