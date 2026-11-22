@@ -8,7 +8,13 @@ import {
 import { APP_CONFIG } from '@core/config';
 import { ICONS } from '@shared/constants';
 import { IUserInfo } from '@shared/types';
+import { formatRelativeTime } from '@shared/utility';
 
+/**
+ * Lock status cell for site documents (PO, invoice, JMC, report, book payment), as a
+ * tiny timeline: one step (Locked / Unlocked), or — when someone asked to unlock — a
+ * second step with who asked, when, and why.
+ */
 @Component({
   selector: 'app-unlock-request',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,4 +45,9 @@ export class UnlockRequestComponent {
     }
     return `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
   });
+
+  /** "2h ago"; the exact date and time is in the tooltip. */
+  protected readonly requestedAgo = computed<string>(() =>
+    formatRelativeTime(this.requestedAt())
+  );
 }

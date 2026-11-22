@@ -1,57 +1,86 @@
 @let df = APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
-<div class="unlock-request flex flex-col gap-1.5 text-sm max-w-[240px]">
-  <div class="flex flex-wrap items-center gap-2">
-    @if (isLocked()) {
-      <i
-        [class]="icons.SECURITY.LOCK + ' text-lg text-amber-600'"
-        title="Locked"
-        aria-hidden="true"
-      ></i>
-      <span class="sr-only">Locked</span>
-    } @else {
-      <i
-        [class]="icons.SECURITY.LOCK_OPEN + ' text-lg text-emerald-600'"
-        title="Unlocked"
-        aria-hidden="true"
-      ></i>
-      <span class="sr-only">Unlocked</span>
-    }
-    @if (hasUnlockRequest()) {
-      <span
-        class="text-[11px] font-medium uppercase tracking-wide text-amber-800 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5"
-      >
-        Unlock requested
+@let locked = isLocked();
+@let requested = hasUnlockRequest();
+
+<ol
+  class="ulr"
+  [attr.aria-label]="
+    'Lock status: ' +
+    (locked ? 'Locked' : 'Unlocked') +
+    (requested ? ', ' + requestedByName() + ' asked to unlock' + (locked ? ', awaiting approval' : '') : '')
+  "
+>
+  <!-- Step 1: current lock state -->
+  <li
+    class="ulr__step"
+    [class.ulr__step--unlocked]="!locked"
+  >
+    <span
+      class="ulr__rail"
+      aria-hidden="true"
+    >
+      <span class="ulr__dot">
+        <i [class]="locked ? icons.SECURITY.LOCK : icons.SECURITY.LOCK_OPEN"></i>
       </span>
-    }
-  </div>
-  @if (hasUnlockRequest()) {
-    <div class="flex flex-col gap-1 text-xs text-content-secondary border-l-2 border-amber-200 pl-2">
-      @if (requestedAt()) {
-        <div class="flex flex-col gap-0.5">
-          <span class="font-medium text-content">When</span>
-          <span class="text-content">{{ requestedAt() | date: df }}</span>
-        </div>
-      }
-      @if (requestedByUser()) {
-        <div class="flex flex-col gap-0.5 min-w-0">
-          <span class="font-medium text-content">Who</span>
-          <span class="font-mono text-[11px] text-content truncate">
-            {{ requestedByName() }}
+    </span>
+    <span class="ulr__body">
+      <span class="ulr__title">{{ locked ? 'Locked' : 'Unlocked' }}</span>
+    </span>
+  </li>
+
+  @if (requested) {
+    <!-- Step 2: who asked, when, and why (reason as a speech bubble) -->
+    <li
+      class="ulr__step ulr__step--request"
+      [class.ulr__step--next-pending]="locked"
+    >
+      <span
+        class="ulr__rail"
+        aria-hidden="true"
+      >
+        <span class="ulr__dot ulr__dot--request"></span>
+      </span>
+      <span class="ulr__body">
+        <span class="ulr__line">
+          <span class="ulr__sentence">
+            <strong class="ulr__name">{{ requestedByName() }}</strong>
+            asked to unlock
           </span>
-        </div>
-      }
-      @let why = reason();
-      @if (why && why.trim()) {
-        <div class="flex flex-col gap-0.5 min-w-0">
-          <span class="font-medium text-content">Why</span>
+          @if (requestedAgo(); as ago) {
+            <time
+              class="ulr__time"
+              [attr.datetime]="requestedAt()"
+              [title]="requestedAt() | date: df"
+            >
+              {{ ago }}
+            </time>
+          }
+        </span>
+        @let why = reason();
+        @if (why && why.trim()) {
           <span
-            class="text-content line-clamp-2 break-words"
+            class="ulr__bubble"
             [title]="why"
           >
             {{ why }}
           </span>
-        </div>
-      }
-    </div>
+        }
+      </span>
+    </li>
+
+    <!-- Step 3: what happens next, shown only while it is still locked -->
+    @if (locked) {
+      <li class="ulr__step ulr__step--pending">
+        <span
+          class="ulr__rail"
+          aria-hidden="true"
+        >
+          <span class="ulr__dot ulr__dot--pending"></span>
+        </span>
+        <span class="ulr__body">
+          <span class="ulr__title">Awaiting approval</span>
+        </span>
+      </li>
+    }
   }
-</div>
+</ol>
