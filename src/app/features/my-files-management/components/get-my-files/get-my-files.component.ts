@@ -6,71 +6,83 @@ import {
   inject,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { AppPermissionService, LoggerService } from '@core/services';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
+  AttachmentsService,
   ConfirmationDialogService,
-  DrawerService,
   GalleryService,
+  NotificationService,
   RouterNavigationService,
-  TableServerSideParamsBuilderService,
-  TableService,
 } from '@shared/services';
-import { MyFilesService } from '../../services/my-files.service';
 import {
   EButtonActionType,
-  EDataType,
-  EDrawerPosition,
   IButtonConfig,
   IDialogActionConfig,
-  IEnhancedTable,
-  IInputFieldsConfig,
-  IPageHeaderConfig,
-  ITableActionClickEvent,
 } from '@shared/types';
-import { TableLazyLoadEvent } from 'primeng/table';
+import { MenuItem } from 'primeng/api';
+import { Menu, MenuModule } from 'primeng/menu';
 import {
-  IMyFileBaseResponseDto,
-  IMyFilesListFormDto,
-  IMyFilesListResponseDto,
-} from '../../types/my-files.dto';
-import {
-  MY_FILES_ACTION_CONFIG_MAP,
-  MY_FILES_TABLE_ENHANCED_CONFIG,
-} from '../../config';
-import {
-  catchError,
-  debounceTime,
+  combineLatest,
   distinctUntilChanged,
   EMPTY,
   finalize,
   map,
+  Observable,
+  startWith,
   Subject,
   switchMap,
+  tap,
+  catchError,
 } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { IMyFile } from '../../types/my-files.interface';
-import { EMyFileType } from '../../types/my-files.enum';
-import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { DEFAULT_INPUT_FIELD_CONFIG } from '@shared/config/input-field.config';
-import { formatFileSize, getMediaTypeFromUrl } from '@shared/utility';
-import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { ButtonComponent } from '@shared/components/button/button.component';
-import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import {
+  MY_FILE_ITEM_ACTIONS,
+  MY_FILES_ACTION_CONFIG_MAP,
+  MY_FILES_LOAD_MORE_BUTTON_CONFIG,
+  MY_FILES_PAGE_HEADER_CONFIG,
+  MY_FILES_NEW_FOLDER_BUTTON_CONFIG,
+  MY_FILES_UPLOAD_BUTTON_CONFIG,
+} from '../../config';
+import {
+  MY_FILES_PAGE_SIZE,
+  MY_FILES_PATH_SEPARATOR,
+  MY_FILES_ROOT_LABEL,
+  MY_FILES_SKELETON_COUNT,
+  MY_FILES_VIEW_MODE_STORAGE_KEY,
+} from '../../constants/my-files.constants';
+import { MyFilesService } from '../../services/my-files.service';
+import {
+  IMyFilesListFormDto,
+  IMyFilesListResponseDto,
+} from '../../types/my-files.dto';
+import { IMyFile, IMyFilesMoveCrumb } from '../../types/my-files.interface';
+import {
+  TMyFileItemAction,
+  TMyFilesViewMode,
+} from '../../types/my-files.types';
+import { getMyFileExtension, toMyFile } from '../../utils/my-files.util';
 import { MyFilesBreadcrumbComponent } from '../my-files-breadcrumb/my-files-breadcrumb.component';
-import { MoveMyFileComponent } from '../move-my-file/move-my-file.component';
 
+/**
+ * My Files: a Drive-style browser. Folders first as tiles, then files as cards (or a
+ * compact list), each with a ⋮ menu (open, download, rename, move, delete).
+ * The folder shown follows the `parentId` query param.
+ */
 @Component({
   selector: 'app-get-my-files',
   imports: [
-    PageHeaderComponent,
-    MyFilesBreadcrumbComponent,
-    InputFieldComponent,
     ButtonComponent,
-    DataTableComponent,
+    MenuModule,
+    MyFilesBreadcrumbComponent,
+    NgTemplateOutlet,
+    PageHeaderComponent,
   ],
   templateUrl: './get-my-files.component.html',
   styleUrl: './get-my-files.component.scss',
@@ -80,360 +92,351 @@ export class GetMyFilesComponent implements OnInit {
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly dataTableService = inject(TableService);
   private readonly myFilesService = inject(MyFilesService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly tableServerSideParamsBuilderService = inject(
-    TableServerSideParamsBuilderService
-  );
-  private readonly drawerService = inject(DrawerService);
   private readonly galleryService = inject(GalleryService);
+  private readonly attachmentsService = inject(AttachmentsService);
+  private readonly notificationService = inject(NotificationService);
   private readonly appPermissionService = inject(AppPermissionService);
-  private readonly searchInputChanges$ = new Subject<string>();
-  private readonly listLoadTrigger$ = new Subject<void>();
 
-  protected table!: IEnhancedTable;
-  protected tableFilterData!: TableLazyLoadEvent;
-  protected readonly searchFieldConfig: IInputFieldsConfig = {
-    ...DEFAULT_INPUT_FIELD_CONFIG,
-    fieldType: EDataType.TEXT,
-    id: 'search',
-    fieldName: 'search',
-    label: 'Search',
-    placeholder: 'Search files and folders',
-  } as IInputFieldsConfig;
-  protected readonly searchInput = signal('');
-  protected readonly searchTerm = signal('');
+  private readonly itemMenu = viewChild.required<Menu>('itemMenu');
 
-  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected readonly ICONS = ICONS;
+  protected readonly skeletons = Array.from(
+    { length: MY_FILES_SKELETON_COUNT },
+    (_, index) => index
+  );
+  protected readonly loadMoreButtonConfig = MY_FILES_LOAD_MORE_BUTTON_CONFIG;
+  protected readonly pageHeaderConfig = MY_FILES_PAGE_HEADER_CONFIG;
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  protected readonly items = signal<IMyFile[]>([]);
+  protected readonly totalRecords = signal(0);
+  protected readonly loading = signal(true);
+  protected readonly loadingMore = signal(false);
+  protected readonly failed = signal(false);
+  protected readonly viewMode = signal<TMyFilesViewMode>(this.readViewMode());
+  protected readonly menuItems = signal<MenuItem[]>([]);
+
+  /** Folder path shown in the breadcrumb, "My Files" first. */
+  private readonly path = signal<IMyFilesMoveCrumb[]>([
+    { id: null, name: MY_FILES_ROOT_LABEL },
+  ]);
+  private page = 1;
+
+  private readonly reload$ = new Subject<void>();
+
+  // ── Derived ────────────────────────────────────────────────────────────────
+  protected readonly folders = computed(() =>
+    this.items().filter(item => item.isFolder)
+  );
+  protected readonly files = computed(() =>
+    this.items().filter(item => !item.isFolder)
+  );
+  protected readonly hasMore = computed(
+    () => this.items().length < this.totalRecords()
+  );
+  protected readonly folderName = computed(() => {
+    const steps = this.path();
+    return steps[steps.length - 1].name;
+  });
+  protected readonly locationLabel = computed(() =>
+    this.path()
+      .map(step => step.name)
+      .join(MY_FILES_PATH_SEPARATOR)
+  );
+  protected readonly summary = computed(() => {
+    const folders = this.folders().length;
+    const files = this.files().length;
+    const parts = [
+      folders ? `${folders} ${folders === 1 ? 'folder' : 'folders'}` : '',
+      files ? `${files} ${files === 1 ? 'file' : 'files'}` : '',
+    ].filter(Boolean);
+    return parts.join(' · ');
+  });
+
+  protected readonly toolbarButtons = computed(() =>
+    this.appPermissionService.filterByPermission([
+      MY_FILES_NEW_FOLDER_BUTTON_CONFIG,
+      MY_FILES_UPLOAD_BUTTON_CONFIG,
+    ])
+  );
+  protected readonly canAdd = computed(() => this.toolbarButtons().length > 0);
 
   ngOnInit(): void {
-    this.table = this.dataTableService.createTable(
-      MY_FILES_TABLE_ENHANCED_CONFIG
+    const parentId$ = this.activatedRoute.queryParamMap.pipe(
+      map(params => params.get('parentId')),
+      distinctUntilChanged()
     );
 
-    this.listLoadTrigger$
+    // Another folder, or a change in this one: start again from page 1.
+    combineLatest([parentId$, this.reload$.pipe(startWith(undefined))])
       .pipe(
-        switchMap(() => {
-          this.table.setLoading(true);
-          return this.myFilesService
-            .getMyFilesList(this.prepareParamData())
-            .pipe(
-              finalize(() => this.table.setLoading(false)),
-              catchError(error => {
-                this.table.setData([]);
-                this.table.updateTableConfig({ totalRecords: 0 });
-                this.logger.logUserAction('Failed to load my files', error);
-                return EMPTY;
-              })
-            );
+        tap(() => {
+          this.page = 1;
+          this.loading.set(true);
+          this.failed.set(false);
         }),
+        switchMap(() => this.fetchPage(1)),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe({
-        next: (response: IMyFilesListResponseDto) => {
-          const { records, totalRecords } = response;
-
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
-          this.table.updateTableConfig({ totalRecords });
-          this.logger.logUserAction('My files loaded successfully');
-        },
-      });
-
-    this.searchInputChanges$
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(term => {
-        this.searchTerm.set(term.trim());
-        if (this.tableFilterData) {
-          this.loadMyFilesList();
-        }
-      });
-
-    this.activatedRoute.queryParamMap
-      .pipe(
-        map(params => params.get('parentId')),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(() => {
-        if (this.tableFilterData) {
-          this.loadMyFilesList();
-        }
+      .subscribe(response => {
+        this.items.set(response.records.map(toMyFile));
+        this.totalRecords.set(response.totalRecords);
       });
   }
 
-  protected onSearchFieldChange(value: unknown): void {
-    const term = String(value ?? '');
-    this.searchInput.set(term);
-    this.searchInputChanges$.next(term);
-  }
-
-  private loadMyFilesList(): void {
-    this.listLoadTrigger$.next();
-  }
-
-  private prepareParamData(): IMyFilesListFormDto {
-    return {
-      ...this.tableServerSideParamsBuilderService.buildQueryParams<IMyFilesListFormDto>(
-        this.tableFilterData,
-        this.table.getHeaders()
-      ),
-      parentId: this.getCurrentParentId(),
-      ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
-    };
-  }
-
-  private getCurrentParentId(): string | null {
-    return this.activatedRoute.snapshot.queryParamMap.get('parentId');
-  }
-
-  private mapTableData(records: IMyFileBaseResponseDto[]): IMyFile[] {
-    return records.map((record: IMyFileBaseResponseDto) => {
-      const appearance = this.resolveItemAppearance(record);
-
-      return {
-        id: record.id,
-        name: record.name,
-        parentId: record.parentId,
-        storageKey: record.storageKey,
-        mimeType: record.mimeType,
-        itemIcon: appearance.icon,
-        itemKind: appearance.kind,
-        iconTone: appearance.tone,
-        formattedSize:
-          record.type === EMyFileType.FOLDER
-            ? '—'
-            : formatFileSize(Number(record.size)),
-        originalRawData: record,
-      } satisfies IMyFile;
-    });
-  }
-
-  private resolveItemAppearance(record: IMyFileBaseResponseDto): {
-    icon: string;
-    kind: string;
-    tone: IMyFile['iconTone'];
-  } {
-    if (record.type === EMyFileType.FOLDER) {
-      return {
-        icon: ICONS.COMMON.FOLDER,
-        kind: 'Folder',
-        tone: 'folder',
-      };
-    }
-
-    const mediaType = getMediaTypeFromUrl(record.name);
-
-    switch (mediaType) {
-      case 'pdf':
-        return { icon: ICONS.MEDIA.PDF, kind: 'PDF', tone: 'pdf' };
-      case 'image':
-        return { icon: ICONS.MEDIA.IMAGE, kind: 'Image', tone: 'image' };
-      case 'document':
-        return {
-          icon: ICONS.MEDIA.DOCUMENT,
-          kind: 'Document',
-          tone: 'document',
-        };
-      case 'spreadsheet':
-        return {
-          icon: ICONS.MEDIA.SPREADSHEET,
-          kind: 'Spreadsheet',
-          tone: 'spreadsheet',
-        };
-      case 'presentation':
-        return {
-          icon: ICONS.MEDIA.PRESENTATION,
-          kind: 'Presentation',
-          tone: 'file',
-        };
-      default:
-        return { icon: ICONS.COMMON.FILE, kind: 'File', tone: 'file' };
+  // ── Toolbar ────────────────────────────────────────────────────────────────
+  protected setViewMode(mode: TMyFilesViewMode): void {
+    this.viewMode.set(mode);
+    try {
+      localStorage.setItem(MY_FILES_VIEW_MODE_STORAGE_KEY, mode);
+    } catch {
+      // Storage unavailable (private mode): the choice lasts for this visit only.
     }
   }
 
-  protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
-    this.tableFilterData = tableFilterData;
-    this.loadMyFilesList();
+  protected onPathChange(path: IMyFilesMoveCrumb[]): void {
+    this.path.set(path);
   }
 
-  protected isFolder(row: IMyFile): boolean {
-    return row.originalRawData.type === EMyFileType.FOLDER;
-  }
-
-  protected onItemClick(row: IMyFile): void {
-    if (this.isFolder(row)) {
-      this.onFolderNameClick(row);
-      return;
-    }
-
-    const storageKey = row.originalRawData.storageKey;
-    if (!storageKey) {
-      return;
-    }
-
-    this.galleryService.show([{ mediaKey: storageKey }]);
-  }
-
-  private onFolderNameClick(row: IMyFile): void {
-    void this.routerNavigationService.navigateWithQueryParams(
-      [ROUTE_BASE_PATHS.MY_FILES, ROUTES.MY_FILES.LIST],
-      { parentId: row.id }
-    );
-  }
-
-  protected startMoveDrawer(record: IMyFileBaseResponseDto): void {
-    const itemLabel = record.type === EMyFileType.FOLDER ? 'folder' : 'file';
-
-    this.drawerService.showDrawer(MoveMyFileComponent, {
-      header: 'Move to Folder',
-      subtitle: `Select a folder for this ${itemLabel}`,
-      position: EDrawerPosition.BOTTOM,
-      dismissible: true,
-      componentData: {
-        itemToMove: record,
-        onSuccess: (destinationParentId: string | null) => {
-          this.handleMoveSuccess(destinationParentId);
-        },
-      },
-    });
-  }
-
-  private handleMoveSuccess(destinationParentId: string | null): void {
-    const currentParentId = this.getCurrentParentId();
-
-    if (currentParentId === destinationParentId) {
-      this.loadMyFilesList();
-      return;
-    }
-
-    void this.routerNavigationService.navigateWithQueryParams(
-      [ROUTE_BASE_PATHS.MY_FILES, ROUTES.MY_FILES.LIST],
-      { parentId: destinationParentId }
-    );
-  }
-
-  protected handleMyFilesTableActionClick(
-    event: ITableActionClickEvent<IMyFileBaseResponseDto>
-  ): void {
-    const { actionType, selectedRows } = event;
-
-    if (actionType === EButtonActionType.MOVE) {
-      const [row] = selectedRows;
-      if (row) {
-        this.startMoveDrawer(row);
-      }
-      return;
-    }
-
-    const dynamicComponentInputs: Record<string, unknown> = {
-      selectedRecord: selectedRows,
-      onSuccess: () => {
-        this.loadMyFilesList();
-      },
-    };
-
+  protected onToolbarAction(button: Partial<IButtonConfig>): void {
+    const action = button.id as EButtonActionType;
     this.confirmationDialogService.showConfirmationDialog(
-      actionType,
-      this.resolveMyFilesDialogConfig(
-        actionType,
-        selectedRows as unknown as IMyFileBaseResponseDto[]
-      ),
-      null,
-      false,
-      false,
-      dynamicComponentInputs
-    );
-  }
-
-  private resolveMyFilesDialogConfig(
-    actionType: EButtonActionType,
-    selectedRows: IMyFileBaseResponseDto[]
-  ): IDialogActionConfig {
-    const baseConfig = MY_FILES_ACTION_CONFIG_MAP[actionType];
-    const [record] = selectedRows;
-    const isFolder = record?.type === EMyFileType.FOLDER;
-    const itemLabel = isFolder ? 'folder' : 'file';
-    const itemLabelTitle = isFolder ? 'Folder' : 'File';
-
-    if (actionType === EButtonActionType.EDIT) {
-      return {
-        ...baseConfig,
-        dialogConfig: {
-          ...baseConfig.dialogConfig,
-          header: `Rename ${itemLabelTitle}`,
-          message: `Update the ${itemLabel} name.`,
-        },
-      };
-    }
-
-    if (actionType === EButtonActionType.DELETE) {
-      return {
-        ...baseConfig,
-        dialogConfig: {
-          ...baseConfig.dialogConfig,
-          header: `Delete ${itemLabelTitle}`,
-          message: `Delete the ${itemLabel}?`,
-        },
-      };
-    }
-
-    return baseConfig;
-  }
-
-  protected openMyFilesActionDialog(actionType: EButtonActionType): void {
-    this.confirmationDialogService.showConfirmationDialog(
-      actionType,
-      MY_FILES_ACTION_CONFIG_MAP[actionType],
+      action,
+      MY_FILES_ACTION_CONFIG_MAP[action],
       null,
       false,
       false,
       {
-        parentId: this.getCurrentParentId(),
-        onSuccess: () => {
-          this.loadMyFilesList();
-        },
+        parentId: this.currentParentId(),
+        locationLabel: this.locationLabel(),
+        onSuccess: () => this.reload(),
       }
     );
   }
 
-  private getPageHeaderConfig(): IPageHeaderConfig {
+  protected loadMore(): void {
+    if (this.loadingMore() || !this.hasMore()) {
+      return;
+    }
+
+    this.loadingMore.set(true);
+    this.fetchPage(this.page + 1)
+      .pipe(
+        finalize(() => this.loadingMore.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(response => {
+        this.page += 1;
+        this.items.update(current => [
+          ...current,
+          ...response.records.map(toMyFile),
+        ]);
+        this.totalRecords.set(response.totalRecords);
+      });
+  }
+
+  protected retry(): void {
+    this.reload();
+  }
+
+  // ── Items ──────────────────────────────────────────────────────────────────
+  protected extension(item: IMyFile): string {
+    return getMyFileExtension(item.name, item.isFolder);
+  }
+
+  protected meta(item: IMyFile): string {
+    return [item.isFolder ? '' : item.kind, item.sizeLabel]
+      .filter(Boolean)
+      .join(' · ');
+  }
+
+  protected open(item: IMyFile): void {
+    if (item.isFolder) {
+      this.openFolder(item.id);
+      return;
+    }
+
+    if (item.raw.storageKey) {
+      this.galleryService.show([{ mediaKey: item.raw.storageKey }]);
+    }
+  }
+
+  protected openMenu(event: Event, item: IMyFile): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.menuItems.set(this.buildMenu(item));
+    this.itemMenu().toggle(event);
+  }
+
+  private buildMenu(item: IMyFile): MenuItem[] {
+    const menu: MenuItem[] = [];
+
+    for (const entry of MY_FILE_ITEM_ACTIONS) {
+      const allowed =
+        !entry.permission ||
+        this.appPermissionService.hasAnyPermission(entry.permission);
+      const applies =
+        !entry.filesOnly || (!item.isFolder && !!item.raw.storageKey);
+
+      if (allowed && applies) {
+        if (entry.separatorBefore && menu.length) {
+          menu.push({ separator: true });
+        }
+        menu.push({
+          label: entry.label,
+          icon: entry.icon,
+          styleClass: entry.danger ? 'my-files-menu__danger' : undefined,
+          command: () => this.runAction(entry.action, item),
+        });
+      }
+    }
+
+    return menu;
+  }
+
+  private runAction(action: TMyFileItemAction, item: IMyFile): void {
+    switch (action) {
+      case 'open':
+        this.open(item);
+        break;
+      case 'download':
+        this.download(item);
+        break;
+      case 'rename':
+        this.openItemDialog(EButtonActionType.EDIT, item);
+        break;
+      case 'move':
+        this.openItemDialog(EButtonActionType.MOVE, item);
+        break;
+      case 'delete':
+        this.openItemDialog(EButtonActionType.DELETE, item);
+        break;
+      default:
+        break;
+    }
+  }
+
+  private download(item: IMyFile): void {
+    const key = item.raw.storageKey;
+    if (!key) {
+      return;
+    }
+
+    this.attachmentsService
+      .getFullMediaUrl(key)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ url }) => {
+          const link = document.createElement('a');
+          link.href = url;
+          link.target = '_blank';
+          link.rel = 'noopener';
+          link.download = item.name;
+          link.click();
+        },
+        error: error => {
+          this.logger.logUserAction('Failed to get download link', error);
+          this.notificationService.error(
+            `Could not download “${item.name}”. Please try again.`
+          );
+        },
+      });
+  }
+
+  private openItemDialog(action: EButtonActionType, item: IMyFile): void {
+    this.confirmationDialogService.showConfirmationDialog(
+      action,
+      this.itemDialogConfig(action, item),
+      null,
+      false,
+      false,
+      {
+        selectedRecord: [item.raw],
+        startPath: this.path(),
+        onSuccess: () => this.reload(),
+      }
+    );
+  }
+
+  private itemDialogConfig(
+    action: EButtonActionType,
+    item: IMyFile
+  ): IDialogActionConfig {
+    const base = MY_FILES_ACTION_CONFIG_MAP[action];
+    const noun = item.isFolder ? 'folder' : 'file';
+
+    const header: Partial<Record<EButtonActionType, string>> = {
+      [EButtonActionType.EDIT]: `Rename ${noun}`,
+      [EButtonActionType.MOVE]: `Move ${noun}`,
+      [EButtonActionType.DELETE]: `Delete this ${noun}?`,
+    };
+
     return {
-      title: 'My Files',
-      subtitle: 'Browse and download your public files and folders',
+      ...base,
+      dialogConfig: {
+        ...base.dialogConfig,
+        header: header[action] ?? base.dialogConfig.header,
+        // Delete explains itself inside the dialog (and warns for folders).
+        ...(action === EButtonActionType.DELETE ? { message: '' } : {}),
+      },
     };
   }
 
-  protected getCreateFolderButtonConfig(): Partial<IButtonConfig> {
-    return {
-      id: EButtonActionType.CREATE_FOLDER,
-      label: 'New Folder',
-      icon: ICONS.COMMON.FOLDER,
-      permission: [APP_PERMISSION.MY_FILES.ADD],
-    };
+  // ── Loading ────────────────────────────────────────────────────────────────
+  private reload(): void {
+    this.reload$.next();
   }
 
-  protected getUploadMyFileButtonConfig(): Partial<IButtonConfig> {
-    return {
-      id: EButtonActionType.UPLOAD,
-      label: 'Upload Files',
-      icon: ICONS.COMMON.UPLOAD,
-      permission: [APP_PERMISSION.MY_FILES.ADD],
-    };
+  private openFolder(folderId: string | null): void {
+    void this.routerNavigationService.navigateWithQueryParams(
+      [ROUTE_BASE_PATHS.MY_FILES, ROUTES.MY_FILES.LIST],
+      { parentId: folderId }
+    );
   }
 
-  protected getToolbarActionButtons(): Partial<IButtonConfig>[] {
-    return this.appPermissionService.filterByPermission([
-      this.getCreateFolderButtonConfig(),
-      this.getUploadMyFileButtonConfig(),
-    ]);
+  private currentParentId(): string | null {
+    return this.activatedRoute.snapshot.queryParamMap.get('parentId');
+  }
+
+  private fetchPage(page: number): Observable<IMyFilesListResponseDto> {
+    const params: IMyFilesListFormDto = {
+      parentId: this.currentParentId(),
+      page,
+      pageSize: MY_FILES_PAGE_SIZE,
+      // Folders first, then names A→Z (the API's default order, ascending).
+      sortOrder: 'ASC',
+    };
+
+    return this.myFilesService.getMyFilesList(params).pipe(
+      finalize(() => this.loading.set(false)),
+      catchError(error => {
+        this.logger.logUserAction('Failed to load my files', error);
+        if (page === 1) {
+          this.items.set([]);
+          this.totalRecords.set(0);
+          this.failed.set(true);
+        } else {
+          this.notificationService.error(
+            'Could not load more items. Please try again.'
+          );
+        }
+        return EMPTY;
+      })
+    );
+  }
+
+  private readViewMode(): TMyFilesViewMode {
+    try {
+      return localStorage.getItem(MY_FILES_VIEW_MODE_STORAGE_KEY) === 'list'
+        ? 'list'
+        : 'grid';
+    } catch {
+      return 'grid';
+    }
   }
 }

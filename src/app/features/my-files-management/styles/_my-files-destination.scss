@@ -1,0 +1,21 @@
+// "Uploading to / New folder in <path>" line at the top of the create and upload dialogs.
+@mixin destination {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.6rem;
+  font-size: 0.8rem;
+  text-align: left;
+  color: var(--text-primary-color);
+  background: color-mix(in srgb, var(--primary-color) 8%, var(--background-paper-color));
+
+  .pi {
+    color: var(--primary-color);
+  }
+
+  strong {
+    overflow-wrap: anywhere;
+  }
+}

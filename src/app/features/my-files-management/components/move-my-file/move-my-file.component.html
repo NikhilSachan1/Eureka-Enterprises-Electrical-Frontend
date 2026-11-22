@@ -1,20 +1,125 @@
-<div class="folder-picker">
-  <div class="folder-picker__search">
-    <app-input-field
-      [inputFieldConfig]="searchFieldConfig"
-      [fieldValue]="searchInput()"
-      (onFieldChange)="onSearchFieldChange($event)"
-    />
-  </div>
+@let steps = path();
+@let here = current();
 
-  <p-tree
-    class="w-full flex-1 min-h-0"
-    [value]="folderTreeNodes()"
-    selectionMode="single"
-    [(selection)]="selectedFolder"
-    loadingMode="icon"
-    emptyMessage="No folders available."
-    (onNodeExpand)="nodeExpand($event)"
-    (onNodeSelect)="nodeSelect($event)"
-  />
+<div class="mvf">
+  @if (record(); as item) {
+    <app-my-file-preview [record]="item" />
+  }
+
+  <section
+    class="mvf__browser"
+    aria-label="Choose a folder"
+  >
+    <!-- Where the browser is: go back up, or jump to any parent -->
+    <header class="mvf__bar">
+      <button
+        type="button"
+        class="mvf__up"
+        [disabled]="steps.length < 2"
+        aria-label="Up one folder"
+        (click)="goUp()"
+      >
+        <i
+          [class]="ICONS.COMMON.ARROW_LEFT"
+          aria-hidden="true"
+        ></i>
+      </button>
+      <ol class="mvf__path">
+        @for (step of steps; track step.id; let i = $index; let last = $last) {
+          <li class="mvf__step">
+            @if (i > 0) {
+              <i
+                [class]="ICONS.COMMON.CHEVRON_RIGHT + ' mvf__sep'"
+                aria-hidden="true"
+              ></i>
+            }
+            @if (last) {
+              <span
+                class="mvf__step-current"
+                aria-current="location"
+              >
+                {{ step.name }}
+              </span>
+            } @else {
+              <button
+                type="button"
+                class="mvf__step-link"
+                (click)="goTo(i)"
+              >
+                {{ step.name }}
+              </button>
+            }
+          </li>
+        }
+      </ol>
+    </header>
+
+    <div class="mvf__list">
+      @if (loading()) {
+        @for (n of [1, 2, 3]; track n) {
+          <span
+            class="mvf__skeleton"
+            aria-hidden="true"
+          ></span>
+        }
+      } @else if (failed()) {
+        <p class="mvf__empty">
+          Could not load folders.
+          <button
+            type="button"
+            class="mvf__retry"
+            (click)="retry()"
+          >
+            Try again
+          </button>
+        </p>
+      } @else {
+        @for (folder of folders(); track folder.id) {
+          <button
+            type="button"
+            class="mvf__folder"
+            (click)="openFolder(folder)"
+          >
+            <span
+              class="mvf__folder-icon"
+              aria-hidden="true"
+            >
+              <i [class]="ICONS.COMMON.FOLDER"></i>
+            </span>
+            <span class="mvf__folder-name">{{ folder.name }}</span>
+            <i
+              [class]="ICONS.COMMON.CHEVRON_RIGHT + ' mvf__folder-go'"
+              aria-hidden="true"
+            ></i>
+          </button>
+        } @empty {
+          <p class="mvf__empty">No folders inside {{ here.name }}.</p>
+        }
+      }
+    </div>
+  </section>
+
+  <!-- What "Move here" will do -->
+  <p
+    class="mvf__target"
+    [class.mvf__target--same]="isAlreadyHere()"
+    aria-live="polite"
+  >
+    <i
+      [class]="isAlreadyHere() ? ICONS.COMMON.INFO_CIRCLE : ICONS.COMMON.FOLDER_OPEN"
+      aria-hidden="true"
+    ></i>
+    @if (isAlreadyHere()) {
+      <span>
+        It is already in
+        <strong>{{ here.name }}</strong>
+        . Open another folder.
+      </span>
+    } @else {
+      <span>
+        Will move to
+        <strong>{{ here.name }}</strong>
+      </span>
+    }
+  </p>
 </div>

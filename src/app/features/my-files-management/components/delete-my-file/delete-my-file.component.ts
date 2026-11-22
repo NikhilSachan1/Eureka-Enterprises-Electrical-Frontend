@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   input,
@@ -22,11 +23,12 @@ import {
   IMyFilesDeleteResponseDto,
 } from '../../types/my-files.dto';
 import { EMyFileType } from '../../types/my-files.enum';
+import { MyFilePreviewComponent } from '../my-file-preview/my-file-preview.component';
 
 @Component({
   selector: 'app-delete-my-file',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [MyFilePreviewComponent],
   templateUrl: './delete-my-file.component.html',
   styleUrl: './delete-my-file.component.scss',
 })
@@ -43,6 +45,11 @@ export class DeleteMyFileComponent implements OnInit, IDialogActionHandler {
   protected readonly selectedRecord =
     input.required<IMyFileBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
+
+  /** Folders are deleted with everything inside; the dialog warns about it. */
+  protected readonly isFolder = computed(
+    () => this.selectedRecord()[0]?.type === EMyFileType.FOLDER
+  );
 
   private selectedItem?: IMyFileBaseResponseDto;
 

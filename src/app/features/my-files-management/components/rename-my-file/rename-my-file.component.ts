@@ -10,6 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { FormBase } from '@shared/base/form.base';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { MyFilePreviewComponent } from '../my-file-preview/my-file-preview.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { ConfirmationDialogService } from '@shared/services';
 import { IDialogActionHandler } from '@shared/types';
@@ -26,7 +27,7 @@ import { EMyFileType } from '../../types/my-files.enum';
 @Component({
   selector: 'app-rename-my-file',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [InputFieldComponent, ReactiveFormsModule],
+  imports: [InputFieldComponent, MyFilePreviewComponent, ReactiveFormsModule],
   templateUrl: './rename-my-file.component.html',
   styleUrl: './rename-my-file.component.scss',
 })

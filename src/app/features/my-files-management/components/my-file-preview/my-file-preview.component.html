@@ -1,0 +1,24 @@
+@let file = item();
+<div
+  class="mfp"
+  [attr.data-tone]="file.tone"
+>
+  <span
+    class="mfp__tile"
+    aria-hidden="true"
+  >
+    <i [class]="file.icon"></i>
+    @if (extension()) {
+      <span class="mfp__ext">{{ extension() }}</span>
+    }
+  </span>
+  <span class="mfp__text">
+    <span
+      class="mfp__name"
+      [title]="file.name"
+    >
+      {{ file.name }}
+    </span>
+    <span class="mfp__meta">{{ meta() }}</span>
+  </span>
+</div>

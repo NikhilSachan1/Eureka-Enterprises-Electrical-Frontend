@@ -1,0 +1,40 @@
+:host {
+  display: block;
+  text-align: left;
+}
+
+.dmf {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dmf__warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid color-mix(in srgb, #dc2626 30%, var(--border-light-color));
+  border-radius: 0.6rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: color-mix(in srgb, #b91c1c 80%, var(--text-primary-color));
+  background: color-mix(in srgb, #dc2626 7%, var(--background-paper-color));
+
+  .pi {
+    margin-top: 0.1rem;
+    color: #dc2626;
+  }
+}
+
+.dmf__note {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary-color);
+}
+
+:host-context(.dark-theme) .dmf__warning {
+  color: color-mix(in srgb, #f87171 85%, var(--text-primary-color));
+  background: color-mix(in srgb, #dc2626 16%, var(--background-paper-color));
+}

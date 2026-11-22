@@ -30,6 +30,7 @@ import {
   IMyFilesMoveResponseDto,
 } from '../types/my-files.dto';
 import { IMyFilesMoveFolderTreeItem } from '../types/my-files.interface';
+import { MY_FILES_FOLDER_PICKER_PAGE_SIZE } from '../constants/my-files.constants';
 import { EMyFileType } from '../types/my-files.enum';
 import { catchError, map, Observable, tap, throwError } from 'rxjs';
 
@@ -248,12 +249,13 @@ export class MyFilesService {
 
   getMoveFolderTreeItems(
     parentId: string | null,
-    excludeFolderId?: string,
-    search?: string
+    excludeFolderId?: string
   ): Observable<IMyFilesMoveFolderTreeItem[]> {
     return this.getMyFilesList({
       parentId,
-      ...(search ? { search } : {}),
+      // Without these the API sends only 10 items, names Z→A, so folders went missing.
+      pageSize: MY_FILES_FOLDER_PICKER_PAGE_SIZE,
+      sortOrder: 'ASC',
     }).pipe(
       map(response =>
         response.records

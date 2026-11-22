@@ -1,3 +1,10 @@
+@if (selectedRecord()[0]; as item) {
+  <app-my-file-preview
+    class="my-file-dialog-preview"
+    [record]="item"
+  />
+}
+
 <form
   [formGroup]="form.formGroup"
   class="form"

@@ -1,59 +1,266 @@
-<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+@let mode = viewMode();
+@let folderList = folders();
+@let fileList = files();
 
-<app-my-files-breadcrumb />
+<app-page-header [pageHeaderConfig]="pageHeaderConfig" />
 
-<div class="my-files-toolbar">
-  <div class="my-files-toolbar__search">
-    <app-input-field
-      [inputFieldConfig]="searchFieldConfig"
-      [fieldValue]="searchInput()"
-      (onFieldChange)="onSearchFieldChange($event)"
+<section
+  class="mf"
+  aria-label="Files and folders"
+>
+  <!-- ── Toolbar: where you are, layout, add ─────────────────────────────── -->
+  <header class="mf-toolbar">
+    <app-my-files-breadcrumb
+      class="mf-toolbar__path"
+      (pathChange)="onPathChange($event)"
     />
-  </div>
 
-  <div class="my-files-toolbar__actions">
-    @for (button of getToolbarActionButtons(); track button.id) {
-      <app-button
-        [buttonConfig]="button"
-        (onButtonClick)="openMyFilesActionDialog($any(button.id))"
-      />
+    <div class="mf-toolbar__controls">
+      <div
+        class="mf-view"
+        role="group"
+        aria-label="Layout"
+      >
+        <button
+          type="button"
+          class="mf-view__btn"
+          [class.mf-view__btn--on]="mode === 'grid'"
+          [attr.aria-pressed]="mode === 'grid'"
+          title="Grid"
+          aria-label="Grid view"
+          (click)="setViewMode('grid')"
+        >
+          <i
+            [class]="ICONS.COMMON.TH_LARGE"
+            aria-hidden="true"
+          ></i>
+        </button>
+        <button
+          type="button"
+          class="mf-view__btn"
+          [class.mf-view__btn--on]="mode === 'list'"
+          [attr.aria-pressed]="mode === 'list'"
+          title="List"
+          aria-label="List view"
+          (click)="setViewMode('list')"
+        >
+          <i
+            [class]="ICONS.COMMON.LIST"
+            aria-hidden="true"
+          ></i>
+        </button>
+      </div>
+
+      @for (button of toolbarButtons(); track button.id) {
+        <app-button
+          [buttonConfig]="button"
+          (onButtonClick)="onToolbarAction(button)"
+        />
+      }
+    </div>
+  </header>
+
+  <!-- ── Content ────────────────────────────────────────────────────────── -->
+  @if (loading()) {
+    <div
+      class="mf-grid"
+      [class.mf-grid--list]="mode === 'list'"
+      aria-busy="true"
+      aria-label="Loading"
+    >
+      @for (n of skeletons; track n) {
+        <span
+          class="mf-skeleton"
+          [class.mf-skeleton--row]="mode === 'list'"
+          aria-hidden="true"
+        ></span>
+      }
+    </div>
+  } @else if (failed()) {
+    <div class="mf-empty">
+      <span
+        class="mf-empty__art mf-empty__art--error"
+        aria-hidden="true"
+      >
+        <i [class]="ICONS.COMMON.EXCLAMATION_TRIANGLE"></i>
+      </span>
+      <h2 class="mf-empty__title">Could not load this folder</h2>
+      <p class="mf-empty__text">Check your connection and try again.</p>
+      <button
+        type="button"
+        class="mf-empty__link"
+        (click)="retry()"
+      >
+        Try again
+      </button>
+    </div>
+  } @else if (!folderList.length && !fileList.length) {
+    <div class="mf-empty">
+      <span
+        class="mf-empty__art"
+        aria-hidden="true"
+      >
+        <i [class]="ICONS.COMMON.FOLDER_OPEN"></i>
+      </span>
+      <h2 class="mf-empty__title">{{ folderName() }} is empty</h2>
+      @if (canAdd()) {
+        <p class="mf-empty__text">Upload files or create a folder to get started.</p>
+        <div class="mf-empty__actions">
+          @for (button of toolbarButtons(); track button.id) {
+            <app-button
+              [buttonConfig]="button"
+              (onButtonClick)="onToolbarAction(button)"
+            />
+          }
+        </div>
+      } @else {
+        <p class="mf-empty__text">Nothing has been shared here yet.</p>
+      }
+    </div>
+  } @else {
+    <p
+      class="mf-summary"
+      aria-live="polite"
+    >
+      {{ summary() }}
+    </p>
+
+    @if (folderList.length) {
+      <h2 class="mf-section">Folders</h2>
+      <ul
+        class="mf-grid mf-grid--folders"
+        [class.mf-grid--list]="mode === 'list'"
+      >
+        @for (item of folderList; track item.id) {
+          <li
+            class="mf-item mf-item--folder"
+            [attr.data-tone]="item.tone"
+            (contextmenu)="openMenu($event, item)"
+          >
+            <button
+              type="button"
+              class="mf-item__main"
+              [attr.aria-label]="'Open folder ' + item.name"
+              (click)="open(item)"
+            >
+              <span
+                class="mf-item__tile mf-item__tile--sm"
+                aria-hidden="true"
+              >
+                <i [class]="item.icon"></i>
+              </span>
+              <span class="mf-item__text">
+                <span
+                  class="mf-item__name"
+                  [title]="item.name"
+                >
+                  {{ item.name }}
+                </span>
+                @if (mode === 'list' && item.modifiedLabel) {
+                  <span
+                    class="mf-item__meta"
+                    [title]="item.modifiedTitle"
+                  >
+                    Modified {{ item.modifiedLabel }}
+                  </span>
+                }
+              </span>
+            </button>
+            <ng-container *ngTemplateOutlet="menuButton; context: { $implicit: item }" />
+          </li>
+        }
+      </ul>
     }
-  </div>
-</div>
 
-<app-data-table
-  #dataTable
-  [tableConfig]="table.tableConfig()"
-  [tableHeader]="table.headers()"
-  [tableData]="table.data()"
-  [loading]="table.loading()"
-  [rowActions]="table.rowActions()"
-  [customBodyTemplates]="{ myFileName: myFileName }"
-  (rowActionClick)="handleMyFilesTableActionClick($any($event))"
-  (filterData)="onTableStateChange($event)"
-/>
+    @if (fileList.length) {
+      <h2 class="mf-section">Files</h2>
+      <ul
+        class="mf-grid mf-grid--files"
+        [class.mf-grid--list]="mode === 'list'"
+      >
+        @for (item of fileList; track item.id) {
+          <li
+            class="mf-item mf-item--file"
+            [attr.data-tone]="item.tone"
+            (contextmenu)="openMenu($event, item)"
+          >
+            <button
+              type="button"
+              class="mf-item__main"
+              [attr.aria-label]="'Open file ' + item.name"
+              (click)="open(item)"
+            >
+              <span
+                class="mf-item__tile"
+                [class.mf-item__tile--sm]="mode === 'list'"
+                aria-hidden="true"
+              >
+                <i [class]="item.icon"></i>
+                @if (extension(item); as ext) {
+                  <span class="mf-item__ext">{{ ext }}</span>
+                }
+              </span>
+              <span class="mf-item__text">
+                <span
+                  class="mf-item__name"
+                  [title]="item.name"
+                >
+                  {{ item.name }}
+                </span>
+                <span class="mf-item__meta">
+                  {{ meta(item) }}
+                  @if (item.modifiedLabel) {
+                    <span
+                      class="mf-item__date"
+                      [title]="item.modifiedTitle"
+                    >
+                      · {{ item.modifiedLabel }}
+                    </span>
+                  }
+                </span>
+              </span>
+            </button>
+            <ng-container *ngTemplateOutlet="menuButton; context: { $implicit: item }" />
+          </li>
+        }
+      </ul>
+    }
 
+    @if (hasMore()) {
+      <div class="mf-more">
+        <app-button
+          [buttonConfig]="loadMoreButtonConfig"
+          [showButtonLoader]="loadingMore()"
+          (onButtonClick)="loadMore()"
+        />
+      </div>
+    }
+  }
+</section>
+
+<!-- ⋮ on every item (also opens on right-click) -->
 <ng-template
-  #myFileName
-  let-row
+  #menuButton
+  let-item
 >
   <button
     type="button"
-    class="my-file-row"
-    [attr.title]="isFolder(row) ? 'Open folder' : 'Open file'"
-    (click)="onItemClick(row)"
+    class="mf-item__menu"
+    aria-haspopup="menu"
+    [attr.aria-label]="'Actions for ' + item.name"
+    (click)="openMenu($event, item)"
   >
-    <span
-      class="my-file-row__icon"
-      [class.my-file-row__icon--folder]="row.iconTone === 'folder'"
-      [class.my-file-row__icon--pdf]="row.iconTone === 'pdf'"
-      [class.my-file-row__icon--image]="row.iconTone === 'image'"
-      [class.my-file-row__icon--spreadsheet]="row.iconTone === 'spreadsheet'"
-      [class.my-file-row__icon--document]="row.iconTone === 'document'"
-      [class.my-file-row__icon--file]="row.iconTone === 'file'"
-    >
-      <i [class]="row.itemIcon"></i>
-    </span>
-    <span class="my-file-row__name">{{ row.name }}</span>
+    <i
+      [class]="ICONS.COMMON.ELLIPSIS_V"
+      aria-hidden="true"
+    ></i>
   </button>
 </ng-template>
+
+<p-menu
+  #itemMenu
+  [model]="menuItems()"
+  [popup]="true"
+  appendTo="body"
+  styleClass="my-files-menu"
+/>

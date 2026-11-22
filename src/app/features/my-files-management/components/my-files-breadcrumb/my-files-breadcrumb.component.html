@@ -1,6 +1,61 @@
-<div class="my-files-breadcrumb">
-  <p-breadcrumb
-    [model]="breadcrumbItems()"
-    [home]="breadcrumbHome()"
-  />
-</div>
+@let path = crumbs();
+<nav
+  class="mfb"
+  aria-label="Folder path"
+>
+  <ol class="mfb__list">
+    <li class="mfb__item">
+      @if (path.length) {
+        <button
+          type="button"
+          class="mfb__link mfb__link--root"
+          (click)="open(null)"
+        >
+          <i
+            [class]="ICONS.COMMON.HOME"
+            aria-hidden="true"
+          ></i>
+          {{ rootLabel }}
+        </button>
+      } @else {
+        <span
+          class="mfb__current mfb__link--root"
+          aria-current="page"
+        >
+          <i
+            [class]="ICONS.COMMON.HOME"
+            aria-hidden="true"
+          ></i>
+          {{ rootLabel }}
+        </span>
+      }
+    </li>
+
+    @for (crumb of path; track crumb.id; let last = $last) {
+      <li class="mfb__item">
+        <i
+          [class]="ICONS.COMMON.CHEVRON_RIGHT + ' mfb__sep'"
+          aria-hidden="true"
+        ></i>
+        @if (last) {
+          <span
+            class="mfb__current"
+            aria-current="page"
+            [title]="crumb.name"
+          >
+            {{ crumb.name }}
+          </span>
+        } @else {
+          <button
+            type="button"
+            class="mfb__link"
+            [title]="crumb.name"
+            (click)="open(crumb.id)"
+          >
+            {{ crumb.name }}
+          </button>
+        }
+      </li>
+    }
+  </ol>
+</nav>

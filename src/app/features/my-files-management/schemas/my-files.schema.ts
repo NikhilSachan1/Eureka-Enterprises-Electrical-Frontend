@@ -23,6 +23,9 @@ export const MyFileItemSchema = z.object({
   storageKey: z.string().nullable(),
   mimeType: z.string().nullable(),
   size: z.string().nullable(),
+  // Sent by the API; optional so an older response still validates.
+  createdAt: z.string().nullable().optional(),
+  updatedAt: z.string().nullable().optional(),
 });
 
 export const MyFilesListResponseSchema = z
