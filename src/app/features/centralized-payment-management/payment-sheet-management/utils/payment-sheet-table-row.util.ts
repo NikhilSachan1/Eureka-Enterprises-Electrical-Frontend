@@ -8,6 +8,7 @@ import {
 import { IPaymentSheetWorkflowRow } from '../types/payment-sheet.interface';
 import { IPaymentSheetDetailItemRow } from '../types/payment-sheet-detail.interface';
 import { EUserRole } from '@shared/constants';
+import { PAYMENT_SHEET_EDIT_AMOUNT_HINT } from '../constants';
 
 type ActiveRole = string | null | undefined;
 type PaymentSheetTableActionRow = IPaymentSheetDetailItemRow;
@@ -165,6 +166,21 @@ export function canIncreasePaymentSheetItemAmount(
     row.sourceType === EPaymentSheetSourceType.EXPENSE ||
     row.sourceType === EPaymentSheetSourceType.FUEL_EXPENSE
   );
+}
+
+/**
+ * Help text for the edit popup's amount when it cannot be raised: in review the sheet goes
+ * back to the Operation Manager to pay more; vendor and wallet lines stay capped at the due.
+ */
+export function resolvePaymentSheetItemAmountHint(
+  row: PaymentSheetTableActionRow
+): string | undefined {
+  if (canIncreasePaymentSheetItemAmount(row)) {
+    return undefined;
+  }
+  return isPaymentSheetDraftOrReturned(row)
+    ? PAYMENT_SHEET_EDIT_AMOUNT_HINT.CAPPED
+    : PAYMENT_SHEET_EDIT_AMOUNT_HINT.REVIEW;
 }
 
 export function hasPaymentSheetAdvanceWithoutAmount(

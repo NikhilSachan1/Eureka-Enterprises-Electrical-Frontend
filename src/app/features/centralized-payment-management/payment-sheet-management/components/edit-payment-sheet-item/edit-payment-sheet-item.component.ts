@@ -26,7 +26,10 @@ import {
 } from '../../types/payment-sheet.dto';
 import { IPaymentSheetDetailItemRow } from '../../types/payment-sheet-detail.interface';
 import { buildPaymentSheetLineAmountsView } from '../../utils/payment-sheet-amounts-view.util';
-import { canIncreasePaymentSheetItemAmount } from '../../utils/payment-sheet-table-row.util';
+import {
+  canIncreasePaymentSheetItemAmount,
+  resolvePaymentSheetItemAmountHint,
+} from '../../utils/payment-sheet-table-row.util';
 
 @Component({
   selector: 'app-edit-payment-sheet-item',
@@ -93,7 +96,8 @@ export class EditPaymentSheetItemComponent
     this.form = this.formService.createForm<IUpdatePaymentSheetItemFormDto>(
       createEditPaymentSheetItemFormConfig(
         item.payableAmount,
-        canIncreasePaymentSheetItemAmount(item)
+        canIncreasePaymentSheetItemAmount(item),
+        resolvePaymentSheetItemAmountHint(item)
       ),
       {
         destroyRef: this.destroyRef,

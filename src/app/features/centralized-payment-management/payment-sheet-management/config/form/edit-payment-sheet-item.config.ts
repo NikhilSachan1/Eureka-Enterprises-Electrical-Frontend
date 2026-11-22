@@ -10,7 +10,8 @@ import { IUpdatePaymentSheetItemFormDto } from '../../types/payment-sheet.dto';
 
 export function createEditPaymentSheetItemFormConfig(
   originalPayableAmount: number,
-  allowIncrease = false
+  allowIncrease = false,
+  amountHint?: string
 ): IFormConfig<IUpdatePaymentSheetItemFormDto> {
   const fields: IFormInputFieldsConfig<IUpdatePaymentSheetItemFormDto> = {
     amount: {
@@ -18,6 +19,7 @@ export function createEditPaymentSheetItemFormConfig(
       id: 'amount',
       fieldName: 'amount',
       label: 'Payable Amount',
+      ...(amountHint ? { hint: amountHint } : {}),
       numberConfig: {
         mode: EInputNumberMode.Currency,
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
