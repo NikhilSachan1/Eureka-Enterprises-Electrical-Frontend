@@ -46,6 +46,21 @@ export class UnlockRequestComponent {
     return `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
   });
 
+  /** Whole timeline in one sentence for screen readers. */
+  protected readonly statusLabel = computed<string>(() => {
+    const locked = this.isLocked();
+    let label = `Lock status: ${locked ? 'Locked' : 'Unlocked'}`;
+
+    if (this.hasUnlockRequest()) {
+      label += `, ${this.requestedByName()} asked to unlock`;
+      if (locked) {
+        label += ', awaiting approval';
+      }
+    }
+
+    return label;
+  });
+
   /** "2h ago"; the exact date and time is in the tooltip. */
   protected readonly requestedAgo = computed<string>(() =>
     formatRelativeTime(this.requestedAt())

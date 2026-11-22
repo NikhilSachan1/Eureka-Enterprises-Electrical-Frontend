@@ -4,11 +4,7 @@
 
 <ol
   class="ulr"
-  [attr.aria-label]="
-    'Lock status: ' +
-    (locked ? 'Locked' : 'Unlocked') +
-    (requested ? ', ' + requestedByName() + ' asked to unlock' + (locked ? ', awaiting approval' : '') : '')
-  "
+  [attr.aria-label]="statusLabel()"
 >
   <!-- Step 1: current lock state -->
   <li
