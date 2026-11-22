@@ -55,9 +55,7 @@ export class ExportAssetComponent
   protected override handleSubmit(): void {
     const formData = this.prepareFormData(this.selectedRecord());
     if (formData.assetMasterIds.length === 0) {
-      this.notificationService.warning(
-        'Select at least one asset to export.'
-      );
+      this.notificationService.warning('Select at least one asset to export.');
       this.isSubmitting.set(false);
       return;
     }

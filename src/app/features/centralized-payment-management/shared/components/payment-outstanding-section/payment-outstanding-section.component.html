@@ -35,12 +35,8 @@
                 @for (secondary of view.secondary; track secondary.label) {
                   <span class="outstanding-section__meta-item">
                     <strong
-                      [class.outstanding-section__meta-amount--debit]="
-                        secondary.tone === 'debit'
-                      "
-                      [class.outstanding-section__meta-amount--to-book]="
-                        secondary.tone === 'to-book'
-                      "
+                      [class.outstanding-section__meta-amount--debit]="secondary.tone === 'debit'"
+                      [class.outstanding-section__meta-amount--to-book]="secondary.tone === 'to-book'"
                     >
                       {{
                         secondary.value
@@ -61,12 +57,8 @@
               @if (view.hero; as hero) {
                 <span
                   class="outstanding-section__hero-value"
-                  [class.outstanding-section__hero-value--debit]="
-                    hero.tone === 'debit'
-                  "
-                  [class.outstanding-section__hero-value--to-book]="
-                    hero.tone === 'to-book'
-                  "
+                  [class.outstanding-section__hero-value--debit]="hero.tone === 'debit'"
+                  [class.outstanding-section__hero-value--to-book]="hero.tone === 'to-book'"
                 >
                   {{
                     hero.value
@@ -77,9 +69,7 @@
                         : APP_CONFIG.NUMBER_FORMATS.LOCALE
                   }}
                 </span>
-                <span class="outstanding-section__hero-label">{{
-                  hero.label
-                }}</span>
+                <span class="outstanding-section__hero-label">{{ hero.label }}</span>
               }
 
               @if (view.selectionCount > 0) {

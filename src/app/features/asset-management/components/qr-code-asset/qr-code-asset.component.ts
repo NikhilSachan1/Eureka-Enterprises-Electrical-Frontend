@@ -42,8 +42,7 @@ export class QrCodeAssetComponent implements IDialogActionHandler {
   );
   private readonly notificationService = inject(NotificationService);
 
-  private readonly plateRefs =
-    viewChildren<ElementRef<HTMLElement>>('qrPlate');
+  private readonly plateRefs = viewChildren<ElementRef<HTMLElement>>('qrPlate');
 
   protected readonly selectedRecord =
     input.required<IAssetGetBaseResponseDto[]>();
@@ -54,7 +53,7 @@ export class QrCodeAssetComponent implements IDialogActionHandler {
   protected readonly qrWidth = QR_SIZE;
 
   protected readonly printableAssets = computed<IPrintableAssetQr[]>(() => {
-    const origin = window.location.origin;
+    const { origin } = window.location;
     return (this.selectedRecord() ?? [])
       .filter((asset): asset is IAssetGetBaseResponseDto & { id: string } =>
         Boolean(asset?.id)
@@ -71,9 +70,7 @@ export class QrCodeAssetComponent implements IDialogActionHandler {
     () => this.printableAssets().length > 1
   );
 
-  protected readonly asset = computed(
-    () => this.printableAssets()[0] ?? null
-  );
+  protected readonly asset = computed(() => this.printableAssets()[0] ?? null);
 
   async onDialogAccept(): Promise<void> {
     if (this.printOnAccept()) {
@@ -160,9 +157,7 @@ export class QrCodeAssetComponent implements IDialogActionHandler {
       })
       .join('');
 
-    const title = this.escapeHtml(
-      `${this.companyName} — Asset QR Labels`
-    );
+    const title = this.escapeHtml(`${this.companyName} — Asset QR Labels`);
 
     return `<!DOCTYPE html>
 <html>
@@ -248,7 +243,7 @@ export class QrCodeAssetComponent implements IDialogActionHandler {
       return;
     }
 
-    const name = asset.name;
+    const { name } = asset;
     const code = asset.assetId;
     const qrWidth = sourceCanvas.width;
     const qrHeight = sourceCanvas.height;

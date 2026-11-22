@@ -172,10 +172,7 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
         },
         error: error => {
           this.linkedUserVehicleDetail.set(null);
-          if (
-            !(error instanceof HttpErrorResponse) ||
-            error.status !== 403
-          ) {
+          if (!(error instanceof HttpErrorResponse) || error.status !== 403) {
             this.notificationService.error(
               this.getLinkedVehicleLoadErrorMessage(error)
             );

@@ -50,7 +50,8 @@ import {
 })
 export class RegularizeAttendanceComponent
   extends FormBase<IAttendanceRegularizedUIFormDto>
-  implements OnInit, IDialogActionHandler {
+  implements OnInit, IDialogActionHandler
+{
   private readonly attendanceService = inject(AttendanceService);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly confirmationDialogService = inject(
@@ -274,8 +275,7 @@ export class RegularizeAttendanceComponent
   }
 
   private getSelectedAttendanceStatus(): EAttendanceStatus | null {
-    const status =
-      this.trackedRegularizeAttendanceFields?.attendanceStatus?.();
+    const status = this.trackedRegularizeAttendanceFields?.attendanceStatus?.();
     return typeof status === 'string' ? (status as EAttendanceStatus) : null;
   }
 }

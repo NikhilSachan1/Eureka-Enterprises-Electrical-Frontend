@@ -24,7 +24,10 @@ import { ProjectDocumentStatusDetailComponent } from '../project-document-status
 
 @Component({
   selector: 'app-workspace-document-status-cell',
-  imports: [ProjectDocumentStatusComponent, ProjectDocumentStatusDetailComponent],
+  imports: [
+    ProjectDocumentStatusComponent,
+    ProjectDocumentStatusDetailComponent,
+  ],
   templateUrl: './workspace-document-status-cell.component.html',
   styleUrl: './workspace-document-status-cell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -110,21 +113,19 @@ export class WorkspaceDocumentStatusCellComponent {
     return null;
   });
 
-  protected readonly detailProject = computed((): IProjectDocumentStatusTarget | null => {
-    const row = this.rowBinding();
-    const ctx = this.workspaceContext();
-    const fallback = row?.service.documentTarget() ?? null;
+  protected readonly detailProject = computed(
+    (): IProjectDocumentStatusTarget | null => {
+      const row = this.rowBinding();
+      const ctx = this.workspaceContext();
+      const fallback = row?.service.documentTarget() ?? null;
 
-    if (!ctx?.projectName || !row?.docContext) {
-      return fallback;
+      if (!ctx?.projectName || !row?.docContext) {
+        return fallback;
+      }
+
+      return buildWorkspaceDetailProjectTarget(ctx, row.docContext, fallback);
     }
-
-    return buildWorkspaceDetailProjectTarget(
-      ctx,
-      row.docContext,
-      fallback
-    );
-  });
+  );
 
   protected readonly scopedBreakdownSnapshot = computed(() => {
     const row = this.rowBinding();

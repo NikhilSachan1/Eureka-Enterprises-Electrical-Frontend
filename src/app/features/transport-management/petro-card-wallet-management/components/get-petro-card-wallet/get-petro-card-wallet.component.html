@@ -21,17 +21,13 @@
       @if (row.referenceNumber) {
         <div class="wallet-payment-cell__row">
           <span class="wallet-payment-cell__label">UTR</span>
-          <span class="wallet-payment-cell__value">{{
-            row.referenceNumber
-          }}</span>
+          <span class="wallet-payment-cell__value">{{ row.referenceNumber }}</span>
         </div>
       }
       @if (row.paymentModeLabel) {
         <div class="wallet-payment-cell__row">
           <span class="wallet-payment-cell__label">Mode</span>
-          <span class="wallet-payment-cell__value">{{
-            row.paymentModeLabel
-          }}</span>
+          <span class="wallet-payment-cell__value">{{ row.paymentModeLabel }}</span>
         </div>
       }
       @if (row.paidFromAccount) {
@@ -43,11 +39,7 @@
           />
         </div>
       }
-      @if (
-        !row.referenceNumber &&
-        !row.paymentModeLabel &&
-        !row.paidFromAccount
-      ) {
+      @if (!row.referenceNumber && !row.paymentModeLabel && !row.paidFromAccount) {
         <span>-</span>
       }
     </div>

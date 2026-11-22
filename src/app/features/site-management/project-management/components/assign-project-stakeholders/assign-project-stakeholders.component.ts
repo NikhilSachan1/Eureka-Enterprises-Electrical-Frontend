@@ -54,7 +54,9 @@ export class AssignProjectStakeholdersComponent
       return;
     }
 
-    if (this.appPermissionService.isVendorAssignmentDisabledForSite(record[0].id)) {
+    if (
+      this.appPermissionService.isVendorAssignmentDisabledForSite(record[0].id)
+    ) {
       this.notificationService.error(
         'You can assign vendors only on allowed sites.'
       );
@@ -62,14 +64,13 @@ export class AssignProjectStakeholdersComponent
       return;
     }
 
-    this.form =
-      this.formService.createForm<IProjectAssignStakeholdersFormDto>(
-        ASSIGN_PROJECT_STAKEHOLDERS_FORM_CONFIG,
-        {
-          destroyRef: this.destroyRef,
-          defaultValues: this.getPrefillValues(record[0]),
-        }
-      );
+    this.form = this.formService.createForm<IProjectAssignStakeholdersFormDto>(
+      ASSIGN_PROJECT_STAKEHOLDERS_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+        defaultValues: this.getPrefillValues(record[0]),
+      }
+    );
   }
 
   onDialogAccept(): void {
@@ -78,7 +79,9 @@ export class AssignProjectStakeholdersComponent
 
   protected override handleSubmit(): void {
     const { id: projectId } = this.selectedRecord()[0];
-    if (this.appPermissionService.isVendorAssignmentDisabledForSite(projectId)) {
+    if (
+      this.appPermissionService.isVendorAssignmentDisabledForSite(projectId)
+    ) {
       this.notificationService.error(
         'You can assign vendors only on allowed sites.'
       );
@@ -126,9 +129,7 @@ export class AssignProjectStakeholdersComponent
           this.confirmationDialogService.closeDialog();
         },
         error: () => {
-          this.notificationService.error(
-            'Failed to assign vendor'
-          );
+          this.notificationService.error('Failed to assign vendor');
         },
       });
   }

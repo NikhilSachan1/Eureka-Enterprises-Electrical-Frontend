@@ -29,20 +29,28 @@
       tooltipPosition="bottom"
       (click)="togglePanel($event)"
     >
-      <i [ngClass]="ICONS.COMMON.BELL" aria-hidden="true"></i>
+      <i
+        [ngClass]="ICONS.COMMON.BELL"
+        aria-hidden="true"
+      ></i>
+      @let badge = badgeLabel();
       @if (bootstrapLoading()) {
-        <span class="bell-badge bell-badge--loading" aria-hidden="true">
+        <span
+          class="bell-badge bell-badge--loading"
+          aria-hidden="true"
+        >
           <i [ngClass]="[ICONS.COMMON.SPINNER, ICONS.COMMON.SPIN]"></i>
         </span>
-      } @else if (badgeLabel(); as badge) {
+      } @else if (badge) {
         <span
           class="bell-badge"
           [class.bell-badge--pulse]="badgePulse()"
           aria-hidden="true"
-        >{{ badge }}</span>
+        >
+          {{ badge }}
+        </span>
       }
     </button>
-
   </div>
 
   <p-popover
@@ -103,7 +111,10 @@
       <div class="bell-panel__body">
         @if (bootstrapError() && records().length === 0) {
           <div class="bell-state">
-            <i [ngClass]="ICONS.COMMON.EXCLAMATION_TRIANGLE" aria-hidden="true"></i>
+            <i
+              [ngClass]="ICONS.COMMON.EXCLAMATION_TRIANGLE"
+              aria-hidden="true"
+            ></i>
             <span>Couldn’t load notifications</span>
             <button
               type="button"
@@ -115,11 +126,17 @@
           </div>
         } @else if (records().length === 0) {
           <div class="bell-state bell-state--empty">
-            <i [ngClass]="ICONS.COMMON.INBOX" aria-hidden="true"></i>
+            <i
+              [ngClass]="ICONS.COMMON.INBOX"
+              aria-hidden="true"
+            ></i>
             <span>{{ emptyMessage() }}</span>
           </div>
         } @else {
-          <ul class="bell-list" role="list">
+          <ul
+            class="bell-list"
+            role="list"
+          >
             @for (item of records(); track item.id) {
               <li
                 class="bell-item"
@@ -152,18 +169,14 @@
                 <button
                   type="button"
                   class="bell-item__toggle"
-                  [attr.aria-label]="
-                    item.isRead ? 'Mark as unread' : 'Mark as read'
-                  "
+                  [attr.aria-label]="item.isRead ? 'Mark as unread' : 'Mark as read'"
                   [pTooltip]="item.isRead ? 'Mark unread' : 'Mark read'"
                   tooltipPosition="left"
                   [disabled]="actingId() === item.id"
                   (click)="toggleReadState($event, item)"
                 >
                   <i
-                    [ngClass]="
-                      item.isRead ? ICONS.COMMON.BELL : ICONS.COMMON.CHECK_TICK
-                    "
+                    [ngClass]="item.isRead ? ICONS.COMMON.BELL : ICONS.COMMON.CHECK_TICK"
                     aria-hidden="true"
                   ></i>
                 </button>

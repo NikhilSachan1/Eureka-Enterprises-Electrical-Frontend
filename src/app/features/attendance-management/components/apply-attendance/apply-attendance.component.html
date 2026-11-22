@@ -116,32 +116,35 @@
     </div>
 
     @if (currentStatusData()?.checkInTime) {
-    <div
-      class="apply-attendance__track"
-      [class.apply-attendance__track--live]="!!currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime"
-      [class.apply-attendance__track--done]="!!currentStatusData()?.checkOutTime"
-      aria-label="Check-in and check-out"
-    >
-      <div class="apply-attendance__track-line">
-        <div class="apply-attendance__stop">
-          <span class="apply-attendance__stop-label">Check-in</span>
-          <span class="apply-attendance__stop-value apply-attendance__stop-value--in">
-            {{ currentStatusData()?.checkInTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-          </span>
-        </div>
-        <span class="apply-attendance__rail" aria-hidden="true"></span>
-        <div class="apply-attendance__stop apply-attendance__stop--end">
-          <span class="apply-attendance__stop-label">Check-out</span>
-          <span class="apply-attendance__stop-value apply-attendance__stop-value--out">
-            @if (currentStatusData()?.checkOutTime) {
-              {{ currentStatusData()?.checkOutTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-            } @else {
-              —
-            }
-          </span>
+      <div
+        class="apply-attendance__track"
+        [class.apply-attendance__track--live]="!!currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime"
+        [class.apply-attendance__track--done]="!!currentStatusData()?.checkOutTime"
+        aria-label="Check-in and check-out"
+      >
+        <div class="apply-attendance__track-line">
+          <div class="apply-attendance__stop">
+            <span class="apply-attendance__stop-label">Check-in</span>
+            <span class="apply-attendance__stop-value apply-attendance__stop-value--in">
+              {{ currentStatusData()?.checkInTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
+            </span>
+          </div>
+          <span
+            class="apply-attendance__rail"
+            aria-hidden="true"
+          ></span>
+          <div class="apply-attendance__stop apply-attendance__stop--end">
+            <span class="apply-attendance__stop-label">Check-out</span>
+            <span class="apply-attendance__stop-value apply-attendance__stop-value--out">
+              @if (currentStatusData()?.checkOutTime) {
+                {{ currentStatusData()?.checkOutTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
+              } @else {
+                —
+              }
+            </span>
+          </div>
         </div>
       </div>
-    </div>
     }
 
     @if (!isDriverUser || !currentStatusData()?.checkInTime) {

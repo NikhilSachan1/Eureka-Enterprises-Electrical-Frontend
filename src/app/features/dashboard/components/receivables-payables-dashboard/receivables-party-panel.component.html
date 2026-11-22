@@ -8,9 +8,7 @@
           [class.ledger-panel__lead-icon--payable]="tone() === 'payable'"
           aria-hidden="true"
         >
-          <span
-            [class]="tone() === 'receivable' ? ICONS.COMMON.ARROW_UP : ICONS.COMMON.ARROW_DOWN"
-          ></span>
+          <span [class]="tone() === 'receivable' ? ICONS.COMMON.ARROW_UP : ICONS.COMMON.ARROW_DOWN"></span>
         </span>
         <div>
           <h3 class="ledger-panel__title">{{ title() }}</h3>

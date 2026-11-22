@@ -68,8 +68,7 @@ export class WithdrawUserDelegationComponent
   private executeWithdraw(delegationId: string): void {
     this.loadingService.show({
       title: 'Withdrawing delegation',
-      message:
-        'The manager will no longer handle new entries for this member.',
+      message: 'The manager will no longer handle new entries for this member.',
     });
 
     this.userDelegationService

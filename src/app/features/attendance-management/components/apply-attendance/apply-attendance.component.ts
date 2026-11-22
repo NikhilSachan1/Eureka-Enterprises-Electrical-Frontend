@@ -65,7 +65,8 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 })
 export class ApplyAttendanceComponent
   extends FormBase<IAttendanceApplyUIFormDto>
-  implements OnInit {
+  implements OnInit
+{
   protected readonly attendanceService = inject(AttendanceService);
   private readonly authService = inject(AuthService);
   protected readonly activatedRoute = inject(ActivatedRoute);
@@ -74,8 +75,9 @@ export class ApplyAttendanceComponent
 
   /** Dashboard mode: status comes from `currentStatus`, page header is hidden, and submit emits `attendanceApplied` instead of navigating. */
   readonly embedded = input(false);
-  readonly currentStatus =
-    input<IAttendanceCurrentStatusGetResponseDto | null>(null);
+  readonly currentStatus = input<IAttendanceCurrentStatusGetResponseDto | null>(
+    null
+  );
   readonly attendanceApplied = output<void>();
 
   private readonly formContext = {

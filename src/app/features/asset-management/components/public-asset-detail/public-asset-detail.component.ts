@@ -76,12 +76,12 @@ export class PublicAssetDetailComponent {
     this.buildSections(this.asset())
   );
 
-  protected readonly attachmentKeys = computed(() =>
-    this.getSplitAttachmentKeys(this.asset()).documentKeys
+  protected readonly attachmentKeys = computed(
+    () => this.getSplitAttachmentKeys(this.asset()).documentKeys
   );
 
-  protected readonly calibrationAttachmentKeys = computed(() =>
-    this.getSplitAttachmentKeys(this.asset()).calibrationDocumentKeys
+  protected readonly calibrationAttachmentKeys = computed(
+    () => this.getSplitAttachmentKeys(this.asset()).calibrationDocumentKeys
   );
 
   protected openAttachments(): void {

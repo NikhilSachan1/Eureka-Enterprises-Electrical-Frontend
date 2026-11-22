@@ -186,9 +186,6 @@ export class NotificationBellComponent {
     if (this.panelOpen() || !this.bellTrigger?.nativeElement) {
       return;
     }
-    this.bellPopover.show(
-      new Event('click'),
-      this.bellTrigger.nativeElement
-    );
+    this.bellPopover.show(new Event('click'), this.bellTrigger.nativeElement);
   }
 }

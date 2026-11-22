@@ -26,7 +26,11 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { TableService } from '@shared/services';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { IDataTableHeaderConfig, IEnhancedTable, IPageHeaderConfig } from '@shared/types';
+import {
+  IDataTableHeaderConfig,
+  IEnhancedTable,
+  IPageHeaderConfig,
+} from '@shared/types';
 import { AttendanceService } from '../../services/attendance.service';
 import {
   IAttendanceGetBaseResponseDto,

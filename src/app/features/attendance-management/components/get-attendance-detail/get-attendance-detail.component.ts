@@ -144,7 +144,8 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         {
           label: 'Vehicle & Driver',
           value: {
-            assignedEngineer: record.assignmentSnapshot?.assignedEngineer ?? null,
+            assignedEngineer:
+              record.assignmentSnapshot?.assignedEngineer ?? null,
             assignedDrivers:
               record.assignedDrivers ??
               record.assignmentSnapshot?.assignedDrivers ??

@@ -5,7 +5,10 @@
   @let site = $any(entry.value);
   @if (site?.name) {
     <div class="project-detail">
-      <div class="project-detail__icon" aria-hidden="true">
+      <div
+        class="project-detail__icon"
+        aria-hidden="true"
+      >
         <i [class]="ICONS.SITE.BUILDING"></i>
       </div>
       <div class="project-detail__body">
@@ -34,11 +37,8 @@
   @if (snap) {
     @let employee = snap.assignedEngineer;
     @let driverNames = formatDrivers(snap);
-    @let employeeName = employee
-      ? ((employee.firstName ?? '') + ' ' + (employee.lastName ?? '')).trim()
-      : '';
-    @let hasAssignment =
-      !!driverNames || !!employee || !!snap.vehicle;
+    @let employeeName = employee ? ((employee.firstName ?? '') + ' ' + (employee.lastName ?? '')).trim() : '';
+    @let hasAssignment = !!driverNames || !!employee || !!snap.vehicle;
 
     @if (hasAssignment) {
       <div class="assignment-snapshot">

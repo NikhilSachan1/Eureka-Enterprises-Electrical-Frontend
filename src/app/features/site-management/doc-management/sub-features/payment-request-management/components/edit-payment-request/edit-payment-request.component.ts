@@ -191,7 +191,7 @@ export class EditPaymentRequestComponent
   private mapRecordInvoiceMeta(
     record: IPaymentRequestGetBaseResponseDto
   ): IBookPaymentInvoiceDropdownMeta | null {
-    const {invoice} = record;
+    const { invoice } = record;
     if (!invoice) {
       return null;
     }

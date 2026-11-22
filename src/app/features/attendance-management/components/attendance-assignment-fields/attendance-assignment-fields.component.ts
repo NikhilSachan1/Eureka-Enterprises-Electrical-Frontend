@@ -31,10 +31,7 @@ import { IEmployeeGetBaseResponseDto } from '@features/employee-management/types
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ICONS } from '@shared/constants/icon.constants';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
-import {
-  AppConfigurationService,
-  FormService,
-} from '@shared/services';
+import { AppConfigurationService, FormService } from '@shared/services';
 import { IInputFieldsConfig, ITrackedFields } from '@shared/types';
 
 @Component({
@@ -59,9 +56,8 @@ export class AttendanceAssignmentFieldsComponent implements OnInit {
     NULL_ASSIGNMENT_FORM_VALUES
   );
 
-  private readonly trackedAssignmentFields = signal<ITrackedFields<
-    IAttendanceAssignmentFormValues
-  > | null>(null);
+  private readonly trackedAssignmentFields =
+    signal<ITrackedFields<IAttendanceAssignmentFormValues> | null>(null);
 
   protected readonly ALL_ICONS = ICONS;
   protected readonly displayLabels = computed(() => {

@@ -46,7 +46,9 @@ export class EditWalletRechargeComponent
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
-      this.logger.error('Edit wallet recharge: selected record was not provided');
+      this.logger.error(
+        'Edit wallet recharge: selected record was not provided'
+      );
       this.confirmationDialogService.closeDialog();
       return;
     }

@@ -29,9 +29,7 @@ import {
   templateUrl: './delete-attendance.component.html',
   styleUrl: './delete-attendance.component.scss',
 })
-export class DeleteAttendanceComponent
-  implements OnInit, IDialogActionHandler
-{
+export class DeleteAttendanceComponent implements OnInit, IDialogActionHandler {
   private readonly attendanceService = inject(AttendanceService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
