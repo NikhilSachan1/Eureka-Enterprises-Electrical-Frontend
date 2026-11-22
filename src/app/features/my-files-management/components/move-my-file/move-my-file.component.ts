@@ -28,6 +28,7 @@ import {
 } from '../../types/my-files.interface';
 import { SkeletonComponent } from '@shared/components/skeleton/skeleton.component';
 import { MyFilePreviewComponent } from '../my-file-preview/my-file-preview.component';
+import { ESkeletonVariant } from '@shared/types/skeleton/skeleton.types';
 
 /**
  * Move dialog: browse folders like a mini file manager (open a folder to go in, the path
@@ -58,6 +59,7 @@ export class MoveMyFileComponent implements OnInit, IDialogActionHandler {
   protected readonly onSuccess =
     input.required<(destinationParentId: string | null) => void>();
 
+  protected readonly ESkeletonVariant = ESkeletonVariant;
   protected readonly ICONS = ICONS;
 
   /** Folder open in the dialog, "My Files" first. */

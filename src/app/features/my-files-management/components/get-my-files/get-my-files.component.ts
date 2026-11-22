@@ -70,6 +70,7 @@ import {
 } from '../../types/my-files.types';
 import { getMyFileExtension, toMyFile } from '../../utils/my-files.util';
 import { MyFilesBreadcrumbComponent } from '../my-files-breadcrumb/my-files-breadcrumb.component';
+import { ESkeletonVariant } from '@shared/types/skeleton/skeleton.types';
 
 /**
  * My Files: a Drive-style browser. Folders first as tiles, then files as cards (or a
@@ -106,6 +107,7 @@ export class GetMyFilesComponent implements OnInit {
 
   private readonly itemMenu = viewChild.required<Menu>('itemMenu');
 
+  protected readonly ESkeletonVariant = ESkeletonVariant;
   protected readonly ICONS = ICONS;
   protected readonly skeletons = Array.from(
     { length: MY_FILES_SKELETON_COUNT },

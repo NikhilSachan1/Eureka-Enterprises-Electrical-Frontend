@@ -1,12 +1,12 @@
 @switch (variant()) {
-  @case ('circle') {
+  @case (ESkeletonVariant.CIRCLE) {
     <p-skeleton
       shape="circle"
       [size]="height() ?? width()"
       [animation]="animation"
     />
   }
-  @case ('block') {
+  @case (ESkeletonVariant.BLOCK) {
     <p-skeleton
       [width]="width()"
       [height]="height() ?? '3rem'"
@@ -14,7 +14,7 @@
       [animation]="animation"
     />
   }
-  @case ('card') {
+  @case (ESkeletonVariant.CARD) {
     <div
       class="app-skeleton-card"
       [style.width]="width()"

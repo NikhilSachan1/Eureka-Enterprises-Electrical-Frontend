@@ -468,7 +468,7 @@
           @if (showBulkSelectionCheckbox()) {
             <td>
               <app-skeleton
-                variant="block"
+                [variant]="ESkeletonVariant.BLOCK"
                 width="1.1rem"
                 height="1.1rem"
                 radius="0.3rem"
@@ -483,7 +483,7 @@
           @if (showRowActionsColumn()) {
             <td>
               <app-skeleton
-                variant="circle"
+                [variant]="ESkeletonVariant.CIRCLE"
                 width="1.9rem"
               />
             </td>
@@ -591,7 +591,7 @@
       >
         @for (card of skeletonCards; track card) {
           <app-skeleton
-            variant="card"
+            [variant]="ESkeletonVariant.CARD"
             height="2.5rem"
           />
         }

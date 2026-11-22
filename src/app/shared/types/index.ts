@@ -214,4 +214,4 @@ export type {
   TCommandPaletteBuildLink,
   TCommandPaletteJoinBasePath,
 } from './command-palette/command-palette.types';
-export type { TSkeletonVariant } from './skeleton/skeleton.types';
+export { ESkeletonVariant } from './skeleton/skeleton.types';

@@ -96,6 +96,7 @@ import {
   resolveTablePaginationFromQuery,
   serializeTablePaginationQueryParams,
 } from '@shared/utility';
+import { ESkeletonVariant } from '@shared/types/skeleton/skeleton.types';
 
 @Component({
   selector: 'app-data-table',
@@ -292,6 +293,7 @@ export class DataTableComponent {
     return Array.from({ length: count }, (_, index) => index);
   });
 
+  protected readonly ESkeletonVariant = ESkeletonVariant;
   protected readonly skeletonCards = Array.from(
     { length: SKELETON_CARD_COUNT },
     (_, index) => index

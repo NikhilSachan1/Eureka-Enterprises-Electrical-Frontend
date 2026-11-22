@@ -72,14 +72,14 @@
         @if (mode === 'list') {
           <app-skeleton
             class="mf-skeleton-row"
-            variant="block"
+            [variant]="ESkeletonVariant.BLOCK"
             height="3.25rem"
             radius="0"
             aria-hidden="true"
           />
         } @else {
           <app-skeleton
-            variant="card"
+            [variant]="ESkeletonVariant.CARD"
             aria-hidden="true"
           />
         }
