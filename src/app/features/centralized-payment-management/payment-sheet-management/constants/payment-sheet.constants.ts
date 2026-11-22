@@ -6,3 +6,6 @@ export const PAYMENT_SHEET_EDIT_AMOUNT_HINT = {
   /** Vendor and wallet lines: capped at what is due. */
   CAPPED: 'You can lower the amount here, but not above what is due.',
 } as const;
+
+/** Mode shown on a paid line that has neither a source account nor a UTR. */
+export const PAYMENT_SHEET_CASH_MODE_LABEL = 'Cash';

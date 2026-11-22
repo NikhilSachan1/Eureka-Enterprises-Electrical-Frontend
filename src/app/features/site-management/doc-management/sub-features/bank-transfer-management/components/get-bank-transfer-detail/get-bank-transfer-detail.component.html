@@ -1,11 +1,8 @@
 <ng-template
-  #paidFromAccountDetails
+  #paymentReceipt
   let-entry
 >
-  <app-bank-details-cell
-    [bankDetails]="$any(entry.value)"
-    [displayMode]="EBankDetailsDisplayMode.COMPACT"
-  />
+  <app-payment-receipt [receipt]="$any(entry.value)" />
 </ng-template>
 
 <ng-template
@@ -27,6 +24,6 @@
   [customTemplates]="{
     docWorkspaceContextDetail: docWorkspaceContextDetail,
     documentReferenceHierarchy: documentReferenceHierarchy,
-    paidFromAccountDetails: paidFromAccountDetails,
+    paymentReceipt: paymentReceipt,
   }"
 />

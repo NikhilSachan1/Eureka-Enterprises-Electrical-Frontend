@@ -217,3 +217,5 @@ export type {
   TCommandPaletteJoinBasePath,
 } from './command-palette/command-palette.types';
 export { ESkeletonVariant } from './skeleton/skeleton.types';
+export type { IPaymentReceipt } from './payment-receipt/payment-receipt.interface';
+export { EPaymentReceiptVariant } from './payment-receipt/payment-receipt.types';

@@ -1,14 +1,11 @@
 <ng-template
-  #paidFromAccountDetails
+  #paymentReceipt
   let-entry
 >
-  <app-bank-details-cell
-    [bankDetails]="$any(entry.value)"
-    [displayMode]="EBankDetailsDisplayMode.COMPACT"
-  />
+  <app-payment-receipt [receipt]="$any(entry.value)" />
 </ng-template>
 
 <app-view-detail
   [drawerDetails]="_fuelExpenseDetails()"
-  [customTemplates]="{ paidFromAccountDetails: paidFromAccountDetails }"
+  [customTemplates]="{ paymentReceipt: paymentReceipt }"
 />

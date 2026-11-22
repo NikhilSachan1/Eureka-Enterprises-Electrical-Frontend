@@ -28,3 +28,4 @@ export {
   SKELETON_CARD_COUNT,
   SKELETON_LINE_WIDTHS,
 } from './skeleton.constants';
+export { PAYMENT_RECEIPT_LABELS } from './payment-receipt.constants';

@@ -31,6 +31,7 @@ import {
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
+import { PaymentReceiptComponent } from '@shared/components/payment-receipt/payment-receipt.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ICONS } from '@shared/constants';
 import {
@@ -38,17 +39,14 @@ import {
   DrawerService,
   GalleryService,
   TableService,
-  AppConfigurationService,
 } from '@shared/services';
-import {
-  getMappedValueFromArrayOfObjects,
-  mapPaidFromAccountToBankDetails,
-} from '@shared/utility';
+import { mapPaidFromAccountToBankDetails } from '@shared/utility';
 import {
   EBankDetailsDisplayMode,
   EButtonActionType,
   EDataType,
   EDrawerSize,
+  EPaymentReceiptVariant,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
@@ -101,6 +99,7 @@ import {
   isPaymentSheetItemRejected,
 } from '../../utils/payment-sheet-table-row.util';
 import { buildPaymentSheetLineAmountsView } from '../../utils/payment-sheet-amounts-view.util';
+import { PAYMENT_SHEET_CASH_MODE_LABEL } from '../../constants';
 
 @Component({
   selector: 'app-get-payment-sheet-detail',
@@ -112,6 +111,7 @@ import { buildPaymentSheetLineAmountsView } from '../../utils/payment-sheet-amou
     BankDetailsCellComponent,
     PaymentSheetAmountsCellComponent,
     EmptyMessagesComponent,
+    PaymentReceiptComponent,
     ButtonComponent,
     PaymentOutstandingSectionComponent,
   ],
@@ -123,6 +123,8 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly EBankDetailsDisplayMode = EBankDetailsDisplayMode;
   protected readonly ICONS = ICONS;
+  protected readonly EPaymentReceiptVariant = EPaymentReceiptVariant;
+  protected readonly PAYMENT_MODE_CASH_LABEL = PAYMENT_SHEET_CASH_MODE_LABEL;
 
   protected readonly paidAtDateFormat =
     APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
@@ -133,7 +135,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
   protected readonly currencyFormat = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
 
-  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly dataTableService = inject(TableService);
   private readonly paymentSheetService = inject(PaymentSheetService);
@@ -355,25 +356,16 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     return isPaymentSheetItemPaid(row);
   }
 
-  protected getPaidFromAccountBankName(
-    row: IPaymentSheetDetailItemRow
-  ): string | null {
-    const bankName = row.paidFromAccount?.bankName?.trim();
-
-    if (!bankName) {
-      // An employee payment recorded with neither a source account nor a UTR was paid in cash —
-      // every other mode needs both. Vendor payments always go from a bank account.
-      const paidInCash =
-        this.isItemPaid(row) &&
-        !row.bookPaymentId &&
-        !row.paidFromAccount &&
-        !row.utrNumber?.trim();
-      return paidInCash ? 'Cash' : null;
-    }
-
-    return getMappedValueFromArrayOfObjects(
-      this.appConfigurationService.bankNames(),
-      bankName
+  /**
+   * An employee payment recorded with neither a source account nor a UTR was paid in cash;
+   * every other mode needs both. Vendor payments always go from a bank account.
+   */
+  protected isPaidInCash(row: IPaymentSheetDetailItemRow): boolean {
+    return (
+      this.isItemPaid(row) &&
+      !row.bookPaymentId &&
+      !row.paidFromAccount?.bankName?.trim() &&
+      !row.utrNumber?.trim()
     );
   }
 
