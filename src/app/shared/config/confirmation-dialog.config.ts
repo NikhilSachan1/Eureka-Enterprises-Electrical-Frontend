@@ -90,3 +90,28 @@ export const PLAIN_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
     severity: EButtonSeverity.SECONDARY,
   },
 };
+
+/** Asked by the unsaved-changes route guard before leaving a page with unsaved input. */
+export const UNSAVED_CHANGES_DIALOG_CONFIG: Partial<IDialogConfig> = {
+  ...CONFIRMATION_DIALOG_CONFIG,
+  header: 'Leave without saving?',
+  message:
+    'You have changes on this page that are not saved yet. If you leave now, they will be lost.',
+  icon: ICONS.COMMON.EXCLAMATION_TRIANGLE,
+  size: EDialogSize.SMALL,
+  // The user must pick: the pending navigation waits on this answer.
+  closable: false,
+  closeOnEscape: false,
+  dismissableMask: false,
+  acceptButtonProps: {
+    label: 'Leave page',
+    id: EButtonActionType.CANCEL,
+    icon: ICONS.ACTIONS.TIMES,
+    severity: EButtonSeverity.DANGER,
+  },
+  rejectButtonProps: {
+    label: 'Stay on page',
+    icon: ICONS.COMMON.ARROW_LEFT,
+    severity: EButtonSeverity.SECONDARY,
+  },
+};

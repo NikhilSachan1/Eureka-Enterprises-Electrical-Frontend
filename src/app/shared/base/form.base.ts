@@ -5,6 +5,8 @@ import {
   LoadingService,
 } from '@shared/services';
 import { LoggerService } from '@core/services';
+import { UnsavedChangesService } from '@core/services/unsaved-changes.service';
+import { IPendingSave, IUnsavedChangesAware } from '@core/types';
 import {
   IEnhancedMultiStepForm,
   IEnhancedForm,
@@ -15,9 +17,11 @@ import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 
 @Directive()
 export abstract class FormBase<
-  T extends Record<string, unknown> = Record<string, unknown>,
-  TSingle extends Record<string, unknown> = T,
-> {
+    T extends Record<string, unknown> = Record<string, unknown>,
+    TSingle extends Record<string, unknown> = T,
+  >
+  implements IUnsavedChangesAware, IPendingSave
+{
   // ---------------------------------------------------------------------
   // Services
   // ---------------------------------------------------------------------
@@ -26,6 +30,7 @@ export abstract class FormBase<
   protected readonly notificationService = inject(NotificationService);
   protected readonly destroyRef = inject(DestroyRef);
   protected readonly loadingService = inject(LoadingService);
+  private readonly unsavedChangesService = inject(UnsavedChangesService);
 
   // ---------------------------------------------------------------------
   // State (Signals)
@@ -65,6 +70,8 @@ export abstract class FormBase<
   // Constructor
   // ---------------------------------------------------------------------
   constructor() {
+    this.unsavedChangesService.register(this, this.destroyRef);
+
     effect(() => {
       this.attemptedSteps();
 
@@ -262,6 +269,8 @@ export abstract class FormBase<
     }
 
     this.isSubmitting.set(true);
+    // Once the API accepts this save the form counts as saved, so leaving is not blocked.
+    this.unsavedChangesService.beginSave(this);
 
     try {
       this.handleSubmit();
@@ -271,6 +280,43 @@ export abstract class FormBase<
     } finally {
       this.isSubmitting.set(false);
     }
+  }
+
+  // ---------------------------------------------------------------------
+  // Unsaved changes (route guard + browser refresh warning)
+  // ---------------------------------------------------------------------
+  /** True when the user changed any field since the form loaded or was last saved. */
+  hasUnsavedChanges(): boolean {
+    return (
+      this.tracksUnsavedChanges() &&
+      this.allFormGroups().some(formGroup => formGroup.dirty)
+    );
+  }
+
+  /** Override to return false where losing input is harmless (e.g. login). */
+  protected tracksUnsavedChanges(): boolean {
+    return true;
+  }
+
+  /** Clears the "changed" state after a successful save; values are kept. */
+  markSaved(): void {
+    this.allFormGroups().forEach(formGroup => formGroup.markAsPristine());
+  }
+
+  private allFormGroups(): IEnhancedForm<
+    Record<string, unknown>
+  >['formGroup'][] {
+    if (this.isMultiStepForm()) {
+      return Object.values(this.multiStepForm.forms)
+        .map(stepForm => stepForm.formGroup)
+        .filter(Boolean);
+    }
+
+    if (this.isSingleStepForm() && this.form.formGroup) {
+      return [this.form.formGroup];
+    }
+
+    return [];
   }
 
   protected getFirstErrorStep(): number | null {

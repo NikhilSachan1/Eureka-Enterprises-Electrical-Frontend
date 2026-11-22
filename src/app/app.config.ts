@@ -14,6 +14,7 @@ import {
   withEnabledBlockingInitialNavigation,
   withInMemoryScrolling,
   withComponentInputBinding,
+  withRouterConfig,
 } from '@angular/router';
 import {
   provideHttpClient,
@@ -31,6 +32,7 @@ import {
   ErrorInterceptor,
   RolePayloadSanitizerInterceptor,
 } from '@core/interceptors';
+import { UnsavedChangesInterceptor } from '@core/interceptors/unsaved-changes.interceptor';
 import {
   CriticalStartupStateService,
   HealthCheckService,
@@ -69,6 +71,8 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withFetch(),
       withInterceptors([
+        // Outermost, so it sees a save's final result (after any auth refresh + retry).
+        UnsavedChangesInterceptor,
         CriticalStartupBlockInterceptor,
         AuthInterceptor,
         RolePayloadSanitizerInterceptor,
@@ -82,7 +86,9 @@ export const appConfig: ApplicationConfig = {
         anchorScrolling: 'enabled',
         scrollPositionRestoration: 'enabled',
       }),
-      withEnabledBlockingInitialNavigation()
+      withEnabledBlockingInitialNavigation(),
+      // When "Stay on page" cancels a browser Back, put the history entry back too.
+      withRouterConfig({ canceledNavigationResolution: 'computed' })
     ),
     ConfirmationService,
     MessageService,
