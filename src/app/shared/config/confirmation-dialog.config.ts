@@ -27,6 +27,16 @@ export const CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
   },
 };
 
+/**
+ * "Back out" button of a destructive dialog. The dialog focuses it on open (see
+ * ConfirmationDialogComponent), so a stray Enter never deletes or rejects anything.
+ */
+const SAFE_CANCEL_BUTTON_PROPS: IDialogConfig['rejectButtonProps'] = {
+  label: 'Cancel',
+  icon: ICONS.ACTIONS.TIMES,
+  severity: EButtonSeverity.SECONDARY,
+};
+
 export const DELETE_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
   ...CONFIRMATION_DIALOG_CONFIG,
   header: 'Delete this item?',
@@ -37,6 +47,13 @@ export const DELETE_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
     singleLabel: 'Delete',
     bulkLabel: 'Delete Selected',
   },
+  acceptButtonProps: {
+    label: 'Delete',
+    id: EButtonActionType.DELETE,
+    icon: ICONS.ACTIONS.TRASH,
+    severity: EButtonSeverity.DANGER,
+  },
+  rejectButtonProps: SAFE_CANCEL_BUTTON_PROPS,
 };
 
 export const APPROVE_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
@@ -59,6 +76,13 @@ export const REJECT_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
     singleLabel: 'Reject',
     bulkLabel: 'Reject Selected',
   },
+  acceptButtonProps: {
+    label: 'Reject',
+    id: EButtonActionType.REJECT,
+    icon: ICONS.ACTIONS.BAN,
+    severity: EButtonSeverity.DANGER,
+  },
+  rejectButtonProps: SAFE_CANCEL_BUTTON_PROPS,
 };
 
 export const CANCEL_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
@@ -69,6 +93,18 @@ export const CANCEL_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
     actionWord: 'cancel',
     singleLabel: 'Cancel',
     bulkLabel: 'Cancel Selected',
+  },
+  // "Cancel" would be ambiguous on both buttons, so name what each one does.
+  acceptButtonProps: {
+    label: 'Cancel request',
+    id: EButtonActionType.CANCEL,
+    icon: ICONS.ACTIONS.BAN,
+    severity: EButtonSeverity.DANGER,
+  },
+  rejectButtonProps: {
+    label: 'Keep request',
+    icon: ICONS.COMMON.ARROW_LEFT,
+    severity: EButtonSeverity.SECONDARY,
   },
 };
 
