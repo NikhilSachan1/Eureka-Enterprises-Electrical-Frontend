@@ -19,3 +19,4 @@ export { SearchFilterUrlRestoreService } from './search-filter-url-restore.servi
 export { CommandPaletteService } from './command-palette.service';
 export { TableFilterResetService } from './table-filter-reset.service';
 export { PageEmptyStateActionService } from './page-empty-state-action.service';
+export { TableRowHighlightService } from './table-row-highlight.service';

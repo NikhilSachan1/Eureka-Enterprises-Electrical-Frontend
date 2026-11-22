@@ -741,3 +741,38 @@
 :host ::ng-deep tr.data-table-skeleton-row {
   pointer-events: none;
 }
+
+/* ── One-time row highlight (e.g. opened from a notification) ───────────
+   Pulses three times to catch the eye, then stays lit until the user clicks or types. */
+@keyframes data-table-row-flash {
+  0%,
+  100% {
+    background-color: color-mix(in srgb, var(--primary-color) 14%, transparent);
+  }
+  50% {
+    background-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
+  }
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr.data-table-row--flash > td {
+  background-color: color-mix(in srgb, var(--primary-color) 14%, transparent);
+  animation: data-table-row-flash 1.2s ease-in-out 3;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr.data-table-row--flash > td:first-child {
+  box-shadow: inset 4px 0 0 var(--primary-color);
+}
+
+.row-card--flash {
+  border-color: var(--primary-color);
+  background-color: color-mix(in srgb, var(--primary-color) 14%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 35%, transparent);
+  animation: data-table-row-flash 1.2s ease-in-out 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host ::ng-deep .p-datatable .p-datatable-tbody > tr.data-table-row--flash > td,
+  .row-card--flash {
+    animation: none;
+  }
+}

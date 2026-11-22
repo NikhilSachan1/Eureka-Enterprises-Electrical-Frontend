@@ -3,6 +3,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
+  Injector,
   input,
   output,
   signal,
@@ -64,6 +66,7 @@ import {
   GalleryService,
   SearchFilterUrlRestoreService,
   TableFilterResetService,
+  TableRowHighlightService,
   PageEmptyStateActionService,
 } from '@shared/services';
 import {
@@ -167,6 +170,14 @@ export class DataTableComponent {
     SearchFilterUrlRestoreService
   );
   private readonly destroyRef = inject(DestroyRef);
+  private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
+  private readonly rowHighlight = inject(TableRowHighlightService);
+  /** Removes the listeners that end the row highlight. */
+  private stopRowFlash?: () => void;
+
+  /** Row lit once after arriving from e.g. a notification (see TableRowHighlightService). */
+  protected readonly flashRowId = signal<string | null>(null);
   private readonly tableFilterReset = inject(TableFilterResetService);
   private readonly pageEmptyStateAction = inject(PageEmptyStateActionService);
 
@@ -702,6 +713,78 @@ export class DataTableComponent {
       this.viewReady = true;
       this.emitInitialLazyLoadIfNeeded();
     });
+
+    // A requested row lights up once when it appears; the request is then cleared.
+    effect(() => {
+      const pendingId = this.rowHighlight.pendingId();
+      const rows = this.tableData();
+      if (!pendingId || this.showTableLoading() || rows.length === 0) {
+        return;
+      }
+      untracked(() => {
+        const idPath = this.tableConfig().tableUniqueId;
+        const found = rows.some(
+          row => this.normalizeRowIdForSelection(row, idPath) === pendingId
+        );
+        if (found) {
+          this.rowHighlight.clear();
+          this.flashRow(pendingId);
+        }
+      });
+    });
+
+    this.destroyRef.onDestroy(() => this.stopRowFlash?.());
+  }
+
+  protected rowKey(row: Record<string, unknown>): string | null {
+    return this.normalizeRowIdForSelection(
+      row,
+      this.tableConfig().tableUniqueId
+    );
+  }
+
+  protected isFlashRow(row: Record<string, unknown>): boolean {
+    const flashId = this.flashRowId();
+    return flashId !== null && this.rowKey(row) === flashId;
+  }
+
+  /**
+   * Lights the row (it pulses a few times, then stays lit) until the user clicks or presses a
+   * key anywhere, so it cannot be missed and does not keep blinking.
+   */
+  private flashRow(rowId: string): void {
+    this.stopRowFlash?.();
+    this.flashRowId.set(rowId);
+
+    afterNextRender(
+      () => {
+        const el = this.hostRef.nativeElement.querySelector<HTMLElement>(
+          `[data-row-key="${CSS.escape(rowId)}"]`
+        );
+        const reduceMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        ).matches;
+        el?.scrollIntoView({
+          block: 'center',
+          behavior: reduceMotion ? 'auto' : 'smooth',
+        });
+
+        // Added after the page has opened, so the click that led here does not end it.
+        const end = (): void => {
+          this.stopRowFlash?.();
+          this.flashRowId.set(null);
+        };
+        const doc = this.hostRef.nativeElement.ownerDocument;
+        doc.addEventListener('pointerdown', end, { capture: true });
+        doc.addEventListener('keydown', end, { capture: true });
+        this.stopRowFlash = (): void => {
+          doc.removeEventListener('pointerdown', end, { capture: true });
+          doc.removeEventListener('keydown', end, { capture: true });
+          this.stopRowFlash = undefined;
+        };
+      },
+      { injector: this.injector }
+    );
   }
 
   /** Stable string key for row identity (matches {@link tableConfig}.tableUniqueId). */

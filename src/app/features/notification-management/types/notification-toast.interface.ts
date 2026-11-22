@@ -10,4 +10,6 @@ export interface INotificationToastData {
   notificationId: string | null;
   /** Set for a single notification with a page: clicking goes straight there. */
   route: string | null;
+  /** Record the page should highlight once it opens (e.g. the expense row). */
+  referenceId: string | null;
 }

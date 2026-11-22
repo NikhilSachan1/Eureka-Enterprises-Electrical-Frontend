@@ -3,7 +3,11 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { APP_CONFIG } from '@core/config';
 import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
-import { RouterNavigationService } from '@shared/services';
+import {
+  RouterNavigationService,
+  TableRowHighlightService,
+} from '@shared/services';
+import { resolveNotificationRoute } from '../utils/notification-route.util';
 import { MessageService } from 'primeng/api';
 import {
   catchError,
@@ -61,6 +65,7 @@ export class NotificationInboxService {
   private readonly apiService = inject(ApiService);
   private readonly messageService = inject(MessageService);
   private readonly routerNavigation = inject(RouterNavigationService);
+  private readonly rowHighlight = inject(TableRowHighlightService);
   private readonly document = inject(DOCUMENT);
 
   /** Open bell panel (registered by NotificationBellComponent). */
@@ -265,7 +270,10 @@ export class NotificationInboxService {
     }
 
     this._badgePulse.set(false);
-    void this.routerNavigation.navigateByUrl(data.route);
+    this.rowHighlight.request(data.referenceId);
+    void this.routerNavigation.navigateByUrl(
+      resolveNotificationRoute(data.route) ?? data.route
+    );
 
     if (data.notificationId) {
       // Best effort: the page opens either way; a failed mark leaves it unread.
@@ -403,6 +411,7 @@ export class NotificationInboxService {
           detail: single.message === '' ? null : single.message,
           count: 1,
           notificationId: single.id,
+          referenceId: single.referenceId ?? null,
           route: singleRoute === '' ? null : (singleRoute ?? null),
         }
       : {
@@ -411,6 +420,7 @@ export class NotificationInboxService {
           detail: newest ? `Latest: ${newest.title}` : null,
           count: added,
           notificationId: null,
+          referenceId: null,
           route: null,
         };
 

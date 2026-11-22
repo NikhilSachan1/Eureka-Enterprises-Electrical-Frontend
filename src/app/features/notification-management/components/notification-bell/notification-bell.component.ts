@@ -11,7 +11,11 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgClass } from '@angular/common';
 import { ICONS } from '@shared/constants';
-import { RouterNavigationService } from '@shared/services';
+import {
+  RouterNavigationService,
+  TableRowHighlightService,
+} from '@shared/services';
+import { resolveNotificationRoute } from '../../utils/notification-route.util';
 import { formatRelativeTime } from '@shared/utility';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { TooltipModule } from 'primeng/tooltip';
@@ -36,6 +40,7 @@ export class NotificationBellComponent {
 
   private readonly inbox = inject(NotificationInboxService);
   private readonly routerNavigation = inject(RouterNavigationService);
+  private readonly rowHighlight = inject(TableRowHighlightService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly ICONS = ICONS;
@@ -114,8 +119,9 @@ export class NotificationBellComponent {
 
     const navigate = (): void => {
       this.bellPopover.hide();
-      const route = item.route?.trim();
+      const route = resolveNotificationRoute(item.route);
       if (route) {
+        this.rowHighlight.request(item.referenceId);
         void this.routerNavigation.navigateByUrl(route);
       }
     };

@@ -55,6 +55,7 @@
                   class="gap-row"
                   [routerLink]="item.commands"
                   [queryParams]="item.query"
+                  [appHighlightRow]="item.id"
                   (click)="closeDrawer()"
                 >
                   <span class="gap-row__main">

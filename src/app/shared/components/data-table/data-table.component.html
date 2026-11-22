@@ -213,6 +213,8 @@
       <tr
         [class.row-selection-disabled]="isRowSelectionDisabled(rowData)"
         [class.data-table-row-expanded]="expanded"
+        [class.data-table-row--flash]="isFlashRow(rowData)"
+        [attr.data-row-key]="rowKey(rowData)"
       >
         @if (hasRowExpansion()) {
           <td class="data-table-expand-col">
@@ -607,6 +609,8 @@
             class="row-card"
             [class.row-card--selected]="isRowSelected(rowData)"
             [class.row-card--disabled]="isRowSelectionDisabled(rowData)"
+            [class.row-card--flash]="isFlashRow(rowData)"
+            [attr.data-row-key]="rowKey(rowData)"
           >
             <header class="row-card__head">
               @if (showBulkSelectionCheckbox()) {

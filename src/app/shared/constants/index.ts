@@ -29,3 +29,4 @@ export {
   SKELETON_LINE_WIDTHS,
 } from './skeleton.constants';
 export { PAYMENT_RECEIPT_LABELS } from './payment-receipt.constants';
+export { TABLE_ROW_HIGHLIGHT_REQUEST_TTL_MS } from './table-row-highlight.constants';
