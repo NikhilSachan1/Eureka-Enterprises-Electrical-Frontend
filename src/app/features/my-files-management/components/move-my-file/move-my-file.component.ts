@@ -26,6 +26,7 @@ import {
   IMyFilesMoveCrumb,
   IMyFilesMoveFolderTreeItem,
 } from '../../types/my-files.interface';
+import { SkeletonComponent } from '@shared/components/skeleton/skeleton.component';
 import { MyFilePreviewComponent } from '../my-file-preview/my-file-preview.component';
 
 /**
@@ -36,7 +37,7 @@ import { MyFilePreviewComponent } from '../my-file-preview/my-file-preview.compo
 @Component({
   selector: 'app-move-my-file',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MyFilePreviewComponent],
+  imports: [MyFilePreviewComponent, SkeletonComponent],
   templateUrl: './move-my-file.component.html',
   styleUrl: './move-my-file.component.scss',
 })

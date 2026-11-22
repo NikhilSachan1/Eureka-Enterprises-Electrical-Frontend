@@ -69,11 +69,20 @@
       aria-label="Loading"
     >
       @for (n of skeletons; track n) {
-        <span
-          class="mf-skeleton"
-          [class.mf-skeleton--row]="mode === 'list'"
-          aria-hidden="true"
-        ></span>
+        @if (mode === 'list') {
+          <app-skeleton
+            class="mf-skeleton-row"
+            variant="block"
+            height="3.25rem"
+            radius="0"
+            aria-hidden="true"
+          />
+        } @else {
+          <app-skeleton
+            variant="card"
+            aria-hidden="true"
+          />
+        }
       }
     </div>
   } @else if (failed()) {

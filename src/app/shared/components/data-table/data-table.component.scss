@@ -736,3 +736,8 @@
     color: var(--p-text-muted-color);
   }
 }
+
+// Loading placeholder rows: not real rows, so no hover highlight or clicks.
+:host ::ng-deep tr.data-table-skeleton-row {
+  pointer-events: none;
+}

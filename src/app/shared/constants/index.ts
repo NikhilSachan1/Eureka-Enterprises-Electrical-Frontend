@@ -22,3 +22,9 @@ export {
   COMMAND_PALETTE_TRAIL_SEPARATOR,
   COMMAND_PALETTE_SCORE,
 } from './command-palette.constants';
+export {
+  SKELETON_TABLE_DEFAULT_ROWS,
+  SKELETON_TABLE_MAX_ROWS,
+  SKELETON_CARD_COUNT,
+  SKELETON_LINE_WIDTHS,
+} from './skeleton.constants';

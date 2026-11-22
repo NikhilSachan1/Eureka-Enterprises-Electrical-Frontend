@@ -293,23 +293,10 @@
   padding: 0.55rem 2.6rem 0.55rem 0.8rem;
 }
 
-// ── Loading skeletons ───────────────────────────────────────────────────────
-.mf-skeleton {
-  height: 10.5rem;
-  border-radius: 0.8rem;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--text-secondary-color) 7%, transparent) 25%,
-    color-mix(in srgb, var(--text-secondary-color) 14%, transparent) 50%,
-    color-mix(in srgb, var(--text-secondary-color) 7%, transparent) 75%
-  );
-  background-size: 200% 100%;
-  animation: mf-shimmer 1.2s linear infinite;
-
-  &--row {
-    height: 3.25rem;
-    border-radius: 0;
-  }
+// ── Loading (shared skeleton) ─────────────────────────────────────────────
+// List rows sit flush inside the bordered list box, like the real rows.
+.mf-skeleton-row + .mf-skeleton-row {
+  border-top: 1px solid var(--border-light-color);
 }
 
 // ── Empty / error ───────────────────────────────────────────────────────────
@@ -437,17 +424,7 @@
   }
 }
 
-@keyframes mf-shimmer {
-  to {
-    background-position: -200% 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .mf-skeleton {
-    animation: none;
-  }
-
   .mf-item {
     transition: none;
 

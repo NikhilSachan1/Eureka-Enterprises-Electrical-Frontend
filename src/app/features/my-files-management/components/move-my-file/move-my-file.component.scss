@@ -174,19 +174,6 @@
     opacity 0.12s ease;
 }
 
-.mvf__skeleton {
-  height: 2.6rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--text-secondary-color) 8%, transparent) 25%,
-    color-mix(in srgb, var(--text-secondary-color) 16%, transparent) 50%,
-    color-mix(in srgb, var(--text-secondary-color) 8%, transparent) 75%
-  );
-  background-size: 200% 100%;
-  animation: mvf-shimmer 1.2s linear infinite;
-}
-
 .mvf__empty {
   margin: auto 0;
   padding: 1.5rem 0.5rem;
@@ -234,17 +221,5 @@
   .mvf__browser,
   .mvf__bar {
     border-color: var(--border-dark-color);
-  }
-}
-
-@keyframes mvf-shimmer {
-  to {
-    background-position: -200% 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mvf__skeleton {
-    animation: none;
   }
 }

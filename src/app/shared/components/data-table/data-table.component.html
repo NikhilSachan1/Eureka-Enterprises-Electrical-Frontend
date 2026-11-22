@@ -60,11 +60,12 @@
   <p-table
     #dt
     [rowHover]="tableConfig().rowHover"
-    [value]="tableData()"
+    [value]="showTableLoading() ? [] : tableData()"
     [dataKey]="tableConfig().tableUniqueId"
     [rows]="tableConfig().showPaginator ? paginationRows() : undefined"
     [rowsPerPageOptions]="tableConfig().rowsPerPageOptions"
     [loading]="showTableLoading()"
+    [showLoader]="false"
     [showCurrentPageReport]="true"
     [paginator]="tableConfig().showPaginator"
     [currentPageReportTemplate]="tableConfig().paginationTemplate"
@@ -454,6 +455,43 @@
       }
     </ng-template>
 
+    <!-- Loading: placeholder rows shaped like the real columns (no spinner overlay) -->
+    <ng-template #loadingbody>
+      @for (row of skeletonRows(); track row) {
+        <tr
+          class="data-table-skeleton-row"
+          aria-hidden="true"
+        >
+          @if (hasRowExpansion()) {
+            <td class="data-table-expand-col"></td>
+          }
+          @if (showBulkSelectionCheckbox()) {
+            <td>
+              <app-skeleton
+                variant="block"
+                width="1.1rem"
+                height="1.1rem"
+                radius="0.3rem"
+              />
+            </td>
+          }
+          @for (column of visibleTableHeaders(); track $index; let col = $index) {
+            <td>
+              <app-skeleton [width]="skeletonWidth(row, col)" />
+            </td>
+          }
+          @if (showRowActionsColumn()) {
+            <td>
+              <app-skeleton
+                variant="circle"
+                width="1.9rem"
+              />
+            </td>
+          }
+        </tr>
+      }
+    </ng-template>
+
     <ng-template #emptymessage>
       <tr>
         <td
@@ -545,8 +583,18 @@
 @if (currentViewMode === 'card') {
   <div class="row-card-list-wrap">
     @if (showTableLoading()) {
-      <div class="row-card-list__state">
-        <i [class]="`${icons.COMMON.SPINNER} pi-spin text-2xl`"></i>
+      <div
+        class="row-card-list row-card-list--skeleton"
+        [class.row-card-list--grid]="!isCompactViewport()"
+        aria-busy="true"
+        aria-label="Loading"
+      >
+        @for (card of skeletonCards; track card) {
+          <app-skeleton
+            variant="card"
+            height="2.5rem"
+          />
+        }
       </div>
     } @else if (tableData().length === 0) {
       <div class="row-card-list__state">

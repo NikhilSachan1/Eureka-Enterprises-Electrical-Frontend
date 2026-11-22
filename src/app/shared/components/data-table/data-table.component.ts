@@ -64,10 +64,17 @@ import {
   GalleryService,
   SearchFilterUrlRestoreService,
 } from '@shared/services';
-import { ICONS } from '@shared/constants';
+import {
+  ICONS,
+  SKELETON_CARD_COUNT,
+  SKELETON_LINE_WIDTHS,
+  SKELETON_TABLE_DEFAULT_ROWS,
+  SKELETON_TABLE_MAX_ROWS,
+} from '@shared/constants';
 import { ButtonComponent } from '../button/button.component';
 import { StatusTagComponent } from '../status-tag/status-tag.component';
 import { EmptyMessagesComponent } from '../empty-messages/empty-messages.component';
+import { SkeletonComponent } from '../skeleton/skeleton.component';
 import { APP_CONFIG } from '@core/config';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { ChipComponent } from '../chip/chip.component';
@@ -113,6 +120,7 @@ import {
     CurrencyPipe,
     DecimalPipe,
     EmptyMessagesComponent,
+    SkeletonComponent,
     NgTemplateOutlet,
     PanelModule,
     PaginatorModule,
@@ -277,6 +285,25 @@ export class DataTableComponent {
   private initialLazyLoadEmitted = false;
   private viewReady = false;
   private paginationRestoredFromUrl = false;
+  /** Placeholder rows while loading: the page size, between the default and the max. */
+  protected readonly skeletonRows = computed(() => {
+    const pageSize = this.paginationRows() || SKELETON_TABLE_DEFAULT_ROWS;
+    const count = Math.min(Math.max(pageSize, 1), SKELETON_TABLE_MAX_ROWS);
+    return Array.from({ length: count }, (_, index) => index);
+  });
+
+  protected readonly skeletonCards = Array.from(
+    { length: SKELETON_CARD_COUNT },
+    (_, index) => index
+  );
+
+  /** Uneven line widths, so a loading table looks like real text. */
+  protected skeletonWidth(row: number, column: number): string {
+    return SKELETON_LINE_WIDTHS[
+      (row * 3 + column) % SKELETON_LINE_WIDTHS.length
+    ];
+  }
+
   protected visibleTableHeaders = computed(() => {
     return this.permissionService.filterByPermission(this.tableHeader());
   });

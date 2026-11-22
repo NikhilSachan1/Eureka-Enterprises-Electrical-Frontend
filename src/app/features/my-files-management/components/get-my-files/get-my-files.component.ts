@@ -14,6 +14,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { SkeletonComponent } from '@shared/components/skeleton/skeleton.component';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   AttachmentsService,
@@ -83,6 +84,7 @@ import { MyFilesBreadcrumbComponent } from '../my-files-breadcrumb/my-files-brea
     MyFilesBreadcrumbComponent,
     NgTemplateOutlet,
     PageHeaderComponent,
+    SkeletonComponent,
   ],
   templateUrl: './get-my-files.component.html',
   styleUrl: './get-my-files.component.scss',
