@@ -583,6 +583,7 @@ export class GetLeaveComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Apply Leave',
+          showInEmptyState: true,
           icon: ICONS.COMMON.CALENDAR_PLUS,
           actionName: 'applyLeave',
           permission: [APP_PERMISSION.LEAVE.APPLY],

@@ -532,6 +532,7 @@ export class GetExpenseComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Expense',
+          showInEmptyState: true,
           icon: ICONS.COMMON.PLUS,
           actionName: 'addExpense',
           permission: [APP_PERMISSION.EXPENSE.ADD],

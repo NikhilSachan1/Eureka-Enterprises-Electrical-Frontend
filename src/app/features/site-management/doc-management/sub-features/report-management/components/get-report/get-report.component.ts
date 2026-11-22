@@ -319,6 +319,7 @@ export class GetReportComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Report',
+          showInEmptyState: true,
           actionName: 'addReport',
           permission: [APP_PERMISSION.REPORT_DOC.ADD],
         },

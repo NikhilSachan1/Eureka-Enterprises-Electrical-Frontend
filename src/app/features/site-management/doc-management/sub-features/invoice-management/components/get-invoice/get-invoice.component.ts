@@ -437,6 +437,7 @@ export class GetInvoiceComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Invoice',
+          showInEmptyState: true,
           actionName: 'addInvoice',
           permission: [APP_PERMISSION.INVOICE_DOC.ADD],
         },

@@ -64,6 +64,7 @@ import {
   GalleryService,
   SearchFilterUrlRestoreService,
   TableFilterResetService,
+  PageEmptyStateActionService,
 } from '@shared/services';
 import {
   ICONS,
@@ -167,6 +168,7 @@ export class DataTableComponent {
   );
   private readonly destroyRef = inject(DestroyRef);
   private readonly tableFilterReset = inject(TableFilterResetService);
+  private readonly pageEmptyStateAction = inject(PageEmptyStateActionService);
 
   protected readonly filteredEmptyState = DATA_TABLE_FILTERED_EMPTY_STATE;
   protected readonly clearFiltersButtonConfig =
@@ -188,6 +190,13 @@ export class DataTableComponent {
       )
     );
   }
+
+  /** The page's main action (e.g. "Add Asset") for the "no records yet" state. */
+  protected readonly emptyStateAction = computed(() =>
+    this.tableConfig().showEmptyStateAction === false
+      ? null
+      : this.pageEmptyStateAction.action()
+  );
 
   protected canClearFilters(): boolean {
     return this.tableFilterReset.canReset(this.dt());

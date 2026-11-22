@@ -583,6 +583,7 @@ export class GetPoComponent implements OnInit {
       {
         ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
         label: 'Add PO',
+        showInEmptyState: true,
         actionName: 'addPo',
         permission: [APP_PERMISSION.PO_DOC.ADD],
         disabled: canCreate?.allowed === false,

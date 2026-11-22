@@ -410,6 +410,7 @@ export class GetBookPaymentComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Book Payment',
+          showInEmptyState: true,
           actionName: 'addBookPayment',
           permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.ADD],
         },

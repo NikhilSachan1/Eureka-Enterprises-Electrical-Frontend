@@ -408,6 +408,7 @@ export class GetJmcComponent implements OnInit {
       {
         ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
         label: 'Add JMC',
+        showInEmptyState: true,
         actionName: 'addJmc',
         permission: [APP_PERMISSION.JMC_DOC.ADD],
       },

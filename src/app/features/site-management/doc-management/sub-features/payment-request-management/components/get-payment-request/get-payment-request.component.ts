@@ -360,6 +360,7 @@ export class GetPaymentRequestComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Payment Request',
+          showInEmptyState: true,
           actionName: 'addPaymentRequest',
           permission: [APP_PERMISSION.PAYMENT_REQUEST_DOC.ADD],
         },

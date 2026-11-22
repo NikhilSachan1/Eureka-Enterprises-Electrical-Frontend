@@ -390,6 +390,7 @@ export class GetAdvancePaymentComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Advance Payment',
+          showInEmptyState: true,
           actionName: 'addAdvancePayment',
           permission: [APP_PERMISSION.ADVANCE_PAYMENT_DOC.ADD],
         },

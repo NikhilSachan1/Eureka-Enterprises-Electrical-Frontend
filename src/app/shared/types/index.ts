@@ -151,6 +151,8 @@ export type {
 } from './gallery/gallery.interface';
 export type {
   IPageHeaderConfig,
+  IPageHeaderButtonConfig,
+  IPageEmptyStateAction,
   ISectionHeaderConfig,
 } from './page-header/page-header-config.interface';
 export {

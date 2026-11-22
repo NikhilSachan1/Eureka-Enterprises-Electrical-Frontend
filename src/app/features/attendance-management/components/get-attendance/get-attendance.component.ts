@@ -447,6 +447,7 @@ export class GetAttendanceComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Apply Attendance',
+          showInEmptyState: true,
           icon: ICONS.ATTENDANCE.CHECK_IN,
           actionName: 'applyAttendance',
           permission: [APP_PERMISSION.ATTENDANCE.APPLY],

@@ -333,6 +333,7 @@ export class GetCompanyComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Company',
+          showInEmptyState: true,
           actionName: 'addCompany',
           permission: [APP_PERMISSION.COMPANY.ADD],
         },

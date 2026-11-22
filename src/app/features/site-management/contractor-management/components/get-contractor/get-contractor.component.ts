@@ -349,6 +349,7 @@ export class GetContractorComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Contractor',
+          showInEmptyState: true,
           actionName: 'addContractor',
           permission: [APP_PERMISSION.CONTRACTOR.ADD],
         },

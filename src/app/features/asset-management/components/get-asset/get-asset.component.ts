@@ -793,6 +793,7 @@ export class GetAssetComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Asset',
+          showInEmptyState: true,
           actionName: 'addAsset',
           permission: [APP_PERMISSION.ASSET.ADD],
         },

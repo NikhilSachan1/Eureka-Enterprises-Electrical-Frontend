@@ -282,6 +282,7 @@ export class GetVehicleReadingComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Vehicle Reading',
+          showInEmptyState: true,
           icon: ICONS.COMMON.PLUS,
           actionName: 'addVehicleReading',
           permission: [APP_PERMISSION.VEHICLE_READING.ADD],

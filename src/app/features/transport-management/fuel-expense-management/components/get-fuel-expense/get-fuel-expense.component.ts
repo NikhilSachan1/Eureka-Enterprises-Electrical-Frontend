@@ -735,6 +735,7 @@ export class GetFuelExpenseComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Fuel Expense',
+          showInEmptyState: true,
           icon: ICONS.COMMON.PLUS,
           actionName: 'addFuelExpense',
           permission: [APP_PERMISSION.FUEL_EXPENSE.ADD],

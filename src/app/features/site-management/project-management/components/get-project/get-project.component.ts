@@ -534,6 +534,7 @@ export class GetProjectComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Project',
+          showInEmptyState: true,
           actionName: 'addProject',
           permission: [APP_PERMISSION.PROJECT.ADD],
         },

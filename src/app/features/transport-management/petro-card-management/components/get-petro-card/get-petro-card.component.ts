@@ -334,6 +334,7 @@ export class GetPetroCardComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Petro Card',
+          showInEmptyState: true,
           actionName: 'addPetroCard',
           permission: [APP_PERMISSION.PETRO_CARD.ADD],
         },

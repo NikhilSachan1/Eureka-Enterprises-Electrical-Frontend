@@ -1064,6 +1064,13 @@
       [icon]="tableConfig().emptyMessageIcon"
       [title]="tableConfig().emptyMessage"
       [description]="tableConfig().emptyMessageDescription"
-    />
+    >
+      @if (emptyStateAction(); as action) {
+        <app-button
+          [buttonConfig]="action.button"
+          (onButtonClick)="action.run()"
+        />
+      }
+    </app-empty-messages>
   }
 </ng-template>

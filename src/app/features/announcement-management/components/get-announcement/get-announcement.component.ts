@@ -331,6 +331,7 @@ export class GetAnnouncementComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Announcement',
+          showInEmptyState: true,
           icon: ICONS.ACTIONS.SEND,
           actionName: 'addAnnouncement',
           permission: [APP_PERMISSION.ANNOUNCEMENT.ADD],

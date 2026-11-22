@@ -376,6 +376,7 @@ export class GetVehicleServiceComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Vehicle Service',
+          showInEmptyState: true,
           actionName: 'addVehicleService',
           permission: [APP_PERMISSION.VEHICLE_SERVICE.ADD],
         },

@@ -23,6 +23,11 @@ export interface IDataTableConfig {
   emptyMessage: string;
   emptyMessageIcon: string;
   emptyMessageDescription: string;
+  /**
+   * When the table has no records at all, it offers the page header button marked
+   * `showInEmptyState` (e.g. "Add Asset"). Set false to hide it for this table.
+   */
+  showEmptyStateAction?: boolean;
   paginationTemplate: string;
   totalRecords?: number;
   enableServerSide: boolean;

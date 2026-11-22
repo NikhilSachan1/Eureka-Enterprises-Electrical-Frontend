@@ -443,6 +443,7 @@ export class GetEmployeeComponent implements OnInit {
           ? {
               ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
               label: 'Add Non Employee',
+              showInEmptyState: true,
               icon: ICONS.COMMON.ADD,
               actionName: 'addNonEmployee',
               permission: [APP_PERMISSION.SYSTEM_USER.ADD],
@@ -450,6 +451,7 @@ export class GetEmployeeComponent implements OnInit {
           : {
               ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
               label: 'Add Employee',
+              showInEmptyState: true,
               icon: ICONS.COMMON.ADD,
               actionName: 'addEmployee',
               permission: [APP_PERMISSION.EMPLOYEE.ADD],

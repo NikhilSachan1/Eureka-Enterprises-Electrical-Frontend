@@ -341,6 +341,7 @@ export class GetDsrComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add DSR',
+          showInEmptyState: true,
           actionName: 'addDsr',
           permission: [APP_PERMISSION.DSR.ADD],
           disabled,

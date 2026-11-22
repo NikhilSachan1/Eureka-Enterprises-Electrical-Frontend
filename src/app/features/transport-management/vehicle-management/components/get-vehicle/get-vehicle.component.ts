@@ -811,6 +811,7 @@ export class GetVehicleComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Vehicle',
+          showInEmptyState: true,
           actionName: 'addVehicle',
           permission: [APP_PERMISSION.VEHICLE.ADD],
         },
