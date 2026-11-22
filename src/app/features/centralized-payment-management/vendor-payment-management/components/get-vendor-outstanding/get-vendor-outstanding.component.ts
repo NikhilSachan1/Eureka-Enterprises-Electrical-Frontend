@@ -64,6 +64,7 @@ import {
   mapVendorOutstandingUnbookedInvoiceToSummary,
   resolveVendorInvoicePaidTotal,
 } from '../../utils/vendor-book-payment-amount.util';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 type IVendorOutstandingBookPayment =
   IVendorOutstandingGetBaseResponseDto['bookPayments'][number];
@@ -208,6 +209,7 @@ export class GetVendorOutstandingComponent implements OnInit {
         {
           dataType: EDataType.CURRENCY,
           label: 'Amount',
+          tone: EDocAmountTone.NEUTRAL,
           value: row.totalAmount,
         },
       ];
@@ -226,11 +228,13 @@ export class GetVendorOutstandingComponent implements OnInit {
       {
         dataType: EDataType.CURRENCY,
         label: 'Net payable',
+        tone: EDocAmountTone.TOTAL,
         value: row.netPayableAmount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'To be booked',
+        tone: EDocAmountTone.PENDING,
         value: row.pendingToBook,
       },
     ];
@@ -243,16 +247,19 @@ export class GetVendorOutstandingComponent implements OnInit {
       {
         dataType: EDataType.CURRENCY,
         label: 'To be booked',
+        tone: EDocAmountTone.PENDING,
         value: row.toBeBooked,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'Booked',
+        tone: EDocAmountTone.BOOKED,
         value: row.bookedAmount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'Paid',
+        tone: EDocAmountTone.PAID,
         value: row.paidAmount,
       },
     ];
@@ -266,16 +273,19 @@ export class GetVendorOutstandingComponent implements OnInit {
         {
           dataType: EDataType.CURRENCY,
           label: 'Booked',
+          tone: EDocAmountTone.BOOKED,
           value: row.bookedTotal,
         },
         {
           dataType: EDataType.CURRENCY,
           label: 'Paid',
+          tone: EDocAmountTone.PAID,
           value: row.paidTotal,
         },
         {
           dataType: EDataType.CURRENCY,
           label: 'Settled',
+          tone: EDocAmountTone.PAID,
           value: row.settledAmount,
         },
       ];
@@ -285,11 +295,13 @@ export class GetVendorOutstandingComponent implements OnInit {
       {
         dataType: EDataType.CURRENCY,
         label: 'Booked',
+        tone: EDocAmountTone.BOOKED,
         value: row.bookedTotal,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'Paid',
+        tone: EDocAmountTone.PAID,
         value: row.paidTotal,
       },
     ];
@@ -599,8 +611,7 @@ export class GetVendorOutstandingComponent implements OnInit {
     const grouped = new Map<string, IVendorInvoiceOutstandingGroup>();
 
     for (const bookPayment of bookPayments) {
-      const invoice = bookPayment.invoice;
-      const advance = bookPayment.advance;
+      const { invoice, advance } = bookPayment;
       const groupKey = invoice?.id ?? advance?.id ?? bookPayment.id;
       let group = grouped.get(groupKey);
 

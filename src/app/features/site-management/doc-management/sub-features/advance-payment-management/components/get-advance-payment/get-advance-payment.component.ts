@@ -61,6 +61,7 @@ import {
 } from '../../utils/advance-payment-table-row.util';
 
 import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 @Component({
   selector: 'app-get-advance-payment',
@@ -233,16 +234,19 @@ export class GetAdvancePaymentComponent implements OnInit {
       {
         dataType: EDataType.CURRENCY,
         label: 'Amount',
+        tone: EDocAmountTone.NEUTRAL,
         value: row.amount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'Settled',
+        tone: EDocAmountTone.PAID,
         value: row.settledAmount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'Balance',
+        tone: EDocAmountTone.NEUTRAL,
         value: row.balanceAmount,
       },
     ];

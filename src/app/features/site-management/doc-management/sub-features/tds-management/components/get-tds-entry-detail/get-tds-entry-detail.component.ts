@@ -36,6 +36,7 @@ import {
   buildTdsDocumentReference,
   resolveTdsInvoiceReference,
 } from '../../utils/tds-invoice-reference.util';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 @Component({
   selector: 'app-get-tds-entry-detail',
@@ -221,11 +222,13 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
       {
         dataType: EDataType.CURRENCY,
         label: 'Taxable',
+        tone: EDocAmountTone.TAXABLE,
         value: v.taxableAmount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'TDS',
+        tone: EDocAmountTone.DEDUCTION,
         value: v.tdsAmount,
         suffix: v.rateSuffix,
       },

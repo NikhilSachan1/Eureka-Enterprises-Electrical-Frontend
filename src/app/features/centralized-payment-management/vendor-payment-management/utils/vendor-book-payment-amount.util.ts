@@ -2,7 +2,12 @@ import type { IDocAmountSegment } from '@features/site-management/doc-management
 import { buildInvoiceTaxGstAmountSegments } from '@features/site-management/doc-management/sub-features/invoice-management/utils/invoice-table-row.util';
 import { EDataType } from '@shared/types';
 import type { IVendorOutstandingGetBaseResponseDto } from '../types/vendor-outstanding.dto';
-import type { IVendorOutstandingUnbookedInvoice } from '../types/vendor-outstanding.interface';
+import type {
+  IVendorOutstandingPaidBookPayment,
+  IVendorOutstandingPaidSource,
+  IVendorOutstandingUnbookedInvoice,
+} from '../types/vendor-outstanding.interface';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 type IVendorOutstandingBookPayment =
   IVendorOutstandingGetBaseResponseDto['bookPayments'][number];
@@ -19,16 +24,6 @@ function toAmountString(value: number | null | undefined): string {
   return String(value);
 }
 
-type IVendorOutstandingPaidSource = {
-  paidTotal?: number | null;
-  bookedTotal?: number | null;
-};
-
-type IVendorOutstandingPaidBookPayment = {
-  paymentTotalAmount: number;
-  hasTransfer: boolean;
-};
-
 export function resolveVendorInvoicePaidTotal(
   invoice: IVendorOutstandingPaidSource | null | undefined,
   bookPayments: readonly IVendorOutstandingPaidBookPayment[] = []
@@ -37,13 +32,15 @@ export function resolveVendorInvoicePaidTotal(
   const paidViaTransfer = bookPayments
     .filter(bookPayment => bookPayment.hasTransfer)
     .reduce(
-      (total, bookPayment) => total + Number(bookPayment.paymentTotalAmount ?? 0),
+      (total, bookPayment) =>
+        total + Number(bookPayment.paymentTotalAmount ?? 0),
       0
     );
   const unpaidBooked = bookPayments
     .filter(bookPayment => !bookPayment.hasTransfer)
     .reduce(
-      (total, bookPayment) => total + Number(bookPayment.paymentTotalAmount ?? 0),
+      (total, bookPayment) =>
+        total + Number(bookPayment.paymentTotalAmount ?? 0),
       0
     );
   const derivedPaid = Math.max(
@@ -72,21 +69,25 @@ export function buildVendorOutstandingInvoiceAmountSegments(
     {
       dataType: EDataType.CURRENCY,
       label: 'Net payable',
+      tone: EDocAmountTone.TOTAL,
       value: invoice.netPayableAmount,
     },
     {
       dataType: EDataType.CURRENCY,
       label: 'Booked',
+      tone: EDocAmountTone.BOOKED,
       value: invoice.bookedTotal,
     },
     {
       dataType: EDataType.CURRENCY,
       label: 'To be booked',
+      tone: EDocAmountTone.PENDING,
       value: invoice.pendingToBook,
     },
     {
       dataType: EDataType.CURRENCY,
       label: 'Paid',
+      tone: EDocAmountTone.PAID,
       value: resolveVendorInvoicePaidTotal(invoice),
     }
   );

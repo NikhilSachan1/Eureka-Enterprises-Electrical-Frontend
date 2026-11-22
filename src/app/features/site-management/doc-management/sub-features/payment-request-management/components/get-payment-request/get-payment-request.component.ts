@@ -53,6 +53,7 @@ import {
   buildPaymentRequestInvoiceDoc,
   buildPaymentRequestPoDoc,
 } from '../../utils/payment-request-table-row.util';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 @Component({
   selector: 'app-get-payment-request',
@@ -222,11 +223,13 @@ export class GetPaymentRequestComponent implements OnInit {
       {
         dataType: EDataType.CURRENCY,
         label: 'Requested',
+        tone: EDocAmountTone.NEUTRAL,
         value: row.requestedAmount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'Approved',
+        tone: EDocAmountTone.NEUTRAL,
         value: row.approvedAmount,
       },
     ];

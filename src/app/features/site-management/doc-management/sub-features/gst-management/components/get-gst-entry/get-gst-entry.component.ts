@@ -69,6 +69,7 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { GetGstEntryDetailComponent } from '../get-gst-entry-detail/get-gst-entry-detail.component';
 
 import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 @Component({
   selector: 'app-get-gst-entry',
@@ -181,11 +182,13 @@ export class GetGstEntryComponent implements OnInit {
       {
         dataType: EDataType.CURRENCY,
         label: 'Taxable',
+        tone: EDocAmountTone.TAXABLE,
         value: row.taxableAmount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'GST',
+        tone: EDocAmountTone.GST,
         value: row.gstAmount,
         suffix: row.gstRateSuffix,
       },

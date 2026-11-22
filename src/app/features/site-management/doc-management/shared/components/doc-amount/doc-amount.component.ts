@@ -1,10 +1,8 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { APP_CONFIG } from '@core/config';
-import type {
-  IDocAmountSegment,
-  DocAmountTone,
-} from '@features/site-management/doc-management/shared/types/doc-amount.interface';
+import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 import { EDataType } from '@shared/types';
 
 @Component({
@@ -17,46 +15,21 @@ import { EDataType } from '@shared/types';
 export class DocAmountComponent {
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly EDataType = EDataType;
+  protected readonly EDocAmountTone = EDocAmountTone;
 
   readonly segments = input<IDocAmountSegment[]>([]);
 
-  protected segmentTone(seg: IDocAmountSegment): DocAmountTone {
-    if (seg.dataType === EDataType.DATE) {
-      return 'neutral';
-    }
-    return DocAmountComponent.toneFromCurrencyLabel(seg.label);
-  }
-
-  private static toneFromCurrencyLabel(label: string): DocAmountTone {
-    const key = label.trim().toLowerCase();
-    const map: Record<string, DocAmountTone> = {
-      taxable: 'taxable',
-      gst: 'gst',
-      total: 'total',
-      invoiced: 'invoiced',
-      booked: 'booked',
-      'to be booked': 'gst',
-      'net payable': 'total',
-      paid: 'paid',
-      settled: 'paid',
-      remaining: 'gst',
-      'advance remaining': 'gst',
-      'advance amount': 'booked',
-      'advance settled': 'paid',
-      'advance paid': 'paid',
-      deduction: 'deduction',
-      tds: 'deduction',
-      withholding: 'deduction',
-    };
-    return map[key] ?? 'neutral';
+  /** The caller's tone; dates are always neutral. */
+  protected segmentTone(seg: IDocAmountSegment): EDocAmountTone {
+    return seg.dataType === EDataType.DATE ? EDocAmountTone.NEUTRAL : seg.tone;
   }
 
   /** Semantic tone → BEM class suffix (colors in SCSS for theme-aware contrast) */
-  protected labelClass(tone: DocAmountTone): string {
+  protected labelClass(tone: EDocAmountTone): string {
     return `doc-amount__label doc-amount__label--${tone}`;
   }
 
-  protected valueClass(tone: DocAmountTone): string {
+  protected valueClass(tone: EDocAmountTone): string {
     return `doc-amount__value doc-amount__value--${tone}`;
   }
 }

@@ -33,6 +33,7 @@ import {
   getGstVerifyPortalName,
   getVerificationLabel,
 } from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 @Component({
   selector: 'app-get-gst-entry-detail',
@@ -276,11 +277,13 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
       {
         dataType: EDataType.CURRENCY,
         label: 'Taxable',
+        tone: EDocAmountTone.TAXABLE,
         value: v.taxableAmount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'GST',
+        tone: EDocAmountTone.GST,
         value: v.gstAmount,
         suffix: v.rateSuffix,
       },

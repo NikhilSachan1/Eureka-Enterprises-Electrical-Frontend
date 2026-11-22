@@ -17,7 +17,7 @@
                 {{ +seg.value | currency: cur : 'symbol' : fmt : loc }}
               </span>
             } @else {
-              <span [class]="valueClass('muted')">—</span>
+              <span [class]="valueClass(EDocAmountTone.MUTED)">—</span>
             }
             @if (seg.suffix) {
               <span class="doc-amount__suffix">{{ seg.suffix }}</span>
@@ -25,9 +25,9 @@
           }
           @case (EDataType.DATE) {
             @if (seg.value) {
-              <span [class]="valueClass('neutral')">{{ seg.value | date: df }}</span>
+              <span [class]="valueClass(EDocAmountTone.NEUTRAL)">{{ seg.value | date: df }}</span>
             } @else {
-              <span [class]="valueClass('muted')">—</span>
+              <span [class]="valueClass(EDocAmountTone.MUTED)">—</span>
             }
           }
         }

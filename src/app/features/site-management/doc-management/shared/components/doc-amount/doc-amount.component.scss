@@ -36,7 +36,8 @@
   &--deduction {
     @include tone-label(#e11d48);
   }
-  &--gst {
+  &--gst,
+  &--pending {
     @include tone-label(#d97706);
   }
   &--total {
@@ -68,7 +69,8 @@
   &--deduction {
     @include tone-value(#be123c);
   }
-  &--gst {
+  &--gst,
+  &--pending {
     @include tone-value(#b45309);
   }
   &--total {
@@ -106,7 +108,8 @@
     &--deduction {
       @include tone-value(#fb7185);
     }
-    &--gst {
+    &--gst,
+    &--pending {
       @include tone-value(#fbbf24);
     }
     &--total {

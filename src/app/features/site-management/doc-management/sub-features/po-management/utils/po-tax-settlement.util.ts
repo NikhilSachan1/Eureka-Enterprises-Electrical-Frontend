@@ -1,5 +1,6 @@
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { EDataType } from '@shared/types';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 export interface IPoTaxTotals {
   gstHeldTotal: number;
@@ -26,6 +27,7 @@ export function buildPoTaxSettlementSegments(
     segments.push({
       dataType: EDataType.CURRENCY,
       label: isSales ? 'Held GST received' : 'Held GST released',
+      tone: EDocAmountTone.NEUTRAL,
       value: totals.gstSettledTotal,
       suffix: `of ${formatInr(totals.gstHeldTotal)}`,
     });
@@ -35,6 +37,7 @@ export function buildPoTaxSettlementSegments(
     segments.push({
       dataType: EDataType.CURRENCY,
       label: isSales ? 'TDS in 26AS' : 'TDS deposited',
+      tone: EDocAmountTone.NEUTRAL,
       value: totals.tdsClearedTotal,
       suffix: `of ${formatInr(totals.tdsTotal)}`,
     });

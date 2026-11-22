@@ -5,6 +5,7 @@ import type { IDocAmountSegment } from '@features/site-management/doc-management
 import { EDocReferenceHierarchyKind } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
 import type { IDocMetricSummaryRow } from '@features/site-management/doc-management/sub-features/book-payment-management/components/book-payment-invoice-summary/book-payment-invoice-summary.component';
 import { IAdvancePaymentGetBaseResponseDto } from '../types/advance-payment.dto';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 export interface IAdvancePaymentLinkedDocView {
   kind: EDocReferenceHierarchyKind;
@@ -145,16 +146,19 @@ export function buildAdvancePaymentPoDoc(
           {
             dataType: EDataType.CURRENCY,
             label: 'Taxable',
+            tone: EDocAmountTone.TAXABLE,
             value: po.taxableAmount,
           },
           {
             dataType: EDataType.CURRENCY,
             label: 'GST',
+            tone: EDocAmountTone.GST,
             value: po.gstAmount,
           },
           {
             dataType: EDataType.CURRENCY,
             label: 'Total',
+            tone: EDocAmountTone.TOTAL,
             value: po.totalAmount,
           },
         ]

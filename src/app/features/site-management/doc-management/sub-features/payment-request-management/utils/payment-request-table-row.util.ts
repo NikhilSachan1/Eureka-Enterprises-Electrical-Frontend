@@ -2,6 +2,7 @@ import { EDataType } from '@shared/types';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { EDocReferenceHierarchyKind } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
 import { IPaymentRequestGetBaseResponseDto } from '../types/payment-request.dto';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 export interface IPaymentRequestLinkedDocView {
   kind: EDocReferenceHierarchyKind;
@@ -44,6 +45,7 @@ function linkedDocAmountSegments(input: {
     {
       dataType: EDataType.CURRENCY,
       label: 'Taxable',
+      tone: EDocAmountTone.TAXABLE,
       value: input.taxableAmount,
     },
   ];
@@ -52,6 +54,7 @@ function linkedDocAmountSegments(input: {
     segments.push({
       dataType: EDataType.CURRENCY,
       label: 'TDS',
+      tone: EDocAmountTone.DEDUCTION,
       value: input.tdsAmount,
     });
   }
@@ -60,11 +63,13 @@ function linkedDocAmountSegments(input: {
     {
       dataType: EDataType.CURRENCY,
       label: 'GST',
+      tone: EDocAmountTone.GST,
       value: input.gstAmount,
     },
     {
       dataType: EDataType.CURRENCY,
       label: 'Total',
+      tone: EDocAmountTone.TOTAL,
       value: input.totalAmount,
     }
   );
