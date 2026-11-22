@@ -28,9 +28,12 @@
       'sidebar--collapsed': !sidebarVisible() && !hoverExpanded(),
       'sidebar--overlay': hoverExpanded(),
     }"
-    [attr.aria-hidden]="!sidebarVisible() && !hoverExpanded()"
+    [attr.aria-hidden]="isMobile() && !sidebarVisible() ? true : null"
+    [inert]="isMobile() && !sidebarVisible()"
     (mouseenter)="onSidebarMouseEnter()"
     (mouseleave)="onSidebarMouseLeave($event)"
+    (focusin)="onSidebarFocusIn()"
+    (focusout)="onSidebarFocusOut($event)"
   >
     <app-sidebar-header
       [sidebarVisible]="sidebarVisible()"
@@ -38,9 +41,7 @@
       (toggleSidebar)="toggleSidebar()"
     />
 
-    <app-sidebar-user-profile
-      [isSidebarCollapsed]="!sidebarVisible() && !hoverExpanded()"
-    />
+    <app-sidebar-user-profile [isSidebarCollapsed]="!sidebarVisible() && !hoverExpanded()" />
 
     <div class="sidebar-content">
       <app-sidebar-menu [isCollapsed]="!sidebarVisible() && !hoverExpanded()" />
