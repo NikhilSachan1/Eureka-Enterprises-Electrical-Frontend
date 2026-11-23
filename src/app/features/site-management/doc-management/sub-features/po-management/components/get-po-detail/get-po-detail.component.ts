@@ -98,7 +98,7 @@ export class GetPoDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('PO details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load PO details', error);
         },
       });
   }

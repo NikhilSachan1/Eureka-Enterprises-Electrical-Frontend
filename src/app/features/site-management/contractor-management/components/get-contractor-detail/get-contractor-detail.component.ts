@@ -67,7 +67,7 @@ export class GetContractorDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('Contractor details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load contractor details', error);
         },
       });
   }

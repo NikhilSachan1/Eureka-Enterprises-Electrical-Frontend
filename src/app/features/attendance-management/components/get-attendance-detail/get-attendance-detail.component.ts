@@ -81,7 +81,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('Attendance history loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load attendance details', error);
         },
       });
   }

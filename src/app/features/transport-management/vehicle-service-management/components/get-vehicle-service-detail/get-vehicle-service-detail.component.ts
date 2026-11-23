@@ -70,7 +70,7 @@ export class GetVehicleServiceDetailComponent extends DrawerDetailBase {
           );
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load vehicle service details', error);
         },
       });
   }

@@ -70,7 +70,7 @@ export class GetVehicleDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('Vehicle details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load vehicle details', error);
         },
       });
   }

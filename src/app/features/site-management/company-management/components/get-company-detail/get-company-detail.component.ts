@@ -67,7 +67,7 @@ export class GetCompanyDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('Company details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load company details', error);
         },
       });
   }

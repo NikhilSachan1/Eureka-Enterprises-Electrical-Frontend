@@ -36,6 +36,7 @@ import { UnsavedChangesInterceptor } from '@core/interceptors/unsaved-changes.in
 import {
   CriticalStartupStateService,
   HealthCheckService,
+  LoggerService,
   PwaInstallService,
   ThemeService,
   TimezoneService,
@@ -128,6 +129,7 @@ export const appConfig: ApplicationConfig = {
       const backgroundServices = inject(BackgroundServicesLoader);
       const criticalStartupState = inject(CriticalStartupStateService);
       const healthCheckService = inject(HealthCheckService);
+      const logger = inject(LoggerService);
 
       const isHealthy = await lastValueFrom(
         healthCheckService.check().pipe(take(1))
@@ -163,7 +165,7 @@ export const appConfig: ApplicationConfig = {
           appConfigurationService.loadCriticalAppData().pipe(take(1))
         );
       } catch (error) {
-        console.error('Failed to load app data during initialization:', error);
+        logger.error('Failed to load app data during initialization', error);
         criticalStartupState.markCriticalLoadFailed('configuration');
         return;
       }

@@ -57,7 +57,7 @@ import {
   InputFieldConfigService,
 } from '@shared/services';
 import { PaginatedDropdownService } from '@shared/services/paginated-dropdown.service';
-import { AppPermissionService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
 import {
   EButtonActionType,
   EButtonSeverity,
@@ -164,6 +164,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   private paginatedFilterReady = false;
   private readonly drawerService = inject(DrawerService);
   private readonly appPermissionService = inject(AppPermissionService);
+  private readonly logger = inject(LoggerService);
   private readonly authService = inject(AuthService);
   private readonly fb = inject(FormBuilder);
   protected readonly inputFieldConfigService = inject(InputFieldConfigService);
@@ -578,7 +579,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     const currentControl = fg.get(config.fieldName);
 
     if (!parentControl) {
-      console.warn(
+      this.logger.warn(
         `Dependent dropdown: Parent field '${dependsOnField}' not found in form`
       );
       return;
@@ -596,7 +597,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         optionsProviderMethod
       ];
       if (typeof method !== 'function') {
-        console.warn(
+        this.logger.warn(
           `Dependent dropdown: Method '${optionsProviderMethod}' not found on AppConfigurationService`
         );
         return;
@@ -1580,7 +1581,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         // Trigger change detection
         this.triggerFileUploadChangeDetection();
       } catch (error) {
-        console.error('Failed to update file upload:', error);
+        this.logger.error('Failed to update file upload', error);
       }
     });
   }

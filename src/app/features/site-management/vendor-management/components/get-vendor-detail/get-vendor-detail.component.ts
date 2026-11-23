@@ -70,7 +70,7 @@ export class GetVendorDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('Vendor details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load vendor details', error);
         },
       });
   }

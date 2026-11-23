@@ -79,7 +79,7 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('Fuel expense details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load fuel expense details', error);
         },
       });
   }

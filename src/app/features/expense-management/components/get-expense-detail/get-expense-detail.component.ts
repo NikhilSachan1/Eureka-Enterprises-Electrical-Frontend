@@ -79,7 +79,7 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('Attendance history loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load expense details', error);
         },
       });
   }
