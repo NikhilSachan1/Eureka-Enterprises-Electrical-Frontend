@@ -55,6 +55,9 @@ export const ROUTE_BASE_PATHS = {
     DELEGATION: {
       BASE: 'delegation',
     },
+    DATA_SYNC: {
+      BASE: 'data-sync',
+    },
   },
 } as const;
 
@@ -281,6 +284,9 @@ export const ROUTES = {
     },
     DELEGATION: {
       LIST: `list`,
+    },
+    DATA_SYNC: {
+      PROD_TO_UAT: `prod-to-uat`,
     },
   },
 } as const;

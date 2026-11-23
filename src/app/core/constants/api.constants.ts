@@ -18,6 +18,10 @@ export const API_ROUTES = {
     GET_JOBS: 'admin/cron/jobs',
     RUN_JOB: 'admin/cron/trigger',
   },
+  DATA_SYNC: {
+    STATUS: 'data-sync/status',
+    PROD_TO_UAT: 'data-sync/prod-to-uat',
+  },
   APP_CONFIGUATION: {
     GET: 'configurations',
   },

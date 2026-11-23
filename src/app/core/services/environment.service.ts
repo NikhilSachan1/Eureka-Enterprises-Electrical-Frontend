@@ -77,7 +77,7 @@ export class EnvironmentService {
   }
 }
 
-function resolveApiEnvironment(apiBaseUrl: string): EEnvironment {
+export function resolveApiEnvironment(apiBaseUrl: string): EEnvironment {
   let host: string;
   try {
     host = new URL(apiBaseUrl).hostname.toLowerCase();
