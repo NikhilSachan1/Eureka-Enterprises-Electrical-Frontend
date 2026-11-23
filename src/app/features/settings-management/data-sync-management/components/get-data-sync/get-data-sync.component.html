@@ -3,65 +3,208 @@
   (headerButtonClick)="onHeaderButtonClick($event)"
 />
 
-<section class="data-sync">
-  <div
-    class="data-sync__status"
-    [class.data-sync__status--ready]="status()?.available"
-    [class.data-sync__status--blocked]="(status() && !status()?.available) || statusLoadFailed()"
+<div class="ds">
+  <!-- Source → target, with where this server stands -->
+  <article
+    class="ds-hero"
+    [attr.data-state]="viewState()"
   >
-    @if (isLoadingStatus()) {
-      <span>Checking whether this server can sync…</span>
-    } @else if (statusLoadFailed()) {
-      <span>Could not check the sync status. Check that you have the data sync permission.</span>
-    } @else if (status(); as s) {
-      <div class="data-sync__route">
-        <span class="data-sync__db">{{ s.sourceDatabase ?? 'not set' }}</span>
-        <i
-          class="pi pi-arrow-right"
+    <div class="ds-flow">
+      <div class="ds-node ds-node--source">
+        <span
+          class="ds-node__icon"
           aria-hidden="true"
-        ></i>
-        <span class="data-sync__db">{{ s.targetDatabase }}</span>
+        >
+          <i class="pi pi-database"></i>
+        </span>
+        <div class="ds-node__body">
+          <span class="ds-node__eyebrow">Source · Prod</span>
+          <span class="ds-node__name">{{ status()?.sourceDatabase ?? '—' }}</span>
+          <span class="ds-tag ds-tag--muted">
+            <i class="pi pi-lock"></i>
+            Read only
+          </span>
+        </div>
       </div>
-      <p class="data-sync__message">
-        @if (s.available) {
-          Ready. Pressing
-          <strong>Sync now</strong>
-          replaces all UAT data with prod data.
-        } @else {
-          {{ s.reason }}
-        }
-      </p>
-    }
-  </div>
 
-  <div class="data-sync__card">
-    <h3>What the sync does</h3>
-    <ul class="data-sync__steps">
-      @for (step of steps; track step) {
-        <li>{{ step }}</li>
-      }
-    </ul>
-
-    @if (status()?.skippedTables?.length) {
-      <h3>Tables kept empty</h3>
-      <div class="data-sync__chips">
-        @for (table of status()?.skippedTables; track table) {
-          <code>{{ table }}</code>
-        }
+      <div
+        class="ds-flow__link"
+        aria-hidden="true"
+      >
+        <span class="ds-flow__line"></span>
+        <span class="ds-flow__badge">
+          <i class="pi pi-eye-slash"></i>
+          Masked copy
+        </span>
+        <span class="ds-flow__line ds-flow__line--arrow"></span>
       </div>
-    }
-  </div>
 
-  @if (lastRun(); as run) {
-    <div class="data-sync__card">
-      <h3>Last run</h3>
-      <p>
-        {{ run.tablesCopied }} tables · {{ run.rowsCopied | number }} rows ·
-        {{ run.durationMs / 1000 | number: '1.0-1' }} s
-      </p>
-      @if (run.missingInSource.length) {
-        <p>Not in prod (left empty): {{ run.missingInSource.join(', ') }}</p>
+      <div class="ds-node ds-node--target">
+        <span
+          class="ds-node__icon"
+          aria-hidden="true"
+        >
+          <i class="pi pi-database"></i>
+        </span>
+        <div class="ds-node__body">
+          <span class="ds-node__eyebrow">Target · UAT</span>
+          <span class="ds-node__name">{{ status()?.targetDatabase ?? '—' }}</span>
+          <span class="ds-tag ds-tag--warn">
+            <i class="pi pi-refresh"></i>
+            Fully replaced
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="ds-status"
+      role="status"
+    >
+      @switch (viewState()) {
+        @case ('loading') {
+          <i class="ds-status__icon pi pi-spin pi-spinner"></i>
+          <div>
+            <p class="ds-status__title">Checking this server…</p>
+            <p class="ds-status__text">Asking the API whether it may pull prod data.</p>
+          </div>
+        }
+        @case ('ready') {
+          <i class="ds-status__icon pi pi-check-circle"></i>
+          <div>
+            <p class="ds-status__title">Ready to sync</p>
+            <p class="ds-status__text">
+              Press
+              <strong>Sync now</strong>
+              to replace all UAT data with the latest prod data.
+            </p>
+          </div>
+        }
+        @case ('blocked') {
+          <i class="ds-status__icon pi pi-ban"></i>
+          <div>
+            <p class="ds-status__title">Sync is not available on this server</p>
+            <p class="ds-status__text">{{ status()?.reason }}</p>
+          </div>
+        }
+        @case ('error') {
+          <i class="ds-status__icon pi pi-exclamation-triangle"></i>
+          <div>
+            <p class="ds-status__title">Could not check the sync status</p>
+            <p class="ds-status__text">You may not have the data sync permission, or the API is not reachable.</p>
+          </div>
+        }
+        @case ('done') {
+          <i class="ds-status__icon pi pi-check-circle"></i>
+          <div>
+            <p class="ds-status__title">Sync finished</p>
+            <p class="ds-status__text">
+              UAT now holds prod data as of {{ lastRun()?.finishedAt | date: 'MMM d, y, h:mm a' }}.
+            </p>
+          </div>
+        }
       }
     </div>
+  </article>
+
+  <!-- Result of the sync just run; every session was replaced, so sign in again from here -->
+  @if (viewState() === 'done') {
+    <section
+      class="ds-result"
+      aria-label="Sync result"
+    >
+      <div class="ds-result__stats">
+        @for (stat of resultStats(); track stat.label) {
+          <div class="ds-stat">
+            <span class="ds-stat__value">{{ stat.value }}</span>
+            <span class="ds-stat__label">{{ stat.label }}</span>
+          </div>
+        }
+      </div>
+      <div class="ds-result__footer">
+        <div class="ds-redirect">
+          <p
+            class="ds-redirect__title"
+            aria-live="polite"
+          >
+            <i class="pi pi-spin pi-spinner"></i>
+            Redirecting to the login page in {{ redirectIn() }}s…
+          </p>
+          <p class="ds-redirect__text">
+            Every session was replaced by the sync. Sign in with your
+            <strong>&#64;uat.test</strong>
+            email and your usual password.
+          </p>
+          <span
+            class="ds-redirect__bar"
+            aria-hidden="true"
+          >
+            <span [style.animation-duration.s]="redirectSeconds"></span>
+          </span>
+        </div>
+        <app-button
+          [buttonConfig]="signInButtonConfig"
+          (onButtonClick)="signInAgain()"
+        />
+      </div>
+      @if (lastRun()?.missingInSource?.length) {
+        <p class="ds-result__note">Not in prod, left empty: {{ lastRun()?.missingInSource?.join(', ') }}</p>
+      }
+    </section>
   }
-</section>
+
+  <!-- What the button does -->
+  <section class="ds-section">
+    <header class="ds-section__header">
+      <h2>What happens when you sync</h2>
+      <p>One transaction on the UAT database — it either all happens or none of it does.</p>
+    </header>
+    <div class="ds-steps">
+      @for (step of steps; track step.title; let i = $index) {
+        <div class="ds-step">
+          <span
+            class="ds-step__icon"
+            aria-hidden="true"
+          >
+            <i [class]="step.icon"></i>
+          </span>
+          <div class="ds-step__body">
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.text }}</p>
+            @if (i === 1) {
+              <p class="ds-example">
+                <code>{{ emailExample.before }}</code>
+                <i
+                  class="pi pi-arrow-right"
+                  aria-hidden="true"
+                ></i>
+                <code>{{ emailExample.after }}</code>
+              </p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Tables whose rows are never copied -->
+  @if (status()?.skippedTables?.length) {
+    <section class="ds-section">
+      <header class="ds-section__header">
+        <h2>Kept empty</h2>
+        <p>Structure only — these rows are never copied from prod.</p>
+      </header>
+      <div class="ds-chips">
+        @for (table of status()?.skippedTables; track table) {
+          <span class="ds-chip">
+            <i
+              class="pi pi-table"
+              aria-hidden="true"
+            ></i>
+            {{ table }}
+          </span>
+        }
+      </div>
+    </section>
+  }
+</div>

@@ -16,6 +16,7 @@ export const DataSyncRunResponseSchema = z.looseObject({
   rowsCopied: z.number(),
   skippedTables: z.array(z.string()),
   missingInSource: z.array(z.string()),
+  permissionsKept: z.number().optional(),
   durationMs: z.number(),
   finishedAt: z.string(),
 });
