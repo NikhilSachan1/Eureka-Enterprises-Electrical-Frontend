@@ -5,18 +5,22 @@ import {
   ESeverity,
   IBulkOperationResponseNotificationConfig,
   INotificationOptions,
+  IPendingApiErrorToast,
 } from '@shared/types';
 import {
   DEFAULT_NOTIFICATION_OPTIONS_CONFIG,
   DEFAULT_NOTIFICATION_MESSAGES,
   DEFAULT_NOTIFICATION_TITLES,
 } from '@shared/config';
+import { API_ERROR_TOAST_MERGE_DELAY_MS } from '@shared/constants/api-error.constants';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NotificationService {
   private readonly messageService = inject(MessageService);
+  /** An API error waiting to be shown, so a caller's message can join it. */
+  private pendingApiError: IPendingApiErrorToast | null = null;
 
   // General methods for flexibility
   success(
@@ -32,7 +36,50 @@ export class NotificationService {
     title: string = DEFAULT_NOTIFICATION_TITLES.error,
     options?: INotificationOptions
   ): void {
+    // The same failure was just reported by the API layer: one toast, the caller's text as
+    // its title ("Failed to add expense") and the server's reason as the detail.
+    const apiReason = this.takePendingApiError();
+    if (apiReason !== null) {
+      this.showNotification(ESeverity.ERROR, apiReason, message, options);
+      return;
+    }
     this.showNotification(ESeverity.ERROR, message, title, options);
+  }
+
+  /**
+   * A failed request, with the server's reason. Shown a moment later, so that when the caller
+   * also reports the failure (error()) both become one toast instead of two.
+   */
+  apiError(reason: string): void {
+    this.flushPendingApiError();
+    const timer = setTimeout(
+      () => this.flushPendingApiError(),
+      API_ERROR_TOAST_MERGE_DELAY_MS
+    );
+    this.pendingApiError = { reason, timer };
+  }
+
+  /** Shows a waiting API error on its own. */
+  private flushPendingApiError(): void {
+    const reason = this.takePendingApiError();
+    if (reason !== null) {
+      this.showNotification(
+        ESeverity.ERROR,
+        reason,
+        DEFAULT_NOTIFICATION_TITLES.error
+      );
+    }
+  }
+
+  /** The waiting API error's reason, removing it; null when none is waiting. */
+  private takePendingApiError(): string | null {
+    const pending = this.pendingApiError;
+    if (!pending) {
+      return null;
+    }
+    clearTimeout(pending.timer);
+    this.pendingApiError = null;
+    return pending.reason;
   }
 
   warning(

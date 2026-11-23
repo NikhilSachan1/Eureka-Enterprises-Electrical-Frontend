@@ -179,11 +179,9 @@ export class MoveMyFileComponent implements OnInit, IDialogActionHandler {
         },
         error: error => {
           this.logger.logUserAction('Failed to move file or folder', error);
+          // The server's reason joins this toast as its detail.
           this.notificationService.error(
-            error?.error?.message ??
-              (isFolder
-                ? 'Could not move the folder. Please try again.'
-                : 'Could not move the file. Please try again.')
+            isFolder ? 'Could not move the folder' : 'Could not move the file'
           );
         },
       });

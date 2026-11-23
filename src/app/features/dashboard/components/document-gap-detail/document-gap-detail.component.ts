@@ -25,6 +25,7 @@ import {
 import { DOC_TAB_SEARCH_QUERY_KEY, ICONS } from '@shared/constants';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { DrawerService } from '@shared/services';
+import { getApiErrorMessage } from '@shared/utility';
 import { HighlightRowDirective } from '@shared/directives/highlight-row.directive';
 
 interface GapDetailRow {
@@ -126,12 +127,7 @@ export class DocumentGapDetailComponent implements OnInit {
       .pipe(
         finalize(() => this.loading.set(false)),
         catchError((error: HttpErrorResponse) => {
-          const raw = error.error?.error?.message;
-          this.errorMessage.set(
-            typeof raw === 'string' && raw.trim()
-              ? raw
-              : 'Could not load this document gap.'
-          );
+          this.errorMessage.set(getApiErrorMessage(error));
           this.logger.logUserAction(
             'Failed to load document gap detail',
             error

@@ -95,3 +95,4 @@ export {
   searchCommandPaletteEntries,
   splitLabelForHighlight,
 } from './command-palette.util';
+export { getApiErrorMessage } from './api-error.util';
