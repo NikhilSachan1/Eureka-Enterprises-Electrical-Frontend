@@ -211,6 +211,10 @@ export const APP_PERMISSION = {
     TABLE_VIEW: 'cron.view-list',
     RUN: 'cron.run',
   },
+  DATA_SYNC: {
+    VIEW: 'data-sync.view',
+    RUN: 'data-sync.run',
+  },
   USER_DELEGATION: {
     TABLE_VIEW: 'user-delegation.view-list',
     MANAGE: 'user-delegation.manage',

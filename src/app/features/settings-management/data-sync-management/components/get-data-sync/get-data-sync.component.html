@@ -1,0 +1,67 @@
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+/>
+
+<section class="data-sync">
+  <div
+    class="data-sync__status"
+    [class.data-sync__status--ready]="status()?.available"
+    [class.data-sync__status--blocked]="(status() && !status()?.available) || statusLoadFailed()"
+  >
+    @if (isLoadingStatus()) {
+      <span>Checking whether this server can sync…</span>
+    } @else if (statusLoadFailed()) {
+      <span>Could not check the sync status. Check that you have the data sync permission.</span>
+    } @else if (status(); as s) {
+      <div class="data-sync__route">
+        <span class="data-sync__db">{{ s.sourceDatabase ?? 'not set' }}</span>
+        <i
+          class="pi pi-arrow-right"
+          aria-hidden="true"
+        ></i>
+        <span class="data-sync__db">{{ s.targetDatabase }}</span>
+      </div>
+      <p class="data-sync__message">
+        @if (s.available) {
+          Ready. Pressing
+          <strong>Sync now</strong>
+          replaces all UAT data with prod data.
+        } @else {
+          {{ s.reason }}
+        }
+      </p>
+    }
+  </div>
+
+  <div class="data-sync__card">
+    <h3>What the sync does</h3>
+    <ul class="data-sync__steps">
+      @for (step of steps; track step) {
+        <li>{{ step }}</li>
+      }
+    </ul>
+
+    @if (status()?.skippedTables?.length) {
+      <h3>Tables kept empty</h3>
+      <div class="data-sync__chips">
+        @for (table of status()?.skippedTables; track table) {
+          <code>{{ table }}</code>
+        }
+      </div>
+    }
+  </div>
+
+  @if (lastRun(); as run) {
+    <div class="data-sync__card">
+      <h3>Last run</h3>
+      <p>
+        {{ run.tablesCopied }} tables · {{ run.rowsCopied | number }} rows ·
+        {{ run.durationMs / 1000 | number: '1.0-1' }} s
+      </p>
+      @if (run.missingInSource.length) {
+        <p>Not in prod (left empty): {{ run.missingInSource.join(', ') }}</p>
+      }
+    </div>
+  }
+</section>

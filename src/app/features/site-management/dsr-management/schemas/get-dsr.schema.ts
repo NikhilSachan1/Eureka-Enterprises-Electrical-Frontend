@@ -15,7 +15,8 @@ export const DsrGetRequestSchema = z
   .object({
     projectName: z.string().nullable().optional(),
     employeeNames: z.array(uuidField).optional(),
-    dateRange: z.array(dateField).nullable().optional(),
+    /** Report dates in this range; either end may be null (open). */
+    dateRange: z.array(dateField.nullable()).nullable().optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -28,8 +29,8 @@ export const DsrGetRequestSchema = z
       ...rest,
       siteId: projectName,
       userId: employeeNames,
-      reportDateFrom: transformDateFormat(start),
-      reportDateTo: transformDateFormat(end),
+      reportDateFrom: start ? transformDateFormat(start) : undefined,
+      reportDateTo: end ? transformDateFormat(end) : undefined,
       includeFiles: true,
       includeSite: true,
     };

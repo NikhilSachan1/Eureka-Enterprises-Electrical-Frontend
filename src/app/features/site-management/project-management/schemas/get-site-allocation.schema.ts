@@ -16,8 +16,11 @@ export const SiteAllocationGetRequestSchema = z
   .object({
     projectName: uuidField.optional(),
     employeeName: uuidField.optional(),
-    /** Workspace date filter: allocations active on any day in this range. */
-    dateRange: z.array(dateField).nullable().optional(),
+    /**
+     * Workspace date filter: allocations active on any day in this range. Either end may be
+     * null (open): only a start → still running then or later; only an end → begun by then.
+     */
+    dateRange: z.array(dateField.nullable()).nullable().optional(),
     sortOrder,
     sortField,
     pageSize,

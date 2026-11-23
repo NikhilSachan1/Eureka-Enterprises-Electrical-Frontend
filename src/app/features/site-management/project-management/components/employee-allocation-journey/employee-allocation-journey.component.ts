@@ -12,7 +12,10 @@ import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { AvatarService } from '@shared/services';
 import { ProjectService } from '../../services/project.service';
-import { buildEmployeeJourney } from '../../utility/allocation-journey.util';
+import {
+  buildEmployeeJourney,
+  periodRange,
+} from '../../utility/allocation-journey.util';
 import {
   daysLabel,
   initialsOf,
@@ -71,6 +74,7 @@ export class EmployeeAllocationJourneyComponent extends DrawerDetailBase {
     this.projectService
       .getSiteAllocationHistory({
         employeeName: this.drawerData.userId,
+        ...periodRange(this.drawerData.period),
         page: 1,
         pageSize: ALLOCATION_DRAWER_PAGE_SIZE,
         sortField: 'allocatedAt',
@@ -83,10 +87,12 @@ export class EmployeeAllocationJourneyComponent extends DrawerDetailBase {
       .subscribe({
         next: response => {
           this.journey.set(
-            buildEmployeeJourney(response.records, new Date(), {
-              from: this.drawerData.freeFrom,
-              to: this.drawerData.freeTo,
-            })
+            buildEmployeeJourney(
+              response.records,
+              new Date(),
+              { from: this.drawerData.freeFrom, to: this.drawerData.freeTo },
+              this.drawerData.period
+            )
           );
         },
         error: error => {

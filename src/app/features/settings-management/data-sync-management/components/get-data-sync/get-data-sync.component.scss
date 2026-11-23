@@ -1,0 +1,75 @@
+:host {
+  display: block;
+}
+
+.data-sync {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__status,
+  &__card {
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border-light-color);
+    border-radius: 0.7rem;
+    background: var(--background-paper-color);
+    color: var(--text-primary-color);
+  }
+
+  &__status {
+    border-left: 3px solid var(--text-secondary-color);
+
+    &--ready {
+      border-left-color: var(--green-600);
+    }
+
+    &--blocked {
+      border-left-color: var(--red-600, #dc2626);
+    }
+  }
+
+  &__route {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+  }
+
+  &__db {
+    overflow-wrap: anywhere;
+  }
+
+  &__message {
+    margin: 0.4rem 0 0;
+    color: var(--text-secondary-color);
+  }
+
+  h3 {
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  &__steps {
+    margin: 0 0 0.75rem;
+    padding-left: 1.2rem;
+    color: var(--text-secondary-color);
+
+    li + li {
+      margin-top: 0.25rem;
+    }
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+
+    code {
+      padding: 0.15rem 0.45rem;
+      border: 1px solid var(--border-light-color);
+      border-radius: 0.4rem;
+      font-size: 0.8rem;
+    }
+  }
+}

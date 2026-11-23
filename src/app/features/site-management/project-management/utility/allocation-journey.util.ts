@@ -4,6 +4,7 @@ import {
   IEmployeeJourney,
   IJourneyFreeGap,
   IJourneyFreeWindow,
+  IAllocationPeriod,
   IJourneyYear,
   IProjectRoster,
   IProjectRosterEntry,
@@ -69,9 +70,36 @@ function locationOf(record: ISiteAllocationGetBaseResponseDto): string {
     .join(', ');
 }
 
-/** Days from start to end (or today while running); a backwards range counts as zero. */
-function daysBetween(start: Date, end: Date | null, today: Date): number {
-  return Math.max(0, toDayNumber(end ?? today) - toDayNumber(start) + 1);
+/**
+ * Days from start to end (or today while running), counted only inside the period when one is
+ * given, like the summary tables; a backwards range counts as zero.
+ */
+function daysBetween(
+  start: Date,
+  end: Date | null,
+  today: Date,
+  period: IAllocationPeriod | null = null
+): number {
+  const first = Math.max(
+    toDayNumber(start),
+    period?.from ? toDayNumber(period.from) : -Infinity
+  );
+  const last = Math.min(
+    toDayNumber(end ?? today),
+    period?.to ? toDayNumber(period.to) : Infinity
+  );
+  return Math.max(0, last - first + 1);
+}
+
+/** The allocation-list filter for a period (allocations overlapping it); none for all time. */
+export function periodRange(period: IAllocationPeriod | null): {
+  dateRange?: (Date | null)[];
+} {
+  if (!period?.from && !period?.to) {
+    return {};
+  }
+  // Only the ends that are set reach the server; an open end stays open.
+  return { dateRange: [period.from, period.to] };
 }
 
 /** Groups entries (already newest first) by the year they start in. */
@@ -114,7 +142,8 @@ export function startsOf(
 export function buildEmployeeJourney(
   records: readonly ISiteAllocationGetBaseResponseDto[],
   today: Date,
-  window?: IJourneyFreeWindow
+  window?: IJourneyFreeWindow,
+  period: IAllocationPeriod | null = null
 ): IEmployeeJourney {
   const todayDay = toDayNumber(today);
   const allocations = startsOf(records).sort(
@@ -142,7 +171,7 @@ export function buildEmployeeJourney(
       });
     }
 
-    const days = daysBetween(start, end, today);
+    const days = daysBetween(start, end, today, period);
     allocatedDays += days;
     chronological.push({
       kind: EJourneyEntryKind.ALLOCATION,
@@ -231,7 +260,8 @@ function freeGap(fromDay: number, toDay: number): IJourneyFreeGap {
  */
 export function buildProjectRoster(
   records: readonly ISiteAllocationGetBaseResponseDto[],
-  today: Date
+  today: Date,
+  period: IAllocationPeriod | null = null
 ): IProjectRoster {
   const entries = startsOf(records)
     .map(({ record, start }): IProjectRosterEntry => {
@@ -243,7 +273,7 @@ export function buildProjectRoster(
         role: roleOf(record),
         start,
         end,
-        days: daysBetween(start, end, today),
+        days: daysBetween(start, end, today, period),
         allocatedBy: personName(record.createdByUser),
         // The last change of an ended allocation is its deallocation.
         removedBy: end === null ? null : personName(record.updatedByUser),

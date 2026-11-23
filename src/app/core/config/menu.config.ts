@@ -1,6 +1,13 @@
 import { ApplicationMenu } from '@shared/types';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { resolveApiEnvironment } from '@core/services/environment.service';
+import { EEnvironment } from '@core/types';
+import { environment } from '@environments/environment';
+
+/** Prod → UAT data sync is only offered when the app is not pointed at the prod API. */
+const IS_PROD_API =
+  resolveApiEnvironment(environment.API_BASE_URL) === EEnvironment.PRODUCTION;
 
 export const appMenu: ApplicationMenu = {
   sections: [
@@ -545,6 +552,24 @@ export const appMenu: ApplicationMenu = {
                 },
               ],
             },
+            // Never offered when the app talks to the prod API.
+            ...(IS_PROD_API
+              ? []
+              : [
+                  {
+                    label: 'Data Sync',
+                    icon: ICONS.COMMON.DOWNLOAD,
+                    basePath: ROUTE_BASE_PATHS.SETTINGS.DATA_SYNC.BASE,
+                    children: [
+                      {
+                        label: 'Sync from Prod',
+                        icon: ICONS.COMMON.DOWNLOAD,
+                        routerLink: ROUTES.SETTINGS.DATA_SYNC.PROD_TO_UAT,
+                        permission: [APP_PERMISSION.DATA_SYNC.VIEW],
+                      },
+                    ],
+                  },
+                ]),
           ],
         },
       ],

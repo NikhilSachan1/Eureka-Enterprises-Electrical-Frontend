@@ -59,7 +59,8 @@ export class DsrProjectTimelineComponent extends DrawerDetailBase {
     this.failed.set(false);
 
     const { siteId, periodFrom, periodTo, userId } = this.drawerData;
-    const dateRange = periodFrom ? [periodFrom, periodTo ?? periodFrom] : null;
+    // Only the ends that are set: an open end stays open (not a single day).
+    const dateRange = periodFrom || periodTo ? [periodFrom, periodTo] : null;
 
     forkJoin({
       reports: this.dsrService.getDSRList({
