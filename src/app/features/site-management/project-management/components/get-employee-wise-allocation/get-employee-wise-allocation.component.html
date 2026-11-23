@@ -1,0 +1,57 @@
+<app-page-header [pageHeaderConfig]="headerConfig">
+  <div headerFilter>
+    @if (showEmployeeFilter()) {
+      <app-input-field
+        [inputFieldConfig]="employeeFilterFieldConfig()"
+        [fieldValue]="selectedEmployeeId()"
+        (onFieldChange)="onEmployeeFilterChange($event)"
+      />
+    }
+  </div>
+</app-page-header>
+
+<!-- One cell: on-site vs free days as a bar, the figures, and how many projects. -->
+<ng-template
+  #allocation
+  let-row
+>
+  @let r = $any(row);
+  <div class="allocation-summary-cell">
+    @if (r.onSitePercent !== null) {
+      <div
+        class="allocation-summary-bar"
+        role="img"
+        [attr.aria-label]="r.allocatedDays + ' days on site, ' + r.freeDays + ' days free'"
+      >
+        <span
+          class="allocation-summary-bar__fill"
+          [style.width.%]="r.onSitePercent"
+        ></span>
+      </div>
+    }
+    <span class="allocation-summary-figures">
+      <strong>{{ r.allocatedDays }}</strong>
+      on site ·
+      <strong>{{ r.freeDays ?? '—' }}</strong>
+      free
+    </span>
+    <span class="allocation-summary-sub">
+      @if (r.projectCount === 0) {
+        Never allocated
+      } @else {
+        {{ r.projectCount }} {{ r.projectCount === 1 ? 'project' : 'projects' }}
+      }
+    </span>
+  </div>
+</ng-template>
+
+<app-data-table
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{ allocation: allocation }"
+  (filterData)="onTableStateChange($event)"
+  (rowActionClick)="onRowActionClick($event)"
+/>

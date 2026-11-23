@@ -139,6 +139,12 @@ export const ROUTES = {
       EDIT: `edit`,
       WORKFORCE_ALLOCATION: `workforce-allocation`,
       ALLOCATION_HISTORY: `allocation-history`,
+      /** Sub-tabs of the workspace allocation history. */
+      ALLOCATION_HISTORY_TAB: {
+        ENTRIES: `entries`,
+        EMPLOYEE_WISE: `employee-wise`,
+        PROJECT_WISE: `project-wise`,
+      },
       WORKSPACE: `workspace`,
       PROFITABILITY: `profitability`,
       CONTRACTOR_DOC: `contractor-doc`,

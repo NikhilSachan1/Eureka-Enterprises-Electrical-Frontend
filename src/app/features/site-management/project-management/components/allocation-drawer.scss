@@ -1,0 +1,425 @@
+// Shared look of the allocation drawers (employee journey, project people).
+:host {
+  display: block;
+}
+
+.ad {
+  --ad-accent: var(--primary-color);
+  --ad-current: var(--green-600, #16a34a);
+  --ad-line: var(--border-light-color);
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+// ── Header ─────────────────────────────────────────────────────
+.ad-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 0.9rem;
+  padding: 1rem;
+  border: 1px solid var(--ad-line);
+  border-radius: 0.9rem;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ad-accent) 9%, var(--background-paper-color)),
+    var(--background-paper-color) 70%
+  );
+}
+
+.ad-hero__avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--ad-accent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--ad-accent) 35%, transparent);
+
+  &--project {
+    border-radius: 0.8rem;
+    font-size: 1.25rem;
+  }
+}
+
+.ad-hero__text {
+  display: flex;
+  flex: 1 1 10rem;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ad-hero__title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-primary-color);
+  overflow-wrap: anywhere;
+}
+
+.ad-hero__sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary-color);
+}
+
+.ad-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+  padding: 0.3rem 0.7rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--green-700, #15803d);
+  background: color-mix(in srgb, var(--ad-current) 14%, transparent);
+  overflow-wrap: anywhere;
+
+  &--muted {
+    color: var(--text-secondary-color);
+    background: color-mix(in srgb, var(--text-secondary-color) 12%, transparent);
+  }
+}
+
+// ── Stats ──────────────────────────────────────────────────────
+.ad-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.ad-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--ad-line);
+  border-radius: 0.7rem;
+  background: var(--background-paper-color);
+
+  dt {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-secondary-color);
+  }
+
+  dd {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary-color);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// What the number means, under it.
+.ad-stat__hint {
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  color: var(--text-secondary-color);
+}
+
+// ── Sections and years ─────────────────────────────────────────
+.ad-section {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary-color);
+}
+
+.ad-year {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.25rem 0 0.6rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-primary-color);
+
+  &::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid var(--ad-line);
+  }
+}
+
+// ── Timeline: date column, rail with dots, cards ───────────────
+.ad-timeline {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.ad-event {
+  display: grid;
+  grid-template-columns: 4.25rem 1.25rem minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.ad-event__date {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 0.7rem 0.5rem 0 0;
+  text-align: right;
+}
+
+.ad-event__day {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-primary-color);
+  white-space: nowrap;
+}
+
+.ad-event__to {
+  font-size: 0.6875rem;
+  color: var(--text-secondary-color);
+  white-space: nowrap;
+}
+
+// Vertical line through the dots; the dot sits level with the card title.
+.ad-event__rail {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    border-left: 2px solid var(--ad-line);
+    transform: translateX(-50%);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0.85rem;
+    left: 50%;
+    width: 0.8rem;
+    height: 0.8rem;
+    border: 2px solid var(--background-paper-color);
+    border-radius: 9999px;
+    background: var(--ad-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ad-accent) 35%, transparent);
+    transform: translateX(-50%);
+  }
+
+  .ad-event--current &::after {
+    background: var(--ad-current);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ad-current) 30%, transparent);
+  }
+}
+
+.ad-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0 0 0.65rem 0.4rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--ad-line);
+  border-radius: 0.7rem;
+  background: var(--background-paper-color);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+
+  .ad-event--current & {
+    border-color: color-mix(in srgb, var(--ad-current) 45%, var(--ad-line));
+    box-shadow: inset 3px 0 0 var(--ad-current);
+  }
+}
+
+.ad-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ad-card__title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text-primary-color);
+  overflow-wrap: anywhere;
+}
+
+.ad-card__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary-color);
+}
+
+.ad-badge {
+  flex-shrink: 0;
+  padding: 0.1rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--green-700, #15803d);
+  background: color-mix(in srgb, var(--ad-current) 14%, transparent);
+}
+
+.ad-badge--ended {
+  color: var(--text-secondary-color);
+  background: color-mix(in srgb, var(--text-secondary-color) 12%, transparent);
+}
+
+.ad-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.ad-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 0.4rem;
+  font-size: 0.71875rem;
+  font-weight: 600;
+  color: var(--text-primary-color);
+  background: color-mix(in srgb, var(--text-secondary-color) 10%, transparent);
+
+  i {
+    font-size: 0.7rem;
+    color: var(--text-secondary-color);
+  }
+}
+
+// Free days between two allocations: a dashed stretch of the rail with a label.
+.ad-gap {
+  display: grid;
+  grid-template-columns: 4.25rem 1.25rem minmax(0, 1fr);
+  align-items: center;
+  min-height: 2.25rem;
+
+  .ad-event__rail::before {
+    border-left-style: dashed;
+  }
+
+  .ad-event__rail::after {
+    display: none;
+  }
+}
+
+.ad-gap__pill {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 0.65rem 0.4rem;
+  padding: 0.25rem 0.65rem;
+  border: 1px dashed var(--ad-line);
+  border-radius: 9999px;
+  font-size: 0.71875rem;
+  color: var(--text-secondary-color);
+  background: var(--background-paper-color);
+}
+
+// Deallocated entry in the project timeline: quieter than the people still on it.
+.ad-card--ended {
+  background: color-mix(in srgb, var(--text-secondary-color) 4%, var(--background-paper-color));
+
+  .ad-card__title {
+    color: var(--text-secondary-color);
+  }
+}
+
+// ── States ─────────────────────────────────────────────────────
+.ad-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 2rem 1rem;
+  border: 1px dashed var(--ad-line);
+  border-radius: 0.8rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-secondary-color);
+
+  i {
+    font-size: 1.5rem;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.ad-retry {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--ad-accent);
+  border-radius: 0.45rem;
+  background: none;
+  color: var(--ad-accent);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--ad-accent);
+    outline-offset: 2px;
+  }
+}
+
+.ad-bone {
+  display: block;
+  height: 0.8rem;
+  border-radius: 0.3rem;
+  background: var(--ad-line);
+  animation: ad-pulse 1.2s ease-in-out infinite;
+
+  &--card {
+    height: 4.5rem;
+    border-radius: 0.7rem;
+  }
+
+  &--short {
+    width: 40%;
+  }
+}
+
+@keyframes ad-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (max-width: 480px) {
+  .ad-event,
+  .ad-gap {
+    grid-template-columns: 3.5rem 1rem minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ad-bone {
+    animation: none;
+  }
+}

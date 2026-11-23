@@ -25,6 +25,9 @@ import {
   WorkforceAllocationGetResponseSchema,
   WorkforceAllocationActionRequestSchema,
   WorkforceAllocationManageResponseSchema,
+  AllocationSummaryGetRequestSchema,
+  EmployeeAllocationSummaryGetResponseSchema,
+  ProjectAllocationSummaryGetResponseSchema,
 } from '../schemas';
 import {
   IProjectAddFormDto,
@@ -50,6 +53,9 @@ import {
   IWorkforceAllocationGetResponseDto,
   IWorkforceAllocationManageFormDto,
   IWorkforceAllocationManageResponseDto,
+  IAllocationSummaryGetFormDto,
+  IEmployeeAllocationSummaryGetResponseDto,
+  IProjectAllocationSummaryGetResponseDto,
 } from '../types/project.dto';
 
 @Injectable({
@@ -134,10 +140,7 @@ export class ProjectService {
       )
       .pipe(
         tap((response: IProjectEditResponseDto) => {
-          this.logger.logUserAction(
-            'Assign Project Vendor Response',
-            response
-          );
+          this.logger.logUserAction('Assign Project Vendor Response', response);
         }),
         catchError(error => {
           if (error?.name === 'ZodError') {
@@ -146,10 +149,7 @@ export class ProjectService {
               error
             );
           } else {
-            this.logger.logUserAction(
-              'Assign Project Vendor Error',
-              error
-            );
+            this.logger.logUserAction('Assign Project Vendor Error', error);
           }
           return throwError(() => error);
         })
@@ -285,6 +285,60 @@ export class ProjectService {
       );
   }
 
+  /** Allocation history per employee, one page at a time (summed on the server). */
+  getEmployeeAllocationSummary(
+    params: IAllocationSummaryGetFormDto
+  ): Observable<IEmployeeAllocationSummaryGetResponseDto> {
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.PROJECT.ALLOCATION_SUMMARY_EMPLOYEES,
+        {
+          response: EmployeeAllocationSummaryGetResponseSchema,
+          request: AllocationSummaryGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        catchError(error => {
+          this.logAllocationSummaryError('employee', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /** Allocation history per project, one page at a time (summed on the server). */
+  getProjectAllocationSummary(
+    params: IAllocationSummaryGetFormDto
+  ): Observable<IProjectAllocationSummaryGetResponseDto> {
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.PROJECT.ALLOCATION_SUMMARY_PROJECTS,
+        {
+          response: ProjectAllocationSummaryGetResponseSchema,
+          request: AllocationSummaryGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        catchError(error => {
+          this.logAllocationSummaryError('project', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  private logAllocationSummaryError(
+    kind: 'employee' | 'project',
+    error: unknown
+  ): void {
+    const message = `Get ${kind} allocation summary error`;
+    if ((error as { name?: string } | null)?.name === 'ZodError') {
+      this.logger.logDtoValidationErrors(message, error);
+    } else {
+      this.logger.logUserAction(message, error);
+    }
+  }
+
   getSiteAllocationHistory(
     params?: ISiteAllocationGetFormDto
   ): Observable<ISiteAllocationGetResponseDto> {
@@ -379,7 +433,10 @@ export class ProjectService {
       )
       .pipe(
         tap((response: ISiteAllocationDeleteResponseDto) => {
-          this.logger.logUserAction('Delete site allocation response', response);
+          this.logger.logUserAction(
+            'Delete site allocation response',
+            response
+          );
         }),
         catchError(error => {
           if (error?.name === 'ZodError') {
