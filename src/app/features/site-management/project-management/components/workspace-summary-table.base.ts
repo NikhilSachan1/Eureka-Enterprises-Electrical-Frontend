@@ -21,6 +21,9 @@ import {
   TableServerSideParamsBuilderService,
 } from '@shared/services';
 import { IEnhancedTable } from '@shared/types';
+import { transformDateFormat } from '@shared/utility';
+import { APP_CONFIG } from '@core/config';
+import { IAllocationPeriod } from '../types/allocation-journey.interface';
 import { ProjectWorkspaceContextService } from '../services/project-workspace-context.service';
 import { IWorkspaceSummaryGetFormDto } from '../types/project.dto';
 
@@ -92,6 +95,23 @@ export abstract class WorkspaceSummaryTableBase<TRecord, TRow extends object> {
   /** Filters a tab adds on top of the workspace ones (e.g. one employee). */
   protected extraParams(): Partial<IWorkspaceSummaryGetFormDto> {
     return {};
+  }
+
+  /** The workspace date filter, for drawers opened from a row; null when none is set. */
+  protected workspacePeriod(): IAllocationPeriod | null {
+    const [from, to] = this.workspaceContext.filters().dateRange ?? [];
+    return from || to ? { from: from ?? null, to: to ?? null } : null;
+  }
+
+  /** A drawer subtitle, with the workspace date filter when one is set. */
+  protected periodSubtitle(text: string): string {
+    const period = this.workspacePeriod();
+    if (!period) {
+      return text;
+    }
+    const format = (date: Date | null): string =>
+      date ? transformDateFormat(date, APP_CONFIG.DATE_FORMATS.DEFAULT) : '…';
+    return `${text} · ${format(period.from)} – ${format(period.to)}`;
   }
 
   /** Loads the current page again, once the table has asked for one. */

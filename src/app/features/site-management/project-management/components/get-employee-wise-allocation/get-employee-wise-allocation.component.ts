@@ -121,13 +121,16 @@ export class GetEmployeeWiseAllocationComponent extends WorkspaceSummaryTableBas
 
     this.drawerService.showDrawer(EmployeeAllocationJourneyComponent, {
       header: 'Allocation journey',
-      subtitle: 'Projects this employee worked on, newest first',
+      subtitle: this.periodSubtitle(
+        'Projects this employee worked on, newest first'
+      ),
       componentData: {
         userId: row.userId,
         fullName: toTitleCase(row.user.fullName),
         employeeId: row.user.employeeId,
         freeFrom: row.freeFrom,
         freeTo: row.freeTo,
+        period: this.workspacePeriod(),
       },
     });
   }

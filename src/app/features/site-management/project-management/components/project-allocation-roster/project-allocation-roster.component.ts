@@ -10,7 +10,10 @@ import { finalize } from 'rxjs';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { ProjectService } from '../../services/project.service';
-import { buildProjectRoster } from '../../utility/allocation-journey.util';
+import {
+  buildProjectRoster,
+  periodRange,
+} from '../../utility/allocation-journey.util';
 import { daysLabel, untilLabel } from '../../utility/allocation-drawer.util';
 import { ALLOCATION_DRAWER_PAGE_SIZE } from '../../constants/site-allocation.constants';
 import {
@@ -52,6 +55,7 @@ export class ProjectAllocationRosterComponent extends DrawerDetailBase {
     this.projectService
       .getSiteAllocationHistory({
         projectName: this.drawerData.siteId,
+        ...periodRange(this.drawerData.period),
         page: 1,
         pageSize: ALLOCATION_DRAWER_PAGE_SIZE,
         sortField: 'allocatedAt',
@@ -63,7 +67,13 @@ export class ProjectAllocationRosterComponent extends DrawerDetailBase {
       )
       .subscribe({
         next: response => {
-          this.roster.set(buildProjectRoster(response.records, new Date()));
+          this.roster.set(
+            buildProjectRoster(
+              response.records,
+              new Date(),
+              this.drawerData.period
+            )
+          );
         },
         error: error => {
           this.failed.set(true);

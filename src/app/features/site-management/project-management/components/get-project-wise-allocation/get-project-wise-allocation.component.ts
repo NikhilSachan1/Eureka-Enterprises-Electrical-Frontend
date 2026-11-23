@@ -77,11 +77,12 @@ export class GetProjectWiseAllocationComponent extends WorkspaceSummaryTableBase
 
     this.drawerService.showDrawer(ProjectAllocationRosterComponent, {
       header: 'Project allocations',
-      subtitle: 'Who worked on this project and when',
+      subtitle: this.periodSubtitle('Who worked on this project and when'),
       componentData: {
         siteId: row.siteId,
         projectName: row.docWorkspaceContext.projectName,
         projectLocation: row.docWorkspaceContext.siteLocationSubtitle,
+        period: this.workspacePeriod(),
       },
     });
   }

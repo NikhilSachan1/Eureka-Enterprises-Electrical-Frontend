@@ -67,11 +67,19 @@ export interface IProjectRoster {
   allocationCount: number;
 }
 
+/** The workspace date filter a drawer is limited to; either end may be open. */
+export interface IAllocationPeriod {
+  from: Date | null;
+  to: Date | null;
+}
+
 /** Drawer data: the employee whose journey is shown. */
 export interface IEmployeeAllocationJourneyData {
   userId: string;
   fullName: string;
   employeeId: string;
+  /** Workspace date filter: only allocations in it, days counted inside it. Null = all time. */
+  period: IAllocationPeriod | null;
   /** Free-day window from the table row (YYYY-MM-DD), so both count the same days. */
   freeFrom: string | null;
   freeTo: string | null;
@@ -88,4 +96,6 @@ export interface IProjectAllocationRosterData {
   siteId: string;
   projectName: string;
   projectLocation: string;
+  /** Workspace date filter: only allocations in it, days counted inside it. Null = all time. */
+  period: IAllocationPeriod | null;
 }
