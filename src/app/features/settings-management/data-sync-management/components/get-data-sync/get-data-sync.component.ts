@@ -8,11 +8,12 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DecimalPipe } from '@angular/common';
-import { finalize } from 'rxjs';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { finalize, take, timer } from 'rxjs';
 import { APP_PERMISSION } from '@core/constants';
 import { LoggerService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { ICONS } from '@shared/constants';
@@ -28,8 +29,11 @@ import {
 } from '@shared/types';
 import {
   buildDataSyncConfirmConfig,
+  DATA_SYNC_EMAIL_EXAMPLE,
   DATA_SYNC_HEADER_ACTION as SYNC_ACTION,
   DATA_SYNC_LOADER_CONFIG,
+  DATA_SYNC_REDIRECT_SECONDS,
+  DATA_SYNC_SIGN_IN_BUTTON_CONFIG,
   DATA_SYNC_STEPS,
 } from '../../config/data-sync.config';
 import { DataSyncService } from '../../services/data-sync.service';
@@ -37,6 +41,10 @@ import {
   IDataSyncRunResponseDto,
   IDataSyncStatusResponseDto,
 } from '../../types/data-sync.dto';
+import {
+  IDataSyncResultStat,
+  TDataSyncViewState,
+} from '../../types/data-sync.interface';
 
 /**
  * One button that replaces UAT data with prod data. The server decides whether it may run
@@ -44,7 +52,8 @@ import {
  */
 @Component({
   selector: 'app-get-data-sync',
-  imports: [PageHeaderComponent, DecimalPipe],
+  imports: [PageHeaderComponent, ButtonComponent, DatePipe],
+  providers: [DecimalPipe],
   templateUrl: './get-data-sync.component.html',
   styleUrl: './get-data-sync.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,12 +68,51 @@ export class GetDataSyncComponent implements OnInit {
   private readonly loadingService = inject(LoadingService);
   private readonly notificationService = inject(NotificationService);
   private readonly authService = inject(AuthService);
+  private readonly decimalPipe = inject(DecimalPipe);
 
   protected readonly steps = DATA_SYNC_STEPS;
+  protected readonly emailExample = DATA_SYNC_EMAIL_EXAMPLE;
+  protected readonly signInButtonConfig = DATA_SYNC_SIGN_IN_BUTTON_CONFIG;
+  protected readonly redirectSeconds = DATA_SYNC_REDIRECT_SECONDS;
+  protected readonly redirectIn = signal(DATA_SYNC_REDIRECT_SECONDS);
+  private hasRedirected = false;
+
   protected readonly status = signal<IDataSyncStatusResponseDto | null>(null);
   protected readonly isLoadingStatus = signal(true);
   protected readonly statusLoadFailed = signal(false);
   protected readonly lastRun = signal<IDataSyncRunResponseDto | null>(null);
+
+  protected readonly viewState = computed((): TDataSyncViewState => {
+    if (this.lastRun()) {
+      return 'done';
+    }
+    if (this.isLoadingStatus()) {
+      return 'loading';
+    }
+    if (this.statusLoadFailed()) {
+      return 'error';
+    }
+    return this.status()?.available ? 'ready' : 'blocked';
+  });
+
+  protected readonly resultStats = computed((): IDataSyncResultStat[] => {
+    const run = this.lastRun();
+    if (!run) {
+      return [];
+    }
+    return [
+      { label: 'Tables copied', value: this.formatNumber(run.tablesCopied) },
+      { label: 'Rows copied', value: this.formatNumber(run.rowsCopied) },
+      {
+        label: 'Time taken',
+        value: `${this.formatNumber(run.durationMs / 1000, '1.0-1')} s`,
+      },
+      {
+        label: 'UAT permissions kept',
+        value: this.formatNumber(run.permissionsKept ?? 0),
+      },
+    ];
+  });
 
   protected readonly pageHeaderConfig = computed(() =>
     this.getPageHeaderConfig()
@@ -76,7 +124,7 @@ export class GetDataSyncComponent implements OnInit {
 
   protected onHeaderButtonClick(actionName: string): void {
     const status = this.status();
-    if (actionName !== SYNC_ACTION || !status?.available) {
+    if (actionName !== SYNC_ACTION || !status?.available || this.lastRun()) {
       return;
     }
 
@@ -91,6 +139,16 @@ export class GetDataSyncComponent implements OnInit {
       false,
       false
     );
+  }
+
+  /** The sync replaced every session, so the next request would fail anyway. */
+  protected signInAgain(): void {
+    // The countdown and the button can both fire; log out only once.
+    if (this.hasRedirected) {
+      return;
+    }
+    this.hasRedirected = true;
+    this.authService.forceLogout();
   }
 
   private loadStatus(): void {
@@ -123,18 +181,39 @@ export class GetDataSyncComponent implements OnInit {
           this.lastRun.set(result);
           this.logger.logUserAction('Prod to UAT sync completed', result);
           this.notificationService.success(result.message);
-          // Every refresh token was replaced by the sync; sign out cleanly instead of failing later.
-          this.authService.forceLogout();
+          this.startRedirectCountdown();
         },
       });
   }
 
+  /** Shows the result for a moment, counting down, then sends the user to the login page. */
+  private startRedirectCountdown(): void {
+    this.redirectIn.set(this.redirectSeconds);
+    timer(1000, 1000)
+      .pipe(take(this.redirectSeconds), takeUntilDestroyed(this.destroyRef))
+      .subscribe(tick => {
+        const remaining = this.redirectSeconds - tick - 1;
+        this.redirectIn.set(remaining);
+        if (remaining === 0) {
+          this.signInAgain();
+        }
+      });
+  }
+
+  private formatNumber(value: number, digits = '1.0-0'): string {
+    return this.decimalPipe.transform(value, digits) ?? String(value);
+  }
+
   private getPageHeaderConfig(): IPageHeaderConfig {
-    const status = this.status();
-    const disabledTooltip = this.isLoadingStatus()
-      ? 'Checking whether this server can sync…'
-      : (status?.reason ??
-        (this.statusLoadFailed() ? 'Could not check sync status.' : undefined));
+    const state = this.viewState();
+    const disabledTooltip =
+      state === 'loading'
+        ? 'Checking whether this server can sync…'
+        : state === 'done'
+          ? 'Sync finished. Sign in again to continue.'
+          : state === 'error'
+            ? 'Could not check sync status.'
+            : (this.status()?.reason ?? undefined);
 
     return {
       title: 'Sync from Prod',
@@ -149,7 +228,7 @@ export class GetDataSyncComponent implements OnInit {
           severity: EButtonSeverity.DANGER,
           actionName: SYNC_ACTION,
           permission: [APP_PERMISSION.DATA_SYNC.RUN],
-          disabled: !status?.available,
+          disabled: state !== 'ready',
           disabledTooltip,
         },
       ],
