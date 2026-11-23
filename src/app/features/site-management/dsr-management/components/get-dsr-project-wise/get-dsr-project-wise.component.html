@@ -81,7 +81,7 @@
           }
         }
       </span>
-      <span class="allocation-summary-sub">{{ r.lastReportDate | date: 'd MMM y' }}</span>
+      <span class="allocation-summary-sub">{{ r.lastReportDate | date: DATE_FORMATS.DEFAULT }}</span>
     </div>
   } @else {
     <span

@@ -86,6 +86,7 @@ import { DatePipe } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetLeaveComponent implements OnInit {
+  protected readonly DATE_FORMATS = APP_CONFIG.DATE_FORMATS;
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);

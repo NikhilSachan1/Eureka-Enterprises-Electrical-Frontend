@@ -201,7 +201,9 @@
                   <td>
                     <div class="pdd-cell-stack">
                       <span class="pdd-strong">{{ row.invoiceNumber }}</span>
-                      <span class="pdd-muted">{{ row.invoiceDate | date: 'dd MMM yyyy' : undefined : locale }}</span>
+                      <span class="pdd-muted">
+                        {{ row.invoiceDate | date: DATE_FORMATS.DEFAULT : undefined : locale }}
+                      </span>
                       @if (row.isGstHold) {
                         <span class="pdd-tags">
                           <span

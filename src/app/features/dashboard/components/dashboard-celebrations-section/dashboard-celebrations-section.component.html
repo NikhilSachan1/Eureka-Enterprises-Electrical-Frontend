@@ -56,7 +56,7 @@
               <div class="dcs-main">
                 <span class="dcs-primary">{{ row.label }}</span>
                 <div class="dcs-main__meta">
-                  <span class="dcs-date">{{ row.value | date: 'EEE, d MMM' }}</span>
+                  <span class="dcs-date">{{ row.value | date: DATE_FORMATS.WEEKDAY_DAY_MONTH }}</span>
                   @if (variant() === 'anniversaries' && row.completedYears) {
                     <span class="dcs-main__meta-sep">|</span>
                     <span class="dcs-years--inline">{{ anniversaryCopy(row.completedYears) }}</span>

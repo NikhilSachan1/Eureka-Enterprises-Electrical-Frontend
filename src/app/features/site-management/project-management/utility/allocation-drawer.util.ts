@@ -1,27 +1,21 @@
-/** Helpers shared by the allocation drawers. */
+import { APP_CONFIG } from '@core/config';
+import { transformDateFormat } from '@shared/utility';
 
-const DAY_MONTH = new Intl.DateTimeFormat('en-IN', {
-  day: 'numeric',
-  month: 'short',
-});
-const DAY_MONTH_YEAR = new Intl.DateTimeFormat('en-IN', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-});
+/** Helpers shared by the allocation drawers. */
 
 export function daysLabel(days: number): string {
   return days === 1 ? '1 day' : `${days} days`;
 }
 
-/** "to 8 Nov", with the year when the end falls in another year; "ongoing" while running. */
+/** "to Nov 8", with the year when the end falls in another year; "ongoing" while running. */
 export function untilLabel(start: Date, end: Date | null): string {
   if (!end) {
     return 'ongoing';
   }
+  const { DAY_MONTH, DEFAULT } = APP_CONFIG.DATE_FORMATS;
   const format =
-    end.getFullYear() === start.getFullYear() ? DAY_MONTH : DAY_MONTH_YEAR;
-  return `to ${format.format(end)}`;
+    end.getFullYear() === start.getFullYear() ? DAY_MONTH : DEFAULT;
+  return `to ${transformDateFormat(end, format)}`;
 }
 
 /** Up to two initials for an avatar. */

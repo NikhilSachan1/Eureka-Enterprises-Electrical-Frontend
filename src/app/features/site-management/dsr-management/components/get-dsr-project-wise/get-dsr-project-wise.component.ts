@@ -24,6 +24,7 @@ import type {
 } from '../../types/dsr.dto';
 import type { IDsrProjectSummaryRow } from '../../types/dsr-summary.interface';
 import { DsrProjectTimelineComponent } from '../dsr-project-timeline/dsr-project-timeline.component';
+import { APP_CONFIG } from '@core/config';
 
 /** How well each project reports its DSRs under the workspace filters, summed on the server. */
 @Component({
@@ -40,6 +41,7 @@ export class GetDsrProjectWiseComponent extends AllocationSummaryTableBase<
   IDsrProjectSummaryDto,
   IDsrProjectSummaryRow
 > {
+  protected readonly DATE_FORMATS = APP_CONFIG.DATE_FORMATS;
   private readonly dsrService = inject(DsrService);
   private readonly dataTableService = inject(TableService);
   private readonly appConfigurationService = inject(AppConfigurationService);

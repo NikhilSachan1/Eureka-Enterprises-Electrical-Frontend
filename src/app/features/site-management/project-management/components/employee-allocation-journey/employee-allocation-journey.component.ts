@@ -24,6 +24,7 @@ import {
   IEmployeeJourney,
 } from '../../types/allocation-journey.interface';
 import { EJourneyEntryKind } from '../../types/allocation-journey.types';
+import { APP_CONFIG } from '@core/config';
 
 /**
  * One employee's movement across projects, newest first, with the free days between allocations.
@@ -37,6 +38,7 @@ import { EJourneyEntryKind } from '../../types/allocation-journey.types';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeAllocationJourneyComponent extends DrawerDetailBase {
+  protected readonly DATE_FORMATS = APP_CONFIG.DATE_FORMATS;
   protected readonly drawerData = inject(
     DRAWER_DATA
   ) as IEmployeeAllocationJourneyData;

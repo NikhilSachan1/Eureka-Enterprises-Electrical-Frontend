@@ -19,6 +19,7 @@ import type {
 } from '../../types/dsr-summary.interface';
 import { EDsrTimelineEntryKind } from '../../types/dsr-summary.types';
 import { buildDsrProjectTimeline } from '../../utility/dsr-timeline.util';
+import { APP_CONFIG } from '@core/config';
 
 /**
  * One project's DSRs as a timeline: each day with a report, and each run of days someone was on
@@ -35,6 +36,7 @@ import { buildDsrProjectTimeline } from '../../utility/dsr-timeline.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DsrProjectTimelineComponent extends DrawerDetailBase {
+  protected readonly DATE_FORMATS = APP_CONFIG.DATE_FORMATS;
   protected readonly drawerData = inject(
     DRAWER_DATA
   ) as IDsrProjectTimelineData;

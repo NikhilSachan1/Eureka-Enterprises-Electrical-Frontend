@@ -53,7 +53,9 @@ import {
   hasSearchFilterQueryParams,
   parseSearchFilterQueryParams,
   serializeSearchFilterQueryParams,
+  transformDateFormat,
 } from '@shared/utility';
+import { APP_CONFIG } from '@core/config';
 
 /** Field rendered as the always-visible search box in the toolbar. */
 const SEARCH_FIELD_NAME = 'globalSearch';
@@ -72,12 +74,6 @@ const FIELD_HIGHLIGHT_MS = 1_400;
 const DRAWER_OPEN_DELAY_MS = 320;
 
 let nextInstanceId = 0;
-
-const CHIP_DATE_FORMAT = new Intl.DateTimeFormat('en-IN', {
-  day: '2-digit',
-  month: 'short',
-  year: 'numeric',
-});
 
 interface IAppliedFilterChip {
   fieldName: string;
@@ -745,7 +741,7 @@ export class SearchFilterComponent implements OnInit, IMetricFilterTarget {
     config: IInputFieldsConfig | undefined
   ): string {
     if (value instanceof Date) {
-      return CHIP_DATE_FORMAT.format(value);
+      return transformDateFormat(value, APP_CONFIG.DATE_FORMATS.DEFAULT);
     }
     if (typeof value === 'boolean') {
       return value ? 'Yes' : 'No';
@@ -753,7 +749,11 @@ export class SearchFilterComponent implements OnInit, IMetricFilterTarget {
     if (Array.isArray(value)) {
       const items = value.filter(hasFilterValue);
       if (items.length && items.every(item => item instanceof Date)) {
-        return items.map(item => CHIP_DATE_FORMAT.format(item)).join(' – ');
+        return items
+          .map(item =>
+            transformDateFormat(item, APP_CONFIG.DATE_FORMATS.DEFAULT)
+          )
+          .join(' – ');
       }
       const options = this.resolveOptions(config);
       const labels = items.map(item => findOptionLabel(options, item));

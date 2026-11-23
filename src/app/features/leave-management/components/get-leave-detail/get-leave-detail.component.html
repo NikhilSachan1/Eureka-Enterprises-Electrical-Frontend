@@ -38,8 +38,8 @@
         <div class="decision__days">
           @for (date of decision.dates; track date) {
             <span class="decision__day">
-              <span class="decision__day-num">{{ date | date: 'dd' }}</span>
-              <span class="decision__day-name">{{ date | date: 'EEE' }}</span>
+              <span class="decision__day-num">{{ date | date: DATE_FORMATS.DAY_OF_MONTH }}</span>
+              <span class="decision__day-name">{{ date | date: DATE_FORMATS.WEEKDAY_SHORT }}</span>
             </span>
           }
         </div>

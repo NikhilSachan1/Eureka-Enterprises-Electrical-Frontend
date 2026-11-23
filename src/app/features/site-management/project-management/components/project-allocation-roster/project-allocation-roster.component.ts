@@ -17,6 +17,7 @@ import {
   IProjectAllocationRosterData,
   IProjectRoster,
 } from '../../types/allocation-journey.interface';
+import { APP_CONFIG } from '@core/config';
 
 /** Everyone who worked on one project, as a timeline marking who is still allocated. */
 @Component({
@@ -27,6 +28,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectAllocationRosterComponent extends DrawerDetailBase {
+  protected readonly DATE_FORMATS = APP_CONFIG.DATE_FORMATS;
   protected readonly drawerData = inject(
     DRAWER_DATA
   ) as IProjectAllocationRosterData;

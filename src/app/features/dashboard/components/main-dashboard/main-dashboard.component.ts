@@ -25,6 +25,7 @@ import { BirthdaysDashboardComponent } from '../birthdays-dashboard/birthdays-da
 import { HolidayDashboardComponent } from '../holiday-dashboard/holiday-dashboard.component';
 import { HandoverPendingDashboardComponent } from '../handover-pending-dashboard/handover-pending-dashboard.component';
 import { ReceivablesPayablesDashboardComponent } from '../receivables-payables-dashboard/receivables-payables-dashboard.component';
+import { APP_CONFIG } from '@core/config';
 
 @Component({
   selector: 'app-main-dashboard',
@@ -51,6 +52,7 @@ import { ReceivablesPayablesDashboardComponent } from '../receivables-payables-d
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainDashboardComponent {
+  protected readonly DATE_FORMATS = APP_CONFIG.DATE_FORMATS;
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly authService = inject(AuthService);
   private readonly ledgerSpendSection =

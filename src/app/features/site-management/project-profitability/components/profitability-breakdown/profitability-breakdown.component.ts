@@ -122,6 +122,7 @@ const META: Record<ProfitabilityBreakdownType, IProfitabilityDetailMeta> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfitabilityBreakdownComponent {
+  protected readonly DATE_FORMATS = APP_CONFIG.DATE_FORMATS;
   private readonly avatarService = inject(AvatarService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 

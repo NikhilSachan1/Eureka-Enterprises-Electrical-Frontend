@@ -129,7 +129,7 @@
                 [class.ad-event--current]="isAllocated"
               >
                 <div class="ad-event__date">
-                  <span class="ad-event__day">{{ entry.start | date: 'd MMM' }}</span>
+                  <span class="ad-event__day">{{ entry.start | date: DATE_FORMATS.DAY_MONTH }}</span>
                   <span class="ad-event__to">{{ untilLabel(entry.start, entry.end) }}</span>
                 </div>
                 <span

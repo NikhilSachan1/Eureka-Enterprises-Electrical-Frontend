@@ -8,6 +8,7 @@ import { DatePipe, NgClass } from '@angular/common';
 import { ICONS } from '@shared/constants';
 import { IDashboardCelebrationRow } from '@features/dashboard/types/dashboard.interface';
 import { AvatarService } from '@shared/services';
+import { APP_CONFIG } from '@core/config';
 
 type CelebrationVariant = 'birthdays' | 'anniversaries' | 'holidays';
 
@@ -19,6 +20,7 @@ type CelebrationVariant = 'birthdays' | 'anniversaries' | 'holidays';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardCelebrationsSectionComponent {
+  protected readonly DATE_FORMATS = APP_CONFIG.DATE_FORMATS;
   protected readonly ICONS = ICONS;
   private readonly avatarService = inject(AvatarService);
 

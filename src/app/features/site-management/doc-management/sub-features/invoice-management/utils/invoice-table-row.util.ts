@@ -2,7 +2,7 @@ import { IInvoiceGetBaseResponseDto } from '../types/invoice.dto';
 import { EApprovalStatus, EDataType } from '@shared/types';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { APP_CONFIG } from '@core/config';
-import { roundCurrencyAmount } from '@shared/utility';
+import { roundCurrencyAmount, transformDateFormat } from '@shared/utility';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
@@ -288,11 +288,7 @@ function formatInvoiceShortDate(value: string): string {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? value
-    : date.toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      });
+    : transformDateFormat(date, APP_CONFIG.DATE_FORMATS.DEFAULT);
 }
 
 export function buildInvoiceAdvanceSettlementFlowSegments(

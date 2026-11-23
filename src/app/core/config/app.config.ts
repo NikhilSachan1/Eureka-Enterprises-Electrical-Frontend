@@ -52,6 +52,21 @@ export const APP_CONFIG = {
     API_DATETIME: 'yyyy-MM-ddTHH:mm:ss',
     WITH_SHORT_MONTH: 'MMM d, yyyy',
     MONTH_YEAR: 'MMM yyyy',
+    // Shorter forms for timelines and calendars; same order as DEFAULT ("Nov 1").
+    /** "Nov 1": a date when the year is shown elsewhere (timeline rows). */
+    DAY_MONTH: 'MMM d',
+    /** "Sun, Nov 1" */
+    WEEKDAY_DAY_MONTH: 'EEE, MMM d',
+    /** "Sunday, November 1, 2026" */
+    FULL_WITH_WEEKDAY: 'EEEE, MMMM d, yyyy',
+    /** "November 2026": month headings */
+    MONTH_YEAR_LONG: 'MMMM yyyy',
+    /** "Sun" */
+    WEEKDAY_SHORT: 'EEE',
+    /** "Sunday" */
+    WEEKDAY: 'EEEE',
+    /** "01": day number in a calendar tile */
+    DAY_OF_MONTH: 'dd',
   },
 
   // Time Formats

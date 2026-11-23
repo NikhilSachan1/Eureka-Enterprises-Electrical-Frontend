@@ -130,14 +130,14 @@
       <h3 class="ad-section">History</h3>
       <div>
         @for (month of data.months; track month.month.getTime()) {
-          <div class="ad-year">{{ month.month | date: 'MMMM y' }}</div>
+          <div class="ad-year">{{ month.month | date: DATE_FORMATS.MONTH_YEAR_LONG }}</div>
           <ol class="ad-timeline">
             @for (entry of month.entries; track $index) {
               @if (entry.kind === EDsrTimelineEntryKind.REPORTED) {
                 <li class="ad-event ad-event--current">
                   <div class="ad-event__date">
-                    <span class="ad-event__day">{{ entry.day | date: 'd MMM' }}</span>
-                    <span class="ad-event__to">{{ entry.day | date: 'EEE' }}</span>
+                    <span class="ad-event__day">{{ entry.day | date: DATE_FORMATS.DAY_MONTH }}</span>
+                    <span class="ad-event__to">{{ entry.day | date: DATE_FORMATS.WEEKDAY_SHORT }}</span>
                   </div>
                   <span
                     class="ad-event__rail"
@@ -192,9 +192,9 @@
                     ></i>
                     No DSR for {{ daysLabel(entry.days) }} ·
                     @if (entry.days === 1) {
-                      {{ entry.start | date: 'd MMM' }}
+                      {{ entry.start | date: DATE_FORMATS.DAY_MONTH }}
                     } @else {
-                      {{ entry.start | date: 'd MMM' }} – {{ entry.end | date: 'd MMM' }}
+                      {{ entry.start | date: DATE_FORMATS.DAY_MONTH }} – {{ entry.end | date: DATE_FORMATS.DAY_MONTH }}
                     }
                     @if (entry.allocatedPeople.length) {
                       · on site: {{ entry.allocatedPeople.join(', ') }}
