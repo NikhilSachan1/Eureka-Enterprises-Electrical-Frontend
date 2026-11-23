@@ -55,7 +55,7 @@
   border-radius: 999px;
   font-size: 0.6875rem;
   line-height: 1.125rem;
-  background: #fff7ed;
+  background: color-mix(in srgb, #f59e0b 14%, transparent);
   color: #c2410c;
 }
 
@@ -234,7 +234,7 @@
   border-radius: 0.25rem;
   font-size: 0.6875rem;
   font-weight: 600;
-  background: #fef2f2;
+  background: color-mix(in srgb, #ef4444 14%, transparent);
   color: #b91c1c;
 }
 
@@ -265,7 +265,7 @@
   border-radius: 999px;
   font-size: 0.6875rem;
   font-weight: 600;
-  background: #fff7ed;
+  background: color-mix(in srgb, #f59e0b 14%, transparent);
   color: #c2410c;
   white-space: nowrap;
 }
@@ -273,28 +273,28 @@
 // Status colours, shared by the pill and the legend.
 [data-state="done"] {
   --status-accent: #16a34a;
-  --badge-bg: #f0fdf4;
-  --badge-text: #15803d;
+  --badge-bg: color-mix(in srgb, #22c55e 14%, transparent);
+  --badge-text: color-mix(in srgb, #22c55e 78%, var(--text-primary-color));
 }
 [data-state="pending"] {
   --status-accent: #ea580c;
-  --badge-bg: #fff7ed;
+  --badge-bg: color-mix(in srgb, #f59e0b 14%, transparent);
   --badge-text: #c2410c;
 }
 [data-state="rejected"] {
   --status-accent: #dc2626;
-  --badge-bg: #fef2f2;
+  --badge-bg: color-mix(in srgb, #ef4444 14%, transparent);
   --badge-text: #b91c1c;
 }
 [data-state="missing"] {
   --status-accent: #94a3b8;
   --badge-bg: transparent;
-  --badge-text: #64748b;
+  --badge-text: var(--text-secondary-color);
 }
 [data-state="partial"] {
   --status-accent: #ca8a04;
-  --badge-bg: #fefce8;
-  --badge-text: #a16207;
+  --badge-bg: color-mix(in srgb, #eab308 14%, transparent);
+  --badge-text: color-mix(in srgb, #f59e0b 78%, var(--text-primary-color));
 }
 
 .dct__status {

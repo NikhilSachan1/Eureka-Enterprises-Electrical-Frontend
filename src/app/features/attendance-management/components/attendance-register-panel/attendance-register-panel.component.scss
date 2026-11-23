@@ -1,44 +1,30 @@
 @use "sass:list";
 
-$register-blue-tone: (#dbeafe, #93c5fd, #1d4ed8);
+// Background, border and text of a status, from one base colour. Tints and a text mixed with
+// the theme text colour keep the codes readable in light and dark mode.
+@function register-tone($base) {
+  @return (
+    color-mix(in srgb, #{$base} 14%, transparent),
+    color-mix(in srgb, #{$base} 40%, transparent),
+    color-mix(in srgb, #{$base} 78%, var(--text-primary-color))
+  );
+}
+
+$register-blue-tone: register-tone(#3b82f6);
 $register-tones: (
-  present: (
-    #dcfce7,
-    #86efac,
-    #166534,
-  ),
-  absent: (
-    #fee2e2,
-    #fca5a5,
-    #991b1b,
-  ),
-  leave: (
-    #fef3c7,
-    #fcd34d,
-    #92400e,
-  ),
-  holiday: (
-    #ede9fe,
-    #c4b5fd,
-    #5b21b6,
-  ),
+  present: register-tone(#22c55e),
+  absent: register-tone(#ef4444),
+  leave: register-tone(#f59e0b),
+  holiday: register-tone(#8b5cf6),
   checkedIn: $register-blue-tone,
   checkedOut: $register-blue-tone,
   notCheckedIn: (
-    #e2e8f0,
-    #cbd5e1,
-    #475569,
+    color-mix(in srgb, var(--text-secondary-color) 14%, transparent),
+    var(--border-main-color),
+    var(--text-secondary-color),
   ),
-  pending: (
-    #ffedd5,
-    #fdba74,
-    #c2410c,
-  ),
-  missing: (
-    #fecaca,
-    #f87171,
-    #7f1d1d,
-  ),
+  pending: register-tone(#f97316),
+  missing: register-tone(#dc2626),
   neutral: (
     var(--surface-100),
     var(--surface-border),

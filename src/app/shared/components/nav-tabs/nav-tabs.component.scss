@@ -1,7 +1,7 @@
-$secondary-track-bg: color-mix(in srgb, var(--surface-50, #f8fafc) 75%, #fff);
+$secondary-track-bg: color-mix(in srgb, var(--surface-50, #f8fafc) 75%, var(--background-default-color));
 $secondary-track-border: color-mix(in srgb, var(--surface-border) 85%, transparent);
-$secondary-nav-fade: color-mix(in srgb, var(--surface-50, #f8fafc) 95%, #fff);
-$secondary-active-bg: color-mix(in srgb, var(--primary-color) 14%, #fff);
+$secondary-nav-fade: color-mix(in srgb, var(--surface-50, #f8fafc) 95%, var(--background-default-color));
+$secondary-active-bg: color-mix(in srgb, var(--primary-color) 14%, var(--background-default-color));
 $secondary-active-border: color-mix(in srgb, var(--primary-color) 28%, transparent);
 
 .nav-tabs-horizontal {
@@ -121,7 +121,7 @@ $secondary-active-border: color-mix(in srgb, var(--primary-color) 28%, transpare
 
         &:hover:not([data-p-active="true"]) {
           color: var(--text-primary-color);
-          background: color-mix(in srgb, #fff 80%, transparent);
+          background: color-mix(in srgb, var(--background-default-color) 80%, transparent);
         }
 
         &[data-p-active="true"] {

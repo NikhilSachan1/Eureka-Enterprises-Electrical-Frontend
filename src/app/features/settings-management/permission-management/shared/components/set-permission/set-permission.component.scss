@@ -259,7 +259,7 @@ $accent-warning: #d97706;
   }
 
   &--role {
-    color: #0369a1;
+    color: color-mix(in srgb, #0ea5e9 78%, var(--text-primary-color));
     background: color-mix(in srgb, #0369a1 14%, transparent);
   }
 }
@@ -438,11 +438,7 @@ $accent-warning: #d97706;
     border: none;
     border-right: 1px solid var(--border-light-color);
     border-radius: 0;
-    background: color-mix(
-      in srgb,
-      var(--border-light-color) 18%,
-      var(--background-paper-color)
-    );
+    background: color-mix(in srgb, var(--border-light-color) 18%, var(--background-paper-color));
   }
 
   :host ::ng-deep .permission-workbench .module-detail > app-nav-tabs {

@@ -82,8 +82,8 @@
   gap: 0.75rem;
   min-width: 0;
   overflow-x: hidden;
-  --docstat-smoke: #f8fafc;
-  --docstat-white: #fff;
+  --docstat-smoke: var(--background-paper-color);
+  --docstat-white: var(--background-default-color);
 }
 
 .docstat-po-card {
@@ -177,28 +177,28 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-light-color);
   border-radius: 0.625rem;
   overflow: hidden;
-  background: #fff;
+  background: var(--background-default-color);
 }
 
 // Tone colours shared by the step bars and the amounts.
 [data-tone] {
   --tone: #64748b;
-  --tone-soft: #e2e8f0;
+  --tone-soft: color-mix(in srgb, var(--text-secondary-color) 14%, transparent);
 }
 [data-tone="ok"] {
   --tone: #16a34a;
-  --tone-soft: #dcfce7;
+  --tone-soft: color-mix(in srgb, #22c55e 14%, transparent);
 }
 [data-tone="warn"] {
   --tone: #ea580c;
-  --tone-soft: #ffedd5;
+  --tone-soft: color-mix(in srgb, #f59e0b 14%, transparent);
 }
 [data-tone="danger"] {
   --tone: #dc2626;
-  --tone-soft: #fee2e2;
+  --tone-soft: color-mix(in srgb, #ef4444 14%, transparent);
 }
 
 .po-stages {
@@ -207,7 +207,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 .po-stage {
@@ -218,7 +218,7 @@
   min-width: 0;
 
   & + & {
-    border-left: 1px solid #f1f5f9;
+    border-left: 1px solid var(--border-light-color);
   }
 
   &__label {
@@ -257,7 +257,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
   margin: 0;
-  background: #f8fafc;
+  background: var(--background-paper-color);
 }
 
 .po-amount {
@@ -268,7 +268,7 @@
   min-width: 0;
 
   & + & {
-    border-left: 1px solid #e2e8f0;
+    border-left: 1px solid var(--border-light-color);
   }
 
   &__label {

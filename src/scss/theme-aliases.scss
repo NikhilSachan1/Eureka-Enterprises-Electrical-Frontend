@@ -1,0 +1,55 @@
+// Names components use that the theme never set (older PrimeNG names, palette shades, semantic
+// colours). Unset, they always fell back to a light-mode colour, also in dark mode. Here they point
+// at the theme tokens (set by ThemeService) so they follow the theme. In light mode each resolves
+// to the same colour its old fallback had.
+
+:root {
+  // Surfaces and text (older PrimeNG names)
+  --surface-card: var(--background-default-color);
+  --surface-ground: var(--background-paper-color);
+  --surface-border: var(--border-light-color);
+  --text-color: var(--text-primary-color);
+  --text-color-secondary: var(--text-secondary-color);
+  --text-muted-color: var(--text-secondary-color);
+
+  // Semantic colours: mid shades, readable on light and dark backgrounds
+  --success-color: #22c55e;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+
+  // Workflow states (dashboard / asset history): solid and text ("ink")
+  --wf-success: #16a34a;
+  --wf-danger: #ef4444;
+  --wf-warning: #f59e0b;
+  --wf-success-ink: #15803d;
+  --wf-danger-ink: #b91c1c;
+  --wf-warning-ink: #b45309;
+
+  // Palette shades used directly by some components
+  --green-50: #f0fdf4;
+  --green-200: #bbf7d0;
+  --green-500: #22c55e;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+  --red-600: #dc2626;
+  --red-700: #b91c1c;
+  --orange-600: #ea580c;
+  --blue-600: #2563eb;
+}
+
+// Dark mode: light tints become see-through tints, and text shades lighten so they read on the
+// dark background.
+.dark-theme {
+  --wf-success-ink: #4ade80;
+  --wf-danger-ink: #f87171;
+  --wf-warning-ink: #fbbf24;
+
+  --green-50: color-mix(in srgb, #22c55e 14%, transparent);
+  --green-200: color-mix(in srgb, #22c55e 40%, transparent);
+  --green-600: #22c55e;
+  --green-700: #4ade80;
+  --red-600: #ef4444;
+  --red-700: #f87171;
+  --orange-600: #f97316;
+  --blue-600: #3b82f6;
+}

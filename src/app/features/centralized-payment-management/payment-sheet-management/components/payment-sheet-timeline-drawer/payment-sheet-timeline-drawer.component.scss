@@ -1,5 +1,7 @@
 @use "sass:map";
 
+// Each tone: a base colour for tints, and a text colour mixed with the theme text so it stays
+// readable in light and dark mode.
 $ps-tones: (
   primary: (
     color: var(--primary-color),
@@ -7,35 +9,35 @@ $ps-tones: (
   ),
   info: (
     color: #0ea5e9,
-    text: #0369a1,
+    text: color-mix(in srgb, #0ea5e9 78%, var(--text-primary-color)),
   ),
   success: (
     color: #16a34a,
-    text: #15803d,
+    text: color-mix(in srgb, #16a34a 78%, var(--text-primary-color)),
   ),
   paid: (
     color: #0d9488,
-    text: #0f766e,
+    text: color-mix(in srgb, #0d9488 78%, var(--text-primary-color)),
   ),
   warning: (
     color: #d97706,
-    text: #b45309,
+    text: color-mix(in srgb, #d97706 78%, var(--text-primary-color)),
   ),
   danger: (
     color: #dc2626,
-    text: #b91c1c,
+    text: color-mix(in srgb, #dc2626 78%, var(--text-primary-color)),
   ),
   updated: (
     color: #7c3aed,
-    text: #6d28d9,
+    text: color-mix(in srgb, #7c3aed 78%, var(--text-primary-color)),
   ),
   removed: (
     color: #ea580c,
-    text: #c2410c,
+    text: color-mix(in srgb, #ea580c 78%, var(--text-primary-color)),
   ),
   neutral: (
-    color: #64748b,
-    text: #475569,
+    color: var(--text-secondary-color),
+    text: var(--text-secondary-color),
   ),
 );
 
@@ -46,15 +48,15 @@ $ps-tones: (
 
     &--#{$tone} {
       @if $style == marker {
-        background: color-mix(in srgb, $color 14%, #ffffff);
+        background: color-mix(in srgb, $color 14%, var(--background-default-color));
         color: $text;
       } @else if $style == card {
-        background: color-mix(in srgb, $color 5%, var(--surface-card, #ffffff));
+        background: color-mix(in srgb, $color 5%, var(--surface-card, var(--background-default-color)));
       } @else if $style == row-icon {
         background: color-mix(in srgb, $color 12%, transparent);
         color: $text;
       } @else if $style == note {
-        background: color-mix(in srgb, $color 8%, var(--surface-50, #f8fafc));
+        background: color-mix(in srgb, $color 8%, var(--surface-50, var(--background-paper-color)));
         border-left-color: $text;
 
         .ps-timeline-drawer__note-head {
@@ -84,7 +86,7 @@ $ps-tones: (
   gap: 0.85rem;
   padding: 0.85rem 1rem;
   border-radius: 0.75rem;
-  background: var(--surface-card, #ffffff);
+  background: var(--surface-card, var(--background-default-color));
   border: 1px solid var(--surface-border, var(--border-light-color));
   box-shadow: 0 1px 2px color-mix(in srgb, var(--text-primary-color) 4%, transparent);
 }
@@ -95,7 +97,7 @@ $ps-tones: (
   border-radius: 50%;
   flex-shrink: 0;
   object-fit: cover;
-  background: var(--surface-100, #f1f5f9);
+  background: var(--surface-100, var(--background-paper-color));
 }
 
 .ps-timeline-drawer__context-copy {
@@ -128,7 +130,11 @@ $ps-tones: (
   overflow-x: hidden;
   border-radius: 0.75rem;
   border: 1px solid var(--surface-border, var(--border-light-color));
-  background: color-mix(in srgb, var(--surface-50, #f8fafc) 55%, var(--surface-card, #ffffff));
+  background: color-mix(
+    in srgb,
+    var(--surface-50, var(--background-paper-color)) 55%,
+    var(--surface-card, var(--background-default-color))
+  );
 }
 
 .ps-timeline-drawer__shell {
@@ -143,7 +149,7 @@ $ps-tones: (
   height: 2.15rem;
   border-radius: 50%;
   font-size: 0.82rem;
-  border: 2px solid var(--surface-card, #ffffff);
+  border: 2px solid var(--surface-card, var(--background-default-color));
   box-shadow: 0 2px 8px color-mix(in srgb, var(--text-primary-color) 8%, transparent);
 
   @include ps-tone-modifiers(marker);
@@ -153,7 +159,7 @@ $ps-tones: (
   margin: 0 0 0.75rem;
   padding: 0.8rem 0.85rem;
   border-radius: 0.7rem;
-  background: var(--surface-card, #ffffff);
+  background: var(--surface-card, var(--background-default-color));
   border: 1px solid var(--surface-border, var(--border-light-color));
   transition:
     border-color 0.18s ease,
@@ -330,7 +336,7 @@ $ps-tones: (
   text-align: center;
   border-radius: 0.75rem;
   border: 1px dashed var(--surface-border, var(--border-light-color));
-  background: color-mix(in srgb, var(--surface-50, #f8fafc) 70%, transparent);
+  background: color-mix(in srgb, var(--surface-50, var(--background-paper-color)) 70%, transparent);
 }
 
 .ps-timeline-drawer__empty-icon {
