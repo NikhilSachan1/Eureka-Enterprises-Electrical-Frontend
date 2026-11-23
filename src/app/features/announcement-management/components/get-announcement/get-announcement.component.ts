@@ -126,7 +126,7 @@ export class GetAnnouncementComponent implements OnInit {
           this.logger.logUserAction('Announcement records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.announcementStats.set(null);
           this.logger.logUserAction(
             'Failed to load announcement records',
@@ -331,6 +331,7 @@ export class GetAnnouncementComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Announcement',
+          showInEmptyState: true,
           icon: ICONS.ACTIONS.SEND,
           actionName: 'addAnnouncement',
           permission: [APP_PERMISSION.ANNOUNCEMENT.ADD],

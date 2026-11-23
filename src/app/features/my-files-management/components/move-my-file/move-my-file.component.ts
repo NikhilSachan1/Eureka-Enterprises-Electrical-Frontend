@@ -1,246 +1,189 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
+  DestroyRef,
   inject,
+  input,
+  OnInit,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, finalize, Subject } from 'rxjs';
-import { TreeNode } from 'primeng/api';
-import {
-  TreeModule,
-  TreeNodeExpandEvent,
-  TreeNodeSelectEvent,
-} from 'primeng/tree';
-import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
-import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { DRAWER_DATA } from '@shared/constants/drawer.constants';
+import { finalize, Subscription } from 'rxjs';
+import { LoggerService } from '@core/services';
 import { ICONS } from '@shared/constants';
-import { DEFAULT_INPUT_FIELD_CONFIG } from '@shared/config/input-field.config';
-import { NotificationService } from '@shared/services';
-import { EDataType, IInputFieldsConfig } from '@shared/types';
-import { MyFilesService } from '../../services/my-files.service';
 import {
-  IMoveMyFileDrawerData,
+  ConfirmationDialogService,
+  LoadingService,
+  NotificationService,
+} from '@shared/services';
+import { IDialogActionHandler } from '@shared/types';
+import { MY_FILES_ROOT_LABEL } from '../../constants/my-files.constants';
+import { MyFilesService } from '../../services/my-files.service';
+import { IMyFileBaseResponseDto } from '../../types/my-files.dto';
+import { EMyFileType } from '../../types/my-files.enum';
+import {
+  IMyFilesMoveCrumb,
   IMyFilesMoveFolderTreeItem,
 } from '../../types/my-files.interface';
-import {
-  IMyFilesMoveFormDto,
-  IMyFilesMoveResponseDto,
-} from '../../types/my-files.dto';
-import { EMyFileType } from '../../types/my-files.enum';
+import { SkeletonComponent } from '@shared/components/skeleton/skeleton.component';
+import { MyFilePreviewComponent } from '../my-file-preview/my-file-preview.component';
+import { ESkeletonVariant } from '@shared/types/skeleton/skeleton.types';
 
-const ROOT_FOLDER_TREE_KEY = 'root';
-
+/**
+ * Move dialog: browse folders like a mini file manager (open a folder to go in, the path
+ * to go back) and "Move here" moves the item into the folder that is open.
+ * The folder being moved is never listed, so it cannot be moved into itself.
+ */
 @Component({
   selector: 'app-move-my-file',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [InputFieldComponent, TreeModule],
+  imports: [MyFilePreviewComponent, SkeletonComponent],
   templateUrl: './move-my-file.component.html',
   styleUrl: './move-my-file.component.scss',
 })
-export class MoveMyFileComponent extends DrawerDetailBase {
-  private readonly drawerData = inject(DRAWER_DATA) as IMoveMyFileDrawerData;
+export class MoveMyFileComponent implements OnInit, IDialogActionHandler {
   private readonly myFilesService = inject(MyFilesService);
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService
+  );
+  private readonly loadingService = inject(LoadingService);
   private readonly notificationService = inject(NotificationService);
-  private readonly searchInputChanges$ = new Subject<string>();
+  private readonly logger = inject(LoggerService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  private excludeFolderId?: string;
+  protected readonly selectedRecord =
+    input.required<IMyFileBaseResponseDto[]>();
+  /** Where the page is now (the item's folder), "My Files" first. */
+  protected readonly startPath = input<IMyFilesMoveCrumb[]>([]);
+  protected readonly onSuccess =
+    input.required<(destinationParentId: string | null) => void>();
 
-  protected readonly searchFieldConfig: IInputFieldsConfig = {
-    ...DEFAULT_INPUT_FIELD_CONFIG,
-    fieldType: EDataType.TEXT,
-    id: 'search',
-    fieldName: 'search',
-    label: 'Search folders',
-    placeholder: 'Search folders...',
-  } as IInputFieldsConfig;
-  protected readonly searchInput = signal('');
-  protected readonly searchTerm = signal('');
-  protected readonly folderTreeNodes = signal<TreeNode[]>([]);
-  protected selectedFolder: TreeNode | null = null;
-  protected readonly moving = signal(false);
+  protected readonly ESkeletonVariant = ESkeletonVariant;
+  protected readonly ICONS = ICONS;
 
-  override ngOnInit(): void {
-    super.ngOnInit();
+  /** Folder open in the dialog, "My Files" first. */
+  protected readonly path = signal<IMyFilesMoveCrumb[]>([
+    { id: null, name: MY_FILES_ROOT_LABEL },
+  ]);
+  protected readonly folders = signal<IMyFilesMoveFolderTreeItem[]>([]);
+  protected readonly loading = signal(false);
+  protected readonly failed = signal(false);
 
-    this.searchInputChanges$
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
+  protected readonly record = computed(() => this.selectedRecord()[0] ?? null);
+
+  protected readonly current = computed(() => {
+    const steps = this.path();
+    return steps[steps.length - 1];
+  });
+
+  /** The open folder is where the item already is: moving would change nothing. */
+  protected readonly isAlreadyHere = computed(
+    () => (this.record()?.parentId ?? null) === this.current().id
+  );
+
+  private listSubscription?: Subscription;
+
+  ngOnInit(): void {
+    const start = this.startPath();
+    if (start.length) {
+      this.path.set(start);
+    }
+    this.loadFolders();
+  }
+
+  protected openFolder(folder: IMyFilesMoveFolderTreeItem): void {
+    this.path.update(steps => [...steps, { id: folder.id, name: folder.name }]);
+    this.loadFolders();
+  }
+
+  protected goTo(index: number): void {
+    if (index >= this.path().length - 1) {
+      return;
+    }
+    this.path.update(steps => steps.slice(0, index + 1));
+    this.loadFolders();
+  }
+
+  protected goUp(): void {
+    this.goTo(this.path().length - 2);
+  }
+
+  protected retry(): void {
+    this.loadFolders();
+  }
+
+  onDialogAccept(): void {
+    const record = this.record();
+    if (!record) {
+      return;
+    }
+
+    if (this.isAlreadyHere()) {
+      this.notificationService.info(
+        `“${record.name}” is already in ${this.current().name}. Open another folder to move it there.`
+      );
+      return;
+    }
+
+    this.move(record, this.current().id);
+  }
+
+  private loadFolders(): void {
+    const record = this.record();
+    this.listSubscription?.unsubscribe();
+    this.loading.set(true);
+    this.failed.set(false);
+
+    this.listSubscription = this.myFilesService
+      .getMoveFolderTreeItems(
+        this.current().id,
+        record?.type === EMyFileType.FOLDER ? record.id : undefined
       )
-      .subscribe(term => {
-        this.searchTerm.set(term.trim());
-        this.initFolderTree();
-      });
-  }
-
-  override onDrawerShow(): void {
-    this.searchInput.set('');
-    this.searchTerm.set('');
-    this.initFolderTree();
-  }
-
-  protected onSearchFieldChange(value: unknown): void {
-    const term = String(value ?? '');
-    this.searchInput.set(term);
-    this.searchInputChanges$.next(term);
-  }
-
-  protected nodeExpand(event: TreeNodeExpandEvent): void {
-    this.loadFolderTreeChildren(event.node);
-  }
-
-  protected nodeSelect(event: TreeNodeSelectEvent): void {
-    if (this.moving()) {
-      return;
-    }
-
-    const destinationParentId =
-      event.node.key === ROOT_FOLDER_TREE_KEY ? null : String(event.node.key);
-
-    this.moveToFolder(destinationParentId);
-  }
-
-  protected moveToFolder(destinationParentId: string | null): void {
-    if (this.moving()) {
-      return;
-    }
-
-    const record = this.drawerData.itemToMove;
-    const isFolder = record.type === EMyFileType.FOLDER;
-
-    this.moving.set(true);
-    this.setDrawerLoading(true);
-    const formData: IMyFilesMoveFormDto = { parentId: destinationParentId };
-
-    this.myFilesService
-      .moveMyFile(record.id, formData)
       .pipe(
-        finalize(() => {
-          this.moving.set(false);
-          this.setDrawerLoading(false);
-        }),
+        finalize(() => this.loading.set(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IMyFilesMoveResponseDto) => {
+        next: folders => this.folders.set(folders),
+        error: error => {
+          this.folders.set([]);
+          this.failed.set(true);
+          this.logger.logUserAction('Failed to load folders for move', error);
+        },
+      });
+  }
+
+  private move(
+    record: IMyFileBaseResponseDto,
+    destination: string | null
+  ): void {
+    const isFolder = record.type === EMyFileType.FOLDER;
+
+    this.loadingService.show({
+      title: isFolder ? 'Moving folder' : 'Moving file',
+      message: `Moving “${record.name}” to ${this.current().name}.`,
+    });
+
+    this.myFilesService
+      .moveMyFile(record.id, { parentId: destination })
+      .pipe(
+        finalize(() => this.loadingService.hide()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: response => {
           this.notificationService.success(response.message);
-          this.drawerData.onSuccess(destinationParentId);
-          this.drawerService.hideDrawer();
+          this.onSuccess()(destination);
+          this.confirmationDialogService.closeDialog();
         },
         error: error => {
           this.logger.logUserAction('Failed to move file or folder', error);
+          // The server's reason joins this toast as its detail.
           this.notificationService.error(
-            error?.error?.message ??
-              (isFolder
-                ? 'Could not move the folder. Please try again.'
-                : 'Could not move the file. Please try again.')
+            isFolder ? 'Could not move the folder' : 'Could not move the file'
           );
         },
       });
-  }
-
-  private initFolderTree(): void {
-    const record = this.drawerData.itemToMove;
-    this.excludeFolderId =
-      record.type === EMyFileType.FOLDER ? record.id : undefined;
-
-    this.selectedFolder = null;
-
-    const rootNode: TreeNode = {
-      key: ROOT_FOLDER_TREE_KEY,
-      label: 'My Files (Root)',
-      icon: ICONS.COMMON.HOME,
-      leaf: false,
-      loading: true,
-      expanded: true,
-      data: { childrenLoaded: false },
-    };
-
-    this.folderTreeNodes.set([rootNode]);
-    this.loadFolderTreeChildren(rootNode);
-  }
-
-  private loadFolderTreeChildren(node: TreeNode): void {
-    if (node.data?.childrenLoaded) {
-      return;
-    }
-
-    this.updateTreeNode({ ...node, loading: true });
-
-    const parentId =
-      node.key === ROOT_FOLDER_TREE_KEY ? null : String(node.key);
-
-    this.myFilesService
-      .getMoveFolderTreeItems(
-        parentId,
-        this.excludeFolderId,
-        this.searchTerm() || undefined
-      )
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: items => {
-          this.updateTreeNode({
-            ...node,
-            loading: false,
-            children: this.mapItemsToTreeNodes(items),
-            data: { childrenLoaded: true },
-            leaf: node.key !== ROOT_FOLDER_TREE_KEY && items.length === 0,
-          });
-        },
-        error: error => {
-          this.logger.logUserAction('Failed to load move folder tree', error);
-          this.updateTreeNode({
-            ...node,
-            loading: false,
-            data: { childrenLoaded: true },
-            leaf: node.key !== ROOT_FOLDER_TREE_KEY,
-          });
-          this.notificationService.error(
-            'Could not load folders. Please try again.'
-          );
-        },
-      });
-  }
-
-  private mapItemsToTreeNodes(items: IMyFilesMoveFolderTreeItem[]): TreeNode[] {
-    return items.map(item => ({
-      key: item.id,
-      label: item.name,
-      icon: ICONS.COMMON.FOLDER,
-      leaf: false,
-      data: { childrenLoaded: false },
-    }));
-  }
-
-  private updateTreeNode(updatedNode: TreeNode): void {
-    const nodeKey = String(updatedNode.key);
-
-    this.folderTreeNodes.set(
-      this.replaceNodeByKey(this.folderTreeNodes(), nodeKey, updatedNode)
-    );
-  }
-
-  private replaceNodeByKey(
-    nodes: TreeNode[],
-    key: string,
-    updatedNode: TreeNode
-  ): TreeNode[] {
-    return nodes.map(node => {
-      if (node.key === key) {
-        return updatedNode;
-      }
-
-      if (node.children?.length) {
-        return {
-          ...node,
-          children: this.replaceNodeByKey(node.children, key, updatedNode),
-        };
-      }
-
-      return node;
-    });
   }
 }

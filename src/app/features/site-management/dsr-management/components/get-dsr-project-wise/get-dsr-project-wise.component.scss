@@ -1,0 +1,22 @@
+// DSR project-wise cells; the shared summary styles come from shared/styles/summary-cell.scss.
+
+.dsr-summary-missing {
+  font-weight: 700;
+  color: var(--red-600, #dc2626);
+}
+
+// Last DSR is old while days are still missing.
+.dsr-summary-stale {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--red-600, #dc2626);
+
+  strong {
+    color: inherit;
+  }
+
+  i {
+    font-size: 0.75rem;
+  }
+}

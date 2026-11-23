@@ -1,5 +1,16 @@
 @let drawerConfig = currentConfig();
 
+<ng-template #drawerHeader>
+  <div class="min-w-0">
+    <h2 class="m-0 text-lg font-semibold leading-tight">
+      {{ pageHeaderConfig().title }}
+    </h2>
+    @if (pageHeaderConfig().subtitle) {
+      <p class="mt-1 mb-0 text-sm">{{ pageHeaderConfig().subtitle }}</p>
+    }
+  </div>
+</ng-template>
+
 <ng-template #drawerContent>
   <div class="app-drawer-content-shell">
     <ng-container *ngComponentOutlet="currentConfig().component; injector: _componentInjector()"></ng-container>
@@ -32,10 +43,7 @@
     (onHide)="onDrawerHide()"
   >
     <ng-template #header>
-      <div>
-        <h1 class="text-2xl font-bold">{{ pageHeaderConfig().title }}</h1>
-        <p class="text-sm">{{ pageHeaderConfig().subtitle }}</p>
-      </div>
+      <ng-container *ngTemplateOutlet="drawerHeader" />
     </ng-template>
     <ng-template pTemplate="content">
       <ng-container *ngTemplateOutlet="drawerContent" />
@@ -59,10 +67,7 @@
     (onHide)="onDrawerHide()"
   >
     <ng-template #header>
-      <div>
-        <h1 class="text-2xl font-bold">{{ pageHeaderConfig().title }}</h1>
-        <p class="text-sm">{{ pageHeaderConfig().subtitle }}</p>
-      </div>
+      <ng-container *ngTemplateOutlet="drawerHeader" />
     </ng-template>
     <ng-template pTemplate="content">
       <ng-container *ngTemplateOutlet="drawerContent" />

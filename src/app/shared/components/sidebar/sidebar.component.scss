@@ -263,3 +263,71 @@
     }
   }
 }
+
+// Page search button (opens the Ctrl/Cmd+K dialog). Collapsed: icon only, label read by aria-label.
+.sidebar-search {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: calc(100% - 1.5rem);
+  margin: 0.25rem 0.75rem 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--sidebar-border-color);
+  border-radius: 0.55rem;
+  background: var(--background-paper-color);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-align: left;
+  color: var(--sidebar-text-secondary);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--sidebar-primary-color) 45%, var(--sidebar-border-color));
+    color: var(--sidebar-text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sidebar-primary-color);
+    outline-offset: 1px;
+  }
+
+  &--collapsed {
+    justify-content: center;
+    width: calc(100% - 1rem);
+    margin: 0.25rem 0.5rem 0.5rem;
+
+    .sidebar-search__label,
+    .sidebar-search__kbd {
+      display: none;
+    }
+  }
+}
+
+.sidebar-search__icon {
+  font-size: 0.9rem;
+}
+
+.sidebar-search__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-search__kbd {
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--sidebar-border-color);
+  border-bottom-width: 2px;
+  border-radius: 0.3rem;
+  font-family: inherit;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+// Phones have no Ctrl/Cmd key to press.
+@media (max-width: 768px) {
+  .sidebar-search__kbd {
+    display: none;
+  }
+}

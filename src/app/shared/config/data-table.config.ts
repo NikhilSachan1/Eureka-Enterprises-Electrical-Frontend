@@ -7,7 +7,10 @@ import {
   IStatusConfig,
   IMatchModeOption,
   ITableActionConfig,
+  EButtonActionType,
+  EButtonSeverity,
   EButtonVariant,
+  IButtonConfig,
   ETableFilterDisplayType,
   ETableFilterMatchMode,
   ETableFilterOperator,
@@ -138,4 +141,41 @@ export const DEFAULT_BULK_ACTION_CONFIG: Partial<ITableActionConfig> = {};
 export const DEFAULT_ROW_ACTION_CONFIG: Partial<ITableActionConfig> = {
   variant: EButtonVariant.OUTLINED,
   shadow: true,
+};
+
+/**
+ * Empty state of any table whose search or filters are applied. Same on every table;
+ * a table's own `emptyMessage` is only for "there is no data at all".
+ */
+export const DATA_TABLE_FILTERED_EMPTY_STATE = {
+  icon: ICONS.COMMON.FILTER_SLASH,
+  title: 'No matching results',
+  description:
+    'Nothing matches the search or filters you applied. Try changing them, or clear them to see everything.',
+};
+
+/** Shown when the table's data could not be loaded (instead of "no records"). */
+export const DATA_TABLE_LOAD_ERROR_STATE = {
+  icon: ICONS.COMMON.EXCLAMATION_TRIANGLE,
+  title: 'Could not load the records',
+  description:
+    'Something went wrong while loading. Check your connection and try again.',
+};
+
+/** Button in the load error state; repeats the table's last load request. */
+export const DATA_TABLE_RETRY_BUTTON_CONFIG: Partial<IButtonConfig> = {
+  id: EButtonActionType.RETRY,
+  label: 'Try again',
+  icon: ICONS.COMMON.REFRESH,
+  variant: EButtonVariant.OUTLINED,
+  severity: EButtonSeverity.SECONDARY,
+};
+
+/** Button in the filtered empty state; runs the table's search filter reset. */
+export const DATA_TABLE_CLEAR_FILTERS_BUTTON_CONFIG: Partial<IButtonConfig> = {
+  id: EButtonActionType.RESET,
+  label: 'Clear filters',
+  icon: ICONS.COMMON.FILTER_SLASH,
+  variant: EButtonVariant.OUTLINED,
+  severity: EButtonSeverity.SECONDARY,
 };

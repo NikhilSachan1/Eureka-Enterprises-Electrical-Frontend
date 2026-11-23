@@ -34,3 +34,15 @@
   margin: 0;
   color: var(--text-secondary-color, #64748b);
 }
+
+.empty-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+
+  &:empty {
+    display: none;
+  }
+}

@@ -1,0 +1,48 @@
+@switch (variant()) {
+  @case (ESkeletonVariant.CIRCLE) {
+    <p-skeleton
+      shape="circle"
+      [size]="height() ?? width()"
+      [animation]="animation"
+    />
+  }
+  @case (ESkeletonVariant.BLOCK) {
+    <p-skeleton
+      [width]="width()"
+      [height]="height() ?? '3rem'"
+      [borderRadius]="radius() ?? '0.6rem'"
+      [animation]="animation"
+    />
+  }
+  @case (ESkeletonVariant.CARD) {
+    <div
+      class="app-skeleton-card"
+      [style.width]="width()"
+    >
+      <p-skeleton
+        width="100%"
+        [height]="height() ?? '6.5rem'"
+        [borderRadius]="radius() ?? '0.6rem'"
+        [animation]="animation"
+      />
+      <p-skeleton
+        width="78%"
+        height="0.8rem"
+        [animation]="animation"
+      />
+      <p-skeleton
+        width="48%"
+        height="0.65rem"
+        [animation]="animation"
+      />
+    </div>
+  }
+  @default {
+    <p-skeleton
+      [width]="width()"
+      [height]="height() ?? '0.85rem'"
+      [borderRadius]="radius() ?? '0.35rem'"
+      [animation]="animation"
+    />
+  }
+}

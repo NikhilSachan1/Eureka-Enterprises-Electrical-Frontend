@@ -118,7 +118,9 @@ export class ReimburseFuelExpenseComponent
   }
 
   protected onReset(): void {
-    this.onResetSingleForm();
+    this.confirmResetSingleForm(() => {
+      this.onResetSingleForm();
+    });
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

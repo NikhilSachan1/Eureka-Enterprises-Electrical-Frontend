@@ -106,7 +106,7 @@ export class GetCompanyBankAccountComponent implements OnInit {
           );
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.logger.logUserAction(
             'Failed to load company bank account records',
             error
@@ -282,6 +282,7 @@ export class GetCompanyBankAccountComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Company Bank Account',
+          showInEmptyState: true,
           actionName: 'addCompanyBankAccount',
           permission: [APP_PERMISSION.COMPANY_BANK_ACCOUNT.ADD],
         },

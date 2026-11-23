@@ -1,0 +1,9 @@
+@use "../../styles/my-files-destination" as dest;
+
+:host {
+  display: block;
+}
+
+.mf-destination {
+  @include dest.destination;
+}

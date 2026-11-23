@@ -17,18 +17,7 @@
   #paymentSheetAmounts
   let-row
 >
-  <app-payment-sheet-amounts-cell
-    leftLabel="Payable"
-    [leftAmount]="row.totalCurrentAmount"
-    leftVariant="payable"
-    rightLabel="Paid"
-    [rightAmount]="row.totalPaidAmount"
-    rightVariant="paid"
-    footerLabel="Pending"
-    [footerAmount]="getPendingAmount(row)"
-    settledLabel="Fully paid"
-    [isSettled]="isFullyPaid(row)"
-  />
+  <app-payment-sheet-amounts-cell [view]="amountsView(row)" />
 </ng-template>
 
 <ng-template

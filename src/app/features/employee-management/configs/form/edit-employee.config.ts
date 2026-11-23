@@ -8,7 +8,10 @@ import {
   IMultiStepFormConfig,
   IStepperConfig,
 } from '@shared/types';
-import { COMMON_FORM_ACTIONS } from '@shared/config';
+import {
+  COMMON_FORM_ACTIONS,
+  STEPPER_UNDO_STEP_BUTTON_CONFIG,
+} from '@shared/config';
 import { IEmployeeEditFormDto } from '@features/employee-management/types/employee.dto';
 
 const {
@@ -52,13 +55,22 @@ const EDIT_DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig
 };
 
 export const EDIT_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
-  steps: ADD_EMPLOYEE_STEPPER_CONFIG.steps.filter(step => step.value !== 6),
+  // Salary (step 6) is not edited here; each step's reset restores the saved details.
+  steps: ADD_EMPLOYEE_STEPPER_CONFIG.steps
+    .filter(step => step.value !== 6)
+    .map(step => ({
+      ...step,
+      panelConfig: {
+        ...step.panelConfig,
+        resetButtonConfig: STEPPER_UNDO_STEP_BUTTON_CONFIG,
+      },
+    })),
   linear: false,
 };
 
 const EDIT_EMPLOYEE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
-    ...COMMON_FORM_ACTIONS.RESET,
+    ...COMMON_FORM_ACTIONS.UNDO_ALL_CHANGES,
   },
   submit: {
     ...COMMON_FORM_ACTIONS.SUBMIT,

@@ -1,0 +1,46 @@
+<p-toast
+  [key]="toastKey"
+  position="top-center"
+  [life]="toastLife"
+  styleClass="notification-toast"
+>
+  <ng-template
+    #message
+    let-message
+  >
+    @let data = toastData(message.data);
+    <button
+      type="button"
+      class="nt"
+      [attr.aria-label]="
+        (data?.route ? 'Open notification: ' : 'Show notifications: ') +
+        message.summary +
+        (message.detail ? '. ' + message.detail : '')
+      "
+      (click)="onOpen(data)"
+    >
+      <span
+        class="nt__icon"
+        aria-hidden="true"
+      >
+        <i [class]="ICONS.COMMON.BELL"></i>
+      </span>
+      <span class="nt__text">
+        <span class="nt__title">{{ message.summary }}</span>
+        @if (message.detail) {
+          <span class="nt__detail">{{ message.detail }}</span>
+        }
+      </span>
+      <i
+        [class]="ICONS.COMMON.ARROW_RIGHT + ' nt__go'"
+        aria-hidden="true"
+      ></i>
+    </button>
+    <!-- Shrinks over the toast's life, so it is clear it will close by itself -->
+    <span
+      class="nt__timer"
+      aria-hidden="true"
+      [style.animation-duration.ms]="toastLife"
+    ></span>
+  </ng-template>
+</p-toast>

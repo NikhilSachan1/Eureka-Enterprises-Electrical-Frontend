@@ -8,6 +8,7 @@ import {
 import { IPaymentSheetWorkflowRow } from '../types/payment-sheet.interface';
 import { IPaymentSheetDetailItemRow } from '../types/payment-sheet-detail.interface';
 import { EUserRole } from '@shared/constants';
+import { PAYMENT_SHEET_EDIT_AMOUNT_HINT } from '../constants';
 
 type ActiveRole = string | null | undefined;
 type PaymentSheetTableActionRow = IPaymentSheetDetailItemRow;
@@ -148,14 +149,15 @@ export function getPaymentSheetWorkflowOwnerLabel(
 }
 
 /**
- * Advance lines and employee expense/fuel lines can go up; on an employee line the amount above
- * the due is paid as advance. Vendor and wallet lines stay capped. Admin review is decrease-only,
- * apart from an advance line's first amount.
+ * Only the Operation Manager (draft / returned) raises amounts: advance lines and employee
+ * expense/fuel lines, where the amount above the due is paid as advance. Vendor and wallet lines
+ * stay capped. HR and Admin review are decrease-only, apart from an advance line's first amount;
+ * to pay more they return the sheet to the Operation Manager.
  */
 export function canIncreasePaymentSheetItemAmount(
   row: PaymentSheetTableActionRow
 ): boolean {
-  if (isPaymentSheetAdminReview(row)) {
+  if (!isPaymentSheetDraftOrReturned(row)) {
     return !!row.isAdvancePayment && row.payableAmount <= 0;
   }
 
@@ -164,6 +166,21 @@ export function canIncreasePaymentSheetItemAmount(
     row.sourceType === EPaymentSheetSourceType.EXPENSE ||
     row.sourceType === EPaymentSheetSourceType.FUEL_EXPENSE
   );
+}
+
+/**
+ * Help text for the edit popup's amount when it cannot be raised: in review the sheet goes
+ * back to the Operation Manager to pay more; vendor and wallet lines stay capped at the due.
+ */
+export function resolvePaymentSheetItemAmountHint(
+  row: PaymentSheetTableActionRow
+): string | undefined {
+  if (canIncreasePaymentSheetItemAmount(row)) {
+    return undefined;
+  }
+  return isPaymentSheetDraftOrReturned(row)
+    ? PAYMENT_SHEET_EDIT_AMOUNT_HINT.CAPPED
+    : PAYMENT_SHEET_EDIT_AMOUNT_HINT.REVIEW;
 }
 
 export function hasPaymentSheetAdvanceWithoutAmount(

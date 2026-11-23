@@ -305,7 +305,7 @@ export class GetFuelExpenseComponent implements OnInit {
           this.logger.logUserAction('Fuel expense records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.fuelExpenseStats.set(null);
           this.payNowClosingBalance.set(null);
           this.payNowEmployeeId.set(null);
@@ -735,6 +735,7 @@ export class GetFuelExpenseComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Fuel Expense',
+          showInEmptyState: true,
           icon: ICONS.COMMON.PLUS,
           actionName: 'addFuelExpense',
           permission: [APP_PERMISSION.FUEL_EXPENSE.ADD],

@@ -132,6 +132,12 @@ export class TableService {
     const rowActionsSignal = signal(rowActions);
     const dataSignal = signal<ITableData[]>([]);
     const loadingSignal = signal<boolean>(false);
+    // A successful load or a new attempt replaces a failed one.
+    const clearLoadError = (): void => {
+      if (tableConfigSignal().loadFailed) {
+        tableConfigSignal.update(config => ({ ...config, loadFailed: false }));
+      }
+    };
 
     return {
       tableConfig: tableConfigSignal,
@@ -142,13 +148,22 @@ export class TableService {
       loading: loadingSignal,
 
       setData: (data: ITableData[]): WritableSignal<ITableData[]> => {
+        clearLoadError();
         dataSignal.set(data);
         return dataSignal;
       },
 
       setLoading: (loading: boolean): WritableSignal<boolean> => {
+        if (loading) {
+          clearLoadError();
+        }
         loadingSignal.set(loading);
         return loadingSignal;
+      },
+
+      setLoadError: (): void => {
+        dataSignal.set([]);
+        tableConfigSignal.update(config => ({ ...config, loadFailed: true }));
       },
 
       updateTableConfig: (

@@ -64,6 +64,11 @@ export class ResetPasswordComponent
     );
   }
 
+  /** Auth forms: refreshing or leaving loses nothing worth a warning. */
+  protected override tracksUnsavedChanges(): boolean {
+    return false;
+  }
+
   protected override handleSubmit(): void {
     const formData = this.prepareFormData();
     this.executeResetPassword(formData);

@@ -130,7 +130,7 @@ export class GetVehicleEventHistoryComponent implements OnInit {
           );
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.vehicleEventHistoryStats.set(null);
           this.logger.logUserAction(
             'Failed to load vehicle event history records',

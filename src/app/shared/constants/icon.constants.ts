@@ -16,6 +16,8 @@ export const ICONS = {
     ARROW_RIGHT_LEFT: 'pi pi-arrow-right-arrow-left',
     SEARCH: 'pi pi-search',
     FILTER: 'pi pi-filter',
+    /** Filters applied but nothing matches; "Clear filters". */
+    FILTER_SLASH: 'pi pi-filter-slash',
     /** Small close / remove cross (chips, clear input). */
     CLOSE: 'pi pi-times',
     INFO_CIRCLE: 'pi pi-info-circle',
@@ -63,6 +65,10 @@ export const ICONS = {
     UPLOAD: 'pi pi-upload',
     COPY: 'pi pi-copy',
     REFRESH: 'pi pi-refresh',
+    /** Clear typed input (form / step reset). */
+    ERASER: 'pi pi-eraser',
+    /** Put edited input back to the saved values. */
+    UNDO: 'pi pi-undo',
     /** Train / direction (dropdowns). */
     COMPASS: 'pi pi-compass',
     TAG: 'pi pi-tag',

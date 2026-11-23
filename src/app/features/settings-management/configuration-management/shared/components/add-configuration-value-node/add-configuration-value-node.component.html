@@ -1,8 +1,6 @@
 <div
   class="add-config-value"
-  [class.add-config-value--nested]="
-    depth() > 0 && !compact() && !isPrimitiveKind(node().kind)
-  "
+  [class.add-config-value--nested]="depth() > 0 && !compact() && !isPrimitiveKind(node().kind)"
   [class.add-config-value--compact]="compact()"
 >
   @if (showKindSelector()) {

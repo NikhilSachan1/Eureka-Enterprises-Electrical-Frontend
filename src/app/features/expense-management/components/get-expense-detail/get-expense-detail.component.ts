@@ -14,14 +14,14 @@ import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { AppConfigurationService } from '@shared/services';
 import {
-  EBankDetailsDisplayMode,
+  IPaymentReceipt,
   EDataType,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEntityViewDetails,
 } from '@shared/types';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
-import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
+import { PaymentReceiptComponent } from '@shared/components/payment-receipt/payment-receipt.component';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -30,23 +30,23 @@ import {
 } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { AppPermissionService } from '@core/services';
 
 @Component({
   selector: 'app-get-expense-detail',
-  imports: [ViewDetailComponent, BankDetailsCellComponent],
+  imports: [ViewDetailComponent, PaymentReceiptComponent],
   templateUrl: './get-expense-detail.component.html',
   styleUrl: './get-expense-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetExpenseDetailComponent extends DrawerDetailBase {
-  protected readonly EBankDetailsDisplayMode = EBankDetailsDisplayMode;
-
   protected readonly drawerData = inject(DRAWER_DATA) as {
     expense: IExpenseGetBaseResponseDto;
   };
   private readonly expenseService = inject(ExpenseService);
   protected readonly appConfigService = inject(AppConfigurationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly permissionService = inject(AppPermissionService);
 
   protected readonly _expenseDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -79,7 +79,7 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('Attendance history loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load expense details', error);
         },
       });
   }
@@ -118,29 +118,26 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
           },
         },
         {
-          label: 'Payment Mode',
-          value: getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.expensePaymentMethods(),
-            record.paymentMode
-          ),
-        },
-        ...(record.paidFromAccount
-          ? [
-              {
-                label: 'Paid From Account',
-                value: mapPaidFromAccountToBankDetails(record.paidFromAccount),
-                customTemplateKey: 'paidFromAccountDetails',
-                detailTemplateFullRow: true,
-                detailTemplatePlain: true,
-                permission: [
-                  APP_PERMISSION.UI.EXPENSE.SEARCH_FILTER_PAID_FROM_ACCOUNT,
-                ],
-              },
-            ]
-          : []),
-        {
-          label: 'Transaction ID',
-          value: record.transactionId,
+          label: 'Payment',
+          value: {
+            mode: getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.expensePaymentMethods(),
+              record.paymentMode
+            ),
+            reference: record.transactionId,
+            referenceLabel: 'Transaction ID',
+            // The account stays behind its own permission, as its separate row was.
+            paidFrom:
+              record.paidFromAccount &&
+              this.permissionService.hasAnyPermission([
+                APP_PERMISSION.UI.EXPENSE.SEARCH_FILTER_PAID_FROM_ACCOUNT,
+              ])
+                ? mapPaidFromAccountToBankDetails(record.paidFromAccount)
+                : null,
+          } satisfies IPaymentReceipt,
+          customTemplateKey: 'paymentReceipt',
+          detailTemplateFullRow: true,
+          detailTemplatePlain: true,
         },
         {
           label: 'Attachment(s)',

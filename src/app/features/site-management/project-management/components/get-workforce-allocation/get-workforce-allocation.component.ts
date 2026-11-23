@@ -119,7 +119,7 @@ export class GetWorkforceAllocationComponent implements OnInit {
           );
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.allocationStats.set(null);
           this.logger.logUserAction(
             'Failed to load workforce allocation records',

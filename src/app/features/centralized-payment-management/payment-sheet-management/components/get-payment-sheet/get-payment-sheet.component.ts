@@ -12,6 +12,7 @@ import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
+import { IPaymentSheetAmountsView } from '@features/centralized-payment-management/shared/types/payment-sheet-amounts-cell.interface';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -61,6 +62,7 @@ import {
   IPaymentSheetGetStatsResponseDto,
 } from '../../types/payment-sheet.dto';
 import { IPaymentSheet } from '../../types/payment-sheet.interface';
+import { buildPaymentSheetTotalsAmountsView } from '../../utils/payment-sheet-amounts-view.util';
 import {
   PAYMENT_SHEET_LIST_WORKFLOW_STEPS,
   TPaymentSheetWorkflowStepState,
@@ -114,12 +116,14 @@ export class GetPaymentSheetComponent implements OnInit {
     this.searchFilterConfig = SEARCH_FILTER_PAYMENT_SHEET_FORM_CONFIG;
   }
 
-  protected getPendingAmount(row: IPaymentSheet): number {
-    return Math.max(0, row.totalCurrentAmount - row.totalPaidAmount);
-  }
+  protected amountsView(row: IPaymentSheet): IPaymentSheetAmountsView {
+    const pending = Math.max(0, row.totalCurrentAmount - row.totalPaidAmount);
 
-  protected isFullyPaid(row: IPaymentSheet): boolean {
-    return row.totalCurrentAmount > 0 && this.getPendingAmount(row) <= 0;
+    return buildPaymentSheetTotalsAmountsView(
+      row.totalCurrentAmount,
+      row.totalPaidAmount,
+      pending
+    );
   }
 
   protected shouldShowWorkflowTimeline(row: IPaymentSheet): boolean {
@@ -333,7 +337,7 @@ export class GetPaymentSheetComponent implements OnInit {
         },
         error: error => {
           this.paymentSheetStats.set(null);
-          this.table.setData([]);
+          this.table.setLoadError();
           this.table.updateTableConfig({ totalRecords: 0 });
           this.logger.logUserAction('Failed to load payment sheets', error);
         },

@@ -19,11 +19,14 @@ import { IDocumentGapDetailGetResponseDto } from '@features/dashboard/types/dash
 import {
   documentGapListCommands,
   documentGapParty,
+  documentGapSearchNumber,
   isMissingDocumentNumber,
 } from '@features/dashboard/utils/document-gap-link.util';
 import { DOC_TAB_SEARCH_QUERY_KEY, ICONS } from '@shared/constants';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { DrawerService } from '@shared/services';
+import { getApiErrorMessage } from '@shared/utility';
+import { HighlightRowDirective } from '@shared/directives/highlight-row.directive';
 
 interface GapDetailRow {
   id: string;
@@ -39,7 +42,7 @@ const SECTION_ORDER = ['contractor', 'vendor', 'other'] as const;
 
 @Component({
   selector: 'app-document-gap-detail',
-  imports: [RouterLink, CurrencyPipe, DatePipe],
+  imports: [RouterLink, CurrencyPipe, DatePipe, HighlightRowDirective],
   templateUrl: './document-gap-detail.component.html',
   styleUrl: './document-gap-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -87,14 +90,17 @@ export class DocumentGapDetailComponent implements OnInit {
       const party = documentGapParty(partyType) ?? 'other';
       const missingNumber = isMissingDocumentNumber(item.documentNumber);
       const number = item.documentNumber?.trim() ?? '';
+      const siteName = item.siteName?.trim() ?? '';
       buckets[party].push({
         id: item.id,
         documentLabel: missingNumber ? '(no number)' : number,
-        siteName: item.siteName?.trim() || '—',
+        siteName: siteName === '' ? '—' : siteName,
         amount: item.amount ?? null,
         since: item.since ?? null,
         commands: documentGapListCommands(this.gapKey, partyType),
-        query: missingNumber ? {} : { [DOC_TAB_SEARCH_QUERY_KEY]: number },
+        query: missingNumber
+          ? {}
+          : { [DOC_TAB_SEARCH_QUERY_KEY]: documentGapSearchNumber(number) },
       });
     }
 
@@ -121,12 +127,7 @@ export class DocumentGapDetailComponent implements OnInit {
       .pipe(
         finalize(() => this.loading.set(false)),
         catchError((error: HttpErrorResponse) => {
-          const raw = error.error?.error?.message;
-          this.errorMessage.set(
-            typeof raw === 'string' && raw.trim()
-              ? raw
-              : 'Could not load this document gap.'
-          );
+          this.errorMessage.set(getApiErrorMessage(error));
           this.logger.logUserAction(
             'Failed to load document gap detail',
             error

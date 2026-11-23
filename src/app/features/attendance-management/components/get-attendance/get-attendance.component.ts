@@ -136,7 +136,7 @@ export class GetAttendanceComponent implements OnInit {
           this.logger.logUserAction('Attendance records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.attendanceStats.set(null);
           this.logger.logUserAction('Failed to load attendance records', error);
         },
@@ -447,6 +447,7 @@ export class GetAttendanceComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Apply Attendance',
+          showInEmptyState: true,
           icon: ICONS.ATTENDANCE.CHECK_IN,
           actionName: 'applyAttendance',
           permission: [APP_PERMISSION.ATTENDANCE.APPLY],

@@ -72,6 +72,7 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { GetTdsEntryDetailComponent } from '../get-tds-entry-detail/get-tds-entry-detail.component';
 
 import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 @Component({
   selector: 'app-get-tds-entry',
@@ -162,7 +163,7 @@ export class GetTdsEntryComponent implements OnInit {
           return this.tdsService.getTdsEntryList(this.prepareParamData()).pipe(
             finalize(() => this.table.setLoading(false)),
             catchError(error => {
-              this.table.setData([]);
+              this.table.setLoadError();
               this.logger.logUserAction(
                 'Failed to load TDS register entries',
                 error
@@ -188,11 +189,13 @@ export class GetTdsEntryComponent implements OnInit {
       {
         dataType: EDataType.CURRENCY,
         label: 'Taxable',
+        tone: EDocAmountTone.TAXABLE,
         value: row.taxableAmount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'TDS',
+        tone: EDocAmountTone.DEDUCTION,
         value: row.tdsAmount,
         suffix: row.tdsRateSuffix,
       },

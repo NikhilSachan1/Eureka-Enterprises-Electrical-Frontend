@@ -26,11 +26,24 @@ export const DEFAULT_STEPPER_BACK_BUTTON_CONFIG = {
   severity: EButtonSeverity.SECONDARY,
 };
 
+/** Per-step reset: clears only the step on screen; disabled until something is typed there. */
 export const DEFAULT_STEPPER_RESET_BUTTON_CONFIG = {
   id: EButtonActionType.RESET,
-  label: 'Reset',
-  variant: EButtonVariant.OUTLINED,
+  label: 'Clear this step',
+  icon: ICONS.COMMON.ERASER,
+  variant: EButtonVariant.TEXT,
   severity: EButtonSeverity.SECONDARY,
+  tooltip: 'Clear the fields on this step only',
+  disabledTooltip: 'Nothing to clear on this step yet',
+};
+
+/** Per-step reset on edit forms: the step goes back to the saved details, not blank. */
+export const STEPPER_UNDO_STEP_BUTTON_CONFIG = {
+  ...DEFAULT_STEPPER_RESET_BUTTON_CONFIG,
+  label: 'Undo this step',
+  icon: ICONS.COMMON.UNDO,
+  tooltip: 'Put this step back to the saved details',
+  disabledTooltip: 'No changes on this step',
 };
 
 export const DEFAULT_STEPPER_CONFIG: Partial<IStepperConfig> = {

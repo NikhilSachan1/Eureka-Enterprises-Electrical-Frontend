@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 
 import { authGuard, GuestGuard } from '@core/guards';
+import { withUnsavedChangesGuard } from '@core/guards/unsaved-changes.guard';
 import { GetPublicAssetDetailResolver } from '@features/asset-management/resolvers/get-public-asset-detail.resolver';
 
 export const routes: Routes = [
@@ -49,7 +50,8 @@ export const routes: Routes = [
         '@shared/components/layouts/private-layout/private-layout.component'
       ).then(m => m.PrivateLayoutComponent),
     canActivate: [authGuard],
-    children: [
+    // Every private page asks before leaving with unsaved form input.
+    children: withUnsavedChangesGuard([
       {
         path: '',
         pathMatch: 'full',
@@ -164,7 +166,7 @@ export const routes: Routes = [
         path: '**',
         redirectTo: ROUTE_BASE_PATHS.DASHBOARD,
       },
-    ],
+    ]),
   },
 
   {

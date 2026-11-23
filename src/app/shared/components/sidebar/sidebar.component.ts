@@ -11,6 +11,8 @@ import {
 } from '@angular/core';
 import { fadeInOut } from '@shared/animations';
 import { MenuService, ThemeService } from '@core/services';
+import { ICONS } from '@shared/constants';
+import { CommandPaletteService } from '@shared/services/command-palette.service';
 import { NgClass } from '@angular/common';
 import { SidebarHeaderComponent } from './sidebar-header/sidebar-header.component';
 import { SidebarUserProfileComponent } from './sidebar-user-profile/sidebar-user-profile.component';
@@ -44,6 +46,8 @@ import {
 export class SidebarComponent {
   readonly menuService = inject(MenuService);
   readonly themeService = inject(ThemeService);
+  protected readonly commandPalette = inject(CommandPaletteService);
+  protected readonly ICONS = ICONS;
   private readonly destroyRef = inject(DestroyRef);
   private readonly sidebarEl = viewChild<ElementRef<HTMLElement>>('sidebarEl');
 
@@ -60,7 +64,10 @@ export class SidebarComponent {
       return;
     }
 
-    if (!this.isPointerInSidebar(event.clientX, event.clientY)) {
+    if (
+      !this.isPointerInSidebar(event.clientX, event.clientY) &&
+      !this.hasKeyboardFocusInside()
+    ) {
       this.setHoverExpanded(false);
     }
   };
@@ -175,6 +182,44 @@ export class SidebarComponent {
     this.scheduleHoverCollapse();
   }
 
+  /**
+   * Keyboard users get the same expand-on-enter as mouse users: Tab into the collapsed
+   * sidebar opens it, so labels and submenus are reachable. A mouse click also moves focus
+   * here, but leaves no :focus-visible, so it stays with the hover logic.
+   */
+  onSidebarFocusIn(): void {
+    if (!this.isCollapsedDesktop() || !this.hasKeyboardFocusInside()) {
+      return;
+    }
+
+    this.clearHoverCollapseTimeout();
+    this.setHoverExpanded(true);
+  }
+
+  onSidebarFocusOut(event: FocusEvent): void {
+    if (!this.isCollapsedDesktop()) {
+      return;
+    }
+
+    const sidebar = this.sidebarEl()?.nativeElement;
+    const nextFocus = event.relatedTarget as Node | null;
+
+    if (
+      (nextFocus && sidebar?.contains(nextFocus)) ||
+      sidebar?.matches(':hover') ||
+      isSidebarFooterPopoverOpen() ||
+      isNodeInSidebarFooterPopover(nextFocus)
+    ) {
+      return;
+    }
+
+    this.setHoverExpanded(false);
+  }
+
+  private hasKeyboardFocusInside(): boolean {
+    return !!this.sidebarEl()?.nativeElement.querySelector(':focus-visible');
+  }
+
   @HostListener('document:visibilitychange')
   onVisibilityChange(): void {
     if (document.hidden) {
@@ -250,7 +295,12 @@ export class SidebarComponent {
       }
 
       const sidebar = this.sidebarEl()?.nativeElement;
-      if (sidebar && !sidebar.matches(':hover')) {
+      // Keep it open while a keyboard user is still working inside it.
+      if (
+        sidebar &&
+        !sidebar.matches(':hover') &&
+        !this.hasKeyboardFocusInside()
+      ) {
         this.setHoverExpanded(false);
       }
     }, 150);

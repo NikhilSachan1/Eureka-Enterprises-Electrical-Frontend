@@ -1,0 +1,51 @@
+<ng-template
+  #docWorkspaceContext
+  let-row
+>
+  <app-doc-workspace-context [view]="$any(row).docWorkspaceContext" />
+</ng-template>
+
+<!-- One cell: who is on site now, and how many people the project has had. -->
+<ng-template
+  #people
+  let-row
+>
+  @let r = $any(row);
+  @if (r.totalPeople === 0) {
+    <span class="allocation-summary-muted">Never staffed</span>
+  } @else {
+    <div class="allocation-summary-cell">
+      @if (r.currentPeople) {
+        <span class="allocation-summary-onsite">
+          <span
+            class="allocation-summary-onsite__dot"
+            aria-hidden="true"
+          ></span>
+          {{ r.currentPeople }} on site now
+        </span>
+      } @else {
+        <span class="allocation-summary-free">No one now</span>
+      }
+      <span class="allocation-summary-sub">
+        {{ r.totalPeople }} in total
+        @if (r.allocationCount > r.totalPeople) {
+          · {{ r.allocationCount }} allocations
+        }
+      </span>
+    </div>
+  }
+</ng-template>
+
+<app-data-table
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{
+    docWorkspaceContext: docWorkspaceContext,
+    people: people,
+  }"
+  (filterData)="onTableStateChange($event)"
+  (rowActionClick)="onRowActionClick($event)"
+/>

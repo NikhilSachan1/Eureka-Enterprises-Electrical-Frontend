@@ -1,0 +1,208 @@
+// Lock status as a tiny vertical timeline:
+//   ● Locked  →  ◉ "<name> asked to unlock" + reason bubble  →  ◌ Awaiting approval
+// Done steps are solid and joined by a solid line; the step still to come is dashed.
+:host {
+  display: block;
+  --ulr-amber: #d97706;
+  --ulr-amber-text: color-mix(in srgb, #b45309 82%, var(--text-primary-color));
+  --ulr-green: #059669;
+  --ulr-green-text: color-mix(in srgb, #047857 82%, var(--text-primary-color));
+  --ulr-muted: var(--text-secondary-color);
+  --ulr-line: var(--border-light-color);
+  --ulr-bubble: color-mix(in srgb, var(--ulr-amber) 8%, var(--background-paper-color));
+  --ulr-bubble-border: color-mix(in srgb, var(--ulr-amber) 28%, var(--border-light-color));
+}
+
+:host-context(.dark-theme) {
+  --ulr-amber-text: color-mix(in srgb, #fbbf24 82%, var(--text-primary-color));
+  --ulr-green-text: color-mix(in srgb, #34d399 82%, var(--text-primary-color));
+  --ulr-line: var(--border-dark-color);
+  --ulr-bubble: color-mix(in srgb, var(--ulr-amber) 16%, var(--background-paper-color));
+  --ulr-bubble-border: color-mix(in srgb, var(--ulr-amber) 38%, var(--border-dark-color));
+}
+
+.ulr {
+  display: flex;
+  flex-direction: column;
+  min-width: 12rem;
+  max-width: 16rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ulr__step {
+  --ulr-tone: var(--ulr-amber);
+  --ulr-tone-text: var(--ulr-amber-text);
+
+  display: grid;
+  grid-template-columns: 1.15rem minmax(0, 1fr);
+  column-gap: 0.55rem;
+
+  &--unlocked {
+    --ulr-tone: var(--ulr-green);
+    --ulr-tone-text: var(--ulr-green-text);
+  }
+
+  &--pending {
+    --ulr-tone: var(--ulr-muted);
+    --ulr-tone-text: var(--ulr-muted);
+  }
+}
+
+// ── Dots and the line between them ─────────────────────────────────────────────
+.ulr__rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+
+  // Line from this dot down to the next one.
+  .ulr__step:not(:last-child) &::after {
+    content: "";
+    position: absolute;
+    top: 1.25rem;
+    bottom: 0.1rem;
+    left: 50%;
+    width: 2px;
+    border-radius: 1px;
+    transform: translateX(-50%);
+    background: var(--ulr-tone);
+    opacity: 0.55;
+  }
+
+  // The link into a step that has not happened yet is dashed.
+  .ulr__step--next-pending &::after {
+    background: none;
+    border-left: 2px dashed var(--ulr-line);
+    width: 0;
+    opacity: 1;
+  }
+}
+
+.ulr__dot {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  font-size: 0.55rem;
+  color: #fff;
+  background: var(--ulr-tone);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ulr-tone) 16%, transparent);
+
+  // The request: ring with a solid centre and a soft pulse (needs attention).
+  &--request {
+    width: 0.95rem;
+    height: 0.95rem;
+    margin-top: 0.1rem;
+    border: 2px solid var(--ulr-tone);
+    background: radial-gradient(circle, var(--ulr-tone) 0 35%, var(--background-paper-color) 38%);
+    animation: ulr-pulse 1.8s ease-in-out infinite;
+  }
+
+  // Not reached yet: hollow and dashed.
+  &--pending {
+    width: 0.85rem;
+    height: 0.85rem;
+    margin-top: 0.15rem;
+    border: 2px dashed var(--ulr-line);
+    background: var(--background-paper-color);
+    box-shadow: none;
+  }
+}
+
+// ── Text ───────────────────────────────────────────────────────────────────────
+.ulr__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+  padding-bottom: 0.6rem;
+
+  .ulr__step:last-child & {
+    padding-bottom: 0;
+  }
+}
+
+.ulr__title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.15rem; // lines up with the dot
+  color: var(--ulr-tone-text);
+
+  .ulr__step--pending & {
+    font-weight: 600;
+    font-style: italic;
+  }
+}
+
+// "Anuj Patel asked to unlock ······ 2h ago"
+.ulr__line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+  line-height: 1.15rem;
+}
+
+.ulr__sentence {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.74rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary-color);
+}
+
+.ulr__name {
+  font-weight: 700;
+  color: var(--text-primary-color);
+}
+
+.ulr__time {
+  flex: none;
+  font-size: 0.66rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ulr-tone-text);
+  cursor: help;
+}
+
+// Reason as a speech bubble pointing back at the request dot; two lines at most.
+.ulr__bubble {
+  position: relative;
+  display: -webkit-box;
+  padding: 0.35rem 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--ulr-bubble-border);
+  border-radius: 0.15rem 0.55rem 0.55rem 0.55rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  color: var(--text-primary-color);
+  background: var(--ulr-bubble);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+@keyframes ulr-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ulr-tone) 16%, transparent);
+  }
+
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--ulr-tone) 0%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ulr__dot--request {
+    animation: none;
+  }
+}

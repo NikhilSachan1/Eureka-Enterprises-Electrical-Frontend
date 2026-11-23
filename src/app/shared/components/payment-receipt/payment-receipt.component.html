@@ -1,0 +1,54 @@
+@if (variant() === EPaymentReceiptVariant.INLINE) {
+  <div class="payment-receipt payment-receipt--inline">
+    @if (paidAt(); as date) {
+      <span class="payment-receipt__meta">
+        {{ date | date: dateFormat() : undefined : dateLocale }}
+      </span>
+    }
+    @if (mode(); as value) {
+      <span class="payment-receipt__meta">{{ LABELS.MODE }} · {{ value }}</span>
+    }
+    @if (reference(); as value) {
+      <span class="payment-receipt__meta">{{ referenceLabel() }} · {{ value }}</span>
+    }
+    @if (paidFromBankName(); as value) {
+      <span class="payment-receipt__meta">{{ paidFromLabel() }} · {{ value }}</span>
+    }
+  </div>
+} @else if (isEmpty()) {
+  <span class="payment-receipt__empty">-</span>
+} @else {
+  <dl class="payment-receipt payment-receipt--card">
+    @if (paidAt(); as date) {
+      <div class="payment-receipt__row">
+        <dt class="payment-receipt__label">{{ LABELS.DATE }}</dt>
+        <dd class="payment-receipt__value">
+          {{ date | date: dateFormat() : undefined : dateLocale }}
+        </dd>
+      </div>
+    }
+    @if (mode(); as value) {
+      <div class="payment-receipt__row">
+        <dt class="payment-receipt__label">{{ LABELS.MODE }}</dt>
+        <dd class="payment-receipt__value">{{ value }}</dd>
+      </div>
+    }
+    @if (reference(); as value) {
+      <div class="payment-receipt__row">
+        <dt class="payment-receipt__label">{{ referenceLabel() }}</dt>
+        <dd class="payment-receipt__value">{{ value }}</dd>
+      </div>
+    }
+    @if (paidFrom(); as account) {
+      <div class="payment-receipt__bank">
+        <dt class="payment-receipt__label">{{ paidFromLabel() }}</dt>
+        <dd class="payment-receipt__bank-card">
+          <app-bank-details-cell
+            [bankDetails]="account"
+            [displayMode]="EBankDetailsDisplayMode.COMPACT"
+          />
+        </dd>
+      </div>
+    }
+  </dl>
+}

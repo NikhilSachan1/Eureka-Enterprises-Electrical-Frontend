@@ -137,7 +137,7 @@ export class GetAssetEventHistoryComponent implements OnInit {
           );
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.assetEventHistoryStats.set(null);
           this.logger.logUserAction(
             'Failed to load asset event history records',

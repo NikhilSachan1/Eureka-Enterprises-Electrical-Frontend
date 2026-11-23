@@ -1,26 +1,28 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   DestroyRef,
   inject,
   OnInit,
+  output,
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MenuItem } from 'primeng/api';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { distinctUntilChanged, map } from 'rxjs';
 import { LoggerService } from '@core/services';
 import { RouterNavigationService } from '@shared/services';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { MY_FILES_ROOT_LABEL } from '../../constants/my-files.constants';
 import { MyFilesService } from '../../services/my-files.service';
-import { IMyFilesBreadcrumbItemDto } from '../../types/my-files.dto';
+import { IMyFilesMoveCrumb } from '../../types/my-files.interface';
 
+/**
+ * "🏠 My Files › Invoices › 2026": every part but the last opens that folder.
+ * Emits the path so the page can say where uploads and new folders will go.
+ */
 @Component({
   selector: 'app-my-files-breadcrumb',
-  imports: [BreadcrumbModule],
   templateUrl: './my-files-breadcrumb.component.html',
   styleUrl: './my-files-breadcrumb.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,13 +34,14 @@ export class MyFilesBreadcrumbComponent implements OnInit {
   private readonly myFilesService = inject(MyFilesService);
   private readonly routerNavigationService = inject(RouterNavigationService);
 
-  protected readonly breadcrumbItems = signal<MenuItem[]>([]);
+  protected readonly ICONS = ICONS;
+  protected readonly rootLabel = MY_FILES_ROOT_LABEL;
 
-  protected readonly breadcrumbHome = computed<MenuItem>(() => ({
-    icon: ICONS.COMMON.HOME,
-    label: 'My Files',
-    command: (): void => this.navigateToFolder(null),
-  }));
+  /** Folders below the top level, outermost first. */
+  protected readonly crumbs = signal<IMyFilesMoveCrumb[]>([]);
+
+  /** Full path including "My Files", whenever it changes. */
+  readonly pathChange = output<IMyFilesMoveCrumb[]>();
 
   ngOnInit(): void {
     this.activatedRoute.queryParamMap
@@ -47,14 +50,24 @@ export class MyFilesBreadcrumbComponent implements OnInit {
         distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe(folderId => {
-        this.loadBreadcrumbs(folderId);
-      });
+      .subscribe(folderId => this.loadBreadcrumbs(folderId));
+  }
+
+  protected open(folderId: string | null): void {
+    void this.routerNavigationService.navigateWithQueryParams(
+      [ROUTE_BASE_PATHS.MY_FILES, ROUTES.MY_FILES.LIST],
+      { parentId: folderId }
+    );
+  }
+
+  private setCrumbs(crumbs: IMyFilesMoveCrumb[]): void {
+    this.crumbs.set(crumbs);
+    this.pathChange.emit([{ id: null, name: this.rootLabel }, ...crumbs]);
   }
 
   private loadBreadcrumbs(folderId: string | null): void {
     if (!folderId) {
-      this.breadcrumbItems.set([]);
+      this.setCrumbs([]);
       return;
     }
 
@@ -62,39 +75,17 @@ export class MyFilesBreadcrumbComponent implements OnInit {
       .getMyFilesBreadcrumb(folderId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: response => {
-          this.breadcrumbItems.set(this.mapBreadcrumbItems(response.data));
-          this.logger.logUserAction('My files breadcrumb loaded successfully');
-        },
+        next: response =>
+          this.setCrumbs(
+            response.data.map(crumb => ({ id: crumb.id, name: crumb.name }))
+          ),
         error: error => {
-          this.breadcrumbItems.set([]);
+          this.setCrumbs([]);
           this.logger.logUserAction(
             'Failed to load my files breadcrumb',
             error
           );
         },
       });
-  }
-
-  private mapBreadcrumbItems(
-    breadcrumbs: IMyFilesBreadcrumbItemDto[]
-  ): MenuItem[] {
-    return breadcrumbs.map((crumb, index) => {
-      const isLast = index === breadcrumbs.length - 1;
-
-      return {
-        label: crumb.name,
-        command: isLast
-          ? undefined
-          : (): void => this.navigateToFolder(crumb.id),
-      };
-    });
-  }
-
-  private navigateToFolder(folderId: string | null): void {
-    void this.routerNavigationService.navigateWithQueryParams(
-      [ROUTE_BASE_PATHS.MY_FILES, ROUTES.MY_FILES.LIST],
-      { parentId: folderId }
-    );
   }
 }

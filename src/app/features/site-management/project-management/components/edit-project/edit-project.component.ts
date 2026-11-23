@@ -165,7 +165,7 @@ export class EditProjectComponent
         ? [new Date(startDate), new Date(endDate)]
         : [new Date(startDate)],
       baseDistanceKm:
-        baseDistanceKm == null
+        baseDistanceKm === null || baseDistanceKm === undefined
           ? (null as unknown as number)
           : Number(baseDistanceKm),
       city,
@@ -264,8 +264,15 @@ export class EditProjectComponent
       });
   }
 
+  /** Edit page: reset brings back the saved details, so the button says "Undo". */
+  protected override resetRestoresSavedDetails(): boolean {
+    return true;
+  }
+
   protected onReset(): void {
-    this.onResetSingleForm(this.initialProjectData() ?? {});
+    this.confirmResetSingleForm(() => {
+      this.onResetSingleForm(this.initialProjectData() ?? {});
+    });
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

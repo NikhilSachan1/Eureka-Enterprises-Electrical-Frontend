@@ -71,7 +71,7 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('Asset details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load asset details', error);
         },
       });
   }

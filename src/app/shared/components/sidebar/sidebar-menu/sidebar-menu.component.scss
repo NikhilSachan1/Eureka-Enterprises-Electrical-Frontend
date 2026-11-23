@@ -61,7 +61,7 @@
     margin: 0.125rem 0;
     position: relative;
 
-    > div:first-child {
+    > .menu-link {
       padding: 0.625rem 0.75rem;
       border-radius: 0.5rem;
       display: flex;
@@ -136,7 +136,7 @@
         margin: 0.25rem 0;
         position: relative;
 
-        > div:first-child {
+        > .menu-link {
           padding: 0.625rem;
           justify-content: center;
           width: 100%;
@@ -303,4 +303,25 @@
       }
     }
   }
+}
+
+// Toggles are real <button>s and top-level links real <a>s (keyboard: Tab, Enter, Space).
+// Drop the browser's button/link look so they keep the existing menu styling.
+.menu-link,
+.nested-parent {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+// Keyboard focus is visible; mouse clicks stay outline-free.
+.menu-link:focus-visible,
+.submenu-item:focus-visible {
+  outline: 2px solid var(--sidebar-primary-color);
+  outline-offset: -2px;
 }

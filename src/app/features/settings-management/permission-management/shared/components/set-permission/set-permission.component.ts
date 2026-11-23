@@ -190,7 +190,7 @@ export class SetPermissionComponent implements OnInit {
           changedOnly &&
           state !== null &&
           !columns.some(column =>
-            this.isPending(column.id, permission.id as string, state)
+            this.isPending(column.id, permission.id, state)
           )
         ) {
           return false;
@@ -280,8 +280,8 @@ export class SetPermissionComponent implements OnInit {
       const pendingCount = pendingCounts[module.id] ?? 0;
       const grantedCount =
         state && columnId
-          ? permissionIds.filter(permissionId =>
-              state[cellKey(columnId, permissionId)]
+          ? permissionIds.filter(
+              permissionId => state[cellKey(columnId, permissionId)]
             ).length
           : 0;
 

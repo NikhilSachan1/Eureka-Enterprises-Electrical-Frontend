@@ -156,7 +156,7 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
             .pipe(
               finalize(() => this.table.setLoading(false)),
               catchError(error => {
-                this.table.setData([]);
+                this.table.setLoadError();
                 this.logger.logUserAction(
                   'Failed to load site allocation history',
                   error

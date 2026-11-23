@@ -2,6 +2,12 @@
   <div class="empty-state-content">
     <i [class]="`${icon()} empty-state-icon`"></i>
     <h3 class="empty-state-title">{{ title() }}</h3>
-    <p class="empty-state-description">{{ description() }}</p>
+    @if (description()) {
+      <p class="empty-state-description">{{ description() }}</p>
+    }
+    <!-- Optional actions (e.g. "Clear filters"), projected by the caller -->
+    <div class="empty-state-actions">
+      <ng-content />
+    </div>
   </div>
 </div>

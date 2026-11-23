@@ -1,0 +1,13 @@
+.edit-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.edit-preview__title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary-color);
+}

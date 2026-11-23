@@ -98,7 +98,9 @@ export class AddPetroCardComponent
   }
 
   protected onReset(): void {
-    this.onResetSingleForm();
+    this.confirmResetSingleForm(() => {
+      this.onResetSingleForm();
+    });
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

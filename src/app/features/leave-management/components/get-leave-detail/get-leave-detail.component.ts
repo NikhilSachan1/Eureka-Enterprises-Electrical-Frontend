@@ -52,6 +52,7 @@ interface ILeaveDayWiseView {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetLeaveDetailComponent extends DrawerDetailBase {
+  protected readonly DATE_FORMATS = APP_CONFIG.DATE_FORMATS;
   private readonly drawerData = inject(DRAWER_DATA) as {
     group: ILeaveGroupGetBaseResponseDto;
   };

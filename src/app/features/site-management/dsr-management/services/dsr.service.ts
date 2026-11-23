@@ -12,6 +12,8 @@ import {
   DsrEditResponseSchema,
   DsrGetRequestSchema,
   DsrGetResponseSchema,
+  DsrProjectSummaryGetRequestSchema,
+  DsrProjectSummaryGetResponseSchema,
 } from '../schemas';
 import {
   IDsrAddFormDto,
@@ -25,6 +27,8 @@ import {
   IDsrForceResponseDto,
   IDsrGetFormDto,
   IDsrGetResponseDto,
+  IDsrProjectSummaryGetFormDto,
+  IDsrProjectSummaryGetResponseDto,
 } from '../types/dsr.dto';
 import { DsrDetailGetResponseSchema } from '../schemas/get-dsr-detail.schema';
 
@@ -165,6 +169,42 @@ export class DsrService {
             this.logger.logDtoValidationErrors('Get DSR List Error', error);
           } else {
             this.logger.logUserAction('Get DSR List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /** DSR reporting per project (days expected, reported, missing), paged on the server. */
+  getDsrProjectSummary(
+    params?: IDsrProjectSummaryGetFormDto
+  ): Observable<IDsrProjectSummaryGetResponseDto> {
+    this.logger.logUserAction('Get DSR project summary request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.DSR.SUMMARY_PROJECTS,
+        {
+          response: DsrProjectSummaryGetResponseSchema,
+          request: DsrProjectSummaryGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: IDsrProjectSummaryGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get DSR project summary response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get DSR project summary error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get DSR project summary error', error);
           }
           return throwError(() => error);
         })

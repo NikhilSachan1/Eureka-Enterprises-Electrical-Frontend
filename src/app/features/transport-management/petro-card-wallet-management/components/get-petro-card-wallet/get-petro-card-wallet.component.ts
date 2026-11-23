@@ -15,7 +15,7 @@ import { PetroCardWalletDashboardComponent } from '@features/dashboard/component
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
+import { PaymentReceiptComponent } from '@shared/components/payment-receipt/payment-receipt.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import {
   AppConfigurationService,
@@ -24,7 +24,6 @@ import {
   TableService,
 } from '@shared/services';
 import {
-  EBankDetailsDisplayMode,
   EButtonActionType,
   EDataType,
   IDataViewDetails,
@@ -62,10 +61,9 @@ import {
     SearchFilterComponent,
     DataTableComponent,
     PetroCardWalletDashboardComponent,
-    BankDetailsCellComponent,
+    PaymentReceiptComponent,
   ],
   templateUrl: './get-petro-card-wallet.component.html',
-  styleUrl: './get-petro-card-wallet.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetPetroCardWalletComponent implements OnInit {
@@ -74,10 +72,10 @@ export class GetPetroCardWalletComponent implements OnInit {
   private readonly walletService = inject(PetroCardWalletService);
   private readonly dataTableService = inject(TableService);
   private readonly tableParams = inject(TableServerSideParamsBuilderService);
-  private readonly confirmationDialogService = inject(ConfirmationDialogService);
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService
+  );
   private readonly appConfigurationService = inject(AppConfigurationService);
-
-  protected readonly EBankDetailsDisplayMode = EBankDetailsDisplayMode;
 
   protected rechargeTable!: IEnhancedTable;
   protected rechargeSearchFilterConfig!: ITableSearchFilterFormConfig;
@@ -161,11 +159,10 @@ export class GetPetroCardWalletComponent implements OnInit {
       return;
     }
     this.rechargeTable.setLoading(true);
-    const params =
-      this.tableParams.buildQueryParams<IWalletRechargeGetFormDto>(
-        this.rechargeFilterData,
-        this.rechargeTable.getHeaders()
-      );
+    const params = this.tableParams.buildQueryParams<IWalletRechargeGetFormDto>(
+      this.rechargeFilterData,
+      this.rechargeTable.getHeaders()
+    );
 
     this.walletService
       .getRecharges(params)
@@ -183,7 +180,7 @@ export class GetPetroCardWalletComponent implements OnInit {
             totalRecords: response.totalRecords,
           });
         },
-        error: () => this.rechargeTable.setData([]),
+        error: () => this.rechargeTable.setLoadError(),
       });
   }
 
@@ -193,7 +190,6 @@ export class GetPetroCardWalletComponent implements OnInit {
     return records.map(record => {
       const status = getWalletRechargeStatus(record);
       const isPaid = isWalletRechargePaid(record);
-      const bankName = record.paidFromAccount?.bankName?.trim();
 
       return {
         id: record.id,
@@ -204,21 +200,18 @@ export class GetPetroCardWalletComponent implements OnInit {
         statusLabel: status === 'PAID' ? 'Paid' : 'Pending',
         editable: isWalletRechargeEditable(record),
         isPaymentRecorded: isPaid,
-        paymentModeLabel: record.paymentMode
-          ? getMappedValueFromArrayOfObjects(
-              this.appConfigurationService.expensePaymentMethods(),
-              record.paymentMode
-            )
-          : null,
-        paidFromBankName: bankName
-          ? getMappedValueFromArrayOfObjects(
-              this.appConfigurationService.bankNames(),
-              bankName
-            )
-          : null,
-        paidFromAccount: record.paidFromAccount
-          ? mapPaidFromAccountToBankDetails(record.paidFromAccount)
-          : null,
+        paymentReceipt: {
+          reference: record.referenceNumber,
+          mode: record.paymentMode
+            ? getMappedValueFromArrayOfObjects(
+                this.appConfigurationService.expensePaymentMethods(),
+                record.paymentMode
+              )
+            : null,
+          paidFrom: record.paidFromAccount
+            ? mapPaidFromAccountToBankDetails(record.paidFromAccount)
+            : null,
+        },
         originalRawData: record,
       };
     });
@@ -236,7 +229,14 @@ export class GetPetroCardWalletComponent implements OnInit {
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
-      { label: 'Reference', value: referenceNumber || '-' },
+      {
+        label: 'Reference',
+        // Same as before: no reference (null or empty) shows a dash.
+        value:
+          referenceNumber === null || referenceNumber === ''
+            ? '-'
+            : referenceNumber,
+      },
     ];
     const recordDetail: IDataViewDetailsWithEntity = {
       details: [{ entryData }],

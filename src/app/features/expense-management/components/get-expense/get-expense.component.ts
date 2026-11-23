@@ -174,7 +174,7 @@ export class GetExpenseComponent implements OnInit {
           this.logger.logUserAction('Expense records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.expenseStats.set(null);
           this.payNowClosingBalance.set(null);
           this.payNowEmployeeId.set(null);
@@ -532,6 +532,7 @@ export class GetExpenseComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Expense',
+          showInEmptyState: true,
           icon: ICONS.COMMON.PLUS,
           actionName: 'addExpense',
           permission: [APP_PERMISSION.EXPENSE.ADD],

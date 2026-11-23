@@ -26,7 +26,11 @@
   font: inherit;
   color: #fff;
   user-select: none;
-  background: linear-gradient(160deg, color-mix(in srgb, var(--fab-p) 88%, #fff), var(--fab-p));
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--fab-p) 88%, var(--background-default-color)),
+    var(--fab-p)
+  );
   box-shadow:
     0 1px 0 rgb(255 255 255 / 0.22) inset,
     0 4px 14px color-mix(in srgb, var(--fab-p) 45%, transparent);
@@ -35,7 +39,7 @@
     transform 0.15s ease;
 
   &:focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--fab-p) 65%, #fff);
+    outline: 2px solid color-mix(in srgb, var(--fab-p) 65%, var(--background-default-color));
     outline-offset: 2px;
   }
 

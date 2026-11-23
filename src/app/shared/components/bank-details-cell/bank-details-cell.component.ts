@@ -4,6 +4,7 @@ import {
   computed,
   inject,
   input,
+  signal,
 } from '@angular/core';
 import { AppConfigurationService } from '@shared/services';
 import { ICONS } from '@shared/constants';
@@ -89,6 +90,47 @@ export class BankDetailsCellComponent {
   protected readonly ifscCode = computed(
     () => this.normalizeValue(this.bankDetails()?.ifscCode) ?? null
   );
+
+  /** Tile mode: account number in groups of four so it reads back easily. */
+  protected readonly groupedAccountNumber = computed(() => {
+    const account = this.accountNumber();
+
+    return account
+      ? account.replace(/\s+/g, '').replace(/(.{4})(?=.)/g, '$1 ')
+      : null;
+  });
+
+  /** Tile mode: bank (when the holder leads) and branch on one line. */
+  protected readonly tileMetaLine = computed(() => {
+    const parts = [this.secondaryLabel(), this.branchName()].filter(
+      (part): part is string => !!part
+    );
+
+    return parts.length ? parts.join(' · ') : null;
+  });
+
+  protected readonly copiedField = signal<'account' | 'ifsc' | null>(null);
+  private copiedResetTimer?: ReturnType<typeof setTimeout>;
+
+  /** Copies the raw value (no grouping spaces) and briefly shows a tick. */
+  protected async copyValue(
+    field: 'account' | 'ifsc',
+    value: string | null
+  ): Promise<void> {
+    if (!value) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(value.replace(/\s+/g, ''));
+    } catch {
+      return;
+    }
+
+    this.copiedField.set(field);
+    clearTimeout(this.copiedResetTimer);
+    this.copiedResetTimer = setTimeout(() => this.copiedField.set(null), 1500);
+  }
 
   private normalizeValue(value: string | null | undefined): string | null {
     const normalized = value?.trim();

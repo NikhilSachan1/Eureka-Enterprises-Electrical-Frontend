@@ -81,7 +81,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('Attendance history loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load attendance details', error);
         },
       });
   }
@@ -144,7 +144,8 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         {
           label: 'Vehicle & Driver',
           value: {
-            assignedEngineer: record.assignmentSnapshot?.assignedEngineer ?? null,
+            assignedEngineer:
+              record.assignmentSnapshot?.assignedEngineer ?? null,
             assignedDrivers:
               record.assignedDrivers ??
               record.assignmentSnapshot?.assignedDrivers ??

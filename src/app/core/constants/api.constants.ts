@@ -259,6 +259,8 @@ export const API_ROUTES = {
       CHANGE_STATUS: (projectId: string) => `sites/${projectId}/status`,
       ALLOCATE_DEALLOCATE_EMPLOYEES: 'site-allocations/manage',
       ALLOCATION_HISTORY: 'site-allocations',
+      ALLOCATION_SUMMARY_EMPLOYEES: 'site-allocations/summary/employees',
+      ALLOCATION_SUMMARY_PROJECTS: 'site-allocations/summary/projects',
       UPDATE_ALLOCATION: (allocationId: string) =>
         `site-allocations/${allocationId}`,
       DELETE_ALLOCATION: (allocationId: string, confirm = false) =>
@@ -271,6 +273,7 @@ export const API_ROUTES = {
       EDIT: (dsrId: string) => `daily-status-reports/${dsrId}`,
       DELETE: (dsrId: string) => `daily-status-reports/${dsrId}`,
       LIST: 'daily-status-reports',
+      SUMMARY_PROJECTS: 'daily-status-reports/summary/projects',
       GET_DSR_BY_ID: (dsrId: string) =>
         `daily-status-reports/${dsrId}/versions`,
     },

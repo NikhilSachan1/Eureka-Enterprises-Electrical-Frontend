@@ -190,7 +190,7 @@ export class GetProjectComponent implements OnInit {
           this.logger.logUserAction('Project records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.projectStats.set(null);
           this.logger.logUserAction('Failed to load project records', error);
         },
@@ -534,6 +534,7 @@ export class GetProjectComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Project',
+          showInEmptyState: true,
           actionName: 'addProject',
           permission: [APP_PERMISSION.PROJECT.ADD],
         },

@@ -1,0 +1,23 @@
+@if (selectedRecord()[0]; as item) {
+  <div class="dmf">
+    <app-my-file-preview [record]="item" />
+
+    @if (isFolder()) {
+      <p
+        class="dmf__warning"
+        role="alert"
+      >
+        <i
+          class="pi pi-exclamation-triangle"
+          aria-hidden="true"
+        ></i>
+        <span>
+          <strong>Everything inside this folder is deleted too</strong>
+          — all its files and sub-folders. This cannot be undone.
+        </span>
+      </p>
+    } @else {
+      <p class="dmf__note">This file will be permanently deleted. This cannot be undone.</p>
+    }
+  </div>
+}

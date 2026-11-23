@@ -148,8 +148,15 @@ export class EditPetroCardComponent
       });
   }
 
+  /** Edit page: reset brings back the saved details, so the button says "Undo". */
+  protected override resetRestoresSavedDetails(): boolean {
+    return true;
+  }
+
   protected onReset(): void {
-    this.onResetSingleForm(this.initialPetroCardData() ?? {});
+    this.confirmResetSingleForm(() => {
+      this.onResetSingleForm(this.initialPetroCardData() ?? {});
+    });
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

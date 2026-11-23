@@ -14,6 +14,7 @@ import {
   withEnabledBlockingInitialNavigation,
   withInMemoryScrolling,
   withComponentInputBinding,
+  withRouterConfig,
 } from '@angular/router';
 import {
   provideHttpClient,
@@ -31,9 +32,11 @@ import {
   ErrorInterceptor,
   RolePayloadSanitizerInterceptor,
 } from '@core/interceptors';
+import { UnsavedChangesInterceptor } from '@core/interceptors/unsaved-changes.interceptor';
 import {
   CriticalStartupStateService,
   HealthCheckService,
+  LoggerService,
   PwaInstallService,
   ThemeService,
   TimezoneService,
@@ -69,6 +72,8 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withFetch(),
       withInterceptors([
+        // Outermost, so it sees a save's final result (after any auth refresh + retry).
+        UnsavedChangesInterceptor,
         CriticalStartupBlockInterceptor,
         AuthInterceptor,
         RolePayloadSanitizerInterceptor,
@@ -82,7 +87,9 @@ export const appConfig: ApplicationConfig = {
         anchorScrolling: 'enabled',
         scrollPositionRestoration: 'enabled',
       }),
-      withEnabledBlockingInitialNavigation()
+      withEnabledBlockingInitialNavigation(),
+      // When "Stay on page" cancels a browser Back, put the history entry back too.
+      withRouterConfig({ canceledNavigationResolution: 'computed' })
     ),
     ConfirmationService,
     MessageService,
@@ -122,6 +129,7 @@ export const appConfig: ApplicationConfig = {
       const backgroundServices = inject(BackgroundServicesLoader);
       const criticalStartupState = inject(CriticalStartupStateService);
       const healthCheckService = inject(HealthCheckService);
+      const logger = inject(LoggerService);
 
       const isHealthy = await lastValueFrom(
         healthCheckService.check().pipe(take(1))
@@ -157,7 +165,7 @@ export const appConfig: ApplicationConfig = {
           appConfigurationService.loadCriticalAppData().pipe(take(1))
         );
       } catch (error) {
-        console.error('Failed to load app data during initialization:', error);
+        logger.error('Failed to load app data during initialization', error);
         criticalStartupState.markCriticalLoadFailed('configuration');
         return;
       }

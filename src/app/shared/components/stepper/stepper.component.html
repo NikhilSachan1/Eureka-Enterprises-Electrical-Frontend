@@ -186,6 +186,7 @@
         @if (showResetButton) {
           <app-button
             [buttonConfig]="panel.resetButtonConfig"
+            [showDisabledButton]="!stepDirty()[step.value]"
             (onButtonClick)="handleReset()"
           />
         }

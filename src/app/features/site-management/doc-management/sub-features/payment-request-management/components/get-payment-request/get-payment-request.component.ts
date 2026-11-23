@@ -53,6 +53,7 @@ import {
   buildPaymentRequestInvoiceDoc,
   buildPaymentRequestPoDoc,
 } from '../../utils/payment-request-table-row.util';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 @Component({
   selector: 'app-get-payment-request',
@@ -123,7 +124,7 @@ export class GetPaymentRequestComponent implements OnInit {
             .pipe(
               finalize(() => this.table.setLoading(false)),
               catchError(error => {
-                this.table.setData([]);
+                this.table.setLoadError();
                 this.logger.logUserAction(
                   'Failed to load payment request records',
                   error
@@ -222,11 +223,13 @@ export class GetPaymentRequestComponent implements OnInit {
       {
         dataType: EDataType.CURRENCY,
         label: 'Requested',
+        tone: EDocAmountTone.NEUTRAL,
         value: row.requestedAmount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'Approved',
+        tone: EDocAmountTone.NEUTRAL,
         value: row.approvedAmount,
       },
     ];
@@ -360,6 +363,7 @@ export class GetPaymentRequestComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Payment Request',
+          showInEmptyState: true,
           actionName: 'addPaymentRequest',
           permission: [APP_PERMISSION.PAYMENT_REQUEST_DOC.ADD],
         },

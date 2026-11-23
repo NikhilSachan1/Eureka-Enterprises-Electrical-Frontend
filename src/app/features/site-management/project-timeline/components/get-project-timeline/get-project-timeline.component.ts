@@ -28,6 +28,7 @@ import {
 } from '../../types/project-timeline.dto';
 import { IProjectTimelineEventView } from '../../types/project-timeline.interface';
 import { ProjectTimelineService } from '../../services/project-timeline.service';
+import { transformDateFormat } from '@shared/utility';
 
 /** Events shown in the workspace tile; the rest open in the full timeline. */
 const RECENT_EVENTS = 4;
@@ -104,10 +105,7 @@ export class GetProjectTimelineComponent {
     if (days < 7) {
       return `${days}d ago`;
     }
-    return date.toLocaleDateString(APP_CONFIG.NUMBER_FORMATS.LOCALE, {
-      day: '2-digit',
-      month: 'short',
-    });
+    return transformDateFormat(date, APP_CONFIG.DATE_FORMATS.DAY_MONTH);
   }
 
   private loadTimeline(projectId: string): void {

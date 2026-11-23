@@ -93,7 +93,7 @@ export class GetRoleComponent implements OnInit {
           this.logger.logUserAction('Roles loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.logger.logUserAction('Failed to load roles', error);
         },
       });

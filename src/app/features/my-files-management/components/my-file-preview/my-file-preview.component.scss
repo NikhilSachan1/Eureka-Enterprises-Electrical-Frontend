@@ -1,0 +1,49 @@
+@use "../../styles/my-files-tones" as tones;
+
+.mfp {
+  @include tones.tone-vars;
+
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border-light-color);
+  border-radius: 0.7rem;
+  background: var(--background-paper-color);
+  text-align: left;
+}
+
+.mfp__tile {
+  @include tones.tone-tile(2.5rem);
+
+  font-size: 1.1rem;
+}
+
+.mfp__ext {
+  @include tones.tone-ext;
+}
+
+.mfp__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mfp__name {
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary-color);
+}
+
+.mfp__meta {
+  font-size: 0.72rem;
+  color: var(--text-secondary-color);
+}
+
+:host-context(.dark-theme) .mfp {
+  border-color: var(--border-dark-color);
+}

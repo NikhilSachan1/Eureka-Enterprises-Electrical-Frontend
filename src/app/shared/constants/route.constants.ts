@@ -139,6 +139,12 @@ export const ROUTES = {
       EDIT: `edit`,
       WORKFORCE_ALLOCATION: `workforce-allocation`,
       ALLOCATION_HISTORY: `allocation-history`,
+      /** Sub-tabs of the workspace allocation history. */
+      ALLOCATION_HISTORY_TAB: {
+        ENTRIES: `entries`,
+        EMPLOYEE_WISE: `employee-wise`,
+        PROJECT_WISE: `project-wise`,
+      },
       WORKSPACE: `workspace`,
       PROFITABILITY: `profitability`,
       CONTRACTOR_DOC: `contractor-doc`,
@@ -146,6 +152,11 @@ export const ROUTES = {
       GST_SUMMARY: `gst-summary`,
       TDS_SUMMARY: `tds-summary`,
       DAILY_PROGRESS: `daily-progress`,
+      /** Sub-tabs of the workspace daily progress (DSR). */
+      DAILY_PROGRESS_TAB: {
+        ENTRIES: `entries`,
+        PROJECT_WISE: `project-wise`,
+      },
       WORKSPACE_DOC: {
         PO: `po`,
         ADVANCE_PAYMENT: `advance-payment`,

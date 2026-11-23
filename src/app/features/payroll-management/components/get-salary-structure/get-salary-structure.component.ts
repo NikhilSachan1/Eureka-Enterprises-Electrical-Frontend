@@ -161,7 +161,7 @@ export class GetSalaryStructureComponent implements OnInit {
         },
         error: error => {
           if (isTableVisible) {
-            this.table.setData([]);
+            this.table.setLoadError();
           } else {
             this.employeeAnnexureData.set(null);
           }

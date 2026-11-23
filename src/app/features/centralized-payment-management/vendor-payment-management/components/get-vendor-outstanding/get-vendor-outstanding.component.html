@@ -22,21 +22,21 @@
     </header>
     <div class="vo-layer__table">
       <app-data-table
-      [tableConfig]="invoiceTable.tableConfig()"
-      [tableHeader]="invoiceTable.headers()"
-      [tableData]="vendor.invoiceRows"
-      [loading]="false"
-      [rowActions]="invoiceTable.rowActions()"
-      [customBodyTemplates]="{
-        docWorkspaceContext: docWorkspaceContext,
-        documentReferenceChain: documentReferenceChain,
-        documentKindBadge: documentKindBadge,
-        invoiceAmountBreakdown: invoiceAmountBreakdown,
-        invoiceBookedPaidSummary: invoiceBookedPaidSummary,
-      }"
-      [rowExpansionTemplate]="bookingExpansion"
-      (rowActionClick)="onInvoiceRowAction($event)"
-    />
+        [tableConfig]="invoiceTable.tableConfig()"
+        [tableHeader]="invoiceTable.headers()"
+        [tableData]="vendor.invoiceRows"
+        [loading]="false"
+        [rowActions]="invoiceTable.rowActions()"
+        [customBodyTemplates]="{
+          docWorkspaceContext: docWorkspaceContext,
+          documentReferenceChain: documentReferenceChain,
+          documentKindBadge: documentKindBadge,
+          invoiceAmountBreakdown: invoiceAmountBreakdown,
+          invoiceBookedPaidSummary: invoiceBookedPaidSummary,
+        }"
+        [rowExpansionTemplate]="bookingExpansion"
+        (rowActionClick)="onInvoiceRowAction($event)"
+      />
     </div>
   </section>
 </ng-template>
@@ -65,13 +65,13 @@
     </header>
     <div class="vo-layer__table">
       <app-data-table
-      [tableConfig]="bookingsTable.tableConfig()"
-      [tableHeader]="bookingsTable.headers()"
-      [tableData]="invoice.bookPayments"
-      [loading]="false"
-      [rowActions]="bookingsTable.rowActions()"
-      (selectionChange)="onBookPaymentSelectionChange(invoice.id, $event)"
-    />
+        [tableConfig]="bookingsTable.tableConfig()"
+        [tableHeader]="bookingsTable.headers()"
+        [tableData]="invoice.bookPayments"
+        [loading]="false"
+        [rowActions]="bookingsTable.rowActions()"
+        (selectionChange)="onBookPaymentSelectionChange(invoice.id, $event)"
+      />
     </div>
   </section>
 </ng-template>

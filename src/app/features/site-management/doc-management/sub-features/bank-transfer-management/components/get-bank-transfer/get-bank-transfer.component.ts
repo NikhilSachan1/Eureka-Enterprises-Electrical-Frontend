@@ -65,6 +65,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { getBankTransferTypeLabel } from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 @Component({
   selector: 'app-get-bank-transfer',
@@ -194,7 +195,7 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
             .pipe(
               finalize(() => this.table.setLoading(false)),
               catchError(error => {
-                this.table.setData([]);
+                this.table.setLoadError();
                 this.logger.logUserAction(
                   'Failed to load bank transfers',
                   error
@@ -290,6 +291,7 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
       {
         dataType: EDataType.CURRENCY,
         label: isSales ? 'Received' : 'Transfer',
+        tone: EDocAmountTone.NEUTRAL,
         value: row.transferAmount,
       },
     ];

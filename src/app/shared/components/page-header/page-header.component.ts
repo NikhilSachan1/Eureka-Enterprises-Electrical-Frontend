@@ -14,11 +14,14 @@ import { FormsModule } from '@angular/forms';
 import { AppPermissionService } from '@core/services/app-permission.service';
 import {
   IButtonConfig,
+  IPageEmptyStateAction,
+  IPageHeaderButtonConfig,
   IPageHeaderConfig,
   EButtonSeverity,
   EButtonVariant,
 } from '@shared/types';
 import { DEFAULT_PAGE_HEADER_CONFIG } from '@shared/config';
+import { PageEmptyStateActionService } from '@shared/services/page-empty-state-action.service';
 import { ButtonComponent } from '../button/button.component';
 import { ICONS } from '@shared/constants';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -44,6 +47,7 @@ export class PageHeaderComponent implements OnDestroy {
   private readonly location = inject(Location);
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly pageEmptyStateAction = inject(PageEmptyStateActionService);
   private appliedInitialSearch = false;
 
   // Input signals
@@ -76,6 +80,22 @@ export class PageHeaderComponent implements OnDestroy {
       this.searchValue = value;
       this.changeDetectorRef.markForCheck();
     });
+
+    // Offer the marked button (e.g. "Add Asset") to the page table's empty state.
+    effect(onCleanup => {
+      const button = this.permittedHeaderButtons().find(
+        item => item.showInEmptyState
+      );
+      if (!button) {
+        return;
+      }
+      const action: IPageEmptyStateAction = {
+        button,
+        run: () => this.headerButtonClick.emit(button.actionName ?? ''),
+      };
+      this.pageEmptyStateAction.set(action);
+      onCleanup(() => this.pageEmptyStateAction.clear(action));
+    });
   }
 
   ngOnDestroy(): void {
@@ -105,7 +125,7 @@ export class PageHeaderComponent implements OnDestroy {
   }
 
   // Returns only the buttons the user has permission to see
-  private getPermittedHeaderButtons(): Partial<IButtonConfig>[] {
+  private getPermittedHeaderButtons(): IPageHeaderButtonConfig[] {
     const config = this.finalPageHeaderConfig();
     if (!config.headerButtonConfig) {
       return [];

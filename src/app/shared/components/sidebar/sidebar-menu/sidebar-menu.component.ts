@@ -100,25 +100,7 @@ export class SidebarMenuComponent {
     parentBasePath: string | null,
     itemBasePath: string | undefined
   ): string {
-    // If item has no basePath, just pass through parent's path
-    if (!itemBasePath) {
-      return parentBasePath ?? '';
-    }
-
-    // If no parent path, just use item's basePath
-    if (!parentBasePath) {
-      return itemBasePath;
-    }
-
-    // Combine parent path with item's basePath
-    const cleanParent = parentBasePath.endsWith('/')
-      ? parentBasePath.slice(0, -1)
-      : parentBasePath;
-    const cleanItem = itemBasePath.startsWith('/')
-      ? itemBasePath.slice(1)
-      : itemBasePath;
-
-    return `${cleanParent}/${cleanItem}`;
+    return this.menuService.joinMenuBasePath(parentBasePath, itemBasePath);
   }
 
   /**

@@ -171,7 +171,7 @@ export class GetBookPaymentComponent implements OnInit {
             .pipe(
               finalize(() => this.table.setLoading(false)),
               catchError(error => {
-                this.table.setData([]);
+                this.table.setLoadError();
                 this.logger.logUserAction(
                   'Failed to load book payments',
                   error
@@ -410,6 +410,7 @@ export class GetBookPaymentComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Book Payment',
+          showInEmptyState: true,
           actionName: 'addBookPayment',
           permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.ADD],
         },

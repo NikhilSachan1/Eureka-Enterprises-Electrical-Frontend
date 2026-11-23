@@ -9,6 +9,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { FormBase } from '@shared/base/form.base';
+import { MY_FILES_ROOT_LABEL } from '../../constants/my-files.constants';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ConfirmationDialogService } from '@shared/services';
 import { IDialogActionHandler } from '@shared/types';
@@ -37,6 +38,8 @@ export class CreateMyFileFolderComponent
   );
 
   protected readonly parentId = input<string | null>(null);
+  /** Where the new item goes, e.g. "My Files › Invoices"; shown above the form. */
+  protected readonly locationLabel = input<string>(MY_FILES_ROOT_LABEL);
   protected readonly onSuccess = input.required<() => void>();
 
   ngOnInit(): void {

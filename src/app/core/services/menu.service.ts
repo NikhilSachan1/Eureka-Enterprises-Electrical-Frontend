@@ -143,7 +143,7 @@ export class MenuService {
       : `/${currentRoute}`;
 
     // Calculate the full accumulated path for this item
-    const itemAccumulatedPath = this.accumulateBasePath(
+    const itemAccumulatedPath = this.joinMenuBasePath(
       accumulatedBasePath,
       item.basePath
     );
@@ -235,6 +235,32 @@ export class MenuService {
   }
 
   /**
+   * Base path a child item inherits: the parent's accumulated path plus the item's own
+   * `basePath`. Used by the sidebar and by page search so both build the same links.
+   */
+  joinMenuBasePath(
+    parentBasePath: string | null | undefined,
+    itemBasePath: string | undefined
+  ): string {
+    if (!itemBasePath) {
+      return parentBasePath ?? '';
+    }
+
+    if (!parentBasePath) {
+      return itemBasePath;
+    }
+
+    const cleanParent = parentBasePath.endsWith('/')
+      ? parentBasePath.slice(0, -1)
+      : parentBasePath;
+    const cleanItem = itemBasePath.startsWith('/')
+      ? itemBasePath.slice(1)
+      : itemBasePath;
+
+    return `${cleanParent}/${cleanItem}`;
+  }
+
+  /**
    * Join a menu item's routerLink with its parent base path.
    * Collapses `.` and `..` so a sibling route (for example Wallet under Petro Cards)
    * still points at the real URL.
@@ -278,44 +304,15 @@ export class MenuService {
     const resolved: string[] = [];
 
     for (const part of path.split('/')) {
-      if (part === '' || part === '.') {
-        continue;
-      }
       if (part === '..') {
         resolved.pop();
-        continue;
+      } else if (part !== '' && part !== '.') {
+        resolved.push(part);
       }
-      resolved.push(part);
     }
 
     const joined = resolved.join('/');
     return leadingSlash ? `/${joined}` : joined;
-  }
-
-  /**
-   * Accumulate base paths from parent to child
-   * Combines parent's accumulated path with current item's basePath
-   */
-  private accumulateBasePath(
-    parentBasePath: string | undefined,
-    itemBasePath: string | undefined
-  ): string {
-    if (!itemBasePath) {
-      return parentBasePath ?? '';
-    }
-
-    if (!parentBasePath) {
-      return itemBasePath;
-    }
-
-    const cleanParent = parentBasePath.endsWith('/')
-      ? parentBasePath.slice(0, -1)
-      : parentBasePath;
-    const cleanItem = itemBasePath.startsWith('/')
-      ? itemBasePath.slice(1)
-      : itemBasePath;
-
-    return `${cleanParent}/${cleanItem}`;
   }
 
   /**
@@ -336,7 +333,7 @@ export class MenuService {
       : `/${currentRoute}`;
 
     // Calculate accumulated path for this item
-    const itemAccumulatedPath = this.accumulateBasePath(
+    const itemAccumulatedPath = this.joinMenuBasePath(
       accumulatedBasePath,
       item.basePath
     );
@@ -401,7 +398,7 @@ export class MenuService {
     ): boolean => {
       for (const item of items) {
         // Accumulate the base path for this item
-        const itemAccumulatedPath = this.accumulateBasePath(
+        const itemAccumulatedPath = this.joinMenuBasePath(
           accumulatedBasePath,
           item.basePath
         );

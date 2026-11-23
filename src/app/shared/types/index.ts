@@ -121,7 +121,10 @@ export type {
   IMetricFilterTarget,
   TMetricFilter,
 } from './metric/metric-data.interface';
-export type { INotificationOptions } from './notification/notification.interface';
+export type {
+  INotificationOptions,
+  IPendingApiErrorToast,
+} from './notification/notification.interface';
 export type { IBulkOperationResponseNotificationConfig } from './notification/bulk-operation-response-notification.interface';
 export type { SidebarMenuItem } from './sidebar/sidebar.interface';
 export type { ITabItem, ITabChange } from './nav-tabs/tab-item.interface';
@@ -151,6 +154,8 @@ export type {
 } from './gallery/gallery.interface';
 export type {
   IPageHeaderConfig,
+  IPageHeaderButtonConfig,
+  IPageEmptyStateAction,
   ISectionHeaderConfig,
 } from './page-header/page-header-config.interface';
 export {
@@ -206,3 +211,14 @@ export type {
   ILineItemsTableConfig,
   IResolvedLineItemsTableConfig,
 } from './line-items-table/line-items-table.interface';
+export type {
+  ICommandPaletteEntry,
+  ICommandPaletteTextPart,
+} from './command-palette/command-palette.interface';
+export type {
+  TCommandPaletteBuildLink,
+  TCommandPaletteJoinBasePath,
+} from './command-palette/command-palette.types';
+export { ESkeletonVariant } from './skeleton/skeleton.types';
+export type { IPaymentReceipt } from './payment-receipt/payment-receipt.interface';
+export { EPaymentReceiptVariant } from './payment-receipt/payment-receipt.types';

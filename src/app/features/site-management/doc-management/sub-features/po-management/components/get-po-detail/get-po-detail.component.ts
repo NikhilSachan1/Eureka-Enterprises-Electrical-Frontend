@@ -44,6 +44,7 @@ import {
   buildPoTaxSettlementSegments,
   type IPoTaxTotals,
 } from '../../utils/po-tax-settlement.util';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 @Component({
   selector: 'app-get-po-detail',
@@ -97,7 +98,7 @@ export class GetPoDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('PO details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load PO details', error);
         },
       });
   }
@@ -306,17 +307,20 @@ export class GetPoDetailComponent extends DrawerDetailBase {
       {
         dataType: EDataType.CURRENCY,
         label: 'Taxable',
+        tone: EDocAmountTone.TAXABLE,
         value: v.taxableAmount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'GST',
+        tone: EDocAmountTone.GST,
         value: v.gstAmount,
         suffix: `(${v.gstPercentage})`,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'Total',
+        tone: EDocAmountTone.TOTAL,
         value: v.totalAmount,
       },
     ];
@@ -337,11 +341,13 @@ export class GetPoDetailComponent extends DrawerDetailBase {
       {
         dataType: EDataType.CURRENCY,
         label: 'Advance paid',
+        tone: EDocAmountTone.PAID,
         value: v.advancePaidTotal,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'Invoiced',
+        tone: EDocAmountTone.INVOICED,
         value: v.invoicedTotal,
       },
     ];
@@ -349,6 +355,7 @@ export class GetPoDetailComponent extends DrawerDetailBase {
       segments.push({
         dataType: EDataType.CURRENCY,
         label: 'Booked',
+        tone: EDocAmountTone.BOOKED,
         value: v.bookedTotal,
       });
     }
@@ -356,17 +363,20 @@ export class GetPoDetailComponent extends DrawerDetailBase {
       {
         dataType: EDataType.CURRENCY,
         label: 'Paid',
+        tone: EDocAmountTone.PAID,
         value: v.paidTotal,
       },
       ...buildPoTaxSettlementSegments(v.taxTotals, isSales),
       {
         dataType: EDataType.DATE,
         label: 'Last invoice',
+        tone: EDocAmountTone.NEUTRAL,
         value: v.lastInvoiceAt,
       },
       {
         dataType: EDataType.DATE,
         label: 'Last payment',
+        tone: EDocAmountTone.NEUTRAL,
         value: v.lastPaymentAt,
       }
     );

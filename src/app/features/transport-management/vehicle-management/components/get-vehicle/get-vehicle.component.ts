@@ -359,7 +359,7 @@ export class GetVehicleComponent implements OnInit {
           this.logger.logUserAction('Vehicle records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.vehicleStats.set(null);
           this.logger.logUserAction('Failed to load vehicle records', error);
         },
@@ -811,6 +811,7 @@ export class GetVehicleComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Vehicle',
+          showInEmptyState: true,
           actionName: 'addVehicle',
           permission: [APP_PERMISSION.VEHICLE.ADD],
         },

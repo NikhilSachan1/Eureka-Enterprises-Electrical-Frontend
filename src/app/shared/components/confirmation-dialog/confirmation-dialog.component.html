@@ -55,18 +55,23 @@
         }
       </div>
 
-      <!-- Buttons Section -->
+      <!--
+        Buttons: the safe one (Cancel / Keep) comes first. PrimeNG focuses the first
+        focusable element when the dialog opens, so a dialog without form fields opens with
+        Cancel focused and a stray Enter never deletes or rejects anything. (With form
+        fields, the first field is focused instead.) Order also matches PrimeNG's default.
+      -->
       <div class="flex items-center justify-center gap-4 mt-4">
-        @if (isAcceptButtonVisible()) {
-          <app-button
-            [buttonConfig]="acceptButtonConfig()"
-            (onButtonClick)="handleDialog(true)"
-          />
-        }
         @if (isRejectButtonVisible()) {
           <app-button
             [buttonConfig]="rejectButtonConfig()"
             (onButtonClick)="handleDialog(false)"
+          />
+        }
+        @if (isAcceptButtonVisible()) {
+          <app-button
+            [buttonConfig]="acceptButtonConfig()"
+            (onButtonClick)="handleDialog(true)"
           />
         }
       </div>

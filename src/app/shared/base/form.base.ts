@@ -1,23 +1,45 @@
-import { effect, inject, signal, DestroyRef, Directive } from '@angular/core';
 import {
+  computed,
+  effect,
+  inject,
+  signal,
+  DestroyRef,
+  Directive,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { COMMON_FORM_ACTIONS } from '@shared/config/common-form-actions.config';
+import {
+  buildResetAllStepsDialogConfig,
+  buildResetFormDialogConfig,
+  buildResetStepDialogConfig,
+} from '@shared/config/confirmation-dialog.config';
+import {
+  ConfirmationDialogService,
   FormService,
   NotificationService,
   LoadingService,
 } from '@shared/services';
 import { LoggerService } from '@core/services';
+import { UnsavedChangesService } from '@core/services/unsaved-changes.service';
+import { IPendingSave, IUnsavedChangesAware } from '@core/types';
 import {
+  EButtonActionType,
+  IButtonConfig,
   IEnhancedMultiStepForm,
   IEnhancedForm,
   ITrackedForm,
   IStepperConfig,
 } from '@shared/types';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import { Subscription } from 'rxjs';
 
 @Directive()
 export abstract class FormBase<
-  T extends Record<string, unknown> = Record<string, unknown>,
-  TSingle extends Record<string, unknown> = T,
-> {
+    T extends Record<string, unknown> = Record<string, unknown>,
+    TSingle extends Record<string, unknown> = T,
+  >
+  implements IUnsavedChangesAware, IPendingSave
+{
   // ---------------------------------------------------------------------
   // Services
   // ---------------------------------------------------------------------
@@ -26,6 +48,11 @@ export abstract class FormBase<
   protected readonly notificationService = inject(NotificationService);
   protected readonly destroyRef = inject(DestroyRef);
   protected readonly loadingService = inject(LoadingService);
+  private readonly unsavedChangesService = inject(UnsavedChangesService);
+  // Uniquely named: many subclasses inject their own `confirmationDialogService`.
+  private readonly resetConfirmDialogService = inject(
+    ConfirmationDialogService
+  );
 
   // ---------------------------------------------------------------------
   // State (Signals)
@@ -35,6 +62,12 @@ export abstract class FormBase<
   protected readonly stepErrors = signal<Record<number, boolean>>({});
   protected readonly stepValid = signal<Record<number, boolean>>({});
   protected readonly attemptedSteps = signal<Set<number>>(new Set());
+
+  /** Per step: has the user changed anything there? Drives the reset buttons. */
+  protected readonly stepDirty = signal<Record<number, boolean>>({});
+  protected readonly anyStepDirty = computed(() =>
+    Object.values(this.stepDirty()).some(Boolean)
+  );
 
   // ---------------------------------------------------------------------
   // Multi-step form (optional)
@@ -60,11 +93,26 @@ export abstract class FormBase<
   // ---------------------------------------------------------------------
   // Single-step form (optional)
   // ---------------------------------------------------------------------
-  protected form!: IEnhancedForm<TSingle>;
+  private _form!: IEnhancedForm<TSingle>;
+  private formDirtySubscription?: Subscription;
+
+  /** Has the user changed the single-step form? Drives its reset button. */
+  protected readonly formDirty = signal(false);
+
+  protected get form(): IEnhancedForm<TSingle> {
+    return this._form;
+  }
+
+  protected set form(value: IEnhancedForm<TSingle>) {
+    this._form = value;
+    this.trackFormDirty(value?.formGroup);
+  }
   // ---------------------------------------------------------------------
   // Constructor
   // ---------------------------------------------------------------------
   constructor() {
+    this.unsavedChangesService.register(this, this.destroyRef);
+
     effect(() => {
       this.attemptedSteps();
 
@@ -107,7 +155,50 @@ export abstract class FormBase<
         formGroup,
         this.destroyRef
       );
+      this.trackStepDirty(Number(stepKey), formGroup);
     });
+  }
+
+  /** Same as trackStepDirty, for the single-step form; follows the form if it is replaced. */
+  private trackFormDirty(
+    formGroup: IEnhancedForm<Record<string, unknown>>['formGroup'] | undefined
+  ): void {
+    this.formDirtySubscription?.unsubscribe();
+
+    if (!formGroup) {
+      this.formDirty.set(false);
+      return;
+    }
+
+    this.formDirty.set(formGroup.dirty);
+    this.formDirtySubscription = formGroup.events
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.formDirty.set(formGroup.dirty));
+  }
+
+  /**
+   * `events` also fires on pristine/dirty changes (a field's markAsDirty reaches the step's
+   * group), so the state is right even when a value is set before the field is marked dirty.
+   */
+  private trackStepDirty(
+    step: number,
+    formGroup: IEnhancedForm<Record<string, unknown>>['formGroup']
+  ): void {
+    if (isNaN(step)) {
+      return;
+    }
+
+    const update = (): void =>
+      this.stepDirty.update(state =>
+        state[step] === formGroup.dirty
+          ? state
+          : { ...state, [step]: formGroup.dirty }
+      );
+
+    update();
+    formGroup.events
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(update);
   }
 
   // ---------------------------------------------------------------------
@@ -212,8 +303,121 @@ export abstract class FormBase<
     this.activeStep.set(Math.max(1, current - 1));
   }
 
+  /** Step reset: nothing typed → nothing to do; otherwise confirm, naming the step. */
   protected onStepperResetRequested(): void {
-    this.onResetParticularForm();
+    const step = this.activeStep();
+
+    if (!this.stepDirty()[step]) {
+      return;
+    }
+
+    this.resetConfirmDialogService.showConfirmationDialog(
+      EButtonActionType.RESET,
+      {
+        dialogConfig: buildResetStepDialogConfig(
+          this.getStepName(step),
+          this.resetRestoresSavedDetails()
+        ),
+        onAccept: () => this.onResetParticularForm(),
+      },
+      null,
+      false,
+      false
+    );
+  }
+
+  /**
+   * The form-wide reset on multi-step pages. Confirms first and lists the steps that would
+   * lose input; does nothing when no step was changed.
+   */
+  protected confirmResetMultiStepForm(
+    initialData?: Partial<Record<string, Partial<T>>>
+  ): void {
+    const changedSteps = Object.entries(this.stepDirty())
+      .filter(([, dirty]) => dirty)
+      .map(([step]) => Number(step))
+      .sort((a, b) => a - b);
+
+    if (!changedSteps.length) {
+      return;
+    }
+
+    this.resetConfirmDialogService.showConfirmationDialog(
+      EButtonActionType.RESET,
+      {
+        dialogConfig: buildResetAllStepsDialogConfig(
+          changedSteps.map(step => this.getStepLabel(step)),
+          this.stepperConfig?.steps.length ?? changedSteps.length,
+          this.resetRestoresSavedDetails()
+        ),
+        onAccept: () => this.onResetMultiStepForm(initialData),
+      },
+      null,
+      false,
+      false
+    );
+  }
+
+  /** Edit forms override with true: their reset restores the saved details, not blank. */
+  protected resetRestoresSavedDetails(): boolean {
+    return false;
+  }
+
+  /**
+   * Single-step page forms: wrap the page's own reset in this. Nothing changed → nothing
+   * happens; otherwise the user confirms first.
+   */
+  protected confirmResetSingleForm(reset: () => void): void {
+    if (!this.formDirty()) {
+      return;
+    }
+
+    this.resetConfirmDialogService.showConfirmationDialog(
+      EButtonActionType.RESET,
+      {
+        dialogConfig: buildResetFormDialogConfig(
+          this.resetRestoresSavedDetails()
+        ),
+        onAccept: reset,
+      },
+      null,
+      false,
+      false
+    );
+  }
+
+  private cachedResetButtonConfig?: Partial<IButtonConfig>;
+
+  /**
+   * The page form's reset button: its own config, labelled "Clear form" on add pages and
+   * "Undo changes" on edit pages. Built once, so the button input stays stable.
+   */
+  protected resetButtonConfig(): Partial<IButtonConfig> {
+    this.cachedResetButtonConfig ??= {
+      ...this.form?.buttonConfigs?.['reset'],
+      ...(this.resetRestoresSavedDetails()
+        ? COMMON_FORM_ACTIONS.UNDO_FORM_CHANGES
+        : COMMON_FORM_ACTIONS.CLEAR_FORM),
+    };
+
+    return this.cachedResetButtonConfig;
+  }
+
+  /** Step label as shown on the stepper, e.g. "Bank"; "Step 3" when it has none. */
+  private getStepLabel(step: number): string {
+    return (
+      this.stepperConfig?.steps.find(stepConfig => stepConfig.value === step)
+        ?.label ?? `Step ${step}`
+    );
+  }
+
+  /** For sentences: "Bank step", or "Step 3" when the step has no label. */
+  private getStepName(step: number): string {
+    const label = this.stepperConfig?.steps.find(
+      stepConfig => stepConfig.value === step
+    )?.label;
+
+    return label ? `${label} step` : `Step ${step}`;
   }
 
   protected onResetParticularForm(initialData?: Partial<T>): void {
@@ -262,6 +466,8 @@ export abstract class FormBase<
     }
 
     this.isSubmitting.set(true);
+    // Once the API accepts this save the form counts as saved, so leaving is not blocked.
+    this.unsavedChangesService.beginSave(this);
 
     try {
       this.handleSubmit();
@@ -271,6 +477,43 @@ export abstract class FormBase<
     } finally {
       this.isSubmitting.set(false);
     }
+  }
+
+  // ---------------------------------------------------------------------
+  // Unsaved changes (route guard + browser refresh warning)
+  // ---------------------------------------------------------------------
+  /** True when the user changed any field since the form loaded or was last saved. */
+  hasUnsavedChanges(): boolean {
+    return (
+      this.tracksUnsavedChanges() &&
+      this.allFormGroups().some(formGroup => formGroup.dirty)
+    );
+  }
+
+  /** Override to return false where losing input is harmless (e.g. login). */
+  protected tracksUnsavedChanges(): boolean {
+    return true;
+  }
+
+  /** Clears the "changed" state after a successful save; values are kept. */
+  markSaved(): void {
+    this.allFormGroups().forEach(formGroup => formGroup.markAsPristine());
+  }
+
+  private allFormGroups(): IEnhancedForm<
+    Record<string, unknown>
+  >['formGroup'][] {
+    if (this.isMultiStepForm()) {
+      return Object.values(this.multiStepForm.forms)
+        .map(stepForm => stepForm.formGroup)
+        .filter(Boolean);
+    }
+
+    if (this.isSingleStepForm() && this.form.formGroup) {
+      return [this.form.formGroup];
+    }
+
+    return [];
   }
 
   protected getFirstErrorStep(): number | null {

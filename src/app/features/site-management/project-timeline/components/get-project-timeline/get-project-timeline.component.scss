@@ -128,7 +128,7 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--act-tone) 18%, transparent);
 
   .activity__item:not(:first-child) & {
-    background: color-mix(in srgb, var(--act-tone) 55%, #fff);
+    background: color-mix(in srgb, var(--act-tone) 55%, var(--background-default-color));
     box-shadow: none;
   }
 }

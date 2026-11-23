@@ -71,7 +71,10 @@ export class AddFuelExpenseComponent
       (this.filingFor() === EFilingTarget.SELF || !!this.onBehalfEmployeeId())
   );
   protected readonly showFuelFields = computed(() => {
-    if (this.filingFor() !== EFilingTarget.OTHER || !this.onBehalfEmployeeId()) {
+    if (
+      this.filingFor() !== EFilingTarget.OTHER ||
+      !this.onBehalfEmployeeId()
+    ) {
       return true;
     }
     const detail = this.linkedUserVehicleDetail();
@@ -160,8 +163,10 @@ export class AddFuelExpenseComponent
   }
 
   protected onReset(): void {
-    this.onResetSingleForm();
-    this.filingTarget()?.reset();
+    this.confirmResetSingleForm(() => {
+      this.onResetSingleForm();
+      this.filingTarget()?.reset();
+    });
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

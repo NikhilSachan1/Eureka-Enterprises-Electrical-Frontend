@@ -16,3 +16,7 @@ export { ConfigurationDropdownSignalStore } from './app-configuration/configurat
 export { ReferenceEntityDropdownCacheService } from './app-configuration/reference-entity-dropdown-cache.service';
 export { PaginatedDropdownService } from './paginated-dropdown.service';
 export { SearchFilterUrlRestoreService } from './search-filter-url-restore.service';
+export { CommandPaletteService } from './command-palette.service';
+export { TableFilterResetService } from './table-filter-reset.service';
+export { PageEmptyStateActionService } from './page-empty-state-action.service';
+export { TableRowHighlightService } from './table-row-highlight.service';

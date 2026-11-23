@@ -1,0 +1,204 @@
+@let data = journey();
+
+<section
+  class="ad"
+  [attr.aria-busy]="loading() ? 'true' : null"
+>
+  <header class="ad-hero">
+    <span
+      class="ad-hero__avatar"
+      [style.background]="avatarColor"
+      aria-hidden="true"
+    >
+      {{ initials }}
+    </span>
+    <div class="ad-hero__text">
+      <span class="ad-hero__title">{{ drawerData.fullName }}</span>
+      <span class="ad-hero__sub">{{ drawerData.employeeId }}</span>
+    </div>
+    @if (data) {
+      <span
+        class="ad-pill"
+        [class.ad-pill--muted]="!data.currentProjects.length"
+      >
+        <i
+          [class]="data.currentProjects.length ? 'pi pi-map-marker' : 'pi pi-pause'"
+          aria-hidden="true"
+        ></i>
+        {{ data.currentProjects.length ? 'Now at ' + currentLabel() : 'Free now' }}
+      </span>
+    }
+  </header>
+
+  @if (loading()) {
+    <div
+      class="ad-stats"
+      aria-hidden="true"
+    >
+      @for (placeholder of [1, 2, 3, 4]; track placeholder) {
+        <span class="ad-bone ad-bone--card"></span>
+      }
+    </div>
+    <span
+      class="ad-bone ad-bone--short"
+      aria-hidden="true"
+    ></span>
+    @for (placeholder of [1, 2, 3]; track placeholder) {
+      <span
+        class="ad-bone ad-bone--card"
+        aria-hidden="true"
+      ></span>
+    }
+  } @else if (failed()) {
+    <div
+      class="ad-state"
+      role="alert"
+    >
+      <i
+        class="pi pi-exclamation-triangle"
+        aria-hidden="true"
+      ></i>
+      <p>The allocation history could not be loaded.</p>
+      <button
+        type="button"
+        class="ad-retry"
+        (click)="loadJourney()"
+      >
+        Try again
+      </button>
+    </div>
+  } @else if (data) {
+    @if (!data.allocationCount) {
+      <div class="ad-state">
+        <i
+          class="pi pi-inbox"
+          aria-hidden="true"
+        ></i>
+        <p>No allocations recorded for this employee.</p>
+      </div>
+    } @else {
+      <dl class="ad-stats">
+        <div class="ad-stat">
+          <dt>
+            <i
+              class="pi pi-building"
+              aria-hidden="true"
+            ></i>
+            Projects
+          </dt>
+          <dd>{{ data.projectCount }}</dd>
+          <span class="ad-stat__hint">Different projects worked on</span>
+        </div>
+        <div class="ad-stat">
+          <dt>
+            <i
+              class="pi pi-list"
+              aria-hidden="true"
+            ></i>
+            Allocations
+          </dt>
+          <dd>{{ data.allocationCount }}</dd>
+          <span class="ad-stat__hint">Times allocated; going back to a project counts again</span>
+        </div>
+        <div class="ad-stat">
+          <dt>
+            <i
+              class="pi pi-calendar"
+              aria-hidden="true"
+            ></i>
+            Days on site
+          </dt>
+          <dd>{{ data.allocatedDays }}</dd>
+          <span class="ad-stat__hint">Days on projects, up to today if still on one</span>
+        </div>
+        <div class="ad-stat">
+          <dt>
+            <i
+              class="pi pi-pause"
+              aria-hidden="true"
+            ></i>
+            Days free
+          </dt>
+          <dd>{{ data.freeDays }}</dd>
+          <span class="ad-stat__hint">Days on no project, from joining to exit or today</span>
+        </div>
+      </dl>
+
+      <h3 class="ad-section">History</h3>
+
+      <div>
+        @for (year of data.years; track year.year) {
+          <div class="ad-year">{{ year.year }}</div>
+          <ol class="ad-timeline">
+            @for (entry of year.entries; track $index) {
+              @if (entry.kind === EJourneyEntryKind.ALLOCATION) {
+                <li
+                  class="ad-event"
+                  [class.ad-event--current]="entry.end === null"
+                >
+                  <div class="ad-event__date">
+                    <span class="ad-event__day">{{ entry.start | date: DATE_FORMATS.DAY_MONTH }}</span>
+                    <span class="ad-event__to">{{ untilLabel(entry.start, entry.end) }}</span>
+                  </div>
+                  <span
+                    class="ad-event__rail"
+                    aria-hidden="true"
+                  ></span>
+                  <div class="ad-card">
+                    <div class="ad-card__head">
+                      <span class="ad-card__title">{{ entry.projectName }}</span>
+                      @if (entry.end === null) {
+                        <span class="ad-badge">Current</span>
+                      }
+                    </div>
+                    @if (entry.projectLocation) {
+                      <span class="ad-card__meta">
+                        <i
+                          class="pi pi-map-marker"
+                          aria-hidden="true"
+                        ></i>
+                        {{ entry.projectLocation }}
+                      </span>
+                    }
+                    <div class="ad-chips">
+                      <span class="ad-chip">
+                        <i
+                          class="pi pi-briefcase"
+                          aria-hidden="true"
+                        ></i>
+                        {{ entry.role }}
+                      </span>
+                      <span class="ad-chip">
+                        <i
+                          class="pi pi-clock"
+                          aria-hidden="true"
+                        ></i>
+                        {{ daysLabel(entry.days) }}
+                      </span>
+                    </div>
+                  </div>
+                </li>
+              } @else {
+                <li class="ad-gap">
+                  <span></span>
+                  <span
+                    class="ad-event__rail"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="ad-gap__pill">
+                    <i
+                      class="pi pi-pause"
+                      aria-hidden="true"
+                    ></i>
+                    Free for {{ daysLabel(entry.days) }} · {{ entry.start | date: DATE_FORMATS.DAY_MONTH }} –
+                    {{ entry.end | date: DATE_FORMATS.DAY_MONTH }}
+                  </span>
+                </li>
+              }
+            }
+          </ol>
+        }
+      </div>
+    }
+  }
+</section>

@@ -88,7 +88,7 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('JMC details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load JMC details', error);
         },
       });
   }

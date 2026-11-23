@@ -87,7 +87,7 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('Invoice details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load invoice details', error);
         },
       });
   }

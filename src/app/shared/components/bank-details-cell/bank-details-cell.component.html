@@ -16,6 +16,78 @@
   } @else {
     <span class="bank-details-cell__compact-empty">Not available</span>
   }
+} @else if (displayMode() === EBankDetailsDisplayMode.TILE) {
+  @if (hasBankDetails()) {
+    <article class="bdt">
+      <header class="bdt__head">
+        <span
+          class="bdt__icon"
+          aria-hidden="true"
+        >
+          <i [class]="ICONS.BANK.ACCOUNT"></i>
+        </span>
+        <div class="bdt__identity">
+          @if (primaryLabel(); as primary) {
+            <strong class="bdt__holder">{{ primary }}</strong>
+          }
+          @if (tileMetaLine(); as meta) {
+            <span class="bdt__meta">{{ meta }}</span>
+          }
+        </div>
+      </header>
+
+      @if (accountNumber() || ifscCode()) {
+        <dl class="bdt__fields">
+          @if (groupedAccountNumber(); as account) {
+            <div class="bdt__field">
+              <dt class="bdt__label">A/C</dt>
+              <dd class="bdt__value">{{ account }}</dd>
+              <button
+                type="button"
+                class="bdt__copy"
+                [class.bdt__copy--done]="copiedField() === 'account'"
+                [attr.aria-label]="copiedField() === 'account' ? 'Account number copied' : 'Copy account number'"
+                [title]="copiedField() === 'account' ? 'Copied' : 'Copy account number'"
+                (click)="copyValue('account', accountNumber())"
+              >
+                <i
+                  [class]="copiedField() === 'account' ? ICONS.ACTIONS.CHECK : ICONS.COMMON.COPY"
+                  aria-hidden="true"
+                ></i>
+              </button>
+            </div>
+          }
+          @if (ifscCode(); as ifsc) {
+            <div class="bdt__field">
+              <dt class="bdt__label">IFSC</dt>
+              <dd class="bdt__value">{{ ifsc }}</dd>
+              <button
+                type="button"
+                class="bdt__copy"
+                [class.bdt__copy--done]="copiedField() === 'ifsc'"
+                [attr.aria-label]="copiedField() === 'ifsc' ? 'IFSC copied' : 'Copy IFSC'"
+                [title]="copiedField() === 'ifsc' ? 'Copied' : 'Copy IFSC'"
+                (click)="copyValue('ifsc', ifsc)"
+              >
+                <i
+                  [class]="copiedField() === 'ifsc' ? ICONS.ACTIONS.CHECK : ICONS.COMMON.COPY"
+                  aria-hidden="true"
+                ></i>
+              </button>
+            </div>
+          }
+        </dl>
+      }
+    </article>
+  } @else {
+    <div class="bdt bdt--empty">
+      <i
+        [class]="ICONS.BANK.ACCOUNT"
+        aria-hidden="true"
+      ></i>
+      <span>Bank details not available</span>
+    </div>
+  }
 } @else if (hasBankDetails()) {
   <article class="bank-details-cell">
     <div class="bank-details-cell__header">

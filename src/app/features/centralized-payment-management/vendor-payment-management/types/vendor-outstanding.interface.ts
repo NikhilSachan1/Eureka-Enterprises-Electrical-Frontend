@@ -81,3 +81,14 @@ export interface IVendorOutstandingVendorTableRow
   bookingCount: number;
   invoiceRows: IVendorOutstandingInvoiceListRow[];
 }
+
+/** Invoice totals used to work out how much of it is paid. */
+export interface IVendorOutstandingPaidSource {
+  paidTotal?: number | null;
+  bookedTotal?: number | null;
+}
+
+export interface IVendorOutstandingPaidBookPayment {
+  paymentTotalAmount: number;
+  hasTransfer: boolean;
+}

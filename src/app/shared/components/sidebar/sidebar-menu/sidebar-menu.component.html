@@ -21,7 +21,11 @@
   </div>
 </nav>
 
-<!-- Recursive Menu Item Template -->
+<!--
+  Recursive Menu Item Template.
+  Links are <a> and toggles are <button>, so Tab, Enter and Space work without extra key handlers.
+  Collapsed (icon-only) mode hides the text, so the item gets its label as aria-label there.
+-->
 <ng-template
   #menuItemTemplate
   let-item="item"
@@ -33,13 +37,13 @@
     @if (level === 0) {
       <!-- Top level route item -->
       <div class="menu-item">
-        <div
-          class="flex items-center rounded-lg cursor-pointer"
+        <a
+          class="menu-link flex items-center rounded-lg cursor-pointer"
           [class.active-menu-item]="isMenuItemActive(item, parentBasePath)"
           [routerLink]="getFullRouterLink(item, parentBasePath)"
           [routerLinkActive]="'active-route'"
-          role="link"
-          tabindex="0"
+          ariaCurrentWhenActive="page"
+          [attr.aria-label]="isCollapsed() ? item.label : null"
           (click)="closeAllSubmenus()"
         >
           @if (item.icon) {
@@ -50,11 +54,14 @@
           }
           <span class="flex-1">{{ item.label }}</span>
           @if (menuBadge(item); as badge) {
-            <span class="menu-badge" [attr.aria-label]="badge + ' unread'">{{
-              badge
-            }}</span>
+            <span
+              class="menu-badge"
+              [attr.aria-label]="badge + ' unread'"
+            >
+              {{ badge }}
+            </span>
           }
-        </div>
+        </a>
       </div>
     } @else {
       <!-- Nested route item -->
@@ -64,8 +71,7 @@
         [class.active]="isMenuItemActive(item, parentBasePath)"
         [routerLink]="getFullRouterLink(item, parentBasePath)"
         routerLinkActive="active"
-        role="menuitem"
-        tabindex="0"
+        ariaCurrentWhenActive="page"
       >
         @if (item.icon) {
           <i
@@ -75,9 +81,12 @@
         }
         <span class="flex-1">{{ item.label }}</span>
         @if (menuBadge(item); as badge) {
-          <span class="menu-badge" [attr.aria-label]="badge + ' unread'">{{
-            badge
-          }}</span>
+          <span
+            class="menu-badge"
+            [attr.aria-label]="badge + ' unread'"
+          >
+            {{ badge }}
+          </span>
         }
       </a>
     }
@@ -88,13 +97,13 @@
     @if (level === 0) {
       <!-- Top level parent -->
       <div class="menu-item">
-        <div
-          class="flex items-center rounded-lg cursor-pointer"
+        <button
+          type="button"
+          class="menu-link flex items-center rounded-lg cursor-pointer"
           [class.active-menu-item]="isMenuItemActive(item, parentBasePath)"
-          (click)="toggleSubmenu(item)"
-          role="button"
           [attr.aria-expanded]="isMenuItemExpanded(item)"
-          tabindex="0"
+          [attr.aria-label]="isCollapsed() ? item.label : null"
+          (click)="toggleSubmenu(item)"
         >
           @if (item.icon) {
             <i
@@ -104,25 +113,26 @@
           }
           <span class="flex-1">{{ item.label }}</span>
           @if (menuBadge(item); as badge) {
-            <span class="menu-badge" [attr.aria-label]="badge + ' unread'">{{
-              badge
-            }}</span>
+            <span
+              class="menu-badge"
+              [attr.aria-label]="badge + ' unread'"
+            >
+              {{ badge }}
+            </span>
           }
           <i
             [class]="`${icons.COMMON.CHEVRON_DOWN} text-sm transition-transform`"
             [class.rotate-180]="isMenuItemExpanded(item)"
             aria-hidden="true"
           ></i>
-        </div>
+        </button>
 
-        <!-- Level 1 submenu (expanded state) -->
+        <!-- Level 1 submenu (expanded state); a closed one is display:none, so it is out of Tab order -->
         @if (!isCollapsed()) {
           <div
             class="submenu"
             [class.submenu-expanded]="isMenuItemExpanded(item)"
             @slideInOut
-            role="menu"
-            [attr.aria-hidden]="!isMenuItemExpanded(item)"
           >
             @for (child of item.children; track child) {
               <ng-container
@@ -142,14 +152,13 @@
     } @else {
       <!-- Nested parent (Level 2+) -->
       <div class="nested-submenu-container">
-        <div
+        <button
+          type="button"
           class="submenu-item nested-parent"
           [class.nested-expanded]="isMenuItemExpanded(item)"
           [class.active]="isMenuItemActive(item, parentBasePath)"
-          (click)="toggleNestedSubmenu(item); $event.stopPropagation()"
-          role="button"
           [attr.aria-expanded]="isMenuItemExpanded(item)"
-          tabindex="0"
+          (click)="toggleNestedSubmenu(item); $event.stopPropagation()"
         >
           @if (item.icon) {
             <i
@@ -159,24 +168,25 @@
           }
           <span class="flex-1">{{ item.label }}</span>
           @if (menuBadge(item); as badge) {
-            <span class="menu-badge" [attr.aria-label]="badge + ' unread'">{{
-              badge
-            }}</span>
+            <span
+              class="menu-badge"
+              [attr.aria-label]="badge + ' unread'"
+            >
+              {{ badge }}
+            </span>
           }
           <i
             [class]="`${icons.COMMON.CHEVRON_DOWN} text-xs transition-transform`"
             [class.rotate-180]="isMenuItemExpanded(item)"
             aria-hidden="true"
           ></i>
-        </div>
+        </button>
 
         <!-- Nested submenu -->
         <div
           class="nested-submenu"
           [class.nested-submenu-expanded]="isMenuItemExpanded(item)"
           [style.padding-left.rem]="0.75"
-          role="menu"
-          [attr.aria-hidden]="!isMenuItemExpanded(item)"
         >
           @for (child of item.children; track child) {
             <ng-container

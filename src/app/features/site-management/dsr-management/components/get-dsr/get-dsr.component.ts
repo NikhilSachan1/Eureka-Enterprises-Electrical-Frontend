@@ -168,7 +168,7 @@ export class GetDsrComponent implements OnInit {
           return this.dsrService.getDSRList(this.prepareParamData()).pipe(
             finalize(() => this.table.setLoading(false)),
             catchError(error => {
-              this.table.setData([]);
+              this.table.setLoadError();
               this.logger.logUserAction('Failed to load DSR records', error);
               return EMPTY;
             })
@@ -341,6 +341,7 @@ export class GetDsrComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add DSR',
+          showInEmptyState: true,
           actionName: 'addDsr',
           permission: [APP_PERMISSION.DSR.ADD],
           disabled,

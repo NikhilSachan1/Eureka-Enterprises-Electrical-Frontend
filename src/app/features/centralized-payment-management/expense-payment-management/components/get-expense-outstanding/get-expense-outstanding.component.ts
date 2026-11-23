@@ -122,7 +122,7 @@ export class GetExpenseOutstandingComponent implements OnInit {
           this.logger.logUserAction('Expense outstanding records loaded');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.sectionSummaryChange.emit({
             totalRecords: 0,
             totalPendingAmount: 0,

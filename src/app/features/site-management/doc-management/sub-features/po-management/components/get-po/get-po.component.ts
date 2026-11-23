@@ -71,6 +71,7 @@ import {
 import { buildPoTaxSettlementSegments } from '../../utils/po-tax-settlement.util';
 
 import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 @Component({
   selector: 'app-get-po',
@@ -192,7 +193,7 @@ export class GetPoComponent implements OnInit {
           return this.poService.getPoList(this.prepareParamData()).pipe(
             finalize(() => this.table.setLoading(false)),
             catchError(error => {
-              this.table.setData([]);
+              this.table.setLoadError();
               this.logger.logUserAction('Failed to load PO records', error);
               return EMPTY;
             })
@@ -219,17 +220,20 @@ export class GetPoComponent implements OnInit {
       {
         dataType: EDataType.CURRENCY,
         label: 'Taxable',
+        tone: EDocAmountTone.TAXABLE,
         value: row.taxableAmount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'GST',
+        tone: EDocAmountTone.GST,
         value: row.gstAmount,
         suffix: `(${row.gstPercentage})`,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'Total',
+        tone: EDocAmountTone.TOTAL,
         value: row.totalAmount,
       },
     ];
@@ -241,11 +245,13 @@ export class GetPoComponent implements OnInit {
       {
         dataType: EDataType.CURRENCY,
         label: 'Advance paid',
+        tone: EDocAmountTone.PAID,
         value: row.advancePaidTotal,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'Invoiced',
+        tone: EDocAmountTone.INVOICED,
         value: row.invoicedTotal,
       },
     ];
@@ -253,6 +259,7 @@ export class GetPoComponent implements OnInit {
       segments.push({
         dataType: EDataType.CURRENCY,
         label: 'Booked',
+        tone: EDocAmountTone.BOOKED,
         value: row.bookedTotal,
       });
     }
@@ -260,17 +267,20 @@ export class GetPoComponent implements OnInit {
       {
         dataType: EDataType.CURRENCY,
         label: 'Paid',
+        tone: EDocAmountTone.PAID,
         value: row.paidTotal,
       },
       ...buildPoTaxSettlementSegments(row.originalRawData.taxTotals, isSales),
       {
         dataType: EDataType.DATE,
         label: 'Last invoice',
+        tone: EDocAmountTone.NEUTRAL,
         value: row.lastInvoiceAt,
       },
       {
         dataType: EDataType.DATE,
         label: 'Last payment',
+        tone: EDocAmountTone.NEUTRAL,
         value: row.lastPaymentAt,
       }
     );
@@ -583,6 +593,7 @@ export class GetPoComponent implements OnInit {
       {
         ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
         label: 'Add PO',
+        showInEmptyState: true,
         actionName: 'addPo',
         permission: [APP_PERMISSION.PO_DOC.ADD],
         disabled: canCreate?.allowed === false,

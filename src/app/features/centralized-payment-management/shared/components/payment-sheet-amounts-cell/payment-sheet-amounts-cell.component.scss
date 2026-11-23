@@ -1,18 +1,24 @@
-.payment-sheet-amounts {
+// One palette for every tone; the edit popup reuses the same hues.
+.psa {
   --psa-border: var(--border-light-color);
-  --psa-payable-bg: color-mix(in srgb, #0891b2 8%, var(--background-paper-color));
-  --psa-payable-border: color-mix(in srgb, #0891b2 18%, var(--border-light-color));
-  --psa-paid-bg: color-mix(in srgb, #059669 8%, var(--background-paper-color));
-  --psa-paid-border: color-mix(in srgb, #059669 18%, var(--border-light-color));
-  --psa-due-bg: color-mix(in srgb, #b45309 8%, var(--background-paper-color));
-  --psa-due-border: color-mix(in srgb, #b45309 18%, var(--border-light-color));
-  --psa-advance-bg: color-mix(in srgb, #7c3aed 8%, var(--background-paper-color));
-  --psa-advance-border: color-mix(in srgb, #7c3aed 18%, var(--border-light-color));
-  --psa-advance-text: color-mix(in srgb, #6d28d9 72%, var(--text-primary-color));
+  --psa-track: color-mix(in srgb, var(--text-secondary-color) 12%, var(--background-paper-color));
 
-  min-width: 11.5rem;
+  --psa-payable: #0891b2;
+  --psa-paid: #059669;
+  --psa-due: #d97706;
+  --psa-advance: #7c3aed;
+
+  --psa-payable-text: color-mix(in srgb, #0e7490 75%, var(--text-primary-color));
+  --psa-settled-text: color-mix(in srgb, #047857 80%, var(--text-primary-color));
+  --psa-due-text: color-mix(in srgb, #b45309 78%, var(--text-primary-color));
+  --psa-advance-text: color-mix(in srgb, #6d28d9 75%, var(--text-primary-color));
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+  min-width: 12rem;
   max-width: 17rem;
-  padding: 0.62rem 0.72rem 0.68rem;
+  padding: 0.6rem 0.7rem;
   border-radius: 0.75rem;
   background: var(--background-paper-color);
   border: 1px solid var(--psa-border);
@@ -22,187 +28,218 @@
     box-shadow 0.2s ease;
 }
 
-.payment-sheet-amounts__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.4rem;
+// Dialog use: full width, a touch roomier, no hover lift.
+.psa--fluid {
+  min-width: 0;
+  max-width: none;
+  gap: 0.5rem;
+  padding: 0.8rem 0.9rem;
+  box-shadow: none;
+
+  .psa__amount {
+    font-size: 1.1rem;
+  }
+
+  .psa__caption {
+    font-size: 0.75rem;
+  }
+
+  .psa__bar {
+    height: 0.5rem;
+  }
+
+  .psa__status-label {
+    font-size: 0.68rem;
+  }
+
+  .psa__status-amount {
+    font-size: 0.86rem;
+  }
 }
 
-.payment-sheet-amounts__tile {
+.psa__head {
   display: flex;
-  flex-direction: column;
-  gap: 0.14rem;
-  min-width: 0;
-  padding: 0.42rem 0.5rem;
-  border-radius: 0.5rem;
-  border: 1px solid transparent;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.psa__label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary-color);
+}
+
+.psa__amount {
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  color: var(--psa-payable-text);
+}
+
+.psa__caption {
+  margin: -0.2rem 0 0;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary-color);
+}
+
+.psa__bar {
+  display: flex;
+  gap: 2px;
+  height: 0.4rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--psa-track);
+}
+
+.psa__slice {
+  height: 100%;
+  min-width: 3px;
+
+  &:first-child {
+    border-radius: 999px 0 0 999px;
+  }
+
+  &:last-child {
+    border-radius: 0 999px 999px 0;
+  }
+
+  &:only-child {
+    border-radius: 999px;
+  }
 
   &--payable {
-    background: var(--psa-payable-bg);
-    border-color: var(--psa-payable-border);
+    background: var(--psa-payable);
   }
 
-  &--paid {
-    background: var(--psa-paid-bg);
-    border-color: var(--psa-paid-border);
-  }
-
-  &--due {
-    background: var(--psa-due-bg);
-    border-color: var(--psa-due-border);
+  &--paid,
+  &--settled {
+    background: var(--psa-paid);
   }
 
   &--advance {
-    background: var(--psa-advance-bg);
-    border-color: var(--psa-advance-border);
+    background: var(--psa-advance);
+  }
+
+  // Advance the employee already held: same hue, lighter, so new advance stands out.
+  &--advance-held {
+    background: color-mix(in srgb, var(--psa-advance) 35%, var(--background-paper-color));
+  }
+
+  // Due left open: striped so it reads as "not covered by this payment".
+  &--due {
+    background: repeating-linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--psa-due) 55%, transparent) 0 3px,
+      color-mix(in srgb, var(--psa-due) 25%, transparent) 3px 6px
+    );
+  }
+
+  &--neutral {
+    background: color-mix(in srgb, var(--text-secondary-color) 30%, transparent);
+  }
+}
+
+.psa__status {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.32rem 0.5rem;
+  border-radius: 0.45rem;
+  border: 1px solid transparent;
+
+  &--due {
+    background: color-mix(in srgb, var(--psa-due) 9%, var(--background-paper-color));
+    border-color: color-mix(in srgb, var(--psa-due) 22%, var(--border-light-color));
+    --psa-status-color: var(--psa-due-text);
+    --psa-dot: var(--psa-due);
+  }
+
+  &--settled {
+    background: color-mix(in srgb, var(--psa-paid) 9%, var(--background-paper-color));
+    border-color: color-mix(in srgb, var(--psa-paid) 22%, var(--border-light-color));
+    --psa-status-color: var(--psa-settled-text);
+    --psa-dot: var(--psa-paid);
+  }
+
+  &--advance {
+    background: color-mix(in srgb, var(--psa-advance) 9%, var(--background-paper-color));
+    border-color: color-mix(in srgb, var(--psa-advance) 22%, var(--border-light-color));
+    --psa-status-color: var(--psa-advance-text);
+    --psa-dot: var(--psa-advance);
   }
 
   &--neutral {
     border-color: var(--psa-border);
     border-style: dashed;
+    --psa-status-color: var(--text-secondary-color);
+    --psa-dot: var(--text-secondary-color);
   }
 }
 
-.payment-sheet-amounts__tile--neutral .payment-sheet-amounts__tile-value {
-  color: var(--text-secondary-color);
+.psa__status-dot {
+  flex: none;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: var(--psa-dot);
 }
 
-.payment-sheet-amounts__tile-label {
+.psa__status-label {
+  flex: 1;
+  min-width: 0;
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--text-secondary-color);
+  color: var(--psa-status-color);
 }
 
-.payment-sheet-amounts__tile-value {
+.psa__status-amount {
   font-size: 0.78rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  line-height: 1.35;
-  word-break: break-word;
+  color: var(--psa-status-color);
 }
 
-.payment-sheet-amounts__tile--payable .payment-sheet-amounts__tile-value {
-  color: color-mix(in srgb, #0e7490 72%, var(--text-primary-color));
-}
-
-.payment-sheet-amounts__tile--paid .payment-sheet-amounts__tile-value {
-  color: color-mix(in srgb, #047857 72%, var(--text-primary-color));
-}
-
-.payment-sheet-amounts__tile--due .payment-sheet-amounts__tile-value {
-  color: color-mix(in srgb, #b45309 72%, var(--text-primary-color));
-}
-
-.payment-sheet-amounts__tile--advance .payment-sheet-amounts__tile-value {
-  color: var(--psa-advance-text);
-}
-
-.payment-sheet-amounts__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-top: 0.45rem;
-  padding: 0.38rem 0.5rem;
-  border-radius: 0.5rem;
-  background: color-mix(in srgb, #b45309 8%, var(--background-paper-color));
-  border: 1px solid color-mix(in srgb, #b45309 18%, var(--border-light-color));
-
-  &--settled {
-    justify-content: center;
-    background: color-mix(in srgb, #059669 10%, var(--background-paper-color));
-    border-color: color-mix(in srgb, #059669 22%, var(--border-light-color));
-  }
-}
-
-.payment-sheet-amounts__footer-label {
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text-secondary-color);
-}
-
-.payment-sheet-amounts__footer-value {
-  font-size: 0.78rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: color-mix(in srgb, #b45309 72%, var(--text-primary-color));
-}
-
-.payment-sheet-amounts__footer--advance {
-  background: var(--psa-advance-bg);
-  border-color: var(--psa-advance-border);
-
-  .payment-sheet-amounts__footer-value {
-    color: var(--psa-advance-text);
-  }
-}
-
-.payment-sheet-amounts__settled {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, #047857 80%, var(--text-primary-color));
-}
-
-:host-context(.dark-theme) .payment-sheet-amounts {
+:host-context(.dark-theme) .psa {
   --psa-border: var(--border-dark-color);
-  --psa-payable-bg: color-mix(in srgb, #0891b2 18%, var(--background-paper-color));
-  --psa-payable-border: color-mix(in srgb, #0891b2 28%, var(--border-dark-color));
-  --psa-paid-bg: color-mix(in srgb, #059669 18%, var(--background-paper-color));
-  --psa-paid-border: color-mix(in srgb, #059669 28%, var(--border-dark-color));
-  --psa-due-bg: color-mix(in srgb, #b45309 18%, var(--background-paper-color));
-  --psa-due-border: color-mix(in srgb, #b45309 28%, var(--border-dark-color));
-  --psa-advance-bg: color-mix(in srgb, #7c3aed 18%, var(--background-paper-color));
-  --psa-advance-border: color-mix(in srgb, #7c3aed 28%, var(--border-dark-color));
-  --psa-advance-text: color-mix(in srgb, #a78bfa 78%, var(--text-primary-color));
+  --psa-track: color-mix(in srgb, var(--text-secondary-color) 18%, var(--background-paper-color));
+  --psa-payable-text: color-mix(in srgb, #22d3ee 80%, var(--text-primary-color));
+  --psa-settled-text: color-mix(in srgb, #34d399 82%, var(--text-primary-color));
+  --psa-due-text: color-mix(in srgb, #fbbf24 80%, var(--text-primary-color));
+  --psa-advance-text: color-mix(in srgb, #a78bfa 80%, var(--text-primary-color));
   box-shadow: none;
 }
 
-:host-context(.dark-theme) .payment-sheet-amounts__tile--payable .payment-sheet-amounts__tile-value {
-  color: color-mix(in srgb, #22d3ee 78%, var(--text-primary-color));
+:host-context(.dark-theme) .psa__status--due {
+  background: color-mix(in srgb, var(--psa-due) 18%, var(--background-paper-color));
+  border-color: color-mix(in srgb, var(--psa-due) 30%, var(--border-dark-color));
 }
 
-:host-context(.dark-theme) .payment-sheet-amounts__tile--paid .payment-sheet-amounts__tile-value {
-  color: color-mix(in srgb, #34d399 78%, var(--text-primary-color));
+:host-context(.dark-theme) .psa__status--settled {
+  background: color-mix(in srgb, var(--psa-paid) 18%, var(--background-paper-color));
+  border-color: color-mix(in srgb, var(--psa-paid) 30%, var(--border-dark-color));
 }
 
-:host-context(.dark-theme) .payment-sheet-amounts__tile--due .payment-sheet-amounts__tile-value {
-  color: color-mix(in srgb, #fbbf24 78%, var(--text-primary-color));
-}
-
-:host-context(.dark-theme)
-  .payment-sheet-amounts__footer:not(.payment-sheet-amounts__footer--settled, .payment-sheet-amounts__footer--advance) {
-  background: color-mix(in srgb, #b45309 18%, var(--background-paper-color));
-  border-color: color-mix(in srgb, #b45309 28%, var(--border-dark-color));
-}
-
-:host-context(.dark-theme)
-  .payment-sheet-amounts__footer:not(.payment-sheet-amounts__footer--advance)
-  .payment-sheet-amounts__footer-value {
-  color: color-mix(in srgb, #fbbf24 78%, var(--text-primary-color));
-}
-
-:host-context(.dark-theme) .payment-sheet-amounts__footer--settled {
-  background: color-mix(in srgb, #059669 18%, var(--background-paper-color));
-  border-color: color-mix(in srgb, #059669 28%, var(--border-dark-color));
-}
-
-:host-context(.dark-theme) .payment-sheet-amounts__settled {
-  color: color-mix(in srgb, #34d399 82%, var(--text-primary-color));
+:host-context(.dark-theme) .psa__status--advance {
+  background: color-mix(in srgb, var(--psa-advance) 20%, var(--background-paper-color));
+  border-color: color-mix(in srgb, var(--psa-advance) 32%, var(--border-dark-color));
 }
 
 @media (hover: hover) {
-  :host-context(tr:hover) .payment-sheet-amounts {
+  :host-context(tr:hover) .psa {
     border-color: color-mix(in srgb, var(--primary-color) 28%, var(--psa-border));
     box-shadow: var(--shadow-md);
   }
 
-  :host-context(.dark-theme tr:hover) .payment-sheet-amounts {
+  :host-context(.dark-theme tr:hover) .psa {
     box-shadow: none;
     border-color: color-mix(in srgb, var(--primary-color) 35%, var(--border-dark-color));
   }

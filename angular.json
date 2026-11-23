@@ -61,6 +61,7 @@
                 "bundleName": "boot-loader"
               },
               "src/styles.scss",
+              "src/scss/theme-aliases.scss",
               "src/scss/form.scss",
               "src/scss/table.scss",
               "src/scss/toast.scss"

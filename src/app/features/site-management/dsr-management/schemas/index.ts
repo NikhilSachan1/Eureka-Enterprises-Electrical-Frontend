@@ -15,3 +15,8 @@ export {
   DsrDetailGetRequestSchema,
   DsrDetailGetResponseSchema,
 } from './get-dsr-detail.schema';
+export {
+  DsrProjectSummaryGetRequestSchema,
+  DsrProjectSummarySchema,
+  DsrProjectSummaryGetResponseSchema,
+} from './get-dsr-project-summary.schema';

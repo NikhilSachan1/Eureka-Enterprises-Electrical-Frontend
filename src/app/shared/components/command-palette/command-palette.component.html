@@ -1,0 +1,124 @@
+@let matches = results();
+
+<p-dialog
+  [visible]="commandPalette.visible()"
+  (visibleChange)="onVisibleChange($event)"
+  (onShow)="onShow()"
+  [modal]="true"
+  [dismissableMask]="true"
+  [closeOnEscape]="true"
+  [showHeader]="false"
+  [draggable]="false"
+  [resizable]="false"
+  [blockScroll]="true"
+  position="top"
+  ariaLabelledBy="command-palette-title"
+  styleClass="command-palette-dialog"
+>
+  <h2
+    id="command-palette-title"
+    class="cp-sr-only"
+  >
+    Search pages
+  </h2>
+
+  <div class="cp">
+    <div class="cp__search">
+      <i
+        [class]="ICONS.COMMON.SEARCH + ' cp__search-icon'"
+        aria-hidden="true"
+      ></i>
+      <input
+        #searchInput
+        type="text"
+        class="cp__input"
+        placeholder="Search pages, e.g. vehicle list, add expense…"
+        autocomplete="off"
+        spellcheck="false"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-controls="command-palette-results"
+        [attr.aria-expanded]="matches.length > 0"
+        [attr.aria-activedescendant]="activeOptionId()"
+        [ngModel]="query()"
+        (ngModelChange)="onQueryChange($event)"
+        (keydown)="onInputKeydown($event)"
+      />
+      <kbd class="cp__kbd">Esc</kbd>
+    </div>
+
+    @if (matches.length) {
+      <ul
+        #resultList
+        id="command-palette-results"
+        class="cp__results"
+        role="listbox"
+        aria-label="Pages"
+      >
+        @for (entry of matches; track entry.id; let index = $index) {
+          <li
+            [id]="optionId(index)"
+            class="cp__option"
+            [class.cp__option--active]="index === activeIndex()"
+            role="option"
+            tabindex="-1"
+            [attr.aria-selected]="index === activeIndex()"
+            (mousemove)="onOptionHover(index)"
+            (click)="open(entry)"
+          >
+            <span
+              class="cp__option-icon"
+              aria-hidden="true"
+            >
+              <i [class]="entry.icon ?? ICONS.COMMON.ARROW_RIGHT"></i>
+            </span>
+            <span class="cp__option-text">
+              <span class="cp__option-label">
+                @for (part of labelParts(entry); track $index) {
+                  @if (part.match) {
+                    <mark class="cp__match">{{ part.text }}</mark>
+                  } @else {
+                    {{ part.text }}
+                  }
+                }
+              </span>
+              @if (entry.trail.length) {
+                <span class="cp__option-trail">{{ entry.trail.join(trailSeparator) }}</span>
+              }
+            </span>
+            <i
+              [class]="ICONS.COMMON.ARROW_RIGHT + ' cp__option-go'"
+              aria-hidden="true"
+            ></i>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p
+        class="cp__empty"
+        role="status"
+      >
+        No page matches “{{ query() }}”.
+      </p>
+    }
+
+    <footer
+      class="cp__hints"
+      aria-hidden="true"
+    >
+      <span>
+        <kbd class="cp__kbd">↑</kbd>
+        <kbd class="cp__kbd">↓</kbd>
+        move
+      </span>
+      <span>
+        <kbd class="cp__kbd">Enter</kbd>
+        open
+      </span>
+      <span>
+        <kbd class="cp__kbd">{{ commandPalette.shortcutLabel }}</kbd>
+        toggle
+      </span>
+    </footer>
+  </div>
+</p-dialog>

@@ -10,7 +10,9 @@ import * as z from 'zod';
 import { EnvironmentService } from '@core/services/environment.service';
 import { LoggerService } from '@core/services/logger.service';
 import { NotificationService } from '@shared/services';
-import { format24hClockTimesInTextTo12h } from '@shared/utility';
+import { getApiErrorMessage } from '@shared/utility';
+import { API_ERROR_MESSAGES } from '@shared/constants';
+import { EApiPayloadStage } from '@core/types/api-error.types';
 import { APP_CONFIG } from '@core/config';
 import { GET_ENDPOINT_PATHS_WITHOUT_ERROR_TOAST } from '@core/constants';
 
@@ -200,7 +202,7 @@ export class ApiService {
         catchError(err => this.catchValidatedPipelineError(err, silent))
       );
     } catch (err) {
-      return this.handleZodError(err, silent);
+      return this.handleZodError(err, silent, EApiPayloadStage.REQUEST);
     }
   }
 
@@ -227,7 +229,7 @@ export class ApiService {
         catchError(err => this.catchValidatedPipelineError(err, silent))
       );
     } catch (err) {
-      return this.handleZodError(err, silent);
+      return this.handleZodError(err, silent, EApiPayloadStage.REQUEST);
     }
   }
 
@@ -258,7 +260,7 @@ export class ApiService {
         catchError(err => this.catchValidatedPipelineError(err, silent))
       );
     } catch (err) {
-      return this.handleZodError(err, silent);
+      return this.handleZodError(err, silent, EApiPayloadStage.REQUEST);
     }
   }
 
@@ -277,13 +279,13 @@ export class ApiService {
         map(res => schema.response.parse(res)),
         catchError(err => {
           if (err instanceof z.ZodError) {
-            return this.handleZodError(err, silent);
+            return this.handleZodError(err, silent, EApiPayloadStage.RESPONSE);
           }
           return throwError(() => err);
         })
       );
     } catch (err) {
-      return this.handleZodError(err, silent);
+      return this.handleZodError(err, silent, EApiPayloadStage.REQUEST);
     }
   }
 
@@ -302,13 +304,13 @@ export class ApiService {
         map(res => schema.response.parse(res)),
         catchError(err => {
           if (err instanceof z.ZodError) {
-            return this.handleZodError(err, silent);
+            return this.handleZodError(err, silent, EApiPayloadStage.RESPONSE);
           }
           return throwError(() => err);
         })
       );
     } catch (err) {
-      return this.handleZodError(err, silent);
+      return this.handleZodError(err, silent, EApiPayloadStage.REQUEST);
     }
   }
 
@@ -334,7 +336,7 @@ export class ApiService {
     silent: boolean
   ): Observable<never> {
     if (err instanceof z.ZodError) {
-      return this.handleZodError(err, silent);
+      return this.handleZodError(err, silent, EApiPayloadStage.RESPONSE);
     }
     return this.handleHttpError(err as HttpErrorResponse, silent);
   }
@@ -517,29 +519,40 @@ export class ApiService {
     });
   }
 
+  /**
+   * Tells the user why a request failed, in words (see getApiErrorMessage). The toast merges
+   * with the caller's own error message, if it reports the failure too.
+   */
   private handleHttpError(
     error: HttpErrorResponse,
     silent = false
   ): Observable<never> {
-    const raw =
-      error.status === 0
-        ? 'Network error'
-        : (error.error?.error?.message ?? 'Unexpected error');
-    const message =
-      typeof raw === 'string' ? format24hClockTimesInTextTo12h(raw) : raw;
     if (!silent) {
-      this.notificationService.error(message);
+      this.notificationService.apiError(getApiErrorMessage(error));
     }
     return throwError(() => error);
   }
 
-  private handleZodError(error: unknown, silent = false): Observable<never> {
+  /**
+   * A payload failed its schema. The field-level details are for developers and go to the log;
+   * the user gets a plain message for the stage it failed at.
+   */
+  private handleZodError(
+    error: unknown,
+    silent: boolean,
+    stage: EApiPayloadStage
+  ): Observable<never> {
     if (error instanceof z.ZodError) {
-      const message = error.issues
+      const details = error.issues
         .map(i => `${i.path.join('.')}: ${i.message}`)
         .join(', ');
+      this.logger.error(`Schema check failed on the ${stage}: ${details}`);
       if (!silent) {
-        this.notificationService.error(`Validation failed: ${message}`);
+        this.notificationService.apiError(
+          stage === EApiPayloadStage.REQUEST
+            ? API_ERROR_MESSAGES.INVALID_REQUEST
+            : API_ERROR_MESSAGES.UNEXPECTED_RESPONSE
+        );
       }
     }
     return throwError(() => error);

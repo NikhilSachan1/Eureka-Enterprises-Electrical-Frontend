@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
-import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
+import { PaymentReceiptComponent } from '@shared/components/payment-receipt/payment-receipt.component';
 import {
   IBankTransferDetailGetResponseDto,
   IBankTransferGetBaseResponseDto,
@@ -14,7 +14,7 @@ import {
 import { BankTransferService } from '../../services/bank-transfer.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import {
-  EBankDetailsDisplayMode,
+  IPaymentReceipt,
   EDataType,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
@@ -37,14 +37,12 @@ import { mapPaidFromAccountToBankDetails } from '@shared/utility';
     ViewDetailComponent,
     DocReferenceComponent,
     DocWorkspaceContextComponent,
-    BankDetailsCellComponent,
+    PaymentReceiptComponent,
   ],
   templateUrl: './get-bank-transfer-detail.component.html',
   styleUrl: './get-bank-transfer-detail.component.scss',
 })
 export class GetBankTransferDetailComponent extends DrawerDetailBase {
-  protected readonly EBankDetailsDisplayMode = EBankDetailsDisplayMode;
-
   protected readonly drawerData = inject(DRAWER_DATA) as {
     bankTransfer: IBankTransferGetBaseResponseDto;
   };
@@ -126,10 +124,6 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
       {
-        label: 'UTR / Reference',
-        value: record.utrNumber,
-      },
-      {
         label: 'Amount',
         value: record.transferAmount,
         type: EDataType.CURRENCY,
@@ -140,19 +134,20 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
         value: record.isLocked ? 'Locked' : 'Unlocked',
         type: EDataType.STATUS,
       },
-      ...(record.paidFromAccount
-        ? [
-            {
-              label: isSales
-                ? 'Bank Received Account'
-                : 'Bank Transfer Account',
-              value: mapPaidFromAccountToBankDetails(record.paidFromAccount),
-              customTemplateKey: 'paidFromAccountDetails',
-              detailTemplateFullRow: true,
-              detailTemplatePlain: true,
-            },
-          ]
-        : []),
+      {
+        label: isSales ? 'Receipt' : 'Payment',
+        value: {
+          reference: record.utrNumber,
+          referenceLabel: 'UTR / Reference',
+          paidFrom: record.paidFromAccount
+            ? mapPaidFromAccountToBankDetails(record.paidFromAccount)
+            : null,
+          paidFromLabel: isSales ? 'Received in' : 'Paid from',
+        } satisfies IPaymentReceipt,
+        customTemplateKey: 'paymentReceipt',
+        detailTemplateFullRow: true,
+        detailTemplatePlain: true,
+      },
       {
         label: isSales ? 'Proof of receipt' : 'Proof of transfer',
         value: proofAttachmentKeysForBankTransferDetail(record),

@@ -65,7 +65,7 @@
 
 .ps-list-workflow__step--current .ps-list-workflow__dot {
   border-color: var(--primary-color, #3b82f6);
-  background: color-mix(in srgb, var(--primary-color, #3b82f6) 14%, #ffffff);
+  background: color-mix(in srgb, var(--primary-color, #3b82f6) 14%, var(--background-default-color));
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color, #3b82f6) 18%, transparent);
 }
 

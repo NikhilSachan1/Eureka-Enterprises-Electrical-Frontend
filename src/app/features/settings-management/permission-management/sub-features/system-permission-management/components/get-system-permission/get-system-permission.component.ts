@@ -97,7 +97,7 @@ export class GetSystemPermissionComponent implements OnInit {
           this.logger.logUserAction('System permissions loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.logger.logUserAction('Failed to load system permissions', error);
         },
       });

@@ -147,19 +147,7 @@
           #itemAmountsCell
           let-row
         >
-          <app-payment-sheet-amounts-cell
-            [leftLabel]="amountLeftLabel(row)"
-            [leftAmount]="amountLeftValue(row)"
-            [leftVariant]="amountLeftVariant(row)"
-            [rightLabel]="row.isAdvancePayment ? 'Advance Payable' : 'Payable'"
-            [rightAmount]="row.payableAmount"
-            rightVariant="payable"
-            [footerLabel]="amountFooterLabel(row)"
-            [footerAmount]="amountFooterValue(row)"
-            [isAdvanceFooter]="!!row.isAdvancePayment"
-            [settledLabel]="amountSettledLabel(row)"
-            [isSettled]="isFullyCovered(row)"
-          />
+          <app-payment-sheet-amounts-cell [view]="amountsView(row)" />
         </ng-template>
 
         <ng-template
@@ -232,19 +220,19 @@
                           {{ row.paidByUserName }}
                         </span>
                       }
-                      @if (row.paidAt) {
-                        <span class="ps-detail-verification__meta">
-                          {{ row.paidAt | date: paidAtDateFormat : undefined : paidAtDateLocale }}
-                        </span>
-                      } @else {
+                      @if (!row.paidAt) {
                         <span class="ps-detail-verification__meta">Paid</span>
                       }
-                      @if (row.utrNumber; as utrNumber) {
-                        <span class="ps-detail-verification__meta">UTR · {{ utrNumber }}</span>
-                      }
-                      @if (getPaidFromAccountBankName(row); as paidFromBankName) {
-                        <span class="ps-detail-verification__meta">Paid from · {{ paidFromBankName }}</span>
-                      }
+                      <app-payment-receipt
+                        [variant]="EPaymentReceiptVariant.INLINE"
+                        [dateFormat]="paidAtDateFormat"
+                        [receipt]="{
+                          paidAt: row.paidAt,
+                          mode: isPaidInCash(row) ? PAYMENT_MODE_CASH_LABEL : null,
+                          reference: row.utrNumber,
+                          paidFrom: row.paidFromAccount,
+                        }"
+                      />
                     </div>
                   </div>
 
@@ -384,7 +372,10 @@
           #bankDetailsCell
           let-row
         >
-          <app-bank-details-cell [bankDetails]="row.bankDetails" />
+          <app-bank-details-cell
+            [bankDetails]="row.bankDetails"
+            [displayMode]="EBankDetailsDisplayMode.TILE"
+          />
         </ng-template>
 
         <ng-template

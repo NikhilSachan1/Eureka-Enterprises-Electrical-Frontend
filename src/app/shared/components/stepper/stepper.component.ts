@@ -39,6 +39,8 @@ export class StepperComponent implements OnInit {
   panelTemplates = input.required<Record<string, TemplateRef<unknown>>>();
   stepErrors = input<Record<number, boolean>>({});
   stepValid = input<Record<number, boolean>>({});
+  /** Per step: has the user changed anything? The step reset stays disabled until then. */
+  stepDirty = input<Record<number, boolean>>({});
 
   activeStep = model<number>(1);
 

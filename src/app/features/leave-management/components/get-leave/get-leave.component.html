@@ -36,8 +36,8 @@
   let-day
 >
   <div class="leave-day-date">
-    <span class="leave-day-date__day">{{ day.leaveDay | date: 'dd MMM yyyy' }}</span>
-    <span class="leave-day-date__weekday">{{ day.leaveDay | date: 'EEEE' }}</span>
+    <span class="leave-day-date__day">{{ day.leaveDay | date: DATE_FORMATS.DEFAULT }}</span>
+    <span class="leave-day-date__weekday">{{ day.leaveDay | date: DATE_FORMATS.WEEKDAY }}</span>
   </div>
 </ng-template>
 

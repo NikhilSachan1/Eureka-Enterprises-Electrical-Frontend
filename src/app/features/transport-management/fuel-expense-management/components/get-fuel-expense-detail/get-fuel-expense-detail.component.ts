@@ -14,7 +14,7 @@ import {
 import { AppConfigurationService } from '@shared/services';
 import { FuelExpenseService } from '../../services/fuel-expense.service';
 import {
-  EBankDetailsDisplayMode,
+  IPaymentReceipt,
   EDataType,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
@@ -24,29 +24,29 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { AppPermissionService } from '@core/services';
 import {
   getMappedValueFromArrayOfObjects,
   mapPaidFromAccountToBankDetails,
 } from '@shared/utility';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
-import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
+import { PaymentReceiptComponent } from '@shared/components/payment-receipt/payment-receipt.component';
 
 @Component({
   selector: 'app-get-fuel-expense-detail',
-  imports: [ViewDetailComponent, BankDetailsCellComponent],
+  imports: [ViewDetailComponent, PaymentReceiptComponent],
   templateUrl: './get-fuel-expense-detail.component.html',
   styleUrl: './get-fuel-expense-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
-  protected readonly EBankDetailsDisplayMode = EBankDetailsDisplayMode;
-
   protected readonly drawerData = inject(DRAWER_DATA) as {
     fuelExpense: IFuelExpenseGetBaseResponseDto;
   };
   private readonly fuelExpenseService = inject(FuelExpenseService);
   protected readonly appConfigService = inject(AppConfigurationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly permissionService = inject(AppPermissionService);
 
   protected readonly _fuelExpenseDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -79,7 +79,7 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('Fuel expense details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load fuel expense details', error);
         },
       });
   }
@@ -111,30 +111,26 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
           },
         },
         {
-          label: 'Payment Mode',
-          value: getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.fuelExpensePaymentMethods(),
-            record.paymentMode
-          ),
-        },
-        ...(record.paidFromAccount
-          ? [
-              {
-                label: 'Paid From Account',
-                value: mapPaidFromAccountToBankDetails(record.paidFromAccount),
-                customTemplateKey: 'paidFromAccountDetails',
-                detailTemplateFullRow: true,
-                detailTemplatePlain: true,
-                permission: [
-                  APP_PERMISSION.UI.FUEL_EXPENSE
-                    .SEARCH_FILTER_PAID_FROM_ACCOUNT,
-                ],
-              },
-            ]
-          : []),
-        {
-          label: 'Transaction ID',
-          value: record.transactionId,
+          label: 'Payment',
+          value: {
+            mode: getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.fuelExpensePaymentMethods(),
+              record.paymentMode
+            ),
+            reference: record.transactionId,
+            referenceLabel: 'Transaction ID',
+            // The account stays behind its own permission, as its separate row was.
+            paidFrom:
+              record.paidFromAccount &&
+              this.permissionService.hasAnyPermission([
+                APP_PERMISSION.UI.FUEL_EXPENSE.SEARCH_FILTER_PAID_FROM_ACCOUNT,
+              ])
+                ? mapPaidFromAccountToBankDetails(record.paidFromAccount)
+                : null,
+          } satisfies IPaymentReceipt,
+          customTemplateKey: 'paymentReceipt',
+          detailTemplateFullRow: true,
+          detailTemplatePlain: true,
         },
         {
           label: 'Car Meter Reading',

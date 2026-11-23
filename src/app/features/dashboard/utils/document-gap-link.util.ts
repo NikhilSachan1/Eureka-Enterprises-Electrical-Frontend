@@ -13,28 +13,36 @@ const PARTY_PATH: Record<DocumentGapParty, string> = {
   vendor: ROUTES.SITE.PROJECT.VENDOR_DOC,
 };
 
-/** Which project-document list a gap key belongs to. */
+/**
+ * Which project-document list a gap key opens. It is the list of the record the gap's rows are
+ * (the server's `id` / `documentNumber`), so the row can be found there:
+ * an advance gap lists advances, a contractor-payment gap lists invoices, and so on.
+ */
 const GAP_DOC_PATH: Record<string, string> = {
   'po-without-jmc': WORKSPACE_DOC.PO,
   'po-under-invoiced': WORKSPACE_DOC.PO,
   'jmc-without-invoice': WORKSPACE_DOC.JMC,
-  'jmc-without-report': WORKSPACE_DOC.REPORT,
+  // Rows are JMCs (the report is what is missing).
+  'jmc-without-report': WORKSPACE_DOC.JMC,
   'jmc-file-missing': WORKSPACE_DOC.JMC,
   'invoice-not-booked': WORKSPACE_DOC.INVOICE,
   'invoice-partially-booked': WORKSPACE_DOC.INVOICE,
-  'contractor-payment-pending': WORKSPACE_DOC.BANK_TRANSFER,
-  'contractor-payment-partial': WORKSPACE_DOC.BANK_TRANSFER,
+  // Rows are the contractor invoices still to be received against.
+  'contractor-payment-pending': WORKSPACE_DOC.INVOICE,
+  'contractor-payment-partial': WORKSPACE_DOC.INVOICE,
   'booked-not-transferred': WORKSPACE_DOC.BOOK_PAYMENT,
-  'advance-not-paid': WORKSPACE_DOC.BOOK_PAYMENT,
+  // Rows are advances (id and number are the advance's).
+  'advance-not-paid': WORKSPACE_DOC.ADVANCE_PAYMENT,
   'advance-invoice-not-adjusted': WORKSPACE_DOC.ADVANCE_PAYMENT,
   'advance-not-settled': WORKSPACE_DOC.ADVANCE_PAYMENT,
-  'gst-release-not-transferred': WORKSPACE_DOC.BOOK_PAYMENT,
 };
 
 /** Gaps settled in the GST / TDS summary tab of the contractor / vendor side. */
 const GAP_TAX_SUMMARY_PATH: Record<string, string> = {
   'gst-not-verified': ROUTES.SITE.PROJECT.GST_SUMMARY,
   'gst-release-pending': ROUTES.SITE.PROJECT.GST_SUMMARY,
+  // Rows are GST register entries, not book payments.
+  'gst-release-not-transferred': ROUTES.SITE.PROJECT.GST_SUMMARY,
   'gst-receipt-pending': ROUTES.SITE.PROJECT.GST_SUMMARY,
   'tds-challan-pending': ROUTES.SITE.PROJECT.TDS_SUMMARY,
   'tds-not-verified': ROUTES.SITE.PROJECT.TDS_SUMMARY,
@@ -67,6 +75,13 @@ export function documentGapListCommands(
     PARTY_PATH[party],
     GAP_TAX_SUMMARY_PATH[key] ?? GAP_DOC_PATH[key] ?? WORKSPACE_DOC.PO,
   ];
+}
+
+/** Some gaps name two documents ("ADV-12 → INV-40"); the list is searched by the first. */
+const GAP_LINKED_NUMBER_SEPARATOR = ' → ';
+
+export function documentGapSearchNumber(documentNumber: string): string {
+  return documentNumber.split(GAP_LINKED_NUMBER_SEPARATOR)[0].trim();
 }
 
 export function isMissingDocumentNumber(

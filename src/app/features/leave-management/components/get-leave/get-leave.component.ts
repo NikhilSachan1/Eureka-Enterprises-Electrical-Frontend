@@ -86,6 +86,7 @@ import { DatePipe } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetLeaveComponent implements OnInit {
+  protected readonly DATE_FORMATS = APP_CONFIG.DATE_FORMATS;
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -212,7 +213,7 @@ export class GetLeaveComponent implements OnInit {
           this.logger.logUserAction('Leave applications loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.leaveStats.set(null);
           this.showLeaveBalanceMetrics.set(false);
           this.logger.logUserAction('Failed to load leave applications', error);
@@ -583,6 +584,7 @@ export class GetLeaveComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Apply Leave',
+          showInEmptyState: true,
           icon: ICONS.COMMON.CALENDAR_PLUS,
           actionName: 'applyLeave',
           permission: [APP_PERMISSION.LEAVE.APPLY],

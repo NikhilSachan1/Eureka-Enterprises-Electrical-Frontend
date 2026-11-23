@@ -3,6 +3,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
+  Injector,
   input,
   output,
   signal,
@@ -48,6 +50,7 @@ import {
   ITableActionClickEvent,
   EButtonActionType,
   EButtonVariant,
+  EButtonSeverity,
   IGalleryInputData,
   EDataType,
 } from '@shared/types';
@@ -62,11 +65,21 @@ import {
   AvatarService,
   GalleryService,
   SearchFilterUrlRestoreService,
+  TableFilterResetService,
+  TableRowHighlightService,
+  PageEmptyStateActionService,
 } from '@shared/services';
-import { ICONS } from '@shared/constants';
+import {
+  ICONS,
+  SKELETON_CARD_COUNT,
+  SKELETON_LINE_WIDTHS,
+  SKELETON_TABLE_DEFAULT_ROWS,
+  SKELETON_TABLE_MAX_ROWS,
+} from '@shared/constants';
 import { ButtonComponent } from '../button/button.component';
 import { StatusTagComponent } from '../status-tag/status-tag.component';
 import { EmptyMessagesComponent } from '../empty-messages/empty-messages.component';
+import { SkeletonComponent } from '../skeleton/skeleton.component';
 import { APP_CONFIG } from '@core/config';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { ChipComponent } from '../chip/chip.component';
@@ -74,6 +87,10 @@ import { ReadMoreComponent } from '../read-more/read-more.component';
 import { PaginatorComponent } from '../paginator/paginator.component';
 import { registerActiveBulkTable } from './active-bulk-table';
 import {
+  DATA_TABLE_CLEAR_FILTERS_BUTTON_CONFIG,
+  DATA_TABLE_FILTERED_EMPTY_STATE,
+  DATA_TABLE_LOAD_ERROR_STATE,
+  DATA_TABLE_RETRY_BUTTON_CONFIG,
   DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
   DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
   DEFAULT_READ_MORE_CONFIG,
@@ -88,6 +105,7 @@ import {
   resolveTablePaginationFromQuery,
   serializeTablePaginationQueryParams,
 } from '@shared/utility';
+import { ESkeletonVariant } from '@shared/types/skeleton/skeleton.types';
 
 @Component({
   selector: 'app-data-table',
@@ -112,6 +130,7 @@ import {
     CurrencyPipe,
     DecimalPipe,
     EmptyMessagesComponent,
+    SkeletonComponent,
     NgTemplateOutlet,
     PanelModule,
     PaginatorModule,
@@ -153,10 +172,54 @@ export class DataTableComponent {
     SearchFilterUrlRestoreService
   );
   private readonly destroyRef = inject(DestroyRef);
+  private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
+  private readonly rowHighlight = inject(TableRowHighlightService);
+  /** Removes the listeners that end the row highlight. */
+  private stopRowFlash?: () => void;
+
+  /** Row lit once after arriving from e.g. a notification (see TableRowHighlightService). */
+  protected readonly flashRowId = signal<string | null>(null);
+  private readonly tableFilterReset = inject(TableFilterResetService);
+  private readonly pageEmptyStateAction = inject(PageEmptyStateActionService);
+
+  protected readonly filteredEmptyState = DATA_TABLE_FILTERED_EMPTY_STATE;
+  protected readonly clearFiltersButtonConfig =
+    DATA_TABLE_CLEAR_FILTERS_BUTTON_CONFIG;
+  protected readonly loadErrorState = DATA_TABLE_LOAD_ERROR_STATE;
+  protected readonly retryButtonConfig = DATA_TABLE_RETRY_BUTTON_CONFIG;
 
   protected readonly showTableLoading = computed(
     () => this.loading() || this.searchFilterUrlRestore.hasPendingRestore()
   );
+
+  /**
+   * True when search or a filter is applied to the table, so an empty result means
+   * "nothing matches" rather than "no records yet".
+   */
+  protected hasActiveFilters(): boolean {
+    const filters = this.dt().filters ?? {};
+    return Object.values(filters).some(entry =>
+      (Array.isArray(entry) ? entry : [entry]).some(meta =>
+        hasFilterValue(meta?.value)
+      )
+    );
+  }
+
+  /** The page's main action (e.g. "Add Asset") for the "no records yet" state. */
+  protected readonly emptyStateAction = computed(() =>
+    this.tableConfig().showEmptyStateAction === false
+      ? null
+      : this.pageEmptyStateAction.action()
+  );
+
+  protected canClearFilters(): boolean {
+    return this.tableFilterReset.canReset(this.dt());
+  }
+
+  protected clearFilters(): void {
+    this.tableFilterReset.reset(this.dt());
+  }
 
   protected resolveDateLocale(col?: Partial<IDataTableHeaderConfig>): string {
     return (
@@ -274,8 +337,30 @@ export class DataTableComponent {
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
   private lastEmittedSelectionKey = '';
   private initialLazyLoadEmitted = false;
+  /** The last load request sent to the page; "Try again" sends it once more. */
+  private lastLazyLoadEvent: TableLazyLoadEvent | null = null;
   private viewReady = false;
   private paginationRestoredFromUrl = false;
+  /** Placeholder rows while loading: the page size, between the default and the max. */
+  protected readonly skeletonRows = computed(() => {
+    const pageSize = this.paginationRows() || SKELETON_TABLE_DEFAULT_ROWS;
+    const count = Math.min(Math.max(pageSize, 1), SKELETON_TABLE_MAX_ROWS);
+    return Array.from({ length: count }, (_, index) => index);
+  });
+
+  protected readonly ESkeletonVariant = ESkeletonVariant;
+  protected readonly skeletonCards = Array.from(
+    { length: SKELETON_CARD_COUNT },
+    (_, index) => index
+  );
+
+  /** Uneven line widths, so a loading table looks like real text. */
+  protected skeletonWidth(row: number, column: number): string {
+    return SKELETON_LINE_WIDTHS[
+      (row * 3 + column) % SKELETON_LINE_WIDTHS.length
+    ];
+  }
+
   protected visibleTableHeaders = computed(() => {
     return this.permissionService.filterByPermission(this.tableHeader());
   });
@@ -634,6 +719,78 @@ export class DataTableComponent {
       this.viewReady = true;
       this.emitInitialLazyLoadIfNeeded();
     });
+
+    // A requested row lights up once when it appears; the request is then cleared.
+    effect(() => {
+      const pendingId = this.rowHighlight.pendingId();
+      const rows = this.tableData();
+      if (!pendingId || this.showTableLoading() || rows.length === 0) {
+        return;
+      }
+      untracked(() => {
+        const idPath = this.tableConfig().tableUniqueId;
+        const found = rows.some(
+          row => this.normalizeRowIdForSelection(row, idPath) === pendingId
+        );
+        if (found) {
+          this.rowHighlight.clear();
+          this.flashRow(pendingId);
+        }
+      });
+    });
+
+    this.destroyRef.onDestroy(() => this.stopRowFlash?.());
+  }
+
+  protected rowKey(row: Record<string, unknown>): string | null {
+    return this.normalizeRowIdForSelection(
+      row,
+      this.tableConfig().tableUniqueId
+    );
+  }
+
+  protected isFlashRow(row: Record<string, unknown>): boolean {
+    const flashId = this.flashRowId();
+    return flashId !== null && this.rowKey(row) === flashId;
+  }
+
+  /**
+   * Lights the row (it pulses a few times, then stays lit) until the user clicks or presses a
+   * key anywhere, so it cannot be missed and does not keep blinking.
+   */
+  private flashRow(rowId: string): void {
+    this.stopRowFlash?.();
+    this.flashRowId.set(rowId);
+
+    afterNextRender(
+      () => {
+        const el = this.hostRef.nativeElement.querySelector<HTMLElement>(
+          `[data-row-key="${CSS.escape(rowId)}"]`
+        );
+        const reduceMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        ).matches;
+        el?.scrollIntoView({
+          block: 'center',
+          behavior: reduceMotion ? 'auto' : 'smooth',
+        });
+
+        // Added after the page has opened, so the click that led here does not end it.
+        const end = (): void => {
+          this.stopRowFlash?.();
+          this.flashRowId.set(null);
+        };
+        const doc = this.hostRef.nativeElement.ownerDocument;
+        doc.addEventListener('pointerdown', end, { capture: true });
+        doc.addEventListener('keydown', end, { capture: true });
+        this.stopRowFlash = (): void => {
+          doc.removeEventListener('pointerdown', end, { capture: true });
+          doc.removeEventListener('keydown', end, { capture: true });
+          this.stopRowFlash = undefined;
+        };
+      },
+      { injector: this.injector }
+    );
   }
 
   /** Stable string key for row identity (matches {@link tableConfig}.tableUniqueId). */
@@ -760,8 +917,22 @@ export class DataTableComponent {
       this.paginationRows.set(newRows);
     }
 
+    this.lastLazyLoadEvent = lazyLoadEvent;
     this.filterData.emit(lazyLoadEvent);
     this.syncPaginationToUrl(newFirst, newRows);
+  }
+
+  /** "Try again" is offered when the page loads through the table (server-side tables). */
+  protected canRetryLoad(): boolean {
+    return this.lastLazyLoadEvent !== null;
+  }
+
+  /** Repeats the last load request after a failed load. */
+  protected retryLoad(): void {
+    if (this.lastLazyLoadEvent) {
+      this.logger.logUserAction('Retry table load', this.lastLazyLoadEvent);
+      this.filterData.emit(this.lastLazyLoadEvent);
+    }
   }
 
   private withCurrentTableFilters(
@@ -1158,8 +1329,11 @@ export class DataTableComponent {
   protected getClearSelectionButtonConfig(): Partial<IButtonConfig> {
     return {
       id: EButtonActionType.CLEAR_SELECTION,
-      label: 'Clear Selection',
+      label: 'Clear',
       icon: this.icons.ACTIONS.TIMES,
+      variant: EButtonVariant.TEXT,
+      severity: EButtonSeverity.SECONDARY,
+      tooltip: 'Clear selection',
     };
   }
 
@@ -1185,4 +1359,12 @@ export class DataTableComponent {
       this.attachmentClick.emit(rowData ?? {});
     }
   }
+}
+
+/** A filter counts as applied when it holds something other than null, '' or []. */
+function hasFilterValue(value: unknown): boolean {
+  if (value === null || value === undefined || value === '') {
+    return false;
+  }
+  return !Array.isArray(value) || value.length > 0;
 }

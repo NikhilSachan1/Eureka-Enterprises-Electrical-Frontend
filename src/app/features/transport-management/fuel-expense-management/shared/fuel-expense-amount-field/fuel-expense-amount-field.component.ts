@@ -7,11 +7,7 @@ import {
   input,
   signal,
 } from '@angular/core';
-import {
-  AbstractControl,
-  FormGroup,
-  ValidatorFn,
-} from '@angular/forms';
+import { AbstractControl, FormGroup, ValidatorFn } from '@angular/forms';
 import { APP_PERMISSION } from '@core/constants';
 import { AppPermissionService } from '@core/services';
 import { PetroCardWalletService } from '@features/transport-management/petro-card-wallet-management/services/petro-card-wallet.service';
@@ -108,7 +104,11 @@ export class FuelExpenseAmountFieldComponent {
         paymentModeControl.valueChanges
           .pipe(
             startWith(paymentModeControl.value),
-            map(mode => String(mode ?? '').trim().toLowerCase()),
+            map(mode =>
+              String(mode ?? '')
+                .trim()
+                .toLowerCase()
+            ),
             distinctUntilChanged(),
             switchMap(mode => {
               const isPetro = mode === PETRO_CARD_PAYMENT_MODE;

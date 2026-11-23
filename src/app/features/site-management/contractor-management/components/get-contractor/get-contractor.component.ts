@@ -125,7 +125,7 @@ export class GetContractorComponent implements OnInit {
           this.logger.logUserAction('Contractor records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.contractorStats.set(null);
           this.logger.logUserAction('Failed to load contractor records', error);
         },
@@ -349,6 +349,7 @@ export class GetContractorComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Contractor',
+          showInEmptyState: true,
           actionName: 'addContractor',
           permission: [APP_PERMISSION.CONTRACTOR.ADD],
         },

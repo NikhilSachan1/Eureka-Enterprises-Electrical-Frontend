@@ -13,6 +13,9 @@ import {
   DsrGetBaseResponseSchema,
   DsrGetRequestSchema,
   DsrGetResponseSchema,
+  DsrProjectSummaryGetRequestSchema,
+  DsrProjectSummaryGetResponseSchema,
+  DsrProjectSummarySchema,
 } from '../schemas';
 import * as z from 'zod';
 
@@ -60,3 +63,14 @@ export type IDsrEditResponseDto = z.infer<typeof DsrEditResponseSchema>;
   Dsr Delete
 */
 export type IDsrDeleteResponseDto = z.infer<typeof DsrDeleteResponseSchema>;
+
+/*
+  DSR summary per project
+*/
+export type IDsrProjectSummaryGetFormDto = z.input<
+  typeof DsrProjectSummaryGetRequestSchema
+>;
+export type IDsrProjectSummaryDto = z.infer<typeof DsrProjectSummarySchema>;
+export type IDsrProjectSummaryGetResponseDto = z.infer<
+  typeof DsrProjectSummaryGetResponseSchema
+>;

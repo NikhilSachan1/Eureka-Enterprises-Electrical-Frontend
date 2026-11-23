@@ -61,6 +61,7 @@ import {
 } from '../../utils/advance-payment-table-row.util';
 
 import { WorkspaceDocMetricsComponent } from '@features/site-management/doc-management/shared/components/workspace-doc-metrics/workspace-doc-metrics.component';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 @Component({
   selector: 'app-get-advance-payment',
@@ -137,7 +138,7 @@ export class GetAdvancePaymentComponent implements OnInit {
             .pipe(
               finalize(() => this.table.setLoading(false)),
               catchError(error => {
-                this.table.setData([]);
+                this.table.setLoadError();
                 this.logger.logUserAction(
                   'Failed to load advance payment records',
                   error
@@ -233,16 +234,19 @@ export class GetAdvancePaymentComponent implements OnInit {
       {
         dataType: EDataType.CURRENCY,
         label: 'Amount',
+        tone: EDocAmountTone.NEUTRAL,
         value: row.amount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'Settled',
+        tone: EDocAmountTone.PAID,
         value: row.settledAmount,
       },
       {
         dataType: EDataType.CURRENCY,
         label: 'Balance',
+        tone: EDocAmountTone.NEUTRAL,
         value: row.balanceAmount,
       },
     ];
@@ -390,6 +394,7 @@ export class GetAdvancePaymentComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Advance Payment',
+          showInEmptyState: true,
           actionName: 'addAdvancePayment',
           permission: [APP_PERMISSION.ADVANCE_PAYMENT_DOC.ADD],
         },

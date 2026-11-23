@@ -214,11 +214,11 @@
     color: var(--primary-color);
     background: linear-gradient(
       165deg,
-      var(--primary-lightest-color, color-mix(in srgb, var(--primary-color) 12%, #ffffff)) 0%,
+      var(--primary-lightest-color, color-mix(in srgb, var(--primary-color) 12%, var(--background-default-color))) 0%,
       color-mix(
           in srgb,
           var(--primary-color) 9%,
-          var(--primary-lightest-color, color-mix(in srgb, var(--primary-color) 12%, #ffffff))
+          var(--primary-lightest-color, color-mix(in srgb, var(--primary-color) 12%, var(--background-default-color)))
         )
         100%
     );
@@ -414,10 +414,7 @@
 
 .line-items__row {
   display: grid;
-  grid-template-columns: var(
-    --line-items-columns,
-    2rem repeat(var(--line-items-column-count, 1), minmax(0, 1fr)) auto
-  );
+  grid-template-columns: var(--line-items-columns, 2rem repeat(var(--line-items-column-count, 1), minmax(0, 1fr)) auto);
   gap: 0.5rem;
   align-items: start;
 }

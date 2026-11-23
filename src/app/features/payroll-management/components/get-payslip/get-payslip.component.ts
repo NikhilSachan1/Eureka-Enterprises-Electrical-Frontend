@@ -120,7 +120,7 @@ export class GetPayslipComponent implements OnInit {
           this.logger.info(PAYROLL_MESSAGES.SUCCESS.PAYSLIP_LIST_LOADED);
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.logger.error(
             PAYROLL_MESSAGES.ERROR.PAYSLIP_LIST_LOAD_FAILED,
             error

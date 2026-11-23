@@ -124,7 +124,7 @@ export class GetReportComponent implements OnInit {
           return this.reportService.getReportList(this.prepareParamData()).pipe(
             finalize(() => this.table.setLoading(false)),
             catchError(error => {
-              this.table.setData([]);
+              this.table.setLoadError();
               this.logger.logUserAction('Failed to load report records', error);
               return EMPTY;
             })
@@ -319,6 +319,7 @@ export class GetReportComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Report',
+          showInEmptyState: true,
           actionName: 'addReport',
           permission: [APP_PERMISSION.REPORT_DOC.ADD],
         },

@@ -69,7 +69,7 @@ export class GetProjectDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('Project details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load project details', error);
         },
       });
   }

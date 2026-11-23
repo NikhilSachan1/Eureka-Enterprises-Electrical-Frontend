@@ -90,3 +90,14 @@ export {
   canSeeHandoverScopeTabs,
   handoverScopeTabQuery,
 } from './handover-scope-tab.util';
+export {
+  buildCommandPaletteEntries,
+  searchCommandPaletteEntries,
+  splitLabelForHighlight,
+} from './command-palette.util';
+export { getApiErrorMessage } from './api-error.util';
+export {
+  fromDayNumber,
+  parseCalendarDay,
+  toDayNumber,
+} from './calendar-day.util';

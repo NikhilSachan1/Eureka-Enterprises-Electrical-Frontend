@@ -1,0 +1,194 @@
+@let data = roster();
+
+<section
+  class="ad"
+  [attr.aria-busy]="loading() ? 'true' : null"
+>
+  <header class="ad-hero">
+    <span
+      class="ad-hero__avatar ad-hero__avatar--project"
+      aria-hidden="true"
+    >
+      <i class="pi pi-building"></i>
+    </span>
+    <div class="ad-hero__text">
+      <span class="ad-hero__title">{{ drawerData.projectName }}</span>
+      @if (drawerData.projectLocation) {
+        <span class="ad-hero__sub">
+          <i
+            class="pi pi-map-marker"
+            aria-hidden="true"
+          ></i>
+          {{ drawerData.projectLocation }}
+        </span>
+      }
+    </div>
+    @if (data) {
+      <span
+        class="ad-pill"
+        [class.ad-pill--muted]="!data.current.length"
+      >
+        <i
+          class="pi pi-users"
+          aria-hidden="true"
+        ></i>
+        {{ data.current.length ? data.current.length + ' on site now' : 'No one on site now' }}
+      </span>
+    }
+  </header>
+
+  @if (loading()) {
+    <div
+      class="ad-stats"
+      aria-hidden="true"
+    >
+      @for (placeholder of [1, 2, 3]; track placeholder) {
+        <span class="ad-bone ad-bone--card"></span>
+      }
+    </div>
+    @for (placeholder of [1, 2, 3]; track placeholder) {
+      <span
+        class="ad-bone ad-bone--card"
+        aria-hidden="true"
+      ></span>
+    }
+  } @else if (failed()) {
+    <div
+      class="ad-state"
+      role="alert"
+    >
+      <i
+        class="pi pi-exclamation-triangle"
+        aria-hidden="true"
+      ></i>
+      <p>The project's allocations could not be loaded.</p>
+      <button
+        type="button"
+        class="ad-retry"
+        (click)="loadRoster()"
+      >
+        Try again
+      </button>
+    </div>
+  } @else if (data) {
+    @if (!data.allocationCount) {
+      <div class="ad-state">
+        <i
+          class="pi pi-inbox"
+          aria-hidden="true"
+        ></i>
+        <p>No one has been allocated to this project.</p>
+      </div>
+    } @else {
+      <dl class="ad-stats">
+        <div class="ad-stat">
+          <dt>
+            <i
+              class="pi pi-user"
+              aria-hidden="true"
+            ></i>
+            On site now
+          </dt>
+          <dd>{{ data.current.length }}</dd>
+          <span class="ad-stat__hint">People allocated to this project today</span>
+        </div>
+        <div class="ad-stat">
+          <dt>
+            <i
+              class="pi pi-users"
+              aria-hidden="true"
+            ></i>
+            People in total
+          </dt>
+          <dd>{{ data.totalPeople }}</dd>
+          <span class="ad-stat__hint">Everyone ever allocated here, now or earlier</span>
+        </div>
+        <div class="ad-stat">
+          <dt>
+            <i
+              class="pi pi-list"
+              aria-hidden="true"
+            ></i>
+            Allocations
+          </dt>
+          <dd>{{ data.allocationCount }}</dd>
+          <span class="ad-stat__hint">Times someone was allocated; a person re-allocated counts again</span>
+        </div>
+      </dl>
+
+      <!-- Everyone who was on the project, newest first; the badge says who is still allocated. -->
+      <h3 class="ad-section">History</h3>
+      <div>
+        @for (year of data.years; track year.year) {
+          <div class="ad-year">{{ year.year }}</div>
+          <ol class="ad-timeline">
+            @for (entry of year.entries; track entry.id) {
+              @let isAllocated = entry.end === null;
+              <li
+                class="ad-event"
+                [class.ad-event--current]="isAllocated"
+              >
+                <div class="ad-event__date">
+                  <span class="ad-event__day">{{ entry.start | date: DATE_FORMATS.DAY_MONTH }}</span>
+                  <span class="ad-event__to">{{ untilLabel(entry.start, entry.end) }}</span>
+                </div>
+                <span
+                  class="ad-event__rail"
+                  aria-hidden="true"
+                ></span>
+                <div
+                  class="ad-card"
+                  [class.ad-card--ended]="!isAllocated"
+                >
+                  <div class="ad-card__head">
+                    <span class="ad-card__title">{{ entry.fullName }}</span>
+                    @if (isAllocated) {
+                      <span class="ad-badge">Allocated</span>
+                    } @else {
+                      <span class="ad-badge ad-badge--ended">Deallocated</span>
+                    }
+                  </div>
+                  <span class="ad-card__meta">{{ entry.employeeId }}</span>
+                  <div class="ad-chips">
+                    <span class="ad-chip">
+                      <i
+                        class="pi pi-briefcase"
+                        aria-hidden="true"
+                      ></i>
+                      {{ entry.role }}
+                    </span>
+                    <span class="ad-chip">
+                      <i
+                        class="pi pi-clock"
+                        aria-hidden="true"
+                      ></i>
+                      {{ daysLabel(entry.days) }}
+                    </span>
+                    @if (entry.allocatedBy) {
+                      <span class="ad-chip">
+                        <i
+                          class="pi pi-user-plus"
+                          aria-hidden="true"
+                        ></i>
+                        Allocated by {{ entry.allocatedBy }}
+                      </span>
+                    }
+                    @if (entry.removedBy) {
+                      <span class="ad-chip">
+                        <i
+                          class="pi pi-user-minus"
+                          aria-hidden="true"
+                        ></i>
+                        Removed by {{ entry.removedBy }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              </li>
+            }
+          </ol>
+        }
+      </div>
+    }
+  }
+</section>

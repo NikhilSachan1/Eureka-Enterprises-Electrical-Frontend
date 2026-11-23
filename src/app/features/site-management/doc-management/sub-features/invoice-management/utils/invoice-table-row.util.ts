@@ -2,8 +2,9 @@ import { IInvoiceGetBaseResponseDto } from '../types/invoice.dto';
 import { EApprovalStatus, EDataType } from '@shared/types';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { APP_CONFIG } from '@core/config';
-import { roundCurrencyAmount } from '@shared/utility';
+import { roundCurrencyAmount, transformDateFormat } from '@shared/utility';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import { EDocAmountTone } from '@features/site-management/doc-management/shared/types/doc-amount.types';
 
 function normalizeInvoiceApprovalStatus(
   status: string | null | undefined
@@ -106,6 +107,7 @@ function buildInvoiceAmountEmptyPlaceholderSegment(): IDocAmountSegment {
   return {
     dataType: EDataType.CURRENCY,
     label: '',
+    tone: EDocAmountTone.NEUTRAL,
     value: null,
   };
 }
@@ -198,6 +200,7 @@ export function buildInvoiceBookedPaidSegments(
     segments.push({
       dataType: EDataType.CURRENCY,
       label: 'Booked',
+      tone: EDocAmountTone.BOOKED,
       value: source.bookedTotal,
     });
   }
@@ -205,16 +208,19 @@ export function buildInvoiceBookedPaidSegments(
     {
       dataType: EDataType.CURRENCY,
       label: 'Paid',
+      tone: EDocAmountTone.PAID,
       value: source.paidTotal,
     },
     {
       dataType: EDataType.CURRENCY,
       label: 'Advance paid',
+      tone: EDocAmountTone.PAID,
       value: source.advanceSettledAmount,
     },
     {
       dataType: EDataType.CURRENCY,
       label: 'Remaining',
+      tone: EDocAmountTone.PENDING,
       value: invoiceAdvanceRemainingAmount(source),
     }
   );
@@ -248,6 +254,7 @@ export function buildInvoiceTaxSettlementSegments(
     segments.push({
       dataType: EDataType.CURRENCY,
       label: isSales ? 'Held GST (by client)' : 'Held GST',
+      tone: EDocAmountTone.NEUTRAL,
       value: gst.gstAmount,
       suffix: settled
         ? `${settledWord}${gst.settledAt ? ` · ${formatInvoiceShortDate(gst.settledAt)}` : ''}`
@@ -268,6 +275,7 @@ export function buildInvoiceTaxSettlementSegments(
     segments.push({
       dataType: EDataType.CURRENCY,
       label: 'TDS',
+      tone: EDocAmountTone.DEDUCTION,
       value: tds.tdsAmount,
       suffix,
     });
@@ -280,11 +288,7 @@ function formatInvoiceShortDate(value: string): string {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? value
-    : date.toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      });
+    : transformDateFormat(date, APP_CONFIG.DATE_FORMATS.DEFAULT);
 }
 
 export function buildInvoiceAdvanceSettlementFlowSegments(
@@ -304,6 +308,7 @@ export function buildInvoiceAdvanceSettlementFlowSegments(
       {
         dataType: EDataType.CURRENCY,
         label: settlement.advanceNumber,
+        tone: EDocAmountTone.NEUTRAL,
         value: settlement.amount,
       },
     ];
@@ -311,6 +316,7 @@ export function buildInvoiceAdvanceSettlementFlowSegments(
       segments.push({
         dataType: EDataType.DATE,
         label: '',
+        tone: EDocAmountTone.NEUTRAL,
         value: settlement.settledAt,
       });
     }
@@ -339,17 +345,20 @@ export function buildInvoiceTaxGstAmountSegments(input: {
     {
       dataType: EDataType.CURRENCY,
       label: 'Taxable',
+      tone: EDocAmountTone.TAXABLE,
       value: input.taxableAmount,
     },
     {
       dataType: EDataType.CURRENCY,
       label: 'TDS',
+      tone: EDocAmountTone.DEDUCTION,
       value: input.tdsAmount,
       suffix: formatInvoicePercentSuffix(input.tdsPercentage),
     },
     {
       dataType: EDataType.CURRENCY,
       label: 'GST',
+      tone: EDocAmountTone.GST,
       value: input.gstAmount,
       suffix: buildInvoiceGstAmountSuffix(
         formatInvoicePercentSuffix(input.gstPercentage),
@@ -361,6 +370,7 @@ export function buildInvoiceTaxGstAmountSegments(input: {
     {
       dataType: EDataType.CURRENCY,
       label: 'Total',
+      tone: EDocAmountTone.TOTAL,
       value: input.totalAmount,
     },
   ];

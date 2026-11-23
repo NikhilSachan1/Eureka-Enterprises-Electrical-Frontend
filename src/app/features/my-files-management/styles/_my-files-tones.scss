@@ -1,0 +1,58 @@
+// One colour per item kind, shared by the My Files page and the item preview, so a PDF
+// is always red, a spreadsheet green, and so on. Use on any element with data-tone.
+@mixin tone-vars {
+  --mf-tone: #64748b;
+
+  &[data-tone="folder"] {
+    --mf-tone: #d97706;
+  }
+
+  &[data-tone="pdf"] {
+    --mf-tone: #dc2626;
+  }
+
+  &[data-tone="image"] {
+    --mf-tone: #7c3aed;
+  }
+
+  &[data-tone="spreadsheet"] {
+    --mf-tone: #059669;
+  }
+
+  &[data-tone="document"] {
+    --mf-tone: #2563eb;
+  }
+
+  &[data-tone="presentation"] {
+    --mf-tone: #ea580c;
+  }
+}
+
+// Soft tinted square with the coloured icon: the item's "thumbnail".
+@mixin tone-tile($size) {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: $size;
+  height: $size;
+  border-radius: calc(#{$size} * 0.26);
+  color: var(--mf-tone);
+  background: color-mix(in srgb, var(--mf-tone) 12%, var(--background-paper-color));
+}
+
+// Small "PDF" / "XLSX" tag pinned to the tile's corner.
+@mixin tone-ext {
+  position: absolute;
+  right: -0.3rem;
+  bottom: -0.3rem;
+  padding: 0.05rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  color: #fff;
+  background: var(--mf-tone);
+}
