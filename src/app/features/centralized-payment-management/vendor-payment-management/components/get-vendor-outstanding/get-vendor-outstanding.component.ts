@@ -391,7 +391,7 @@ export class GetVendorOutstandingComponent implements OnInit {
         },
         error: error => {
           this.vendorGroups.set([]);
-          this.vendorTable.setData([]);
+          this.vendorTable.setLoadError();
           this.vendorTable.updateTableConfig({ totalRecords: 0 });
           this.emitSectionSummary(0, null);
           this.logger.logUserAction('Failed to load vendor outstanding', error);

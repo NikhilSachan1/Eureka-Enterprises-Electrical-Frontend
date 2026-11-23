@@ -349,7 +349,7 @@ export class GetAssetComponent implements OnInit {
           this.logger.logUserAction('Asset records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.assetStats.set(null);
           this.logger.logUserAction('Failed to load asset records', error);
         },

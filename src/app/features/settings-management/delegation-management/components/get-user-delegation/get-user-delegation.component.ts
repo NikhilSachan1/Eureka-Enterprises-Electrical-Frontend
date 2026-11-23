@@ -99,7 +99,7 @@ export class GetUserDelegationComponent implements OnInit {
           this.logger.logUserAction('Delegation records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.logger.logUserAction('Failed to load delegation records', error);
         },
       });

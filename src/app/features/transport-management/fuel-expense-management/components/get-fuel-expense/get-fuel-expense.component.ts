@@ -305,7 +305,7 @@ export class GetFuelExpenseComponent implements OnInit {
           this.logger.logUserAction('Fuel expense records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.fuelExpenseStats.set(null);
           this.payNowClosingBalance.set(null);
           this.payNowEmployeeId.set(null);

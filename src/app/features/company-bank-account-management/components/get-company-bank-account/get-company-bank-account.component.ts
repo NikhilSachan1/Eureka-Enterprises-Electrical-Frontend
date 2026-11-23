@@ -106,7 +106,7 @@ export class GetCompanyBankAccountComponent implements OnInit {
           );
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.logger.logUserAction(
             'Failed to load company bank account records',
             error

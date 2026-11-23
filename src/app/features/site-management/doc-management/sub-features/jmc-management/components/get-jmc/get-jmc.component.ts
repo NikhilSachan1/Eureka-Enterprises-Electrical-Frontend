@@ -148,7 +148,7 @@ export class GetJmcComponent implements OnInit {
           return this.jmcService.getJmcList(this.prepareParamData()).pipe(
             finalize(() => this.table.setLoading(false)),
             catchError(error => {
-              this.table.setData([]);
+              this.table.setLoadError();
               this.logger.logUserAction('Failed to load JMC records', error);
               return EMPTY;
             })

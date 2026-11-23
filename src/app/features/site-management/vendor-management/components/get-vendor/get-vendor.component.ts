@@ -124,7 +124,7 @@ export class GetVendorComponent implements OnInit {
           this.logger.logUserAction('Vendor records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.vendorStats.set(null);
           this.logger.logUserAction('Failed to load vendor records', error);
         },

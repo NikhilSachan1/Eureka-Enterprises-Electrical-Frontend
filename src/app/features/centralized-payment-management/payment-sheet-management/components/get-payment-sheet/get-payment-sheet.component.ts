@@ -337,7 +337,7 @@ export class GetPaymentSheetComponent implements OnInit {
         },
         error: error => {
           this.paymentSheetStats.set(null);
-          this.table.setData([]);
+          this.table.setLoadError();
           this.table.updateTableConfig({ totalRecords: 0 });
           this.logger.logUserAction('Failed to load payment sheets', error);
         },

@@ -138,7 +138,7 @@ export class GetVehicleServiceComponent implements OnInit {
           );
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.vehicleServiceStats.set(null);
           this.logger.logUserAction(
             'Failed to load vehicle service records',

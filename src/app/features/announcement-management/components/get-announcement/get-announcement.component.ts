@@ -126,7 +126,7 @@ export class GetAnnouncementComponent implements OnInit {
           this.logger.logUserAction('Announcement records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.announcementStats.set(null);
           this.logger.logUserAction(
             'Failed to load announcement records',

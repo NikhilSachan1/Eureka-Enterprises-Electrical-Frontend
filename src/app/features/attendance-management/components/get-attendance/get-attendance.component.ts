@@ -136,7 +136,7 @@ export class GetAttendanceComponent implements OnInit {
           this.logger.logUserAction('Attendance records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.attendanceStats.set(null);
           this.logger.logUserAction('Failed to load attendance records', error);
         },

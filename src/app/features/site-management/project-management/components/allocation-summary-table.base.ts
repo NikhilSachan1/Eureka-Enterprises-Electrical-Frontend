@@ -58,7 +58,7 @@ export abstract class AllocationSummaryTableBase<TRecord, TRow extends object> {
           return this.fetchPage(this.buildParams()).pipe(
             finalize(() => this.table.setLoading(false)),
             catchError(error => {
-              this.table.setData([]);
+              this.table.setLoadError();
               this.table.updateTableConfig({ totalRecords: 0 });
               this.logger.logUserAction(
                 `Failed to load ${this.summaryName}`,

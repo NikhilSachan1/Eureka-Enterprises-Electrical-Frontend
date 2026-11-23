@@ -212,7 +212,7 @@ export class GetLeaveComponent implements OnInit {
           this.logger.logUserAction('Leave applications loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.leaveStats.set(null);
           this.showLeaveBalanceMetrics.set(false);
           this.logger.logUserAction('Failed to load leave applications', error);

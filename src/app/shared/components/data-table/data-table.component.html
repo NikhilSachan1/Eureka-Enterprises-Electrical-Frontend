@@ -1050,7 +1050,21 @@
   "Clear filters"; otherwise it shows the table's own "no records yet" message.
 -->
 <ng-template #emptyState>
-  @if (hasActiveFilters()) {
+  @if (tableConfig().loadFailed) {
+    <!-- The load failed: say so and offer to retry, rather than "no records". -->
+    <app-empty-messages
+      [icon]="loadErrorState.icon"
+      [title]="loadErrorState.title"
+      [description]="loadErrorState.description"
+    >
+      @if (canRetryLoad()) {
+        <app-button
+          [buttonConfig]="retryButtonConfig"
+          (onButtonClick)="retryLoad()"
+        />
+      }
+    </app-empty-messages>
+  } @else if (hasActiveFilters()) {
     <app-empty-messages
       [icon]="filteredEmptyState.icon"
       [title]="filteredEmptyState.title"

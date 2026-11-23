@@ -186,7 +186,7 @@ export class GetEmployeeComponent implements OnInit {
           this.logger.logUserAction('Employee records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.employeeStats.set(null);
           this.logger.error(EMPLOYEE_MESSAGES.ERROR.GET_LIST, error);
           this.notificationService.error(EMPLOYEE_MESSAGES.ERROR.GET_LIST);

@@ -125,7 +125,7 @@ export class GetContractorComponent implements OnInit {
           this.logger.logUserAction('Contractor records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.contractorStats.set(null);
           this.logger.logUserAction('Failed to load contractor records', error);
         },

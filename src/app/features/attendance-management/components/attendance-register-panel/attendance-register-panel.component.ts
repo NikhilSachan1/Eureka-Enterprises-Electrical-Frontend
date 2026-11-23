@@ -157,7 +157,7 @@ export class AttendanceRegisterPanelComponent implements OnInit {
 
     if (!report) {
       this.table.updateHeaders([]);
-      this.table.setData([]);
+      this.table.setLoadError();
       return;
     }
 

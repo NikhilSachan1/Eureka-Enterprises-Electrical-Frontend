@@ -156,7 +156,7 @@ export class GetGstEntryComponent implements OnInit {
           return this.gstService.getGstEntryList(this.prepareParamData()).pipe(
             finalize(() => this.table.setLoading(false)),
             catchError(error => {
-              this.table.setData([]);
+              this.table.setLoadError();
               this.logger.logUserAction(
                 'Failed to load GST register entries',
                 error

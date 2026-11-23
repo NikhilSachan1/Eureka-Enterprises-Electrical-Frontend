@@ -193,7 +193,7 @@ export class GetPoComponent implements OnInit {
           return this.poService.getPoList(this.prepareParamData()).pipe(
             finalize(() => this.table.setLoading(false)),
             catchError(error => {
-              this.table.setData([]);
+              this.table.setLoadError();
               this.logger.logUserAction('Failed to load PO records', error);
               return EMPTY;
             })

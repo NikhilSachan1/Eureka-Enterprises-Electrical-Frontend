@@ -190,7 +190,7 @@ export class GetProjectComponent implements OnInit {
           this.logger.logUserAction('Project records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.projectStats.set(null);
           this.logger.logUserAction('Failed to load project records', error);
         },

@@ -23,6 +23,11 @@ export interface IEnhancedTable {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setData(data: Record<string, any>[]): Signal<Record<string, unknown>[]>;
   setLoading(loading: boolean): Signal<boolean>;
+  /**
+   * Marks the load as failed: the table empties and shows an error with "Try again"
+   * (which repeats the last load request) instead of "no records".
+   */
+  setLoadError(): void;
   updateTableConfig(
     config: Partial<IDataTableConfig>
   ): Signal<IDataTableConfig>;

@@ -75,7 +75,7 @@ export class GetCronComponent implements OnInit {
           this.logger.logUserAction('Cron jobs loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.table.updateTableConfig({ totalRecords: 0 });
           this.logger.logUserAction('Failed to load cron jobs', error);
         },

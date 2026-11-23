@@ -180,7 +180,7 @@ export class GetPetroCardWalletComponent implements OnInit {
             totalRecords: response.totalRecords,
           });
         },
-        error: () => this.rechargeTable.setData([]),
+        error: () => this.rechargeTable.setLoadError(),
       });
   }
 

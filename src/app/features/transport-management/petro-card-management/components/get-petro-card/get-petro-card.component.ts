@@ -119,7 +119,7 @@ export class GetPetroCardComponent implements OnInit {
           this.logger.logUserAction('Petro card records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.petroCardStats.set(null);
           this.logger.logUserAction('Failed to load petro card records', error);
         },

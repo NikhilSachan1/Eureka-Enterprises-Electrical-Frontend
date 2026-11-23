@@ -89,6 +89,8 @@ import { registerActiveBulkTable } from './active-bulk-table';
 import {
   DATA_TABLE_CLEAR_FILTERS_BUTTON_CONFIG,
   DATA_TABLE_FILTERED_EMPTY_STATE,
+  DATA_TABLE_LOAD_ERROR_STATE,
+  DATA_TABLE_RETRY_BUTTON_CONFIG,
   DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
   DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
   DEFAULT_READ_MORE_CONFIG,
@@ -184,6 +186,8 @@ export class DataTableComponent {
   protected readonly filteredEmptyState = DATA_TABLE_FILTERED_EMPTY_STATE;
   protected readonly clearFiltersButtonConfig =
     DATA_TABLE_CLEAR_FILTERS_BUTTON_CONFIG;
+  protected readonly loadErrorState = DATA_TABLE_LOAD_ERROR_STATE;
+  protected readonly retryButtonConfig = DATA_TABLE_RETRY_BUTTON_CONFIG;
 
   protected readonly showTableLoading = computed(
     () => this.loading() || this.searchFilterUrlRestore.hasPendingRestore()
@@ -333,6 +337,8 @@ export class DataTableComponent {
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
   private lastEmittedSelectionKey = '';
   private initialLazyLoadEmitted = false;
+  /** The last load request sent to the page; "Try again" sends it once more. */
+  private lastLazyLoadEvent: TableLazyLoadEvent | null = null;
   private viewReady = false;
   private paginationRestoredFromUrl = false;
   /** Placeholder rows while loading: the page size, between the default and the max. */
@@ -911,8 +917,22 @@ export class DataTableComponent {
       this.paginationRows.set(newRows);
     }
 
+    this.lastLazyLoadEvent = lazyLoadEvent;
     this.filterData.emit(lazyLoadEvent);
     this.syncPaginationToUrl(newFirst, newRows);
+  }
+
+  /** "Try again" is offered when the page loads through the table (server-side tables). */
+  protected canRetryLoad(): boolean {
+    return this.lastLazyLoadEvent !== null;
+  }
+
+  /** Repeats the last load request after a failed load. */
+  protected retryLoad(): void {
+    if (this.lastLazyLoadEvent) {
+      this.logger.logUserAction('Retry table load', this.lastLazyLoadEvent);
+      this.filterData.emit(this.lastLazyLoadEvent);
+    }
   }
 
   private withCurrentTableFilters(

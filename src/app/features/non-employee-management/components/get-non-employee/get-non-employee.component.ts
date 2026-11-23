@@ -96,13 +96,15 @@ export class GetNonEmployeeComponent implements OnInit {
           this.table.updateTableConfig({ totalRecords });
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.logger.error('Failed to load non employee list', error);
         },
       });
   }
 
-  private mapTableData(records: INonEmployeeGetBaseResponseDto[]) {
+  private mapTableData(
+    records: INonEmployeeGetBaseResponseDto[]
+  ): Record<string, unknown>[] {
     return records.map(record => ({
       ...record,
       name: this.fullName(record),

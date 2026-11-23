@@ -103,7 +103,7 @@ export class GetUserComponent implements OnInit {
           this.logger.logUserAction('Users loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.logger.logUserAction('Failed to load users', error);
         },
       });

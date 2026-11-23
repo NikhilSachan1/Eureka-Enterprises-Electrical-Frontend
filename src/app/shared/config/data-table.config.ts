@@ -154,6 +154,23 @@ export const DATA_TABLE_FILTERED_EMPTY_STATE = {
     'Nothing matches the search or filters you applied. Try changing them, or clear them to see everything.',
 };
 
+/** Shown when the table's data could not be loaded (instead of "no records"). */
+export const DATA_TABLE_LOAD_ERROR_STATE = {
+  icon: ICONS.COMMON.EXCLAMATION_TRIANGLE,
+  title: 'Could not load the records',
+  description:
+    'Something went wrong while loading. Check your connection and try again.',
+};
+
+/** Button in the load error state; repeats the table's last load request. */
+export const DATA_TABLE_RETRY_BUTTON_CONFIG: Partial<IButtonConfig> = {
+  id: EButtonActionType.RETRY,
+  label: 'Try again',
+  icon: ICONS.COMMON.REFRESH,
+  variant: EButtonVariant.OUTLINED,
+  severity: EButtonSeverity.SECONDARY,
+};
+
 /** Button in the filtered empty state; runs the table's search filter reset. */
 export const DATA_TABLE_CLEAR_FILTERS_BUTTON_CONFIG: Partial<IButtonConfig> = {
   id: EButtonActionType.RESET,

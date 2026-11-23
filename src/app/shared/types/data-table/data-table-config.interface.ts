@@ -28,6 +28,11 @@ export interface IDataTableConfig {
    * `showInEmptyState` (e.g. "Add Asset"). Set false to hide it for this table.
    */
   showEmptyStateAction?: boolean;
+  /**
+   * The last load failed: the table shows an error with "Try again" instead of "no records".
+   * Set through IEnhancedTable.setLoadError(); cleared by the next setData / setLoading(true).
+   */
+  loadFailed?: boolean;
   paginationTemplate: string;
   totalRecords?: number;
   enableServerSide: boolean;

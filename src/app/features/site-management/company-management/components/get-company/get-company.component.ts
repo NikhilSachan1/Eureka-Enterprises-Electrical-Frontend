@@ -124,7 +124,7 @@ export class GetCompanyComponent implements OnInit {
           this.logger.logUserAction('Company records loaded successfully');
         },
         error: error => {
-          this.table.setData([]);
+          this.table.setLoadError();
           this.companyStats.set(null);
           this.logger.logUserAction('Failed to load company records', error);
         },
