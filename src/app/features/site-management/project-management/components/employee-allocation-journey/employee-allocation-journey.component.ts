@@ -34,7 +34,7 @@ import { APP_CONFIG } from '@core/config';
   selector: 'app-employee-allocation-journey',
   imports: [DatePipe],
   templateUrl: './employee-allocation-journey.component.html',
-  styleUrl: '../allocation-drawer.scss',
+  styleUrl: '../../../../../shared/styles/timeline-drawer.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeAllocationJourneyComponent extends DrawerDetailBase {

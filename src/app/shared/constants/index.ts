@@ -36,3 +36,4 @@ export {
   API_ERROR_MAX_REASONS,
   API_ERROR_TOAST_MERGE_DELAY_MS,
 } from './api-error.constants';
+export { MS_PER_DAY } from './calendar-day.constants';

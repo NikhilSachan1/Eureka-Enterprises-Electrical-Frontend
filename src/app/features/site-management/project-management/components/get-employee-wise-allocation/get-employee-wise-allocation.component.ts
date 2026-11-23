@@ -22,12 +22,12 @@ import {
 import { buildWorkspaceEmployeeFilterFieldConfig } from '../../utility/project-allocated-employee-filter.util';
 import { ProjectService } from '../../services/project.service';
 import {
-  IAllocationSummaryGetFormDto,
+  IWorkspaceSummaryGetFormDto,
   IEmployeeAllocationSummaryDto,
   IEmployeeAllocationSummaryGetResponseDto,
 } from '../../types/project.dto';
 import { IEmployeeAllocationSummaryRow } from '../../types/site-allocation.interface';
-import { AllocationSummaryTableBase } from '../allocation-summary-table.base';
+import { WorkspaceSummaryTableBase } from '../workspace-summary-table.base';
 import { EmployeeAllocationJourneyComponent } from '../employee-allocation-journey/employee-allocation-journey.component';
 
 /** One row per employee allocated under the workspace filters, summed on the server. */
@@ -35,10 +35,10 @@ import { EmployeeAllocationJourneyComponent } from '../employee-allocation-journ
   selector: 'app-get-employee-wise-allocation',
   imports: [DataTableComponent, PageHeaderComponent, InputFieldComponent],
   templateUrl: './get-employee-wise-allocation.component.html',
-  styleUrl: '../allocation-summary.scss',
+  styleUrl: '../../../../../shared/styles/summary-cell.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GetEmployeeWiseAllocationComponent extends AllocationSummaryTableBase<
+export class GetEmployeeWiseAllocationComponent extends WorkspaceSummaryTableBase<
   IEmployeeAllocationSummaryDto,
   IEmployeeAllocationSummaryRow
 > {
@@ -70,12 +70,12 @@ export class GetEmployeeWiseAllocationComponent extends AllocationSummaryTableBa
   );
 
   protected fetchPage(
-    params: IAllocationSummaryGetFormDto
+    params: IWorkspaceSummaryGetFormDto
   ): Observable<IEmployeeAllocationSummaryGetResponseDto> {
     return this.projectService.getEmployeeAllocationSummary(params);
   }
 
-  protected override extraParams(): Partial<IAllocationSummaryGetFormDto> {
+  protected override extraParams(): Partial<IWorkspaceSummaryGetFormDto> {
     const employeeName = this.selectedEmployeeId();
     return employeeName ? { employeeName } : {};
   }

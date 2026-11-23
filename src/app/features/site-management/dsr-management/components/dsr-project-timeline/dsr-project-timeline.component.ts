@@ -30,7 +30,7 @@ import { APP_CONFIG } from '@core/config';
   imports: [DatePipe],
   templateUrl: './dsr-project-timeline.component.html',
   styleUrls: [
-    '../../../project-management/components/allocation-drawer.scss',
+    '../../../../../shared/styles/timeline-drawer.scss',
     './dsr-project-timeline.component.scss',
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

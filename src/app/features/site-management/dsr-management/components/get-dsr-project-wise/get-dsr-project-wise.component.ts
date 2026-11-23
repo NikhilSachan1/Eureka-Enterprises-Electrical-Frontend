@@ -5,16 +5,17 @@ import { AppPermissionService } from '@core/services';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
-import { AllocationSummaryTableBase } from '@features/site-management/project-management/components/allocation-summary-table.base';
-import type { IAllocationSummaryGetFormDto } from '@features/site-management/project-management/types/project.dto';
-import {
-  parseDate,
-  toDayNumber,
-} from '@features/site-management/project-management/utility/allocation-journey.util';
+import { WorkspaceSummaryTableBase } from '@features/site-management/project-management/components/workspace-summary-table.base';
+import type { IWorkspaceSummaryGetFormDto } from '@features/site-management/project-management/types/project.dto';
+
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { AppConfigurationService, TableService } from '@shared/services';
 import { EButtonActionType, ITableActionClickEvent } from '@shared/types';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  getMappedValueFromArrayOfObjects,
+  parseCalendarDay,
+  toDayNumber,
+} from '@shared/utility';
 import { DSR_PROJECT_WISE_TABLE_ENHANCED_CONFIG } from '../../config/table/get-dsr-project-summary.config';
 import { DSR_STALE_AFTER_DAYS } from '../../constants/dsr-summary.constants';
 import { DsrService } from '../../services/dsr.service';
@@ -32,12 +33,12 @@ import { APP_CONFIG } from '@core/config';
   imports: [DataTableComponent, DocWorkspaceContextComponent, DatePipe],
   templateUrl: './get-dsr-project-wise.component.html',
   styleUrls: [
-    '../../../project-management/components/allocation-summary.scss',
+    '../../../../../shared/styles/summary-cell.scss',
     './get-dsr-project-wise.component.scss',
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GetDsrProjectWiseComponent extends AllocationSummaryTableBase<
+export class GetDsrProjectWiseComponent extends WorkspaceSummaryTableBase<
   IDsrProjectSummaryDto,
   IDsrProjectSummaryRow
 > {
@@ -54,7 +55,7 @@ export class GetDsrProjectWiseComponent extends AllocationSummaryTableBase<
   );
 
   protected fetchPage(
-    params: IAllocationSummaryGetFormDto
+    params: IWorkspaceSummaryGetFormDto
   ): Observable<IDsrProjectSummaryGetResponseDto> {
     const {
       projectName,
@@ -77,7 +78,7 @@ export class GetDsrProjectWiseComponent extends AllocationSummaryTableBase<
   }
 
   protected toRow(record: IDsrProjectSummaryDto): IDsrProjectSummaryRow {
-    const lastReportDate = parseDate(record.lastReportDate);
+    const lastReportDate = parseCalendarDay(record.lastReportDate);
     const daysSinceLastReport = lastReportDate
       ? toDayNumber(new Date()) - toDayNumber(lastReportDate)
       : null;

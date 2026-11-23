@@ -135,7 +135,7 @@ export type ISiteAllocationGetBaseResponseDto = z.infer<
 /*
   Allocation summaries (per employee / per project)
 */
-export type IAllocationSummaryGetFormDto = z.input<
+export type IWorkspaceSummaryGetFormDto = z.input<
   typeof AllocationSummaryGetRequestSchema
 >;
 export type IEmployeeAllocationSummaryDto = z.infer<

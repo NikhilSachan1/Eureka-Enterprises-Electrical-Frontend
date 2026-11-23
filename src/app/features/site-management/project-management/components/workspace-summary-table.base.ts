@@ -22,15 +22,15 @@ import {
 } from '@shared/services';
 import { IEnhancedTable } from '@shared/types';
 import { ProjectWorkspaceContextService } from '../services/project-workspace-context.service';
-import { IAllocationSummaryGetFormDto } from '../types/project.dto';
+import { IWorkspaceSummaryGetFormDto } from '../types/project.dto';
 
 /**
- * A summary tab of the allocation history ("Employee wise" / "Project wise"): the server sums the
- * allocations and returns one page of rows, filtered by the workspace project and dates.
- * Reloads when the table page changes or the workspace filters are applied.
+ * A summary tab of the project workspace (allocation "Employee wise" / "Project wise", DSR
+ * "Project wise"): the server sums the rows and returns one page, filtered by the workspace
+ * project and dates. Reloads when the table page changes or the workspace filters are applied.
  */
 @Directive()
-export abstract class AllocationSummaryTableBase<TRecord, TRow extends object> {
+export abstract class WorkspaceSummaryTableBase<TRecord, TRow extends object> {
   protected readonly workspaceContext = inject(ProjectWorkspaceContextService);
   protected readonly drawerService = inject(DrawerService);
   protected readonly logger = inject(LoggerService);
@@ -45,7 +45,7 @@ export abstract class AllocationSummaryTableBase<TRecord, TRow extends object> {
   private readonly loadTrigger$ = new Subject<void>();
 
   protected abstract fetchPage(
-    params: IAllocationSummaryGetFormDto
+    params: IWorkspaceSummaryGetFormDto
   ): Observable<{ records: TRecord[]; totalRecords: number }>;
 
   protected abstract toRow(record: TRecord): TRow;
@@ -90,7 +90,7 @@ export abstract class AllocationSummaryTableBase<TRecord, TRow extends object> {
   }
 
   /** Filters a tab adds on top of the workspace ones (e.g. one employee). */
-  protected extraParams(): Partial<IAllocationSummaryGetFormDto> {
+  protected extraParams(): Partial<IWorkspaceSummaryGetFormDto> {
     return {};
   }
 
@@ -106,9 +106,9 @@ export abstract class AllocationSummaryTableBase<TRecord, TRow extends object> {
     this.loadTrigger$.next();
   }
 
-  private buildParams(): IAllocationSummaryGetFormDto {
+  private buildParams(): IWorkspaceSummaryGetFormDto {
     const tableParams = this.tableFilterData
-      ? this.paramsBuilder.buildQueryParams<IAllocationSummaryGetFormDto>(
+      ? this.paramsBuilder.buildQueryParams<IWorkspaceSummaryGetFormDto>(
           this.tableFilterData,
           this.table.getHeaders()
         )

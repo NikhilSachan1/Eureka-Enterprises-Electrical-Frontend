@@ -12,37 +12,13 @@ import {
   EJourneyEntryKind,
   TJourneyEntry,
 } from '../types/allocation-journey.types';
-import { MS_PER_DAY } from '../constants/site-allocation.constants';
+import { fromDayNumber, parseCalendarDay, toDayNumber } from '@shared/utility';
 
 /**
  * Builds the allocation drawers' data: one employee's journey across projects (with the free
  * days between allocations) and the people of one project. Dates are calendar days; a period's
  * end day is included and a running allocation counts up to today.
  */
-
-export function toDayNumber(value: Date): number {
-  return (
-    Date.UTC(value.getFullYear(), value.getMonth(), value.getDate()) /
-    MS_PER_DAY
-  );
-}
-
-export function fromDayNumber(day: number): Date {
-  const utc = new Date(day * MS_PER_DAY);
-  return new Date(utc.getUTCFullYear(), utc.getUTCMonth(), utc.getUTCDate());
-}
-
-/** Parses an API date (`YYYY-MM-DD`, possibly with a time) as a local calendar date. */
-export function parseDate(value: string | null | undefined): Date | null {
-  if (!value) {
-    return null;
-  }
-  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
-  if (!match) {
-    return null;
-  }
-  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
-}
 
 function roleOf(record: ISiteAllocationGetBaseResponseDto): string {
   const role = record.role?.trim();
@@ -67,7 +43,9 @@ export function endOf(
     return null;
   }
   return (
-    parseDate(record.deallocatedAt) ?? parseDate(record.updatedAt) ?? start
+    parseCalendarDay(record.deallocatedAt) ??
+    parseCalendarDay(record.updatedAt) ??
+    start
   );
 }
 
@@ -117,7 +95,7 @@ export function startsOf(
   records: readonly ISiteAllocationGetBaseResponseDto[]
 ): { record: ISiteAllocationGetBaseResponseDto; start: Date }[] {
   return records
-    .map(record => ({ record, start: parseDate(record.allocatedAt) }))
+    .map(record => ({ record, start: parseCalendarDay(record.allocatedAt) }))
     .filter(
       (
         item
@@ -179,8 +157,8 @@ export function buildEmployeeJourney(
     coveredUntil = Math.max(coveredUntil ?? endDay, endDay);
   }
 
-  const windowFrom = parseDate(window?.from);
-  const windowTo = parseDate(window?.to);
+  const windowFrom = parseCalendarDay(window?.from);
+  const windowTo = parseCalendarDay(window?.to);
   if (windowFrom && windowTo) {
     const fromDay = toDayNumber(windowFrom);
     const toDay = toDayNumber(windowTo);

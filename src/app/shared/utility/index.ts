@@ -96,3 +96,8 @@ export {
   splitLabelForHighlight,
 } from './command-palette.util';
 export { getApiErrorMessage } from './api-error.util';
+export {
+  fromDayNumber,
+  parseCalendarDay,
+  toDayNumber,
+} from './calendar-day.util';

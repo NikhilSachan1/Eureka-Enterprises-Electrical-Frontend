@@ -24,7 +24,7 @@ import { APP_CONFIG } from '@core/config';
   selector: 'app-project-allocation-roster',
   imports: [DatePipe],
   templateUrl: './project-allocation-roster.component.html',
-  styleUrl: '../allocation-drawer.scss',
+  styleUrl: '../../../../../shared/styles/timeline-drawer.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectAllocationRosterComponent extends DrawerDetailBase {

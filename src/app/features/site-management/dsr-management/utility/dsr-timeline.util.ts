@@ -1,11 +1,9 @@
 import type { ISiteAllocationGetBaseResponseDto } from '@features/site-management/project-management/types/project.dto';
 import {
   endOf,
-  fromDayNumber,
-  parseDate,
   startsOf,
-  toDayNumber,
 } from '@features/site-management/project-management/utility/allocation-journey.util';
+import { fromDayNumber, parseCalendarDay, toDayNumber } from '@shared/utility';
 import type { IDsrGetBaseResponseDto } from '../types/dsr.dto';
 import type {
   IDsrProjectTimeline,
@@ -53,7 +51,7 @@ export function buildDsrProjectTimeline(
   const reportsOn = new Map<number, IDsrTimelineReport[]>();
   const reporters = new Set<string>();
   const inWindow = reports.filter(report => {
-    const date = parseDate(report.reportDate);
+    const date = parseCalendarDay(report.reportDate);
     if (!date) {
       return false;
     }
@@ -61,7 +59,7 @@ export function buildDsrProjectTimeline(
     return day <= toDay && (fromDay === null || day >= fromDay);
   });
   for (const report of inWindow) {
-    const day = toDayNumber(parseDate(report.reportDate) ?? new Date());
+    const day = toDayNumber(parseCalendarDay(report.reportDate) ?? new Date());
     reporters.add(report.user.id);
     const list = reportsOn.get(day) ?? [];
     list.push({

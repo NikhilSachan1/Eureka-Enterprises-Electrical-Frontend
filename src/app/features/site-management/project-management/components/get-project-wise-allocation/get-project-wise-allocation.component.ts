@@ -8,12 +8,12 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { PROJECT_WISE_ALLOCATION_TABLE_ENHANCED_CONFIG } from '../../config/table/get-allocation-summary.config';
 import { ProjectService } from '../../services/project.service';
 import {
-  IAllocationSummaryGetFormDto,
+  IWorkspaceSummaryGetFormDto,
   IProjectAllocationSummaryDto,
   IProjectAllocationSummaryGetResponseDto,
 } from '../../types/project.dto';
 import { IProjectAllocationSummaryRow } from '../../types/site-allocation.interface';
-import { AllocationSummaryTableBase } from '../allocation-summary-table.base';
+import { WorkspaceSummaryTableBase } from '../workspace-summary-table.base';
 import { ProjectAllocationRosterComponent } from '../project-allocation-roster/project-allocation-roster.component';
 
 /** One row per project with allocations under the workspace filters, summed on the server. */
@@ -21,10 +21,10 @@ import { ProjectAllocationRosterComponent } from '../project-allocation-roster/p
   selector: 'app-get-project-wise-allocation',
   imports: [DataTableComponent, DocWorkspaceContextComponent],
   templateUrl: './get-project-wise-allocation.component.html',
-  styleUrl: '../allocation-summary.scss',
+  styleUrl: '../../../../../shared/styles/summary-cell.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GetProjectWiseAllocationComponent extends AllocationSummaryTableBase<
+export class GetProjectWiseAllocationComponent extends WorkspaceSummaryTableBase<
   IProjectAllocationSummaryDto,
   IProjectAllocationSummaryRow
 > {
@@ -38,7 +38,7 @@ export class GetProjectWiseAllocationComponent extends AllocationSummaryTableBas
   );
 
   protected fetchPage(
-    params: IAllocationSummaryGetFormDto
+    params: IWorkspaceSummaryGetFormDto
   ): Observable<IProjectAllocationSummaryGetResponseDto> {
     return this.projectService.getProjectAllocationSummary(params);
   }

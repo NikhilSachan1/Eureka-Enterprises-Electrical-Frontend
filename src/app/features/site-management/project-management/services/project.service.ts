@@ -53,7 +53,7 @@ import {
   IWorkforceAllocationGetResponseDto,
   IWorkforceAllocationManageFormDto,
   IWorkforceAllocationManageResponseDto,
-  IAllocationSummaryGetFormDto,
+  IWorkspaceSummaryGetFormDto,
   IEmployeeAllocationSummaryGetResponseDto,
   IProjectAllocationSummaryGetResponseDto,
 } from '../types/project.dto';
@@ -287,7 +287,7 @@ export class ProjectService {
 
   /** Allocation history per employee, one page at a time (summed on the server). */
   getEmployeeAllocationSummary(
-    params: IAllocationSummaryGetFormDto
+    params: IWorkspaceSummaryGetFormDto
   ): Observable<IEmployeeAllocationSummaryGetResponseDto> {
     return this.apiService
       .getValidated(
@@ -308,7 +308,7 @@ export class ProjectService {
 
   /** Allocation history per project, one page at a time (summed on the server). */
   getProjectAllocationSummary(
-    params: IAllocationSummaryGetFormDto
+    params: IWorkspaceSummaryGetFormDto
   ): Observable<IProjectAllocationSummaryGetResponseDto> {
     return this.apiService
       .getValidated(
