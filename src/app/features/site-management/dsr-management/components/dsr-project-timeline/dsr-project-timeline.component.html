@@ -1,0 +1,211 @@
+@let data = timeline();
+
+<section
+  class="ad"
+  [attr.aria-busy]="loading() ? 'true' : null"
+>
+  <header class="ad-hero">
+    <span
+      class="ad-hero__avatar ad-hero__avatar--project"
+      aria-hidden="true"
+    >
+      <i class="pi pi-building"></i>
+    </span>
+    <div class="ad-hero__text">
+      <span class="ad-hero__title">{{ drawerData.projectName }}</span>
+      @if (drawerData.projectLocation) {
+        <span class="ad-hero__sub">
+          <i
+            class="pi pi-map-marker"
+            aria-hidden="true"
+          ></i>
+          {{ drawerData.projectLocation }}
+        </span>
+      }
+    </div>
+    @if (data && data.expectedDays) {
+      <span
+        class="ad-pill"
+        [class.ad-pill--muted]="data.missingDays > 0"
+      >
+        <i
+          class="pi pi-file"
+          aria-hidden="true"
+        ></i>
+        {{ data.missingDays ? data.missingDays + ' days missing' : 'All days reported' }}
+      </span>
+    }
+  </header>
+
+  @if (loading()) {
+    <div
+      class="ad-stats"
+      aria-hidden="true"
+    >
+      @for (placeholder of [1, 2, 3, 4]; track placeholder) {
+        <span class="ad-bone ad-bone--card"></span>
+      }
+    </div>
+    @for (placeholder of [1, 2, 3]; track placeholder) {
+      <span
+        class="ad-bone ad-bone--card"
+        aria-hidden="true"
+      ></span>
+    }
+  } @else if (failed()) {
+    <div
+      class="ad-state"
+      role="alert"
+    >
+      <i
+        class="pi pi-exclamation-triangle"
+        aria-hidden="true"
+      ></i>
+      <p>The project's DSRs could not be loaded.</p>
+      <button
+        type="button"
+        class="ad-retry"
+        (click)="loadTimeline()"
+      >
+        Try again
+      </button>
+    </div>
+  } @else if (data) {
+    @if (!data.months.length) {
+      <div class="ad-state">
+        <i
+          class="pi pi-inbox"
+          aria-hidden="true"
+        ></i>
+        <p>No one was allocated and no DSR was filed for this project.</p>
+      </div>
+    } @else {
+      <dl class="ad-stats">
+        <div class="ad-stat">
+          <dt>
+            <i
+              class="pi pi-calendar"
+              aria-hidden="true"
+            ></i>
+            Days on site
+          </dt>
+          <dd>{{ data.expectedDays }}</dd>
+          <span class="ad-stat__hint">Days someone was allocated here; a DSR is due on each</span>
+        </div>
+        <div class="ad-stat">
+          <dt>
+            <i
+              class="pi pi-check-circle"
+              aria-hidden="true"
+            ></i>
+            Reported
+          </dt>
+          <dd>{{ data.reportedDays }}</dd>
+          <span class="ad-stat__hint">Of those days, ones with at least one DSR</span>
+        </div>
+        <div class="ad-stat">
+          <dt>
+            <i
+              class="pi pi-times-circle"
+              aria-hidden="true"
+            ></i>
+            Missing
+          </dt>
+          <dd [class.dsr-stat-missing]="data.missingDays > 0">{{ data.missingDays }}</dd>
+          <span class="ad-stat__hint">Days on site with no DSR filed</span>
+        </div>
+        <div class="ad-stat">
+          <dt>
+            <i
+              class="pi pi-users"
+              aria-hidden="true"
+            ></i>
+            Reporters
+          </dt>
+          <dd>{{ data.reporters }}</dd>
+          <span class="ad-stat__hint">Different people who filed DSRs here</span>
+        </div>
+      </dl>
+
+      <h3 class="ad-section">History</h3>
+      <div>
+        @for (month of data.months; track month.month.getTime()) {
+          <div class="ad-year">{{ month.month | date: 'MMMM y' }}</div>
+          <ol class="ad-timeline">
+            @for (entry of month.entries; track $index) {
+              @if (entry.kind === EDsrTimelineEntryKind.REPORTED) {
+                <li class="ad-event ad-event--current">
+                  <div class="ad-event__date">
+                    <span class="ad-event__day">{{ entry.day | date: 'd MMM' }}</span>
+                    <span class="ad-event__to">{{ entry.day | date: 'EEE' }}</span>
+                  </div>
+                  <span
+                    class="ad-event__rail"
+                    aria-hidden="true"
+                  ></span>
+                  <div class="dsr-day">
+                    @for (report of entry.reports; track report.id) {
+                      <div class="ad-card">
+                        <div class="ad-card__head">
+                          <span class="ad-card__title">{{ report.reporterName }}</span>
+                          <span class="ad-badge">DSR</span>
+                        </div>
+                        <span class="ad-card__meta">{{ report.employeeId }}</span>
+                        <div class="ad-chips">
+                          @for (work of report.workTypes; track work) {
+                            <span class="ad-chip">
+                              <i
+                                class="pi pi-wrench"
+                                aria-hidden="true"
+                              ></i>
+                              {{ work }}
+                            </span>
+                          }
+                          @if (report.reportingEngineerName) {
+                            <span class="ad-chip">
+                              <i
+                                class="pi pi-user"
+                                aria-hidden="true"
+                              ></i>
+                              Engineer: {{ report.reportingEngineerName }}
+                            </span>
+                          }
+                        </div>
+                        @if (report.remarks) {
+                          <p class="dsr-remarks">{{ report.remarks }}</p>
+                        }
+                      </div>
+                    }
+                  </div>
+                </li>
+              } @else {
+                <li class="ad-gap">
+                  <span></span>
+                  <span
+                    class="ad-event__rail"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="ad-gap__pill dsr-missing">
+                    <i
+                      class="pi pi-times-circle"
+                      aria-hidden="true"
+                    ></i>
+                    No DSR for {{ daysLabel(entry.days) }} ·
+                    @if (entry.days === 1) {
+                      {{ entry.start | date: 'd MMM' }}
+                    } @else {
+                      {{ entry.start | date: 'd MMM' }} – {{ entry.end | date: 'd MMM' }}
+                    }
+                    @if (entry.allocatedPeople.length) {
+                      · on site: {{ entry.allocatedPeople.join(', ') }}
+                    }
+                  </span>
+                </li>
+              }
+            }
+          </ol>
+        }
+      </div>
+    }
+  }
+</section>

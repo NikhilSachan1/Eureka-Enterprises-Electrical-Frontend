@@ -1,0 +1,109 @@
+<ng-template
+  #docWorkspaceContext
+  let-row
+>
+  <app-doc-workspace-context [view]="$any(row).docWorkspaceContext" />
+</ng-template>
+
+<!-- Days with a DSR out of the days someone was on site, as a bar and figures. -->
+<ng-template
+  #reporting
+  let-row
+>
+  @let r = $any(row);
+  @if (r.expectedDays === 0) {
+    @if (r.reportCount > 0) {
+      <div class="allocation-summary-cell">
+        <span class="allocation-summary-figures">
+          <strong>{{ r.reportCount }}</strong>
+          {{ r.reportCount === 1 ? 'report' : 'reports' }}
+        </span>
+        <span class="allocation-summary-sub">No one allocated on those days</span>
+      </div>
+    } @else {
+      <span class="allocation-summary-muted">No one allocated</span>
+    }
+  } @else {
+    <div class="allocation-summary-cell">
+      <div
+        class="allocation-summary-bar"
+        role="img"
+        [attr.aria-label]="r.reportedDays + ' of ' + r.expectedDays + ' days reported'"
+      >
+        <span
+          class="allocation-summary-bar__fill"
+          [style.width.%]="r.reportedPercent"
+        ></span>
+      </div>
+      <span class="allocation-summary-figures">
+        <strong>{{ r.reportedDays }}</strong>
+        of {{ r.expectedDays }} days reported
+      </span>
+      <span class="allocation-summary-sub">
+        @if (r.missingDays > 0) {
+          <span class="dsr-summary-missing">{{ r.missingDays }} missing</span>
+        } @else {
+          All reported
+        }
+        · {{ r.reporters }} {{ r.reporters === 1 ? 'reporter' : 'reporters' }}
+      </span>
+    </div>
+  }
+</ng-template>
+
+<!-- When the last DSR came in; flagged when it is old and days are missing. -->
+<ng-template
+  #lastReport
+  let-row
+>
+  @let r = $any(row);
+  @if (r.lastReportDate) {
+    <div class="allocation-summary-cell">
+      <span
+        class="allocation-summary-figures"
+        [class.dsr-summary-stale]="r.isStale"
+      >
+        @if (r.isStale) {
+          <i
+            class="pi pi-exclamation-triangle"
+            aria-hidden="true"
+          ></i>
+        }
+        @switch (r.daysSinceLastReport) {
+          @case (0) {
+            Today
+          }
+          @case (1) {
+            Yesterday
+          }
+          @default {
+            {{ r.daysSinceLastReport }} days ago
+          }
+        }
+      </span>
+      <span class="allocation-summary-sub">{{ r.lastReportDate | date: 'd MMM y' }}</span>
+    </div>
+  } @else {
+    <span
+      class="allocation-summary-muted"
+      [class.dsr-summary-stale]="r.isStale"
+    >
+      Never
+    </span>
+  }
+</ng-template>
+
+<app-data-table
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{
+    docWorkspaceContext: docWorkspaceContext,
+    reporting: reporting,
+    lastReport: lastReport,
+  }"
+  (filterData)="onTableStateChange($event)"
+  (rowActionClick)="onRowActionClick($event)"
+/>

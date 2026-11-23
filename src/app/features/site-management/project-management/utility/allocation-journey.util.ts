@@ -20,20 +20,20 @@ import { MS_PER_DAY } from '../constants/site-allocation.constants';
  * end day is included and a running allocation counts up to today.
  */
 
-function toDayNumber(value: Date): number {
+export function toDayNumber(value: Date): number {
   return (
     Date.UTC(value.getFullYear(), value.getMonth(), value.getDate()) /
     MS_PER_DAY
   );
 }
 
-function fromDayNumber(day: number): Date {
+export function fromDayNumber(day: number): Date {
   const utc = new Date(day * MS_PER_DAY);
   return new Date(utc.getUTCFullYear(), utc.getUTCMonth(), utc.getUTCDate());
 }
 
 /** Parses an API date (`YYYY-MM-DD`, possibly with a time) as a local calendar date. */
-function parseDate(value: string | null | undefined): Date | null {
+export function parseDate(value: string | null | undefined): Date | null {
   if (!value) {
     return null;
   }
@@ -59,7 +59,7 @@ function isRunning(record: ISiteAllocationGetBaseResponseDto): boolean {
  * When an allocation ended, or null while it runs. Old data has ended allocations without a
  * deallocation date; their last change (the deallocation) stands in, else the start.
  */
-function endOf(
+export function endOf(
   record: ISiteAllocationGetBaseResponseDto,
   start: Date
 ): Date | null {
@@ -113,7 +113,7 @@ function groupByYear<T extends { start: Date }>(
   return years;
 }
 
-function startsOf(
+export function startsOf(
   records: readonly ISiteAllocationGetBaseResponseDto[]
 ): { record: ISiteAllocationGetBaseResponseDto; start: Date }[] {
   return records

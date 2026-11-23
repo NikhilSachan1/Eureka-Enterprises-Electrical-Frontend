@@ -152,6 +152,11 @@ export const ROUTES = {
       GST_SUMMARY: `gst-summary`,
       TDS_SUMMARY: `tds-summary`,
       DAILY_PROGRESS: `daily-progress`,
+      /** Sub-tabs of the workspace daily progress (DSR). */
+      DAILY_PROGRESS_TAB: {
+        ENTRIES: `entries`,
+        PROJECT_WISE: `project-wise`,
+      },
       WORKSPACE_DOC: {
         PO: `po`,
         ADVANCE_PAYMENT: `advance-payment`,
