@@ -27,6 +27,7 @@ export const ROUTE_BASE_PATHS = {
   ANNOUNCEMENT: 'announcement',
   MY_FILES: 'my-files',
   COMPANY_BANK_ACCOUNT: 'company-bank-account',
+  LEDGER: 'ledger',
   SITE: {
     BASE: 'project',
     COMPANY: 'company',
@@ -248,6 +249,11 @@ export const ROUTES = {
     LIST: `list`,
     ADD: `add`,
     EDIT: `edit`,
+  },
+
+  LEDGER: {
+    CONTRACTOR: `contractor`,
+    VENDOR: `vendor`,
   },
 
   SETTINGS: {

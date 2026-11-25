@@ -1,0 +1,86 @@
+:host {
+  display: block;
+}
+
+.ledger-payments {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    gap: 0.6rem;
+    white-space: nowrap;
+  }
+
+  li + li {
+    padding-top: 0.4rem;
+    border-top: 1px dashed var(--border-light-color);
+  }
+
+  &__date {
+    color: var(--text-primary-color);
+  }
+
+  &__amount {
+    color: var(--green-600, #16a34a);
+    font-weight: 600;
+  }
+}
+
+.ledger-amount {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+
+  &__note {
+    color: var(--text-secondary-color);
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+}
+
+/*
+ * Section colours for the ledger columns (`ledger-col--*`, set through the shared table's
+ * `columnStyleClass`): a tinted header with a coloured top edge and a faint tint on the cells,
+ * so bill, GST, deductions, received and outstanding read as sections. Same hues as the amounts
+ * and the summary ring; mixed with transparent so they work in light and dark mode and the row
+ * hover still shows through.
+ */
+:host ::ng-deep {
+  .ledger-col {
+    --ledger-col-tone: var(--primary-color);
+  }
+
+  .ledger-col--bill {
+    --ledger-col-tone: #0d9488;
+  }
+
+  .ledger-col--gst {
+    --ledger-col-tone: #d97706;
+  }
+
+  .ledger-col--deduction {
+    --ledger-col-tone: #6366f1;
+  }
+
+  .ledger-col--received {
+    --ledger-col-tone: #16a34a;
+  }
+
+  .ledger-col--outstanding {
+    --ledger-col-tone: #dc2626;
+  }
+
+  .p-datatable-thead > tr > th.ledger-col {
+    border-top: 3px solid var(--ledger-col-tone);
+    background: color-mix(in srgb, var(--ledger-col-tone) 14%, transparent);
+  }
+
+  .p-datatable-tbody > tr > td.ledger-col {
+    background: color-mix(in srgb, var(--ledger-col-tone) 5%, transparent);
+  }
+}
