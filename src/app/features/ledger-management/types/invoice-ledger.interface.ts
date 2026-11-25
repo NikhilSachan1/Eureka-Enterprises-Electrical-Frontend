@@ -14,6 +14,8 @@ export interface IInvoiceLedgerSideConfig {
   partyLabel: string;
   /** Contractor money is received from the client; vendor money is paid out by us. */
   paidLabel: string;
+  /** Needed to see and use "Export PDF" on this side. */
+  exportPermission: string;
   /** Advances are settled only against purchase (vendor) invoices. */
   showAdvance: boolean;
 }

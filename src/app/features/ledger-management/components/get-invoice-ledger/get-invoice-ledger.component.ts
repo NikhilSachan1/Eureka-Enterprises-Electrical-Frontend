@@ -13,13 +13,16 @@ import { ActivatedRoute } from '@angular/router';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { APP_CONFIG } from '@core/config';
-import { LoggerService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { InvoiceLedgerSummaryComponent } from '../invoice-ledger-summary/invoice-ledger-summary.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import {
+  GalleryService,
+  LoadingService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
@@ -30,7 +33,11 @@ import {
 } from '@shared/types';
 import {
   buildInvoiceLedgerSummaryView,
+  createInvoiceLedgerExportButtonConfig,
+  createInvoiceLedgerPageHeaderConfig,
   createInvoiceLedgerSearchFilterConfig,
+  INVOICE_LEDGER_PDF_LOADING,
+  INVOICE_LEDGER_TABLE_BAR,
   createInvoiceLedgerTableEnhancedConfig,
   INVOICE_LEDGER_AMOUNT_TONES,
   INVOICE_LEDGER_SIDE_CONFIG,
@@ -49,7 +56,7 @@ import {
 import { buildLedgerTableRow } from '../../utils/invoice-ledger-row.util';
 
 /**
- * Bill-wise invoice ledger for one side — contractor (SALE) or vendor (PURCHASE), picked by the
+ * Invoice-wise ledger for one side — contractor (SALE) or vendor (PURCHASE), picked by the
  * route. The summary covers every invoice matching the filters, not just the visible page.
  */
 @Component({
@@ -57,6 +64,7 @@ import { buildLedgerTableRow } from '../../utils/invoice-ledger-row.util';
   imports: [
     PageHeaderComponent,
     SearchFilterComponent,
+    ButtonComponent,
     InvoiceLedgerSummaryComponent,
     DataTableComponent,
     DocWorkspaceContextComponent,
@@ -76,6 +84,9 @@ export class GetInvoiceLedgerComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly invoiceLedgerService = inject(InvoiceLedgerService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly galleryService = inject(GalleryService);
+  private readonly appPermissionService = inject(AppPermissionService);
 
   protected readonly currencyCode = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
   protected readonly dateFormat = APP_CONFIG.DATE_FORMATS.DEFAULT;
@@ -108,13 +119,53 @@ export class GetInvoiceLedgerComponent implements OnInit {
       : null;
   });
 
-  protected readonly pageHeaderConfig = computed(
-    (): IPageHeaderConfig => ({
-      title: this.sideConfig.title,
-      subtitle: this.sideConfig.subtitle,
-      showHeaderButton: false,
-    })
+  protected readonly tableBar = INVOICE_LEDGER_TABLE_BAR;
+  protected readonly pageHeaderConfig: IPageHeaderConfig =
+    createInvoiceLedgerPageHeaderConfig(this.sideConfig);
+
+  /** How many invoices the filters match, i.e. what the PDF will hold; null until loaded. */
+  protected readonly matchingCount = computed(
+    () => this.summarySource()?.totalRecords ?? null
   );
+
+  /** Export is offered once the filters match at least one invoice. */
+  /** Export has its own permission per side; without it the button is not shown. */
+  protected readonly canExport = this.appPermissionService.hasPermission(
+    this.sideConfig.exportPermission
+  );
+
+  protected readonly exportButtonConfig = computed(() =>
+    createInvoiceLedgerExportButtonConfig((this.matchingCount() ?? 0) > 0)
+  );
+
+  /** Same filters and order as the table, every matching invoice (not just this page). */
+  protected exportLedgerPdf(): void {
+    this.loadingService.show(INVOICE_LEDGER_PDF_LOADING);
+
+    this.invoiceLedgerService
+      .getInvoiceLedgerPdf(this.prepareParamData())
+      .pipe(
+        finalize(() => this.loadingService.hide()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: response => {
+          this.galleryService.show([
+            { mediaKey: response.key, actualMediaUrl: response.url },
+          ]);
+          this.logger.logUserAction('Invoice ledger PDF opened', {
+            side: this.sideConfig.side,
+          });
+        },
+        error: error => {
+          // ApiService already shows the reason (e.g. no invoices, too many to export).
+          this.logger.logUserAction(
+            'Failed to export invoice ledger PDF',
+            error
+          );
+        },
+      });
+  }
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(

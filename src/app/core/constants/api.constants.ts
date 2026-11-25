@@ -348,6 +348,8 @@ export const API_ROUTES = {
         LEDGER: {
           CONTRACTOR: 'site-invoices/ledger/contractor',
           VENDOR: 'site-invoices/ledger/vendor',
+          CONTRACTOR_PDF: 'site-invoices/ledger/contractor/pdf',
+          VENDOR_PDF: 'site-invoices/ledger/vendor/pdf',
         },
         DROPDOWN: 'site-invoices/dropdown',
         GET_INVOICE_BY_ID: (invoiceId: string) => `site-invoices/${invoiceId}`,
