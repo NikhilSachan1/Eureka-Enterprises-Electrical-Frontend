@@ -215,6 +215,10 @@ export const APP_PERMISSION = {
     VIEW: 'data-sync.view',
     RUN: 'data-sync.run',
   },
+  LEDGER: {
+    CONTRACTOR_VIEW: 'ledger.contractor.view',
+    VENDOR_VIEW: 'ledger.vendor.view',
+  },
   USER_DELEGATION: {
     TABLE_VIEW: 'user-delegation.view-list',
     MANAGE: 'user-delegation.manage',

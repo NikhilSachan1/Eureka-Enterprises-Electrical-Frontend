@@ -345,6 +345,10 @@ export const API_ROUTES = {
         ADD: 'site-invoices',
         EDIT: (invoiceId: string) => `site-invoices/${invoiceId}`,
         LIST: 'site-invoices',
+        LEDGER: {
+          CONTRACTOR: 'site-invoices/ledger/contractor',
+          VENDOR: 'site-invoices/ledger/vendor',
+        },
         DROPDOWN: 'site-invoices/dropdown',
         GET_INVOICE_BY_ID: (invoiceId: string) => `site-invoices/${invoiceId}`,
         APPROVE: (invoiceId: string) => `site-invoices/${invoiceId}/approve`,

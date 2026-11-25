@@ -129,6 +129,9 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   cancelled: { icon: ICONS.ACTIONS.BAN, severity: 'warning' },
   cancel: { icon: ICONS.ACTIONS.BAN, severity: 'warning' },
   paid: { icon: ICONS.PAYROLL.PAID, severity: 'success' },
+  // Invoice ledger payment status: some received / nothing received yet.
+  partial: { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
+  unpaid: { icon: ICONS.STATUS.EXPIRED, severity: 'danger' },
   generate: { icon: ICONS.PAYROLL.GENERATE, severity: 'info' },
 
   // ═══════════════════════════════════════════════════════════════════════════

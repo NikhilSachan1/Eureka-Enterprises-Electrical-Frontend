@@ -453,6 +453,25 @@ export const appMenu: ApplicationMenu = {
           ],
         },
         {
+          label: 'Ledger',
+          icon: ICONS.COMMON.BOOK,
+          basePath: ROUTE_BASE_PATHS.LEDGER,
+          children: [
+            {
+              label: 'Contractor Ledger',
+              icon: ICONS.COMMON.FILE,
+              routerLink: ROUTES.LEDGER.CONTRACTOR,
+              permission: [APP_PERMISSION.LEDGER.CONTRACTOR_VIEW],
+            },
+            {
+              label: 'Vendor Ledger',
+              icon: ICONS.COMMON.FILE,
+              routerLink: ROUTES.LEDGER.VENDOR,
+              permission: [APP_PERMISSION.LEDGER.VENDOR_VIEW],
+            },
+          ],
+        },
+        {
           label: 'Payroll',
           icon: ICONS.PAYROLL.WALLET,
           basePath: ROUTE_BASE_PATHS.PAYROLL,

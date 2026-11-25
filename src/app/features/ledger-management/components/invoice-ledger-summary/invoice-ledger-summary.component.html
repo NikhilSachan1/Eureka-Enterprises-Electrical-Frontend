@@ -1,0 +1,146 @@
+@let money = '1.0-0';
+
+@if (view(); as v) {
+  <section
+    class="ls"
+    [class.ls--refreshing]="loading()"
+    aria-label="Ledger summary"
+  >
+    <!-- Headline figures -->
+    <dl class="ls-kpis">
+      @for (kpi of v.kpis; track kpi.label) {
+        <div class="ls-kpi">
+          <dt>{{ kpi.label }}</dt>
+          <dd>
+            @if (kpi.isCount) {
+              {{ kpi.value | number: '1.0-0' : locale }}
+            } @else {
+              {{ kpi.value | currency: currencyCode : 'symbol' : money : locale }}
+            }
+          </dd>
+          @if (kpi.hint) {
+            <span class="ls-kpi__hint">{{ kpi.hint }}</span>
+          }
+        </div>
+      }
+    </dl>
+
+    <div class="ls-grid">
+      <!-- Where the gross bill stands -->
+      <article class="ls-card ls-card--ring">
+        <header class="ls-card__header">
+          <h3>Where the money stands</h3>
+          <p>Share of the gross bill</p>
+        </header>
+        <div class="ls-ring-wrap">
+          <div
+            class="ls-ring"
+            role="img"
+            [attr.aria-label]="'Outstanding ' + v.outstandingCompact + ', ' + v.settledPercent + '% settled'"
+          >
+            @if (v.ringChart; as ring) {
+              <app-charts [chartConfig]="ring" />
+            } @else {
+              <span
+                class="ls-ring__empty"
+                aria-hidden="true"
+              ></span>
+            }
+            <div class="ls-ring__center">
+              <small>Outstanding</small>
+              <strong>{{ v.outstandingCompact }}</strong>
+              <span>{{ v.settledPercent }}% settled</span>
+            </div>
+          </div>
+
+          <ul class="ls-legend">
+            @for (slice of v.slices; track slice.key) {
+              <li>
+                <span
+                  class="ls-swatch"
+                  [style.background]="slice.color"
+                  aria-hidden="true"
+                ></span>
+                <span class="ls-legend__label">{{ slice.label }}</span>
+                <b>{{ slice.amount | currency: currencyCode : 'symbol' : money : locale }}</b>
+                <small>{{ slice.percent | number: '1.0-1' : locale }}%</small>
+              </li>
+            }
+          </ul>
+        </div>
+      </article>
+
+      <!-- Billed vs outstanding by month -->
+      <article class="ls-card">
+        <header class="ls-card__header">
+          <h3>Billed vs still outstanding</h3>
+          <p>By invoice month · ₹ lakh</p>
+        </header>
+        @if (v.trendChart; as trend) {
+          <div class="ls-trend">
+            <app-charts [chartConfig]="trend" />
+          </div>
+        } @else {
+          <p class="ls-empty">No dated invoices for these filters.</p>
+        }
+      </article>
+
+      <!-- Who has the most outstanding -->
+      <article class="ls-card">
+        <header class="ls-card__header">
+          <h3>{{ v.partyHeading }}</h3>
+          <p>Top 5 by outstanding amount</p>
+        </header>
+        @if (v.parties.length) {
+          <ol class="ls-parties">
+            @for (party of v.parties; track party.name; let i = $index) {
+              <li>
+                <div class="ls-parties__row">
+                  <span class="ls-parties__rank">{{ i + 1 }}</span>
+                  <span
+                    class="ls-parties__name"
+                    [attr.title]="party.name"
+                  >
+                    {{ party.name }}
+                  </span>
+                  <b>{{ party.outstanding | currency: currencyCode : 'symbol' : money : locale }}</b>
+                </div>
+                <div class="ls-parties__meta">
+                  <span
+                    class="ls-parties__bar"
+                    aria-hidden="true"
+                  >
+                    <span
+                      [style.width.%]="party.widthPercent"
+                      [style.background]="outstandingColor"
+                    ></span>
+                  </span>
+                  <small>{{ party.invoiceCount }} {{ party.invoiceCount === 1 ? 'invoice' : 'invoices' }}</small>
+                </div>
+              </li>
+            }
+          </ol>
+        } @else {
+          <p class="ls-empty">Nothing outstanding for these filters.</p>
+        }
+      </article>
+    </div>
+  </section>
+} @else if (loading()) {
+  <section
+    class="ls ls--loading"
+    aria-busy="true"
+    aria-label="Loading ledger summary"
+  >
+    <div class="ls-kpis">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="ls-kpi ls-skeleton"></div>
+      }
+    </div>
+    <div class="ls-grid">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="ls-card ls-skeleton ls-skeleton--card"></div>
+      }
+    </div>
+  </section>
+}

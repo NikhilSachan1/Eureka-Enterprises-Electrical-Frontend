@@ -135,6 +135,13 @@ export const routes: Routes = [
           ).then(m => m.COMPANY_BANK_ACCOUNT_MANAGEMENT_ROUTES),
       },
       {
+        path: ROUTE_BASE_PATHS.LEDGER,
+        loadChildren: () =>
+          import('./features/ledger-management/ledger.routes').then(
+            m => m.LEDGER_MANAGEMENT_ROUTES
+          ),
+      },
+      {
         path: ROUTE_BASE_PATHS.ANNOUNCEMENT,
         loadChildren: () =>
           import('./features/announcement-management/announcement.routes').then(

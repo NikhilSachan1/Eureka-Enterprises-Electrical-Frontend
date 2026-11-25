@@ -1,0 +1,352 @@
+:host {
+  display: block;
+  margin-bottom: 1rem;
+
+  --ls-border: var(--border-light-color);
+  --ls-surface: var(--background-paper-color);
+  --ls-muted: var(--text-secondary-color);
+  --ls-ink: var(--text-primary-color);
+  --ls-radius: 0.85rem;
+}
+
+.ls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: opacity 0.2s ease;
+
+  &--refreshing {
+    opacity: 0.6;
+  }
+}
+
+/* ---------- Headline figures ---------- */
+
+.ls-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.ls-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--ls-border);
+  border-radius: var(--ls-radius);
+  background: var(--ls-surface);
+
+  dt {
+    color: var(--ls-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--ls-ink);
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  &__hint {
+    color: var(--ls-muted);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* ---------- Chart cards ---------- */
+
+.ls-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.ls-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--ls-border);
+  border-radius: var(--ls-radius);
+  background: var(--ls-surface);
+
+  &__header {
+    margin-bottom: 0.75rem;
+
+    h3 {
+      margin: 0;
+      color: var(--ls-ink);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0.15rem 0 0;
+      color: var(--ls-muted);
+      font-size: 0.78rem;
+    }
+  }
+}
+
+.ls-empty {
+  margin: auto 0;
+  padding: 1.5rem 0;
+  color: var(--ls-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Ring + legend */
+
+.ls-ring-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ls-ring {
+  position: relative;
+  flex: none;
+  width: 9.5rem;
+  height: 9.5rem;
+
+  ::ng-deep .chart-container,
+  ::ng-deep canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  &__empty {
+    position: absolute;
+    inset: 8%;
+    border: 0.8rem solid color-mix(in srgb, var(--ls-muted) 18%, transparent);
+    border-radius: 50%;
+  }
+
+  &__center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    text-align: center;
+
+    small {
+      color: var(--ls-muted);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    strong {
+      color: var(--ls-ink);
+      font-size: 1.15rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    span {
+      color: var(--ls-muted);
+      font-size: 0.72rem;
+    }
+  }
+}
+
+.ls-legend {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.8rem;
+  }
+
+  &__label {
+    overflow: hidden;
+    color: var(--ls-ink);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  b {
+    color: var(--ls-ink);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  small {
+    min-width: 2.8rem;
+    color: var(--ls-muted);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+}
+
+.ls-swatch {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 3px;
+}
+
+/* Trend */
+
+.ls-trend {
+  position: relative;
+  flex: 1;
+  min-height: 12rem;
+
+  ::ng-deep .chart-container {
+    height: 100%;
+  }
+}
+
+/* Most outstanding */
+
+.ls-parties {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+
+    b {
+      color: var(--ls-ink);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  &__rank {
+    color: var(--ls-muted);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__name {
+    overflow: hidden;
+    color: var(--ls-ink);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+    padding-left: 1.1rem;
+
+    small {
+      flex: none;
+      color: var(--ls-muted);
+      font-size: 0.72rem;
+    }
+  }
+
+  &__bar {
+    flex: 1;
+    overflow: hidden;
+    height: 6px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ls-muted) 14%, transparent);
+
+    span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+    }
+  }
+}
+
+/* ---------- Loading ---------- */
+
+.ls-skeleton {
+  min-height: 5rem;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ls-muted) 8%, var(--ls-surface)) 25%,
+    color-mix(in srgb, var(--ls-muted) 15%, var(--ls-surface)) 50%,
+    color-mix(in srgb, var(--ls-muted) 8%, var(--ls-surface)) 75%
+  );
+  background-size: 200% 100%;
+  animation: ls-shimmer 1.4s ease-in-out infinite;
+
+  &--card {
+    min-height: 14rem;
+  }
+}
+
+@keyframes ls-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-skeleton {
+    animation: none;
+  }
+}
+
+/* ---------- Narrower screens ---------- */
+
+@media (max-width: 1280px) {
+  .ls-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .ls-card--ring {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .ls-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ls-ring-wrap {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ls-ring {
+    align-self: center;
+  }
+}
