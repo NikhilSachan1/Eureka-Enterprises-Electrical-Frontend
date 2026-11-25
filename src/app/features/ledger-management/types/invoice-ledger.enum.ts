@@ -18,3 +18,12 @@ export enum EInvoiceLedgerPaymentStatus {
   PARTIAL = 'PARTIAL',
   UNPAID = 'UNPAID',
 }
+
+/** Age of an outstanding invoice, counted from its invoice date. */
+export enum EInvoiceLedgerAgeingBucket {
+  D0_30 = 'D0_30',
+  D31_60 = 'D31_60',
+  D61_90 = 'D61_90',
+  D90_PLUS = 'D90_PLUS',
+  UNDATED = 'UNDATED',
+}

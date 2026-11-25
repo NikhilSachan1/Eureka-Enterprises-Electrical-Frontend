@@ -14,25 +14,75 @@ import {
   IInvoiceLedgerTotalsDto,
 } from '../../types/invoice-ledger.dto';
 import {
+  EInvoiceLedgerAgeingBucket,
+  EInvoiceLedgerPaymentStatus,
+} from '../../types/invoice-ledger.enum';
+import {
+  IInvoiceLedgerAgeingBand,
+  IInvoiceLedgerKpi,
   IInvoiceLedgerMoneySlice,
   IInvoiceLedgerSideConfig,
+  IInvoiceLedgerStatementLine,
+  IInvoiceLedgerStatusCount,
   IInvoiceLedgerSummaryView,
 } from '../../types/invoice-ledger.interface';
-import { formatLedgerAmount } from '../../utils/invoice-ledger-format.util';
+import { formatLedgerStatus } from '../../utils/invoice-ledger-format.util';
 
 /**
- * Ledger chart colours, validated for colour-blind separation in light and dark mode (dataviz
- * validate_palette). The ring order below keeps similar hues apart, including the wrap-around
- * pair; the 2px gaps and the labelled legend are the secondary encoding the two closest pairs need.
+ * Summary colours are the table's column tones (Tailwind 600), so an amount has the same colour
+ * above and inside the table: bill teal, GST amber, TDS indigo, advance sky, received green,
+ * outstanding red. The ring keeps a 2px gap between segments and every segment is labelled in the
+ * statement beside it, so it never relies on colour alone.
  */
 export const INVOICE_LEDGER_CHART_COLORS = {
-  settled: '#16a34a',
-  gstHeld: '#d97706',
-  tds: '#6366f1',
-  outstanding: '#db2777',
+  bill: '#0d9488',
+  gst: '#d97706',
+  tds: '#4f46e5',
   advance: '#0284c7',
-  billed: '#6366f1',
+  received: '#16a34a',
+  outstanding: '#dc2626',
+  other: '#94a3b8',
+  count: '#475569',
 } as const;
+
+/** Older is darker: one red ramp, so the bands read as "how bad" rather than as categories. */
+const AGEING_BANDS: {
+  key: EInvoiceLedgerAgeingBucket;
+  label: string;
+  color: string;
+}[] = [
+  {
+    key: EInvoiceLedgerAgeingBucket.D0_30,
+    label: '0–30 days',
+    color: '#fca5a5',
+  },
+  {
+    key: EInvoiceLedgerAgeingBucket.D31_60,
+    label: '31–60 days',
+    color: '#f87171',
+  },
+  {
+    key: EInvoiceLedgerAgeingBucket.D61_90,
+    label: '61–90 days',
+    color: '#dc2626',
+  },
+  {
+    key: EInvoiceLedgerAgeingBucket.D90_PLUS,
+    label: '90+ days',
+    color: '#991b1b',
+  },
+  {
+    key: EInvoiceLedgerAgeingBucket.UNDATED,
+    label: 'No invoice date',
+    color: '#94a3b8',
+  },
+];
+
+const STATUS_ORDER = [
+  EInvoiceLedgerPaymentStatus.PAID,
+  EInvoiceLedgerPaymentStatus.PARTIAL,
+  EInvoiceLedgerPaymentStatus.UNPAID,
+];
 
 const LAKH = 100_000;
 const MONTH_LABEL = new Intl.DateTimeFormat('en-IN', {
@@ -43,15 +93,23 @@ const MONTH_LABEL = new Intl.DateTimeFormat('en-IN', {
 const toLakh = (amount: number): number =>
   Math.round((amount / LAKH) * 100) / 100;
 
+const shareOf = (amount: number, whole: number): number =>
+  whole > 0 ? Math.round((amount / whole) * 1000) / 10 : 0;
+
 /** "2026-04" → "Apr 26". */
 function monthLabel(month: string): string {
   const [year, mon] = month.split('-').map(Number);
   return MONTH_LABEL.format(new Date(year, mon - 1, 1));
 }
 
+/** GST held back from the net payable: what is left of the gross after TDS and the net payable. */
+function gstHeldOf(totals: IInvoiceLedgerTotalsDto): number {
+  return Math.max(totals.grossAmount - totals.tdsAmount - totals.netPayable, 0);
+}
+
 /**
- * Where the gross bill stands, in ring order. "GST held / other" is what the other parts do not
- * explain — mostly GST held back and settled on its own.
+ * Where the gross bill stands, in ring order. "Other" only appears when the parts do not add up to
+ * the gross (rounding, or an invoice paid above its net payable).
  */
 function buildMoneySlices(
   totals: IInvoiceLedgerTotalsDto,
@@ -59,52 +117,168 @@ function buildMoneySlices(
 ): IInvoiceLedgerMoneySlice[] {
   const gross = totals.grossAmount;
   const advance = sideConfig.showAdvance ? totals.advanceAdjusted : 0;
-  const explained =
-    totals.paidAmount + totals.tdsAmount + advance + totals.outstandingAmount;
-  const other = Math.max(gross - explained, 0);
-  const percent = (amount: number): number =>
-    gross > 0 ? Math.round((amount / gross) * 1000) / 10 : 0;
-
-  const slices: IInvoiceLedgerMoneySlice[] = [
+  const gstHeld = gstHeldOf(totals);
+  const parts: Omit<IInvoiceLedgerMoneySlice, 'percent'>[] = [
     {
-      key: 'settled',
+      key: 'received',
       label: sideConfig.paidLabel,
       amount: totals.paidAmount,
-      percent: percent(totals.paidAmount),
-      color: INVOICE_LEDGER_CHART_COLORS.settled,
+      color: INVOICE_LEDGER_CHART_COLORS.received,
     },
     {
-      key: 'gstHeld',
-      label: 'GST held / other',
-      amount: other,
-      percent: percent(other),
-      color: INVOICE_LEDGER_CHART_COLORS.gstHeld,
+      key: 'advance',
+      label: 'Advance adjusted',
+      amount: advance,
+      color: INVOICE_LEDGER_CHART_COLORS.advance,
     },
     {
       key: 'tds',
       label: 'TDS',
       amount: totals.tdsAmount,
-      percent: percent(totals.tdsAmount),
       color: INVOICE_LEDGER_CHART_COLORS.tds,
+    },
+    {
+      key: 'gstHeld',
+      label: 'GST held',
+      amount: gstHeld,
+      color: INVOICE_LEDGER_CHART_COLORS.gst,
     },
     {
       key: 'outstanding',
       label: 'Outstanding',
       amount: totals.outstandingAmount,
-      percent: percent(totals.outstandingAmount),
       color: INVOICE_LEDGER_CHART_COLORS.outstanding,
     },
   ];
-  if (sideConfig.showAdvance) {
-    slices.push({
-      key: 'advance',
-      label: 'Advance adjusted',
-      amount: advance,
-      percent: percent(advance),
-      color: INVOICE_LEDGER_CHART_COLORS.advance,
+  const other = gross - parts.reduce((sum, part) => sum + part.amount, 0);
+  if (other >= 1) {
+    parts.push({
+      key: 'other',
+      label: 'Other',
+      amount: other,
+      color: INVOICE_LEDGER_CHART_COLORS.other,
     });
   }
-  return slices;
+  return parts
+    .filter(part => part.amount > 0)
+    .map(part => ({ ...part, percent: shareOf(part.amount, gross) }));
+}
+
+/** Basic + GST = gross − TDS − GST held = net payable − received − advance = outstanding. */
+function buildStatement(
+  totals: IInvoiceLedgerTotalsDto,
+  slices: IInvoiceLedgerMoneySlice[],
+  sideConfig: IInvoiceLedgerSideConfig
+): IInvoiceLedgerStatementLine[] {
+  const slice = (key: string): IInvoiceLedgerMoneySlice | undefined =>
+    slices.find(s => s.key === key);
+  const segment = (
+    key: string,
+    label: string,
+    amount: number,
+    hint?: string
+  ): IInvoiceLedgerStatementLine => ({
+    key,
+    label,
+    amount,
+    sign: '−',
+    isTotal: false,
+    color: slice(key)?.color,
+    percent: slice(key)?.percent,
+    hint,
+  });
+
+  const gstSplit = [
+    totals.cgstAmount ? `CGST ${compactInr(totals.cgstAmount)}` : '',
+    totals.sgstAmount ? `SGST ${compactInr(totals.sgstAmount)}` : '',
+    totals.igstAmount ? `IGST ${compactInr(totals.igstAmount)}` : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+  const gstHeld = gstHeldOf(totals);
+
+  const lines: (IInvoiceLedgerStatementLine | null)[] = [
+    {
+      key: 'basic',
+      label: 'Basic value',
+      amount: totals.taxableAmount,
+      sign: '',
+      isTotal: false,
+    },
+    {
+      key: 'gst',
+      label: 'GST',
+      amount: totals.gstAmount,
+      sign: '+',
+      isTotal: false,
+      hint: gstSplit || undefined,
+    },
+    {
+      key: 'gross',
+      label: 'Gross bill',
+      amount: totals.grossAmount,
+      sign: '=',
+      isTotal: true,
+      color: INVOICE_LEDGER_CHART_COLORS.bill,
+    },
+    segment('tds', 'TDS', totals.tdsAmount),
+    gstHeld > 0 ? segment('gstHeld', 'GST held', gstHeld) : null,
+    {
+      key: 'net',
+      label: 'Net payable',
+      amount: totals.netPayable,
+      sign: '=',
+      isTotal: true,
+    },
+    segment('received', sideConfig.paidLabel, totals.paidAmount),
+    sideConfig.showAdvance
+      ? segment('advance', 'Advance adjusted', totals.advanceAdjusted)
+      : null,
+    {
+      key: 'outstanding',
+      label: 'Outstanding',
+      amount: totals.outstandingAmount,
+      sign: '=',
+      isTotal: true,
+      color: INVOICE_LEDGER_CHART_COLORS.outstanding,
+      percent: slice('outstanding')?.percent,
+    },
+  ];
+  return lines.filter((line): line is IInvoiceLedgerStatementLine => !!line);
+}
+
+/** Outstanding by age; empty bands are left out. */
+function buildAgeing(
+  ageing: IInvoiceLedgerInsightsDto['ageing'],
+  outstanding: number
+): IInvoiceLedgerAgeingBand[] {
+  return AGEING_BANDS.flatMap(band => {
+    const row = ageing.find(a => a.bucket === band.key);
+    return row && row.outstanding > 0
+      ? [
+          {
+            ...band,
+            count: row.count,
+            amount: row.outstanding,
+            percent: shareOf(row.outstanding, outstanding),
+          },
+        ]
+      : [];
+  });
+}
+
+/** Paid / Partial / Unpaid, always in that order, zero counts included. */
+function buildStatusMix(
+  statusMix: IInvoiceLedgerInsightsDto['statusMix']
+): IInvoiceLedgerStatusCount[] {
+  return STATUS_ORDER.map(status => {
+    const row = statusMix.find(s => s.status === status);
+    return {
+      label: formatLedgerStatus(status),
+      count: row?.count ?? 0,
+      outstanding: row?.outstanding ?? 0,
+    };
+  });
 }
 
 /** Billed vs still outstanding per invoice month, in ₹ lakh so the axis stays readable. */
@@ -114,6 +288,8 @@ function buildTrendChart(
   if (!byMonth.length) {
     return null;
   }
+  // A month or two would otherwise draw bars as wide as the card.
+  const categoryPercentage = byMonth.length <= 2 ? 0.3 : 0.65;
   const options: Partial<IBarChartOptions> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -127,33 +303,79 @@ function buildTrendChart(
     showYGrid: true,
     YAxisTicksLimit: 5,
   };
+  const series = (
+    label: string,
+    data: number[],
+    color: string
+  ): IChartsConfig['datasets'][number] => ({
+    label,
+    data,
+    backgroundColor: color,
+    hoverBackgroundColor: color,
+    borderWidth: 0,
+    borderRadius: 4,
+    barPercentage: 0.85,
+    categoryPercentage,
+  });
   return {
     chartType: EChartType.BAR,
     labels: byMonth.map(m => monthLabel(m.month)),
     datasets: [
-      {
-        label: 'Billed (₹ lakh)',
-        data: byMonth.map(m => toLakh(m.billed)),
-        backgroundColor: INVOICE_LEDGER_CHART_COLORS.billed,
-        hoverBackgroundColor: INVOICE_LEDGER_CHART_COLORS.billed,
-        borderWidth: 0,
-        borderRadius: 4,
-        barPercentage: 0.85,
-        categoryPercentage: 0.6,
-      },
-      {
-        label: 'Still outstanding (₹ lakh)',
-        data: byMonth.map(m => toLakh(m.outstanding)),
-        backgroundColor: INVOICE_LEDGER_CHART_COLORS.outstanding,
-        hoverBackgroundColor: INVOICE_LEDGER_CHART_COLORS.outstanding,
-        borderWidth: 0,
-        borderRadius: 4,
-        barPercentage: 0.85,
-        categoryPercentage: 0.6,
-      },
+      series(
+        'Billed',
+        byMonth.map(m => toLakh(m.billed)),
+        INVOICE_LEDGER_CHART_COLORS.bill
+      ),
+      series(
+        'Outstanding',
+        byMonth.map(m => toLakh(m.outstanding)),
+        INVOICE_LEDGER_CHART_COLORS.outstanding
+      ),
     ],
     options,
   };
+}
+
+function buildKpis(
+  totals: IInvoiceLedgerTotalsDto,
+  invoiceCount: number,
+  statusMix: IInvoiceLedgerStatusCount[],
+  oldestOutstandingDays: number | null,
+  sideConfig: IInvoiceLedgerSideConfig
+): IInvoiceLedgerKpi[] {
+  const receivedShare = shareOf(totals.paidAmount, totals.netPayable);
+  return [
+    {
+      label: 'Invoices',
+      value: invoiceCount,
+      isCount: true,
+      hint: statusMix
+        .map(s => `${s.count} ${s.label.toLowerCase()}`)
+        .join(' · '),
+      color: INVOICE_LEDGER_CHART_COLORS.count,
+    },
+    {
+      label: 'Gross bill',
+      value: totals.grossAmount,
+      hint: `Basic ${compactInr(totals.taxableAmount)} + GST ${compactInr(totals.gstAmount)}`,
+      color: INVOICE_LEDGER_CHART_COLORS.bill,
+    },
+    {
+      label: sideConfig.paidLabel,
+      value: totals.paidAmount,
+      hint: `${receivedShare}% of net payable ${compactInr(totals.netPayable)}`,
+      color: INVOICE_LEDGER_CHART_COLORS.received,
+    },
+    {
+      label: 'Outstanding',
+      value: totals.outstandingAmount,
+      hint:
+        totals.outstandingAmount > 0 && oldestOutstandingDays !== null
+          ? `Oldest pending ${oldestOutstandingDays} ${oldestOutstandingDays === 1 ? 'day' : 'days'}`
+          : 'Nothing pending',
+      color: INVOICE_LEDGER_CHART_COLORS.outstanding,
+    },
+  ];
 }
 
 /** Everything the summary draws, from the totals and insights of every matching invoice. */
@@ -165,36 +387,37 @@ export function buildInvoiceLedgerSummaryView(
 ): IInvoiceLedgerSummaryView {
   const slices = buildMoneySlices(totals, sideConfig);
   const settled = Math.max(totals.netPayable - totals.outstandingAmount, 0);
+  const statusMix = buildStatusMix(insights?.statusMix ?? []);
+  const ageing = buildAgeing(insights?.ageing ?? [], totals.outstandingAmount);
+  const oldestOutstandingDays = insights?.oldestOutstandingDays ?? null;
   const topParties = insights?.topParties ?? [];
   const maxOutstanding = Math.max(...topParties.map(p => p.outstanding), 1);
 
-  const gstSplit =
-    totals.igstAmount > 0
-      ? `CGST ${formatLedgerAmount(totals.cgstAmount)} · SGST ${formatLedgerAmount(totals.sgstAmount)} · IGST ${formatLedgerAmount(totals.igstAmount)}`
-      : `CGST ${formatLedgerAmount(totals.cgstAmount)} · SGST ${formatLedgerAmount(totals.sgstAmount)}`;
-
   return {
-    kpis: [
-      { label: 'Invoices', value: invoiceCount, isCount: true },
-      {
-        label: 'Gross bill',
-        value: totals.grossAmount,
-        hint: `Basic ${formatLedgerAmount(totals.taxableAmount)}`,
-      },
-      { label: 'GST', value: totals.gstAmount, hint: gstSplit },
-      { label: 'TDS', value: totals.tdsAmount },
-    ],
-    outstanding: totals.outstandingAmount,
+    kpis: buildKpis(
+      totals,
+      invoiceCount,
+      statusMix,
+      oldestOutstandingDays,
+      sideConfig
+    ),
     outstandingCompact: compactInr(totals.outstandingAmount),
     settledPercent:
       totals.netPayable > 0
         ? Math.min(Math.round((settled / totals.netPayable) * 100), 100)
         : 0,
-    slices,
     ringChart: buildDonutChart(
       slices.map(s => ({ label: s.label, amount: s.amount, color: s.color })),
       { cutout: '74%', title: 'Amount' }
     ),
+    statement: buildStatement(totals, slices, sideConfig),
+    ageing,
+    ageingSummary: `Outstanding by age: ${ageing
+      .map(band => `${band.label} ${band.percent}%`)
+      .join(', ')}`,
+    outstandingInvoiceCount: ageing.reduce((sum, band) => sum + band.count, 0),
+    oldestOutstandingDays,
+    statusMix,
     trendChart: buildTrendChart(insights?.byMonth ?? []),
     parties: topParties.map(p => ({
       name: p.partyName,

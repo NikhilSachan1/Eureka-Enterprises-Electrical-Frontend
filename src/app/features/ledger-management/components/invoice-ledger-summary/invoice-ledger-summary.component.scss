@@ -20,37 +20,58 @@
   }
 }
 
+.ls-swatch {
+  flex: none;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 3px;
+}
+
 /* ---------- Headline figures ---------- */
 
 .ls-kpis {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.75rem;
   margin: 0;
 }
 
 .ls-kpi {
+  --ls-tone: var(--ls-muted);
+
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
   min-width: 0;
-  padding: 0.85rem 1rem;
+  overflow: hidden;
+  padding: 0.9rem 1rem 0.85rem 1.15rem;
   border: 1px solid var(--ls-border);
   border-radius: var(--ls-radius);
-  background: var(--ls-surface);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--ls-tone) 9%, transparent), transparent 60%), var(--ls-surface);
+
+  /* Accent bar in the column's colour. */
+  &::before {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--ls-tone);
+    content: "";
+  }
 
   dt {
     color: var(--ls-muted);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
   }
 
   dd {
     margin: 0;
-    color: var(--ls-ink);
-    font-size: 1.3rem;
+    color: var(--ls-tone);
+    font-size: 1.45rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     line-height: 1.25;
@@ -65,11 +86,11 @@
   }
 }
 
-/* ---------- Chart cards ---------- */
+/* ---------- Cards ---------- */
 
 .ls-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.35fr) minmax(0, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
@@ -77,13 +98,18 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: 1rem 1.1rem;
+  padding: 1rem 1.15rem;
   border: 1px solid var(--ls-border);
   border-radius: var(--ls-radius);
   background: var(--ls-surface);
 
+  &--money,
+  &--trend {
+    grid-column: span 2;
+  }
+
   &__header {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.85rem;
 
     h3 {
       margin: 0;
@@ -108,19 +134,19 @@
   text-align: center;
 }
 
-/* Ring + legend */
+/* ---------- Ring + statement ---------- */
 
-.ls-ring-wrap {
-  display: flex;
+.ls-money {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 1rem;
+  gap: 1.75rem;
 }
 
 .ls-ring {
   position: relative;
-  flex: none;
-  width: 9.5rem;
-  height: 9.5rem;
+  width: 11.5rem;
+  height: 11.5rem;
 
   ::ng-deep .chart-container,
   ::ng-deep canvas {
@@ -147,15 +173,14 @@
 
     small {
       color: var(--ls-muted);
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 600;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
     }
 
     strong {
-      color: var(--ls-ink);
-      font-size: 1.15rem;
+      font-size: 1.3rem;
       font-weight: 700;
       font-variant-numeric: tabular-nums;
     }
@@ -167,69 +192,203 @@
   }
 }
 
-.ls-legend {
+/* Reads like a ledger: each line adds (+), deducts (−) or totals (=) the one above. */
+.ls-statement {
   display: flex;
-  flex: 1;
   flex-direction: column;
-  gap: 0.45rem;
   min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-variant-numeric: tabular-nums;
+
+  &__line {
+    display: grid;
+    grid-template-columns: 1rem minmax(0, 1fr) auto 3.2rem;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.32rem 0.5rem;
+    border-radius: 0.4rem;
+    color: var(--ls-ink);
+    font-size: 0.82rem;
+
+    b {
+      font-weight: 600;
+    }
+
+    &--total {
+      margin: 0.2rem 0;
+      border-top: 1px solid var(--ls-border);
+      border-radius: 0;
+      font-weight: 700;
+
+      b {
+        color: var(--ls-tone, var(--ls-ink));
+        font-weight: 700;
+      }
+    }
+
+    &--final {
+      margin: 0.35rem 0 0;
+      border-top: 0;
+      border-radius: 0.5rem;
+      background: color-mix(in srgb, var(--ls-tone) 9%, transparent);
+      font-size: 0.92rem;
+
+      .ls-statement__label > span:first-of-type {
+        color: var(--ls-tone);
+      }
+    }
+  }
+
+  &__sign {
+    color: var(--ls-muted);
+    font-weight: 700;
+    text-align: center;
+  }
+
+  &__label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 0.45rem;
+    min-width: 0;
+
+    small {
+      color: var(--ls-muted);
+      font-size: 0.72rem;
+      font-weight: 400;
+    }
+  }
+
+  &__share {
+    color: var(--ls-muted);
+    font-size: 0.72rem;
+    font-weight: 400;
+    text-align: right;
+  }
+}
+
+/* ---------- Ageing + status ---------- */
+
+.ls-ageing-bar {
+  display: flex;
+  gap: 2px;
+  overflow: hidden;
+  height: 0.85rem;
+  margin-bottom: 0.75rem;
+  border-radius: 999px;
+
+  span {
+    flex-basis: 0;
+    min-width: 4px;
+  }
+}
+
+.ls-ageing {
+  display: flex;
+  flex-direction: column;
   margin: 0;
   padding: 0;
   list-style: none;
 
   li {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto 2.8rem;
     align-items: center;
-    gap: 0.45rem;
-    font-size: 0.8rem;
+    gap: 0.55rem;
+    padding: 0.4rem 0;
+    font-size: 0.82rem;
+
+    & + li {
+      border-top: 1px dashed var(--ls-border);
+    }
+
+    b {
+      color: var(--ls-ink);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
   }
 
   &__label {
-    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.4rem;
+    min-width: 0;
     color: var(--ls-ink);
-    text-overflow: ellipsis;
-    white-space: nowrap;
+
+    small {
+      color: var(--ls-muted);
+      font-size: 0.72rem;
+    }
   }
 
-  b {
-    color: var(--ls-ink);
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-  }
-
-  small {
-    min-width: 2.8rem;
+  &__share {
     color: var(--ls-muted);
+    font-size: 0.72rem;
     font-variant-numeric: tabular-nums;
     text-align: right;
   }
 }
 
-.ls-swatch {
-  width: 0.7rem;
-  height: 0.7rem;
-  border-radius: 3px;
+.ls-status {
+  margin-top: auto;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--ls-border);
+
+  h4 {
+    margin: 0 0 0.5rem;
+    color: var(--ls-muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+
+    b {
+      color: var(--ls-ink);
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+  }
 }
 
-/* Trend */
+/* ---------- Trend ---------- */
 
 .ls-trend {
   position: relative;
   flex: 1;
-  min-height: 12rem;
+  min-height: 13rem;
 
   ::ng-deep .chart-container {
     height: 100%;
   }
 }
 
-/* Most outstanding */
+/* ---------- Most outstanding ---------- */
 
 .ls-parties {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.75rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -249,9 +408,15 @@
   }
 
   &__rank {
+    display: inline-grid;
+    place-items: center;
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--ls-muted) 14%, transparent);
     color: var(--ls-muted);
-    font-size: 0.72rem;
-    font-variant-numeric: tabular-nums;
+    font-size: 0.68rem;
+    font-weight: 600;
   }
 
   &__name {
@@ -266,7 +431,7 @@
     align-items: center;
     gap: 0.5rem;
     margin-top: 0.3rem;
-    padding-left: 1.1rem;
+    padding-left: 1.65rem;
 
     small {
       flex: none;
@@ -293,7 +458,7 @@
 /* ---------- Loading ---------- */
 
 .ls-skeleton {
-  min-height: 5rem;
+  min-height: 5.5rem;
   background: linear-gradient(
     90deg,
     color-mix(in srgb, var(--ls-muted) 8%, var(--ls-surface)) 25%,
@@ -303,8 +468,12 @@
   background-size: 200% 100%;
   animation: ls-shimmer 1.4s ease-in-out infinite;
 
+  &::before {
+    display: none;
+  }
+
   &--card {
-    min-height: 14rem;
+    min-height: 15rem;
   }
 }
 
@@ -327,26 +496,35 @@
 /* ---------- Narrower screens ---------- */
 
 @media (max-width: 1280px) {
-  .ls-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  .ls-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .ls-card--ring {
-    grid-column: 1 / -1;
+  /* Money and trend span the row; ageing and parties share one. */
+  .ls-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row dense;
   }
 }
 
 @media (max-width: 760px) {
+  .ls-kpis,
   .ls-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .ls-ring-wrap {
-    flex-direction: column;
-    align-items: stretch;
+  .ls-card--money,
+  .ls-card--trend {
+    grid-column: auto;
   }
 
-  .ls-ring {
-    align-self: center;
+  .ls-money {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 1rem;
+  }
+
+  .ls-statement {
+    width: 100%;
   }
 }

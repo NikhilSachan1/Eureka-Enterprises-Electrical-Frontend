@@ -2,16 +2,18 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { APP_CONFIG } from '@core/config';
 import { ChartsComponent } from '@shared/components/charts/charts.component';
+import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { IInvoiceLedgerSummaryView } from '../../types/invoice-ledger.interface';
 import { INVOICE_LEDGER_CHART_COLORS } from '../../config/summary/invoice-ledger-summary.config';
 
 /**
- * Summary above the ledger table: headline figures, where the gross bill stands (ring), billed vs
- * outstanding by month, and who has the most outstanding. Purely presentational.
+ * Summary above the ledger table: headline figures, where the gross bill stands (ring + statement),
+ * outstanding ageing with the status mix, billed vs outstanding by month, and who has the most
+ * outstanding. Purely presentational.
  */
 @Component({
   selector: 'app-invoice-ledger-summary',
-  imports: [ChartsComponent, CurrencyPipe, DecimalPipe],
+  imports: [ChartsComponent, StatusTagComponent, CurrencyPipe, DecimalPipe],
   templateUrl: './invoice-ledger-summary.component.html',
   styleUrl: './invoice-ledger-summary.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

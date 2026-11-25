@@ -116,7 +116,7 @@ export function createInvoiceLedgerSearchFilterConfig(
       },
       globalSearch: {
         ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
-        hint: 'Search by invoice number',
+        hint: 'Search by invoice or PO number',
       },
     };
 

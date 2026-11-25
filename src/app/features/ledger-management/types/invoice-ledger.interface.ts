@@ -74,7 +74,7 @@ export type IInvoiceLedgerSummarySource = Pick<
   'totals' | 'insights' | 'totalRecords'
 >;
 
-/** One slice of "where the money stands" (the ring and its legend). */
+/** One slice of "where the money stands" (the ring). */
 export interface IInvoiceLedgerMoneySlice {
   key: string;
   label: string;
@@ -84,12 +84,47 @@ export interface IInvoiceLedgerMoneySlice {
   color: string;
 }
 
-/** One headline figure above the charts. */
+/** One headline figure above the charts, with the colour of its column in the table. */
 export interface IInvoiceLedgerKpi {
   label: string;
   value: number;
   isCount?: boolean;
   hint?: string;
+  color: string;
+}
+
+/** One line of the bill-to-outstanding statement beside the ring. */
+export interface IInvoiceLedgerStatementLine {
+  key: string;
+  label: string;
+  amount: number;
+  /** How the line combines with the one above: added, deducted, or a running total. */
+  sign: '+' | '−' | '=' | '';
+  isTotal: boolean;
+  /** Ring colour when the line is a ring segment; text colour of a total. */
+  color?: string;
+  /** Share of the gross bill, shown for ring segments. */
+  percent?: number;
+  hint?: string;
+}
+
+/** One age band of the outstanding. */
+export interface IInvoiceLedgerAgeingBand {
+  key: string;
+  label: string;
+  count: number;
+  amount: number;
+  /** Share of the outstanding, 0–100. */
+  percent: number;
+  color: string;
+}
+
+/** Invoices in one payment status. */
+export interface IInvoiceLedgerStatusCount {
+  /** Label the shared status tag colours by (Paid / Partial / Unpaid). */
+  label: string;
+  count: number;
+  outstanding: number;
 }
 
 /** One row of "most outstanding": a contractor / vendor and how much they still owe / are owed. */
@@ -104,12 +139,18 @@ export interface IInvoiceLedgerPartyBar {
 /** Everything the summary above the ledger table draws. Covers every matching invoice. */
 export interface IInvoiceLedgerSummaryView {
   kpis: IInvoiceLedgerKpi[];
-  outstanding: number;
   outstandingCompact: string;
   /** Share of the net payable already settled, 0–100. */
   settledPercent: number;
-  slices: IInvoiceLedgerMoneySlice[];
   ringChart: IChartsConfig | null;
+  /** Basic + GST = gross − TDS − GST held = net payable − received − advance = outstanding. */
+  statement: IInvoiceLedgerStatementLine[];
+  ageing: IInvoiceLedgerAgeingBand[];
+  /** The ageing bar read out for screen readers. */
+  ageingSummary: string;
+  outstandingInvoiceCount: number;
+  oldestOutstandingDays: number | null;
+  statusMix: IInvoiceLedgerStatusCount[];
   trendChart: IChartsConfig | null;
   parties: IInvoiceLedgerPartyBar[];
   partyHeading: string;

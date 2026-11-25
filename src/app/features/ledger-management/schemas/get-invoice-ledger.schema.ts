@@ -2,6 +2,7 @@ import * as z from 'zod';
 import { dateField, FilterSchema, uuidField } from '@shared/schemas';
 import { transformDateFormat } from '@shared/utility';
 import {
+  EInvoiceLedgerAgeingBucket,
   EInvoiceLedgerPaymentStatus,
   EInvoiceLedgerQuarter,
   EInvoiceLedgerSide,
@@ -123,6 +124,29 @@ export const InvoiceLedgerInsightsSchema = z.looseObject({
       outstanding: z.number(),
     })
   ),
+  // Defaults keep the page working against a backend that does not send these yet.
+  /** Invoice count per payment status. */
+  statusMix: z
+    .array(
+      z.looseObject({
+        status: z.enum(EInvoiceLedgerPaymentStatus),
+        count: z.number(),
+        outstanding: z.number(),
+      })
+    )
+    .default([]),
+  /** Outstanding by age of the invoice. */
+  ageing: z
+    .array(
+      z.looseObject({
+        bucket: z.enum(EInvoiceLedgerAgeingBucket),
+        count: z.number(),
+        outstanding: z.number(),
+      })
+    )
+    .default([]),
+  /** Days since the oldest invoice that still has something outstanding. */
+  oldestOutstandingDays: z.number().nullable().default(null),
 });
 
 export const InvoiceLedgerGetResponseSchema = z.looseObject({
