@@ -1,11 +1,3 @@
-/** Indian grouping, two decimals, no symbol: 3,17,516.00. */
-export function formatLedgerAmount(value: number): string {
-  return Number(value ?? 0).toLocaleString('en-IN', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
 /** PAID → Paid, PARTIAL → Partial. */
 export function formatLedgerStatus(value: string | null | undefined): string {
   if (!value) {

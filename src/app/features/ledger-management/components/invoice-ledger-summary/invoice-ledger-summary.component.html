@@ -6,10 +6,13 @@
     [class.ls--refreshing]="loading()"
     aria-label="Ledger summary"
   >
-    <!-- Headline figures -->
+    <!-- Headline figures, each in the colour of its table column -->
     <dl class="ls-kpis">
       @for (kpi of v.kpis; track kpi.label) {
-        <div class="ls-kpi">
+        <div
+          class="ls-kpi"
+          [style.--ls-tone]="kpi.color"
+        >
           <dt>{{ kpi.label }}</dt>
           <dd>
             @if (kpi.isCount) {
@@ -26,13 +29,13 @@
     </dl>
 
     <div class="ls-grid">
-      <!-- Where the gross bill stands -->
-      <article class="ls-card ls-card--ring">
+      <!-- Ring + bill-to-outstanding statement -->
+      <article class="ls-card ls-card--money">
         <header class="ls-card__header">
           <h3>Where the money stands</h3>
-          <p>Share of the gross bill</p>
+          <p>From the gross bill down to what is still outstanding</p>
         </header>
-        <div class="ls-ring-wrap">
+        <div class="ls-money">
           <div
             class="ls-ring"
             role="img"
@@ -48,22 +51,101 @@
             }
             <div class="ls-ring__center">
               <small>Outstanding</small>
-              <strong>{{ v.outstandingCompact }}</strong>
+              <strong [style.color]="outstandingColor">{{ v.outstandingCompact }}</strong>
               <span>{{ v.settledPercent }}% settled</span>
             </div>
           </div>
 
-          <ul class="ls-legend">
-            @for (slice of v.slices; track slice.key) {
+          <ol class="ls-statement">
+            @for (line of v.statement; track line.key) {
+              <li
+                class="ls-statement__line"
+                [class.ls-statement__line--total]="line.isTotal"
+                [class.ls-statement__line--final]="line.key === 'outstanding'"
+                [style.--ls-tone]="line.isTotal ? line.color : null"
+              >
+                <span
+                  class="ls-statement__sign"
+                  aria-hidden="true"
+                >
+                  {{ line.sign }}
+                </span>
+                <span class="ls-statement__label">
+                  @if (line.color && !line.isTotal) {
+                    <span
+                      class="ls-swatch"
+                      [style.background]="line.color"
+                      aria-hidden="true"
+                    ></span>
+                  }
+                  <span>{{ line.label }}</span>
+                  @if (line.hint) {
+                    <small>{{ line.hint }}</small>
+                  }
+                </span>
+                <b>{{ line.amount | currency: currencyCode : 'symbol' : money : locale }}</b>
+                <small class="ls-statement__share">
+                  @if (line.percent !== undefined) {
+                    {{ line.percent | number: '1.0-1' : locale }}%
+                  }
+                </small>
+              </li>
+            }
+          </ol>
+        </div>
+      </article>
+
+      <!-- Outstanding ageing + status mix -->
+      <article class="ls-card">
+        <header class="ls-card__header">
+          <h3>Outstanding ageing</h3>
+          <p>
+            By invoice date · {{ v.outstandingInvoiceCount }}
+            {{ v.outstandingInvoiceCount === 1 ? 'invoice' : 'invoices' }} pending
+          </p>
+        </header>
+        @if (v.ageing.length) {
+          <div
+            class="ls-ageing-bar"
+            role="img"
+            [attr.aria-label]="v.ageingSummary"
+          >
+            @for (band of v.ageing; track band.key) {
+              <span
+                [style.flex-grow]="band.amount"
+                [style.background]="band.color"
+                [attr.title]="band.label + ' · ' + band.percent + '%'"
+              ></span>
+            }
+          </div>
+          <ul class="ls-ageing">
+            @for (band of v.ageing; track band.key) {
               <li>
                 <span
                   class="ls-swatch"
-                  [style.background]="slice.color"
+                  [style.background]="band.color"
                   aria-hidden="true"
                 ></span>
-                <span class="ls-legend__label">{{ slice.label }}</span>
-                <b>{{ slice.amount | currency: currencyCode : 'symbol' : money : locale }}</b>
-                <small>{{ slice.percent | number: '1.0-1' : locale }}%</small>
+                <span class="ls-ageing__label">
+                  {{ band.label }}
+                  <small>{{ band.count }} {{ band.count === 1 ? 'invoice' : 'invoices' }}</small>
+                </span>
+                <b>{{ band.amount | currency: currencyCode : 'symbol' : money : locale }}</b>
+                <small class="ls-ageing__share">{{ band.percent | number: '1.0-1' : locale }}%</small>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="ls-empty">Nothing outstanding for these filters.</p>
+        }
+
+        <div class="ls-status">
+          <h4>Invoice status</h4>
+          <ul>
+            @for (status of v.statusMix; track status.label) {
+              <li>
+                <app-status-tag [value]="status.label" />
+                <b>{{ status.count | number: '1.0-0' : locale }}</b>
               </li>
             }
           </ul>
@@ -71,7 +153,7 @@
       </article>
 
       <!-- Billed vs outstanding by month -->
-      <article class="ls-card">
+      <article class="ls-card ls-card--trend">
         <header class="ls-card__header">
           <h3>Billed vs still outstanding</h3>
           <p>By invoice month · ₹ lakh</p>
@@ -138,9 +220,10 @@
       }
     </div>
     <div class="ls-grid">
-      @for (i of [1, 2, 3]; track i) {
-        <div class="ls-card ls-skeleton ls-skeleton--card"></div>
-      }
+      <div class="ls-card ls-card--money ls-skeleton ls-skeleton--card"></div>
+      <div class="ls-card ls-skeleton ls-skeleton--card"></div>
+      <div class="ls-card ls-card--trend ls-skeleton ls-skeleton--card"></div>
+      <div class="ls-card ls-skeleton ls-skeleton--card"></div>
     </div>
   </section>
 }
