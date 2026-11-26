@@ -366,6 +366,16 @@ export class GetProjectComponent implements OnInit {
       return;
     }
 
+    if (actionType === EButtonActionType.CONTRACTOR_LEDGER) {
+      this.navigateToLedger(ROUTES.LEDGER.CONTRACTOR, selectedFirstRow.id);
+      return;
+    }
+
+    if (actionType === EButtonActionType.VENDOR_LEDGER) {
+      this.navigateToLedger(ROUTES.LEDGER.VENDOR, selectedFirstRow.id);
+      return;
+    }
+
     if (actionType === EButtonActionType.EDIT) {
       this.navigateToEditProject(selectedFirstRow.id);
       return;
@@ -465,6 +475,14 @@ export class GetProjectComponent implements OnInit {
         project: rowData,
       },
     });
+  }
+
+  /** Contractor or vendor ledger, filtered to this project. */
+  private navigateToLedger(ledger: string, projectId: string): void {
+    void this.routerNavigationService.navigateWithQueryParams(
+      [ROUTE_BASE_PATHS.LEDGER, ledger],
+      { projectName: projectId }
+    );
   }
 
   private navigateToEditProject(projectId: string): void {

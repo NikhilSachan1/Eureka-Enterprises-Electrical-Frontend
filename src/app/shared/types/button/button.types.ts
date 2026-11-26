@@ -107,4 +107,6 @@ export enum EButtonActionType {
   MOVE = 'move',
   WORKFLOW_JOURNEY = 'workflowJourney',
   QR_CODE = 'qrCode',
+  CONTRACTOR_LEDGER = 'contractorLedger',
+  VENDOR_LEDGER = 'vendorLedger',
 }

@@ -222,6 +222,11 @@ export class GetContractorComponent implements OnInit {
       return;
     }
 
+    if (actionType === EButtonActionType.CONTRACTOR_LEDGER) {
+      this.navigateToLedger(selectedFirstRow.id);
+      return;
+    }
+
     if (actionType === EButtonActionType.EDIT) {
       this.navigateToEditContractor(selectedFirstRow.id);
       return;
@@ -300,6 +305,14 @@ export class GetContractorComponent implements OnInit {
         contractor: rowData,
       },
     });
+  }
+
+  /** Contractor ledger, filtered to this contractor. */
+  private navigateToLedger(contractorId: string): void {
+    void this.routerNavigationService.navigateWithQueryParams(
+      [ROUTE_BASE_PATHS.LEDGER, ROUTES.LEDGER.CONTRACTOR],
+      { partyName: contractorId }
+    );
   }
 
   private navigateToEditContractor(contractorId: string): void {

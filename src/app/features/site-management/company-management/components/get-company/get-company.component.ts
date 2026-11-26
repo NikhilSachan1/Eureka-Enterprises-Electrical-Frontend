@@ -215,6 +215,16 @@ export class GetCompanyComponent implements OnInit {
       return;
     }
 
+    if (actionType === EButtonActionType.CONTRACTOR_LEDGER) {
+      this.navigateToLedger(ROUTES.LEDGER.CONTRACTOR, selectedFirstRow.id);
+      return;
+    }
+
+    if (actionType === EButtonActionType.VENDOR_LEDGER) {
+      this.navigateToLedger(ROUTES.LEDGER.VENDOR, selectedFirstRow.id);
+      return;
+    }
+
     if (actionType === EButtonActionType.EDIT) {
       this.navigateToEditCompany(selectedFirstRow.id);
       return;
@@ -284,6 +294,14 @@ export class GetCompanyComponent implements OnInit {
         company: rowData,
       },
     });
+  }
+
+  /** Contractor or vendor ledger, filtered to this company. */
+  private navigateToLedger(ledger: string, companyId: string): void {
+    void this.routerNavigationService.navigateWithQueryParams(
+      [ROUTE_BASE_PATHS.LEDGER, ledger],
+      { companyName: companyId }
+    );
   }
 
   private navigateToEditCompany(companyId: string): void {
