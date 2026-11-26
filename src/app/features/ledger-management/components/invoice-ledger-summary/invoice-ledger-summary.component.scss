@@ -27,62 +27,172 @@
   border-radius: 3px;
 }
 
-/* ---------- Headline figures ---------- */
+/* ---------- Invoices by payment status (same band as the PDF) ---------- */
 
-.ls-kpis {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin: 0;
-}
-
-.ls-kpi {
-  --ls-tone: var(--ls-muted);
-
-  position: relative;
+.ls-band {
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  min-width: 0;
-  overflow: hidden;
-  padding: 0.9rem 1rem 0.85rem 1.15rem;
+  gap: 1rem;
+  align-items: stretch;
+  padding: 0.85rem 1rem;
   border: 1px solid var(--ls-border);
   border-radius: var(--ls-radius);
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--ls-tone) 9%, transparent), transparent 60%), var(--ls-surface);
+  background: var(--ls-surface);
 
-  /* Accent bar in the column's colour. */
-  &::before {
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 4px;
-    background: var(--ls-tone);
-    content: "";
+  &__total {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 5.5rem;
+    padding-right: 1rem;
+    border-right: 1px solid var(--ls-border);
+
+    small {
+      color: var(--ls-muted);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    b {
+      color: var(--ls-ink);
+      font-size: 1.9rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
   }
 
-  dt {
-    color: var(--ls-muted);
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+  &__main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-width: 0;
   }
 
-  dd {
-    margin: 0;
+  &__bar {
+    display: flex;
+    gap: 2px;
+    overflow: hidden;
+    height: 1.25rem;
+    border-radius: 0.4rem;
+    background: color-mix(in srgb, var(--ls-muted) 14%, transparent);
+
+    span {
+      display: flex;
+      flex-basis: 0;
+      align-items: center;
+      justify-content: center;
+      min-width: 4px;
+      overflow: hidden;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+  }
+
+  &__boxes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
+  &__box {
+    min-width: 0;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--ls-border);
+    border-left: 3px solid var(--ls-tone);
+    border-radius: 0.5rem;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
     color: var(--ls-tone);
-    font-size: 1.45rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+
+    i {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: var(--ls-tone);
+    }
+
+    span {
+      margin-left: auto;
+      color: var(--ls-muted);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  &__count {
+    margin-top: 0.15rem;
+    color: var(--ls-ink);
+    font-size: 1.3rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-    line-height: 1.25;
-    overflow-wrap: anywhere;
+
+    small {
+      color: var(--ls-muted);
+      font-size: 0.75rem;
+      font-weight: 400;
+    }
   }
 
-  &__hint {
-    color: var(--ls-muted);
-    font-size: 0.75rem;
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
+  /* Billed | Due, each a small label over its amount; due in the status colour. */
+  &__figures {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0.5rem 0 0;
+    padding-top: 0.45rem;
+    border-top: 1px dashed var(--ls-border);
+
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      min-width: 0;
+    }
+
+    > div + div {
+      padding-left: 0.65rem;
+      border-left: 1px solid var(--ls-border);
+    }
+
+    dt {
+      color: var(--ls-muted);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    dd {
+      margin: 0;
+      color: var(--ls-ink);
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__due dd {
+    color: var(--ls-tone);
+    font-weight: 700;
+  }
+
+  &__settled {
+    font-size: 0.78rem !important;
   }
 }
 
@@ -112,6 +222,10 @@
     margin-bottom: 0.85rem;
 
     h3 {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
       margin: 0;
       color: var(--ls-ink);
       font-size: 0.95rem;
@@ -239,6 +353,33 @@
         color: var(--ls-tone);
       }
     }
+
+    /* CGST / SGST / IGST: indented under the GST total, smaller and muted. */
+    &--part {
+      padding-block: 0.18rem;
+      color: var(--ls-muted);
+      font-size: 0.78rem;
+
+      .ls-statement__label {
+        padding-left: 0.9rem;
+      }
+
+      b {
+        font-weight: 500;
+      }
+    }
+
+    /* Total GST: closes the GST parts with a dashed rule, in the GST colour. */
+    &--group-total {
+      border-top: 1px dashed var(--ls-border);
+      border-radius: 0;
+
+      .ls-statement__label,
+      b {
+        color: #d97706;
+        font-weight: 600;
+      }
+    }
   }
 
   &__sign {
@@ -330,44 +471,6 @@
     font-size: 0.72rem;
     font-variant-numeric: tabular-nums;
     text-align: right;
-  }
-}
-
-.ls-status {
-  margin-top: auto;
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--ls-border);
-
-  h4 {
-    margin: 0 0 0.5rem;
-    color: var(--ls-muted);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  ul {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.5rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  li {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.3rem;
-
-    b {
-      color: var(--ls-ink);
-      font-size: 1.05rem;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-    }
   }
 }
 
@@ -496,10 +599,6 @@
 /* ---------- Narrower screens ---------- */
 
 @media (max-width: 1280px) {
-  .ls-kpis {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   /* Money and trend span the row; ageing and parties share one. */
   .ls-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -508,7 +607,22 @@
 }
 
 @media (max-width: 760px) {
-  .ls-kpis,
+  .ls-band {
+    flex-direction: column;
+  }
+
+  .ls-band__total {
+    flex-direction: row;
+    gap: 0.5rem;
+    padding: 0 0 0.6rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--ls-border);
+  }
+
+  .ls-band__boxes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .ls-grid {
     grid-template-columns: minmax(0, 1fr);
   }

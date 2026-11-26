@@ -131,6 +131,7 @@ export const InvoiceLedgerInsightsSchema = z.looseObject({
       z.looseObject({
         status: z.enum(EInvoiceLedgerPaymentStatus),
         count: z.number(),
+        gross: z.number().default(0),
         outstanding: z.number(),
       })
     )

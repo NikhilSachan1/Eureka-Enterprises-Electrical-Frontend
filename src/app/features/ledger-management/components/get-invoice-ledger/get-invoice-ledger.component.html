@@ -45,7 +45,7 @@
   }
 </ng-template>
 
-<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+<app-page-header [pageHeaderConfig]="pageHeaderConfig" />
 
 <div class="search-filter-wrapper">
   <app-search-filter
@@ -53,6 +53,36 @@
     [searchFilterConfig]="searchFilterConfig"
   />
 </div>
+
+<!--
+  Export bar, right under the filters: how many invoices the filters match and the export of
+  exactly that list. It exists for the export, so without the export permission it is not shown.
+-->
+@if (canExport) {
+  <div class="ledger-table-bar">
+    <span
+      class="ledger-table-bar__icon"
+      aria-hidden="true"
+    >
+      <i [class]="tableBar.icon"></i>
+    </span>
+    <div class="ledger-table-bar__title">
+      <h2>
+        {{ sideConfig.partyLabel }} invoices
+        @if (matchingCount() !== null) {
+          <span class="ledger-table-bar__count">
+            {{ matchingCount() }} {{ matchingCount() === 1 ? 'invoice' : 'invoices' }}
+          </span>
+        }
+      </h2>
+      <p>{{ tableBar.subtitle }}</p>
+    </div>
+    <app-button
+      [buttonConfig]="exportButtonConfig()"
+      (onButtonClick)="exportLedgerPdf()"
+    />
+  </div>
+}
 
 <app-invoice-ledger-summary
   [view]="summaryView()"

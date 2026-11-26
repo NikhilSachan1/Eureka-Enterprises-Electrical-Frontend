@@ -14,6 +14,8 @@ export interface IInvoiceLedgerSideConfig {
   partyLabel: string;
   /** Contractor money is received from the client; vendor money is paid out by us. */
   paidLabel: string;
+  /** Needed to see and use "Export PDF" on this side. */
+  exportPermission: string;
   /** Advances are settled only against purchase (vendor) invoices. */
   showAdvance: boolean;
 }
@@ -84,15 +86,6 @@ export interface IInvoiceLedgerMoneySlice {
   color: string;
 }
 
-/** One headline figure above the charts, with the colour of its column in the table. */
-export interface IInvoiceLedgerKpi {
-  label: string;
-  value: number;
-  isCount?: boolean;
-  hint?: string;
-  color: string;
-}
-
 /** One line of the bill-to-outstanding statement beside the ring. */
 export interface IInvoiceLedgerStatementLine {
   key: string;
@@ -106,6 +99,8 @@ export interface IInvoiceLedgerStatementLine {
   /** Share of the gross bill, shown for ring segments. */
   percent?: number;
   hint?: string;
+  /** `part`: one piece of a group (CGST / SGST / IGST); `groupTotal`: that group's total (Total GST). */
+  variant?: 'part' | 'groupTotal';
 }
 
 /** One age band of the outstanding. */
@@ -124,7 +119,13 @@ export interface IInvoiceLedgerStatusCount {
   /** Label the shared status tag colours by (Paid / Partial / Unpaid). */
   label: string;
   count: number;
+  /** Share of all invoices, 0–100. */
+  percent: number;
+  gross: number;
   outstanding: number;
+  color: string;
+  /** Light background of the status box. */
+  tint: string;
 }
 
 /** One row of "most outstanding": a contractor / vendor and how much they still owe / are owed. */
@@ -138,7 +139,6 @@ export interface IInvoiceLedgerPartyBar {
 
 /** Everything the summary above the ledger table draws. Covers every matching invoice. */
 export interface IInvoiceLedgerSummaryView {
-  kpis: IInvoiceLedgerKpi[];
   outstandingCompact: string;
   /** Share of the net payable already settled, 0–100. */
   settledPercent: number;
@@ -151,6 +151,10 @@ export interface IInvoiceLedgerSummaryView {
   outstandingInvoiceCount: number;
   oldestOutstandingDays: number | null;
   statusMix: IInvoiceLedgerStatusCount[];
+  /** Every invoice the filters match. */
+  invoiceCount: number;
+  /** The status bar read out for screen readers. */
+  statusBandLabel: string;
   trendChart: IChartsConfig | null;
   parties: IInvoiceLedgerPartyBar[];
   partyHeading: string;

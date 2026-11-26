@@ -218,6 +218,8 @@ export const APP_PERMISSION = {
   LEDGER: {
     CONTRACTOR_VIEW: 'ledger.contractor.view',
     VENDOR_VIEW: 'ledger.vendor.view',
+    CONTRACTOR_EXPORT: 'ledger.contractor.export',
+    VENDOR_EXPORT: 'ledger.vendor.export',
   },
   USER_DELEGATION: {
     TABLE_VIEW: 'user-delegation.view-list',

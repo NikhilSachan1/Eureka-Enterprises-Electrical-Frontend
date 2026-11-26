@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { APP_CONFIG } from '@core/config';
 import { ChartsComponent } from '@shared/components/charts/charts.component';
-import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { IInvoiceLedgerSummaryView } from '../../types/invoice-ledger.interface';
 import { INVOICE_LEDGER_CHART_COLORS } from '../../config/summary/invoice-ledger-summary.config';
 
@@ -13,7 +12,7 @@ import { INVOICE_LEDGER_CHART_COLORS } from '../../config/summary/invoice-ledger
  */
 @Component({
   selector: 'app-invoice-ledger-summary',
-  imports: [ChartsComponent, StatusTagComponent, CurrencyPipe, DecimalPipe],
+  imports: [ChartsComponent, CurrencyPipe, DecimalPipe],
   templateUrl: './invoice-ledger-summary.component.html',
   styleUrl: './invoice-ledger-summary.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
