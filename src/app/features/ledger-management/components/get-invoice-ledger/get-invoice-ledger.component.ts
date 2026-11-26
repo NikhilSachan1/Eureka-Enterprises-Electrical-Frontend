@@ -33,10 +33,10 @@ import {
 } from '@shared/types';
 import {
   buildInvoiceLedgerSummaryView,
-  createInvoiceLedgerExportButtonConfig,
+  createInvoiceLedgerExportButtonConfigs,
   createInvoiceLedgerPageHeaderConfig,
   createInvoiceLedgerSearchFilterConfig,
-  INVOICE_LEDGER_PDF_LOADING,
+  INVOICE_LEDGER_EXPORT_LOADING,
   INVOICE_LEDGER_TABLE_BAR,
   createInvoiceLedgerTableEnhancedConfig,
   INVOICE_LEDGER_AMOUNT_TONES,
@@ -48,12 +48,19 @@ import {
   IInvoiceLedgerGetResponseDto,
   IInvoiceLedgerRecordDto,
 } from '../../types/invoice-ledger.dto';
-import { EInvoiceLedgerSide } from '../../types/invoice-ledger.enum';
+import {
+  EInvoiceLedgerExportFormat,
+  EInvoiceLedgerSide,
+} from '../../types/invoice-ledger.enum';
 import {
   IInvoiceLedgerSummarySource,
   IInvoiceLedgerTableRow,
 } from '../../types/invoice-ledger.interface';
 import { buildLedgerTableRow } from '../../utils/invoice-ledger-row.util';
+import {
+  ledgerExportFileName,
+  saveLedgerExport,
+} from '../../utils/invoice-ledger-export.util';
 
 /**
  * Invoice-wise ledger for one side — contractor (SALE) or vendor (PURCHASE), picked by the
@@ -122,46 +129,56 @@ export class GetInvoiceLedgerComponent implements OnInit {
   protected readonly pageHeaderConfig: IPageHeaderConfig =
     createInvoiceLedgerPageHeaderConfig(this.sideConfig);
 
-  /** How many invoices the filters match, i.e. what the PDF will hold; null until loaded. */
+  /** How many invoices the filters match, i.e. what an export will hold; null until loaded. */
   protected readonly matchingCount = computed(
     () => this.summarySource()?.totalRecords ?? null
   );
 
-  /** Export is offered once the filters match at least one invoice. */
-  /** Export has its own permission per side; without it the button is not shown. */
+  /** Export has its own permission per side; without it the export bar is not shown. */
   protected readonly canExport = this.appPermissionService.hasPermission(
     this.sideConfig.exportPermission
   );
 
-  protected readonly exportButtonConfig = computed(() =>
-    createInvoiceLedgerExportButtonConfig((this.matchingCount() ?? 0) > 0)
+  /** PDF and interactive file; offered once the filters match at least one invoice. */
+  protected readonly exportButtons = computed(() =>
+    createInvoiceLedgerExportButtonConfigs((this.matchingCount() ?? 0) > 0)
   );
 
-  /** Same filters and order as the table, every matching invoice (not just this page). */
-  protected exportLedgerPdf(): void {
-    this.loadingService.show(INVOICE_LEDGER_PDF_LOADING);
+  /**
+   * Same filters and order as the table, every matching invoice (not just this page). The file
+   * comes straight back from the API: the PDF opens in the viewer, the interactive file is saved
+   * to downloads.
+   */
+  protected exportLedger(format: EInvoiceLedgerExportFormat): void {
+    this.loadingService.show(INVOICE_LEDGER_EXPORT_LOADING[format]);
 
     this.invoiceLedgerService
-      .getInvoiceLedgerPdf(this.prepareParamData())
+      .exportInvoiceLedger(this.prepareParamData(), format)
       .pipe(
         finalize(() => this.loadingService.hide()),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: response => {
-          this.galleryService.show([
-            { mediaKey: response.key, actualMediaUrl: response.url },
-          ]);
-          this.logger.logUserAction('Invoice ledger PDF opened', {
+        next: (blob: Blob) => {
+          const fileName = ledgerExportFileName(
+            this.sideConfig.partyLabel,
+            format
+          );
+          if (format === EInvoiceLedgerExportFormat.INTERACTIVE) {
+            saveLedgerExport(blob, fileName);
+          } else {
+            this.galleryService.show([
+              { mediaKey: fileName, actualMediaUrl: URL.createObjectURL(blob) },
+            ]);
+          }
+          this.logger.logUserAction('Invoice ledger exported', {
             side: this.sideConfig.side,
+            format,
           });
         },
         error: error => {
           // ApiService already shows the reason (e.g. no invoices, too many to export).
-          this.logger.logUserAction(
-            'Failed to export invoice ledger PDF',
-            error
-          );
+          this.logger.logUserAction('Failed to export invoice ledger', error);
         },
       });
   }

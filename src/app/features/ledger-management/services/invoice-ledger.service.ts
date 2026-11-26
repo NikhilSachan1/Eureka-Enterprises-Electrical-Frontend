@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, defer, Observable, tap, throwError } from 'rxjs';
 import {
   InvoiceLedgerGetRequestSchema,
   InvoiceLedgerGetResponseSchema,
@@ -10,9 +10,10 @@ import {
   IInvoiceLedgerGetFormDto,
   IInvoiceLedgerGetResponseDto,
 } from '../types/invoice-ledger.dto';
-import { EInvoiceLedgerSide } from '../types/invoice-ledger.enum';
-import { AttachmentsGetResponseSchema } from '@shared/schemas/attachments.schema';
-import { IAttachmentsGetResponseDto } from '@shared/types';
+import {
+  EInvoiceLedgerExportFormat,
+  EInvoiceLedgerSide,
+} from '../types/invoice-ledger.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -60,44 +61,51 @@ export class InvoiceLedgerService {
       );
   }
 
-  /** The ledger for the same filters as the page, as a PDF; returns its download URL. */
-  getInvoiceLedgerPdf(
-    params: IInvoiceLedgerGetFormDto
-  ): Observable<IAttachmentsGetResponseDto> {
-    this.logger.logUserAction('Get Invoice Ledger PDF Request');
+  /**
+   * The ledger for the same filters as the page, exported as a PDF or as an interactive file;
+   * the file itself comes back (nothing is stored on the server).
+   */
+  exportInvoiceLedger(
+    params: IInvoiceLedgerGetFormDto,
+    format: EInvoiceLedgerExportFormat
+  ): Observable<Blob> {
+    this.logger.logUserAction('Export Invoice Ledger Request', { format });
 
     const { LEDGER } = API_ROUTES.SITE.DOCUMENT.INVOICE;
+    const isContractor = params.partyType === EInvoiceLedgerSide.CONTRACTOR;
     const endpoint =
-      params.partyType === EInvoiceLedgerSide.CONTRACTOR
-        ? LEDGER.CONTRACTOR_PDF
-        : LEDGER.VENDOR_PDF;
+      format === EInvoiceLedgerExportFormat.INTERACTIVE
+        ? isContractor
+          ? LEDGER.CONTRACTOR_INTERACTIVE
+          : LEDGER.VENDOR_INTERACTIVE
+        : isContractor
+          ? LEDGER.CONTRACTOR_PDF
+          : LEDGER.VENDOR_PDF;
 
-    return this.apiService
-      .getValidated(
+    // The file comes back as the response body, so the query is built with the same request
+    // schema the list uses, and the response is read as a blob.
+    return defer(() =>
+      this.apiService.getBlob(
         endpoint,
-        {
-          response: AttachmentsGetResponseSchema,
-          request: InvoiceLedgerGetRequestSchema,
-        },
-        params
+        InvoiceLedgerGetRequestSchema.parse(params)
       )
-      .pipe(
-        tap(response => {
-          this.logger.logUserAction('Get Invoice Ledger PDF Response', {
-            key: response.key,
-          });
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Invoice Ledger PDF Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Invoice Ledger PDF Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+    ).pipe(
+      tap(() => {
+        this.logger.logUserAction('Export Invoice Ledger Response', {
+          format,
+        });
+      }),
+      catchError(error => {
+        if (error?.name === 'ZodError') {
+          this.logger.logDtoValidationErrors(
+            'Export Invoice Ledger Error',
+            error
+          );
+        } else {
+          this.logger.logUserAction('Export Invoice Ledger Error', error);
+        }
+        return throwError(() => error);
+      })
+    );
   }
 }
