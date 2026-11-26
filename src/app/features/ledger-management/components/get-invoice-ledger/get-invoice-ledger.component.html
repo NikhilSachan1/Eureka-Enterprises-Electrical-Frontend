@@ -77,10 +77,14 @@
       </h2>
       <p>{{ tableBar.subtitle }}</p>
     </div>
-    <app-button
-      [buttonConfig]="exportButtonConfig()"
-      (onButtonClick)="exportLedgerPdf()"
-    />
+    <div class="ledger-table-bar__actions">
+      @for (item of exportButtons(); track item.format) {
+        <app-button
+          [buttonConfig]="item.button"
+          (onButtonClick)="exportLedger(item.format)"
+        />
+      }
+    </div>
   </div>
 }
 

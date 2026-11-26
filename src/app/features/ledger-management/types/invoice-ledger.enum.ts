@@ -19,6 +19,12 @@ export enum EInvoiceLedgerPaymentStatus {
   UNPAID = 'UNPAID',
 }
 
+/** What "Export" produces: a PDF, or one HTML file that filters its own invoices offline. */
+export enum EInvoiceLedgerExportFormat {
+  PDF = 'pdf',
+  INTERACTIVE = 'interactive',
+}
+
 /** Age of an outstanding invoice, counted from its invoice date. */
 export enum EInvoiceLedgerAgeingBucket {
   D0_30 = 'D0_30',
