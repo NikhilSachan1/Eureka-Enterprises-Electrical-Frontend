@@ -63,9 +63,11 @@ export interface IInvoiceLedgerTableRow extends Record<string, unknown> {
   tdsAmountNote: string;
   advanceAdjusted: number;
   paidAmount: number;
-  /** How many transfers paid it, e.g. "2 transfers". */
+  /** Share of the net payable received / paid and how many transfers, e.g. "50.8% received · 2 transfers". */
   paidAmountNote: string;
   outstandingAmount: number;
+  /** Share of the net payable still due, e.g. "64.2% due". */
+  outstandingAmountNote: string;
   paymentStatusLabel: string;
   payments: IInvoiceLedgerPaymentRow[];
 }

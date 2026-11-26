@@ -206,6 +206,22 @@ function buildStatement(
     hint,
   });
 
+  /**
+   * Settlement lines (received / paid, advance) carry their share of the net payable instead of
+   * the gross bill, so received % + advance % + outstanding % add up to 100%.
+   */
+  const ofNetPayable = (amount: number, verb: string): string =>
+    `${shareOf(amount, totals.netPayable)}% of net payable ${verb}`;
+  const settlement = (
+    key: string,
+    label: string,
+    amount: number,
+    verb: string
+  ): IInvoiceLedgerStatementLine => ({
+    ...segment(key, label, amount, ofNetPayable(amount, verb)),
+    percent: undefined,
+  });
+
   // GST broken into its parts, each on its own line, then the GST total.
   const gstParts: IInvoiceLedgerStatementLine[] = [
     { key: 'cgst', label: 'CGST', amount: totals.cgstAmount },
@@ -255,9 +271,19 @@ function buildStatement(
       sign: '=',
       isTotal: true,
     },
-    segment('received', sideConfig.paidLabel, totals.paidAmount),
+    settlement(
+      'received',
+      sideConfig.paidLabel,
+      totals.paidAmount,
+      sideConfig.paidLabel.toLowerCase()
+    ),
     sideConfig.showAdvance
-      ? segment('advance', 'Advance adjusted', totals.advanceAdjusted)
+      ? settlement(
+          'advance',
+          'Advance adjusted',
+          totals.advanceAdjusted,
+          'adjusted'
+        )
       : null,
     {
       key: 'outstanding',
@@ -266,7 +292,7 @@ function buildStatement(
       sign: '=',
       isTotal: true,
       color: INVOICE_LEDGER_CHART_COLORS.outstanding,
-      percent: slice('outstanding')?.percent,
+      hint: ofNetPayable(totals.outstandingAmount, 'still outstanding'),
     },
   ];
   return lines.filter((line): line is IInvoiceLedgerStatementLine => !!line);
