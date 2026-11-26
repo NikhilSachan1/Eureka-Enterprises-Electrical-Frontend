@@ -19,7 +19,6 @@ import {
 } from '../../types/invoice-ledger.enum';
 import {
   IInvoiceLedgerAgeingBand,
-  IInvoiceLedgerKpi,
   IInvoiceLedgerMoneySlice,
   IInvoiceLedgerSideConfig,
   IInvoiceLedgerStatementLine,
@@ -188,13 +187,19 @@ function buildStatement(
     hint,
   });
 
-  const gstSplit = [
-    totals.cgstAmount ? `CGST ${compactInr(totals.cgstAmount)}` : '',
-    totals.sgstAmount ? `SGST ${compactInr(totals.sgstAmount)}` : '',
-    totals.igstAmount ? `IGST ${compactInr(totals.igstAmount)}` : '',
+  // GST broken into its parts, each on its own line, then the GST total.
+  const gstParts: IInvoiceLedgerStatementLine[] = [
+    { key: 'cgst', label: 'CGST', amount: totals.cgstAmount },
+    { key: 'sgst', label: 'SGST', amount: totals.sgstAmount },
+    { key: 'igst', label: 'IGST', amount: totals.igstAmount },
   ]
-    .filter(Boolean)
-    .join(' · ');
+    .filter(part => part.amount > 0)
+    .map(part => ({
+      ...part,
+      sign: '+' as const,
+      isTotal: false,
+      variant: 'part' as const,
+    }));
   const gstHeld = gstHeldOf(totals);
 
   const lines: (IInvoiceLedgerStatementLine | null)[] = [
@@ -205,13 +210,14 @@ function buildStatement(
       sign: '',
       isTotal: false,
     },
+    ...gstParts,
     {
       key: 'gst',
-      label: 'GST',
+      label: 'Total GST',
       amount: totals.gstAmount,
-      sign: '+',
+      sign: gstParts.length ? '' : '+',
       isTotal: false,
-      hint: gstSplit || undefined,
+      variant: gstParts.length ? 'groupTotal' : undefined,
     },
     {
       key: 'gross',
@@ -336,53 +342,10 @@ function buildTrendChart(
   };
 }
 
-function buildKpis(
-  totals: IInvoiceLedgerTotalsDto,
-  invoiceCount: number,
-  statusMix: IInvoiceLedgerStatusCount[],
-  oldestOutstandingDays: number | null,
-  sideConfig: IInvoiceLedgerSideConfig
-): IInvoiceLedgerKpi[] {
-  const receivedShare = shareOf(totals.paidAmount, totals.netPayable);
-  return [
-    {
-      label: 'Invoices',
-      value: invoiceCount,
-      isCount: true,
-      hint: statusMix
-        .map(s => `${s.count} ${s.label.toLowerCase()}`)
-        .join(' · '),
-      color: INVOICE_LEDGER_CHART_COLORS.count,
-    },
-    {
-      label: 'Gross bill',
-      value: totals.grossAmount,
-      hint: `Basic ${compactInr(totals.taxableAmount)} + GST ${compactInr(totals.gstAmount)}`,
-      color: INVOICE_LEDGER_CHART_COLORS.bill,
-    },
-    {
-      label: sideConfig.paidLabel,
-      value: totals.paidAmount,
-      hint: `${receivedShare}% of net payable ${compactInr(totals.netPayable)}`,
-      color: INVOICE_LEDGER_CHART_COLORS.received,
-    },
-    {
-      label: 'Outstanding',
-      value: totals.outstandingAmount,
-      hint:
-        totals.outstandingAmount > 0 && oldestOutstandingDays !== null
-          ? `Oldest pending ${oldestOutstandingDays} ${oldestOutstandingDays === 1 ? 'day' : 'days'}`
-          : 'Nothing pending',
-      color: INVOICE_LEDGER_CHART_COLORS.outstanding,
-    },
-  ];
-}
-
 /** Everything the summary draws, from the totals and insights of every matching invoice. */
 export function buildInvoiceLedgerSummaryView(
   totals: IInvoiceLedgerTotalsDto,
   insights: IInvoiceLedgerInsightsDto | undefined,
-  invoiceCount: number,
   sideConfig: IInvoiceLedgerSideConfig
 ): IInvoiceLedgerSummaryView {
   const slices = buildMoneySlices(totals, sideConfig);
@@ -394,13 +357,6 @@ export function buildInvoiceLedgerSummaryView(
   const maxOutstanding = Math.max(...topParties.map(p => p.outstanding), 1);
 
   return {
-    kpis: buildKpis(
-      totals,
-      invoiceCount,
-      statusMix,
-      oldestOutstandingDays,
-      sideConfig
-    ),
     outstandingCompact: compactInr(totals.outstandingAmount),
     settledPercent:
       totals.netPayable > 0

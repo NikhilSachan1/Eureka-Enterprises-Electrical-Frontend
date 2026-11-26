@@ -86,15 +86,6 @@ export interface IInvoiceLedgerMoneySlice {
   color: string;
 }
 
-/** One headline figure above the charts, with the colour of its column in the table. */
-export interface IInvoiceLedgerKpi {
-  label: string;
-  value: number;
-  isCount?: boolean;
-  hint?: string;
-  color: string;
-}
-
 /** One line of the bill-to-outstanding statement beside the ring. */
 export interface IInvoiceLedgerStatementLine {
   key: string;
@@ -108,6 +99,8 @@ export interface IInvoiceLedgerStatementLine {
   /** Share of the gross bill, shown for ring segments. */
   percent?: number;
   hint?: string;
+  /** `part`: one piece of a group (CGST / SGST / IGST); `groupTotal`: that group's total (Total GST). */
+  variant?: 'part' | 'groupTotal';
 }
 
 /** One age band of the outstanding. */
@@ -140,7 +133,6 @@ export interface IInvoiceLedgerPartyBar {
 
 /** Everything the summary above the ledger table draws. Covers every matching invoice. */
 export interface IInvoiceLedgerSummaryView {
-  kpis: IInvoiceLedgerKpi[];
   outstandingCompact: string;
   /** Share of the net payable already settled, 0–100. */
   settledPercent: number;

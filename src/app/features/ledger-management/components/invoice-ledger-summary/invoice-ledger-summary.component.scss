@@ -27,65 +27,6 @@
   border-radius: 3px;
 }
 
-/* ---------- Headline figures ---------- */
-
-.ls-kpis {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin: 0;
-}
-
-.ls-kpi {
-  --ls-tone: var(--ls-muted);
-
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  min-width: 0;
-  overflow: hidden;
-  padding: 0.9rem 1rem 0.85rem 1.15rem;
-  border: 1px solid var(--ls-border);
-  border-radius: var(--ls-radius);
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--ls-tone) 9%, transparent), transparent 60%), var(--ls-surface);
-
-  /* Accent bar in the column's colour. */
-  &::before {
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 4px;
-    background: var(--ls-tone);
-    content: "";
-  }
-
-  dt {
-    color: var(--ls-muted);
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  dd {
-    margin: 0;
-    color: var(--ls-tone);
-    font-size: 1.45rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    line-height: 1.25;
-    overflow-wrap: anywhere;
-  }
-
-  &__hint {
-    color: var(--ls-muted);
-    font-size: 0.75rem;
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
-  }
-}
-
 /* ---------- Cards ---------- */
 
 .ls-grid {
@@ -237,6 +178,33 @@
 
       .ls-statement__label > span:first-of-type {
         color: var(--ls-tone);
+      }
+    }
+
+    /* CGST / SGST / IGST: indented under the GST total, smaller and muted. */
+    &--part {
+      padding-block: 0.18rem;
+      color: var(--ls-muted);
+      font-size: 0.78rem;
+
+      .ls-statement__label {
+        padding-left: 0.9rem;
+      }
+
+      b {
+        font-weight: 500;
+      }
+    }
+
+    /* Total GST: closes the GST parts with a dashed rule, in the GST colour. */
+    &--group-total {
+      border-top: 1px dashed var(--ls-border);
+      border-radius: 0;
+
+      .ls-statement__label,
+      b {
+        color: #d97706;
+        font-weight: 600;
       }
     }
   }
@@ -496,10 +464,6 @@
 /* ---------- Narrower screens ---------- */
 
 @media (max-width: 1280px) {
-  .ls-kpis {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   /* Money and trend span the row; ageing and parties share one. */
   .ls-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -508,7 +472,6 @@
 }
 
 @media (max-width: 760px) {
-  .ls-kpis,
   .ls-grid {
     grid-template-columns: minmax(0, 1fr);
   }

@@ -113,7 +113,6 @@ export class GetInvoiceLedgerComponent implements OnInit {
       ? buildInvoiceLedgerSummaryView(
           source.totals,
           source.insights,
-          source.totalRecords,
           this.sideConfig
         )
       : null;

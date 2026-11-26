@@ -1,4 +1,4 @@
-@let money = '1.0-0';
+@let money = '1.2-2';
 
 @if (view(); as v) {
   <section
@@ -6,28 +6,6 @@
     [class.ls--refreshing]="loading()"
     aria-label="Ledger summary"
   >
-    <!-- Headline figures, each in the colour of its table column -->
-    <dl class="ls-kpis">
-      @for (kpi of v.kpis; track kpi.label) {
-        <div
-          class="ls-kpi"
-          [style.--ls-tone]="kpi.color"
-        >
-          <dt>{{ kpi.label }}</dt>
-          <dd>
-            @if (kpi.isCount) {
-              {{ kpi.value | number: '1.0-0' : locale }}
-            } @else {
-              {{ kpi.value | currency: currencyCode : 'symbol' : money : locale }}
-            }
-          </dd>
-          @if (kpi.hint) {
-            <span class="ls-kpi__hint">{{ kpi.hint }}</span>
-          }
-        </div>
-      }
-    </dl>
-
     <div class="ls-grid">
       <!-- Ring + bill-to-outstanding statement -->
       <article class="ls-card ls-card--money">
@@ -62,6 +40,8 @@
                 class="ls-statement__line"
                 [class.ls-statement__line--total]="line.isTotal"
                 [class.ls-statement__line--final]="line.key === 'outstanding'"
+                [class.ls-statement__line--part]="line.variant === 'part'"
+                [class.ls-statement__line--group-total]="line.variant === 'groupTotal'"
                 [style.--ls-tone]="line.isTotal ? line.color : null"
               >
                 <span
@@ -214,11 +194,6 @@
     aria-busy="true"
     aria-label="Loading ledger summary"
   >
-    <div class="ls-kpis">
-      @for (i of [1, 2, 3, 4]; track i) {
-        <div class="ls-kpi ls-skeleton"></div>
-      }
-    </div>
     <div class="ls-grid">
       <div class="ls-card ls-card--money ls-skeleton ls-skeleton--card"></div>
       <div class="ls-card ls-skeleton ls-skeleton--card"></div>
