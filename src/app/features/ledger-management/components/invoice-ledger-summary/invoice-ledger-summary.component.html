@@ -6,6 +6,67 @@
     [class.ls--refreshing]="loading()"
     aria-label="Ledger summary"
   >
+    <!-- Invoices by payment status: total, a bar split in proportion, one box per status (same as the PDF) -->
+    <div class="ls-band">
+      <div class="ls-band__total">
+        <small>Invoices</small>
+        <b>{{ v.invoiceCount | number: '1.0-0' : locale }}</b>
+      </div>
+      <div class="ls-band__main">
+        <div
+          class="ls-band__bar"
+          role="img"
+          [attr.aria-label]="v.statusBandLabel"
+        >
+          @for (status of v.statusMix; track status.label) {
+            @if (status.count) {
+              <span
+                [style.flex-grow]="status.count"
+                [style.background]="status.color"
+              >
+                @if (status.percent >= 12) {
+                  {{ status.count }} {{ status.label }}
+                }
+              </span>
+            }
+          }
+        </div>
+        <div class="ls-band__boxes">
+          @for (status of v.statusMix; track status.label) {
+            <div
+              class="ls-band__box"
+              [style.--ls-tone]="status.color"
+              [style.background]="status.tint"
+            >
+              <div class="ls-band__head">
+                <i></i>
+                {{ status.label }}
+                <span>{{ status.percent | number: '1.0-1' : locale }}%</span>
+              </div>
+              <div class="ls-band__count">
+                {{ status.count | number: '1.0-0' : locale }}
+                <small>{{ status.count === 1 ? 'invoice' : 'invoices' }}</small>
+              </div>
+              <dl class="ls-band__figures">
+                <div>
+                  <dt>Billed</dt>
+                  <dd>{{ status.gross | currency: currencyCode : 'symbol' : money : locale }}</dd>
+                </div>
+                <div class="ls-band__due">
+                  <dt>Due</dt>
+                  @if (status.outstanding > 0) {
+                    <dd>{{ status.outstanding | currency: currencyCode : 'symbol' : money : locale }}</dd>
+                  } @else {
+                    <dd class="ls-band__settled">Fully settled ✓</dd>
+                  }
+                </div>
+              </dl>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
     <div class="ls-grid">
       <!-- Ring + bill-to-outstanding statement -->
       <article class="ls-card ls-card--money">
@@ -118,18 +179,6 @@
         } @else {
           <p class="ls-empty">Nothing outstanding for these filters.</p>
         }
-
-        <div class="ls-status">
-          <h4>Invoice status</h4>
-          <ul>
-            @for (status of v.statusMix; track status.label) {
-              <li>
-                <app-status-tag [value]="status.label" />
-                <b>{{ status.count | number: '1.0-0' : locale }}</b>
-              </li>
-            }
-          </ul>
-        </div>
       </article>
 
       <!-- Billed vs outstanding by month -->
@@ -194,6 +243,7 @@
     aria-busy="true"
     aria-label="Loading ledger summary"
   >
+    <div class="ls-band ls-skeleton"></div>
     <div class="ls-grid">
       <div class="ls-card ls-card--money ls-skeleton ls-skeleton--card"></div>
       <div class="ls-card ls-skeleton ls-skeleton--card"></div>

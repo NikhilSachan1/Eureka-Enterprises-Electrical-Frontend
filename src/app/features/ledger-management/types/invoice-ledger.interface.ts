@@ -119,7 +119,13 @@ export interface IInvoiceLedgerStatusCount {
   /** Label the shared status tag colours by (Paid / Partial / Unpaid). */
   label: string;
   count: number;
+  /** Share of all invoices, 0–100. */
+  percent: number;
+  gross: number;
   outstanding: number;
+  color: string;
+  /** Light background of the status box. */
+  tint: string;
 }
 
 /** One row of "most outstanding": a contractor / vendor and how much they still owe / are owed. */
@@ -145,6 +151,10 @@ export interface IInvoiceLedgerSummaryView {
   outstandingInvoiceCount: number;
   oldestOutstandingDays: number | null;
   statusMix: IInvoiceLedgerStatusCount[];
+  /** Every invoice the filters match. */
+  invoiceCount: number;
+  /** The status bar read out for screen readers. */
+  statusBandLabel: string;
   trendChart: IChartsConfig | null;
   parties: IInvoiceLedgerPartyBar[];
   partyHeading: string;

@@ -83,6 +83,25 @@ const STATUS_ORDER = [
   EInvoiceLedgerPaymentStatus.UNPAID,
 ];
 
+/** Status band colours: the status tag colours, with a light tint for each box. */
+const STATUS_STYLE: Record<
+  EInvoiceLedgerPaymentStatus,
+  { color: string; tint: string }
+> = {
+  [EInvoiceLedgerPaymentStatus.PAID]: {
+    color: INVOICE_LEDGER_CHART_COLORS.received,
+    tint: 'color-mix(in srgb, #16a34a 8%, transparent)',
+  },
+  [EInvoiceLedgerPaymentStatus.PARTIAL]: {
+    color: INVOICE_LEDGER_CHART_COLORS.gst,
+    tint: 'color-mix(in srgb, #d97706 8%, transparent)',
+  },
+  [EInvoiceLedgerPaymentStatus.UNPAID]: {
+    color: INVOICE_LEDGER_CHART_COLORS.outstanding,
+    tint: 'color-mix(in srgb, #dc2626 8%, transparent)',
+  },
+};
+
 const LAKH = 100_000;
 const MONTH_LABEL = new Intl.DateTimeFormat('en-IN', {
   month: 'short',
@@ -277,12 +296,17 @@ function buildAgeing(
 function buildStatusMix(
   statusMix: IInvoiceLedgerInsightsDto['statusMix']
 ): IInvoiceLedgerStatusCount[] {
+  const total = statusMix.reduce((sum, s) => sum + s.count, 0);
   return STATUS_ORDER.map(status => {
     const row = statusMix.find(s => s.status === status);
+    const count = row?.count ?? 0;
     return {
       label: formatLedgerStatus(status),
-      count: row?.count ?? 0,
+      count,
+      percent: shareOf(count, total),
+      gross: row?.gross ?? 0,
       outstanding: row?.outstanding ?? 0,
+      ...STATUS_STYLE[status],
     };
   });
 }
@@ -374,6 +398,10 @@ export function buildInvoiceLedgerSummaryView(
     outstandingInvoiceCount: ageing.reduce((sum, band) => sum + band.count, 0),
     oldestOutstandingDays,
     statusMix,
+    invoiceCount: statusMix.reduce((sum, s) => sum + s.count, 0),
+    statusBandLabel: statusMix
+      .map(s => `${s.count} ${s.label.toLowerCase()}`)
+      .join(', '),
     trendChart: buildTrendChart(insights?.byMonth ?? []),
     parties: topParties.map(p => ({
       name: p.partyName,
