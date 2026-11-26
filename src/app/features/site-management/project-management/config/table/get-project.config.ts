@@ -1,4 +1,5 @@
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
+import { ICONS } from '@shared/constants';
 import {
   EButtonActionType,
   EDataType,
@@ -110,6 +111,18 @@ function buildProjectTableRowActionsConfig(
       ...COMMON_ROW_ACTIONS.VIEW,
       tooltip: 'View Project Details',
       permission: [APP_PERMISSION.PROJECT.VIEW_DETAIL],
+    },
+    {
+      id: EButtonActionType.CONTRACTOR_LEDGER,
+      icon: ICONS.COMMON.BOOK,
+      tooltip: 'View Contractor Ledger',
+      permission: [APP_PERMISSION.LEDGER.CONTRACTOR_VIEW],
+    },
+    {
+      id: EButtonActionType.VENDOR_LEDGER,
+      icon: ICONS.COMMON.BOOK,
+      tooltip: 'View Vendor Ledger',
+      permission: [APP_PERMISSION.LEDGER.VENDOR_VIEW],
     },
     {
       id: EButtonActionType.WORKSPACE,

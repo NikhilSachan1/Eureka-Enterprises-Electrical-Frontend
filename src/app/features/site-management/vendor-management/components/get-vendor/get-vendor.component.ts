@@ -241,6 +241,11 @@ export class GetVendorComponent implements OnInit {
       return;
     }
 
+    if (actionType === EButtonActionType.VENDOR_LEDGER) {
+      this.navigateToLedger(selectedFirstRow.id);
+      return;
+    }
+
     if (actionType === EButtonActionType.EDIT) {
       this.navigateToEditVendor(selectedFirstRow.id);
       return;
@@ -317,6 +322,14 @@ export class GetVendorComponent implements OnInit {
         vendor: rowData,
       },
     });
+  }
+
+  /** Vendor ledger, filtered to this vendor. */
+  private navigateToLedger(vendorId: string): void {
+    void this.routerNavigationService.navigateWithQueryParams(
+      [ROUTE_BASE_PATHS.LEDGER, ROUTES.LEDGER.VENDOR],
+      { partyName: vendorId }
+    );
   }
 
   private navigateToEditVendor(vendorId: string): void {

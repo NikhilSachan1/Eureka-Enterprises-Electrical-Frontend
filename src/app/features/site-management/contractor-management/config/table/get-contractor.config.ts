@@ -1,4 +1,5 @@
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
+import { ICONS } from '@shared/constants';
 import {
   EButtonActionType,
   EDataType,
@@ -63,6 +64,12 @@ const CONTRACTOR_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Contractor Details',
     permission: [APP_PERMISSION.CONTRACTOR.VIEW_DETAIL],
+  },
+  {
+    id: EButtonActionType.CONTRACTOR_LEDGER,
+    icon: ICONS.COMMON.BOOK,
+    tooltip: 'View Contractor Ledger',
+    permission: [APP_PERMISSION.LEDGER.CONTRACTOR_VIEW],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,

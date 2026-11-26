@@ -1,4 +1,5 @@
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
+import { ICONS } from '@shared/constants';
 import {
   EButtonActionType,
   EDataType,
@@ -71,6 +72,12 @@ const VENDOR_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Vendor Details',
     permission: [APP_PERMISSION.VENDOR.VIEW_DETAIL],
+  },
+  {
+    id: EButtonActionType.VENDOR_LEDGER,
+    icon: ICONS.COMMON.BOOK,
+    tooltip: 'View Vendor Ledger',
+    permission: [APP_PERMISSION.LEDGER.VENDOR_VIEW],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
