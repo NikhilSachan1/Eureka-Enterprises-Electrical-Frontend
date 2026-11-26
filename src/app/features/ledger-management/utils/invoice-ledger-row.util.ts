@@ -30,6 +30,43 @@ function transfersNote(count: number): string {
   return `${count} ${count === 1 ? 'transfer' : 'transfers'}`;
 }
 
+/**
+ * Share of the invoice's net payable (basic − TDS + GST, GST left out while held), e.g. 64.2;
+ * null when there is nothing payable to compare with.
+ */
+function shareOfNetPayable(
+  record: IInvoiceLedgerRecordDto,
+  amount: number
+): number | null {
+  const gst = record.isGstHold && record.gstAmount > 0 ? 0 : record.gstAmount;
+  const netPayable = record.taxableAmount - record.tdsAmount + gst;
+  return netPayable > 0 ? Math.round((amount / netPayable) * 1000) / 10 : null;
+}
+
+/** "64.2% due"; empty once nothing is due. */
+function outstandingNote(record: IInvoiceLedgerRecordDto): string {
+  const share = record.outstandingAmount
+    ? shareOfNetPayable(record, record.outstandingAmount)
+    : null;
+  return share === null ? '' : `${share}% due`;
+}
+
+/** "50.8% received · 2 transfers"; empty when nothing was received / paid yet. */
+function paidNote(
+  record: IInvoiceLedgerRecordDto,
+  sideConfig: IInvoiceLedgerSideConfig
+): string {
+  const share = record.paidAmount
+    ? shareOfNetPayable(record, record.paidAmount)
+    : null;
+  return [
+    share === null ? '' : `${share}% ${sideConfig.paidLabel.toLowerCase()}`,
+    transfersNote(record.payments.length),
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}
+
 /** One ledger row: the API record plus the labels and bracket notes the table shows. */
 export function buildLedgerTableRow(
   record: IInvoiceLedgerRecordDto,
@@ -62,8 +99,9 @@ export function buildLedgerTableRow(
     tdsAmountNote: record.tdsAmount ? percent(record.tdsPercentage) : '',
     advanceAdjusted: sideConfig.showAdvance ? record.advanceAdjusted : 0,
     paidAmount: record.paidAmount,
-    paidAmountNote: transfersNote(record.payments.length),
+    paidAmountNote: paidNote(record, sideConfig),
     outstandingAmount: record.outstandingAmount,
+    outstandingAmountNote: outstandingNote(record),
     paymentStatusLabel: formatLedgerStatus(record.paymentStatus),
     payments: buildLedgerPaymentRows(record),
   };
