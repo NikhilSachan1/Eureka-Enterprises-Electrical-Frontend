@@ -2,6 +2,7 @@ import { transformDateFormat } from '@shared/utility/date-time.util';
 import * as z from 'zod';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { BankTransferUpsertShapeSchema } from './base-bank-transfer.schema';
+import { DirectPaymentSheetRefSchema } from '@features/centralized-payment-management/payment-sheet-management/schemas/direct-payment-sheet.schema';
 
 export const AddBankTransferRequestSchema =
   BankTransferUpsertShapeSchema.transform(data => ({
@@ -20,4 +21,6 @@ export const AddBankTransferRequestSchema =
 
 export const AddBankTransferResponseSchema = z.looseObject({
   message: z.string(),
+  /** PURCHASE only — the payment sheet auto-created for this transfer. */
+  paymentSheet: DirectPaymentSheetRefSchema,
 });

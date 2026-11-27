@@ -10,7 +10,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { REIMBURSE_EXPENSE_FORM_CONFIG } from '@features/expense-management/config';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
-import { IExpenseReimburseFormDto } from '@features/expense-management/types/expense.dto';
+import {
+  IExpenseReimburseFormDto,
+  IExpenseReimburseResponseDto,
+} from '@features/expense-management/types/expense.dto';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -98,10 +101,8 @@ export class ReimburseExpenseComponent
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: () => {
-          this.notificationService.success(
-            'Reimburse expense applied successfully'
-          );
+        next: (response: IExpenseReimburseResponseDto) => {
+          this.notifyReimburseResult(response);
           const routeSegments = [
             ROUTE_BASE_PATHS.EXPENSE,
             ROUTES.EXPENSE.LEDGER,
@@ -112,6 +113,18 @@ export class ReimburseExpenseComponent
           this.notificationService.error('Failed to apply reimburse expense');
         },
       });
+  }
+
+  /** Payment always goes through; a missing sheet is a warning, not a failure (retrying would pay twice). */
+  private notifyReimburseResult(response: IExpenseReimburseResponseDto): void {
+    const sheetNumber = response.paymentSheet?.sheetNumber;
+    if (sheetNumber) {
+      this.notificationService.success(
+        `Expense reimbursed. Payment sheet ${sheetNumber} created.`
+      );
+      return;
+    }
+    this.notificationService.warning(response.message);
   }
 
   protected onReset(): void {

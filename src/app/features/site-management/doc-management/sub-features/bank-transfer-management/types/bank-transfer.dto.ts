@@ -1,4 +1,5 @@
 import * as z from 'zod';
+import { EPaymentTypeFilter } from '@features/site-management/doc-management/shared/config/payment-filter.config';
 import {
   AddBankTransferRequestSchema,
   AddBankTransferResponseSchema,
@@ -42,6 +43,8 @@ export type IAddBankTransferUIFormDto = Omit<
 > & {
   projectName: string;
   proofAttachment: File[];
+  /** UI only (PURCHASE): which kind of booking is being paid — picks how Book Payment is listed. */
+  paymentType: EPaymentTypeFilter | null;
 };
 
 export type IAddBankTransferResponseDto = z.infer<

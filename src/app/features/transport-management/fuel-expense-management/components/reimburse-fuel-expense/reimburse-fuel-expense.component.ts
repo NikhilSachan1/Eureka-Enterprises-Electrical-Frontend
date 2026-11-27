@@ -9,7 +9,10 @@ import { FormBase } from '@shared/base/form.base';
 import { RouterNavigationService } from '@shared/services';
 import { REIMBURSE_FUEL_EXPENSE_FORM_CONFIG } from '../../config';
 import { FuelExpenseService } from '../../services/fuel-expense.service';
-import { IFuelExpenseReimburseFormDto } from '../../types/fuel-expense.dto';
+import {
+  IFuelExpenseReimburseFormDto,
+  IFuelExpenseReimburseResponseDto,
+} from '../../types/fuel-expense.dto';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
@@ -98,10 +101,8 @@ export class ReimburseFuelExpenseComponent
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: () => {
-          this.notificationService.success(
-            'Reimburse fuel expense applied successfully'
-          );
+        next: (response: IFuelExpenseReimburseResponseDto) => {
+          this.notifyReimburseResult(response);
           const routeSegments = [
             ROUTE_BASE_PATHS.TRANSPORT,
             ROUTE_BASE_PATHS.FUEL,
@@ -115,6 +116,20 @@ export class ReimburseFuelExpenseComponent
           );
         },
       });
+  }
+
+  /** Payment always goes through; a missing sheet is a warning, not a failure (retrying would pay twice). */
+  private notifyReimburseResult(
+    response: IFuelExpenseReimburseResponseDto
+  ): void {
+    const sheetNumber = response.paymentSheet?.sheetNumber;
+    if (sheetNumber) {
+      this.notificationService.success(
+        `Fuel expense reimbursed. Payment sheet ${sheetNumber} created.`
+      );
+      return;
+    }
+    this.notificationService.warning(response.message);
   }
 
   protected onReset(): void {

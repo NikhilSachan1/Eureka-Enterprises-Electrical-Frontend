@@ -84,7 +84,7 @@ export class ExpenseService {
 
     return this.apiService
       .postValidated(
-        API_ROUTES.EXPENSE.REIMBURSE,
+        API_ROUTES.EXPENSE.REIMBURSE_WITH_PAYMENT_SHEET,
         {
           response: ExpenseReimburseResponseSchema,
           request: ExpenseReimburseRequestSchema,

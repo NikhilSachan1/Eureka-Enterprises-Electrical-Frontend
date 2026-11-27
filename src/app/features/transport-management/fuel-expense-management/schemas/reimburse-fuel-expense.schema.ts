@@ -2,6 +2,7 @@ import { uuidField } from '@shared/schemas';
 import { FuelExpenseUpsertShapeSchema } from './base-fuel-expense.schema';
 import * as z from 'zod';
 import { transformDateFormat } from '@shared/utility';
+import { DirectPaymentSheetRefSchema } from '@features/centralized-payment-management/payment-sheet-management/schemas/direct-payment-sheet.schema';
 
 const { transactionId } = FuelExpenseUpsertShapeSchema.shape;
 
@@ -33,4 +34,5 @@ export const FuelExpenseReimburseRequestSchema =
 
 export const FuelExpenseReimburseResponseSchema = z.looseObject({
   message: z.string(),
+  paymentSheet: DirectPaymentSheetRefSchema,
 });

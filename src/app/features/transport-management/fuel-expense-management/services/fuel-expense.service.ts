@@ -86,7 +86,7 @@ export class FuelExpenseService {
 
     return this.apiService
       .postValidated(
-        API_ROUTES.FUEL_EXPENSE.REIMBURSE,
+        API_ROUTES.FUEL_EXPENSE.REIMBURSE_WITH_PAYMENT_SHEET,
         {
           response: FuelExpenseReimburseResponseSchema,
           request: FuelExpenseReimburseRequestSchema,
