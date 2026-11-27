@@ -3,9 +3,12 @@ import {
   Component,
   computed,
   inject,
+  Injector,
   OnInit,
-  Signal,
 } from '@angular/core';
+import { AppConfigurationService } from '@shared/services/app-configuration/app-configuration.service';
+import { IPaymentRecordModeState } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.interface';
+import { bindPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/utils/payment-record-mode.util';
 import { FormBase } from '@shared/base/form.base';
 import { RouterNavigationService } from '@shared/services';
 import { REIMBURSE_FUEL_EXPENSE_FORM_CONFIG } from '../../config';
@@ -49,7 +52,9 @@ export class ReimburseFuelExpenseComponent
   private readonly route = inject(ActivatedRoute);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  private recordMode?: Signal<unknown>;
+  private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly injector = inject(Injector);
+  protected recordMode?: IPaymentRecordModeState;
 
   ngOnInit(): void {
     this.form = this.formService.createForm<IFuelExpenseReimburseFormDto>(
@@ -59,18 +64,23 @@ export class ReimburseFuelExpenseComponent
         defaultValues: { recordMode: DEFAULT_PAYMENT_RECORD_MODE },
       }
     );
-    this.recordMode = this.formService.trackFieldChanges(
-      this.form.formGroup,
-      'recordMode',
-      this.destroyRef
-    );
+    this.recordMode = bindPaymentRecordMode({
+      formGroup: this.form.formGroup,
+      configuredModes: this.appConfigurationService.paymentRecordModes,
+      currentValue: this.formService.trackFieldChanges(
+        this.form.formGroup,
+        'recordMode',
+        this.destroyRef
+      ),
+      injector: this.injector,
+    });
 
     this.applyPrefillFromQueryParams();
   }
 
-  /** Direct selected — the template warns that no payment sheet will be created. */
+  /** Direct (chosen or set by config) — the template warns that no payment sheet will be created. */
   protected isDirectEntry(): boolean {
-    return this.recordMode?.() === EPaymentRecordMode.DIRECT;
+    return this.recordMode?.current() === EPaymentRecordMode.DIRECT;
   }
 
   private applyPrefillFromQueryParams(): void {
@@ -94,7 +104,11 @@ export class ReimburseFuelExpenseComponent
 
   private prepareFormData(): IFuelExpenseReimburseFormDto {
     const formData = this.form.getData();
-    return formData;
+    // A hidden dropdown (config allows one mode) still sends that mode.
+    return {
+      ...formData,
+      recordMode: this.recordMode?.current() ?? formData.recordMode,
+    };
   }
 
   private executeReimburseFuelExpense(
@@ -158,7 +172,11 @@ export class ReimburseFuelExpenseComponent
 
   protected onReset(): void {
     this.confirmResetSingleForm(() => {
-      this.onResetSingleForm();
+      // Reset clears every field; Record Payment goes back to its default, not empty.
+      this.onResetSingleForm({
+        recordMode:
+          this.recordMode?.defaultMode() ?? DEFAULT_PAYMENT_RECORD_MODE,
+      });
     });
   }
 

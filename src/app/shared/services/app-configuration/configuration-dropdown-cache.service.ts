@@ -336,6 +336,11 @@ export class ConfigurationDropdownCacheService {
     CONFIGURATION_KEYS.PAYMENTS.ITEM_STATUSES,
     this.store.paymentSheetItemStatusesSignal
   );
+  readonly paymentRecordModes = this.lazyConfigSignal(
+    MODULE_NAMES.PAYMENTS,
+    CONFIGURATION_KEYS.PAYMENTS.RECORD_MODES,
+    this.store.paymentRecordModesSignal
+  );
   readonly configurationTypes = this.lazyConfigSignal(
     MODULE_NAMES.CONFIGURATION,
     CONFIGURATION_KEYS.CONFIGURATION.CONFIGURATION_TYPE_DROPDOWN,
@@ -414,9 +419,7 @@ export class ConfigurationDropdownCacheService {
         return of(preview);
       }
 
-      return this.whenConfigurationKeysSettled(pending).pipe(
-        map(() => work())
-      );
+      return this.whenConfigurationKeysSettled(pending).pipe(map(() => work()));
     });
   }
 
@@ -586,8 +589,7 @@ export class ConfigurationDropdownCacheService {
               `Failed to load configuration key: ${configurationKey}`,
               error
             );
-            const emitter =
-              this.configurationKeyEmitters.get(configurationKey);
+            const emitter = this.configurationKeyEmitters.get(configurationKey);
             this.configurationKeyEmitters.delete(configurationKey);
             emitter?.error(error);
           }

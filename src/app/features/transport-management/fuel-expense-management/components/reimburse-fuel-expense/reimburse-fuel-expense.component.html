@@ -5,10 +5,12 @@
   [formGroup]="form.formGroup"
   class="form"
 >
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.recordMode"
-  />
+  @if (recordMode?.showSelect()) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.recordMode"
+    />
+  }
 
   @if (isDirectEntry()) {
     <app-direct-payment-warning />

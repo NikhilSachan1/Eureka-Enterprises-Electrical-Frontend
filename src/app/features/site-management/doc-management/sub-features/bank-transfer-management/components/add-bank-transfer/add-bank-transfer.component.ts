@@ -5,6 +5,7 @@ import {
   effect,
   inject,
   input,
+  Injector,
   OnInit,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -39,6 +40,9 @@ import { IBookPaymentOptionData } from '../../types/bank-transfer.interface';
 import { EPaymentTypeFilter } from '@features/site-management/doc-management/shared/config/payment-filter.config';
 import { EPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.enum';
 import { DirectPaymentWarningComponent } from '@features/centralized-payment-management/shared/components/direct-payment-warning/direct-payment-warning.component';
+import { AppConfigurationService } from '@shared/services/app-configuration/app-configuration.service';
+import { IPaymentRecordModeState } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.interface';
+import { bindPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/utils/payment-record-mode.util';
 import { DEFAULT_PAYMENT_RECORD_MODE } from '@features/centralized-payment-management/payment-sheet-management/config/form/payment-record-mode.config';
 import { BankTransferService } from '../../services/bank-transfer.service';
 import {
@@ -79,6 +83,9 @@ export class AddBankTransferComponent
     ConfirmationDialogService
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly injector = inject(Injector);
+  protected recordMode?: IPaymentRecordModeState;
 
   private trackedBankTransferInputs!: ITrackedFields<IAddBankTransferUIFormDto>;
 
@@ -237,6 +244,17 @@ export class AddBankTransferComponent
         trackedFields,
         this.destroyRef
       );
+
+    // Vendor transfer only: `payments.record_modes` decides the dropdown and the default.
+    const trackedRecordMode = this.trackedBankTransferInputs.recordMode;
+    if (this.docContext() === EDocContext.PURCHASE && trackedRecordMode) {
+      this.recordMode = bindPaymentRecordMode({
+        formGroup: this.form.formGroup,
+        configuredModes: this.appConfigurationService.paymentRecordModes,
+        currentValue: trackedRecordMode,
+        injector: this.injector,
+      });
+    }
   }
 
   private loadProjectDateRange(projectId: string): void {
@@ -389,11 +407,7 @@ export class AddBankTransferComponent
   /** Sales always picks an invoice; a vendor transfer only for an invoice payment. */
   /** Vendor transfer with Direct selected — the template warns that no payment sheet is created. */
   protected isDirectEntry(): boolean {
-    return (
-      this.docContext() === EDocContext.PURCHASE &&
-      this.trackedBankTransferInputs?.recordMode?.() ===
-        EPaymentRecordMode.DIRECT
-    );
+    return this.recordMode?.current() === EPaymentRecordMode.DIRECT;
   }
 
   protected showInvoiceField(): boolean {
@@ -503,10 +517,7 @@ export class AddBankTransferComponent
       )
       .subscribe({
         next: (response: IAddBankTransferResponseDto) => {
-          this.notifyAddResult(
-            response,
-            !isSales && formData.recordMode !== EPaymentRecordMode.DIRECT
-          );
+          this.notifyAddResult(response, !isSales && !this.isDirectEntry());
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
@@ -553,6 +564,8 @@ export class AddBankTransferComponent
     delete (record as Record<string, unknown>)['paymentType'];
     return {
       ...record,
+      // A hidden dropdown (config allows one mode) still sends that mode; SALE never has one.
+      recordMode: this.recordMode?.current() ?? record.recordMode,
       partyType: this.docContext(),
       transferProofFileKey: attachmentResponse?.fileKey ?? null,
       transferProofFileName: attachmentResponse?.fileName ?? null,

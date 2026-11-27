@@ -132,8 +132,7 @@ export class AppConfigurationService {
   readonly assetTypes = this.configCache.assetTypes;
   readonly assetStatuses = this.configCache.assetStatuses;
   readonly assetCalibrationSources = this.configCache.assetCalibrationSources;
-  readonly assetCalibrationStatuses =
-    this.configCache.assetCalibrationStatuses;
+  readonly assetCalibrationStatuses = this.configCache.assetCalibrationStatuses;
   readonly assetWarrantyStatuses = this.configCache.assetWarrantyStatuses;
   readonly assetCalibrationFrequencies =
     this.configCache.assetCalibrationFrequencies;
@@ -165,8 +164,8 @@ export class AppConfigurationService {
   readonly announcementStatuses = this.configCache.announcementStatuses;
   readonly paymentSheetStatuses = this.configCache.paymentSheetStatuses;
   readonly paymentSheetStages = this.configCache.paymentSheetStages;
-  readonly paymentSheetItemStatuses =
-    this.configCache.paymentSheetItemStatuses;
+  readonly paymentSheetItemStatuses = this.configCache.paymentSheetItemStatuses;
+  readonly paymentRecordModes = this.configCache.paymentRecordModes;
   readonly configurationTypes = this.configCache.configurationTypes;
 
   // --- Entity list dropdowns (delegate) ---
