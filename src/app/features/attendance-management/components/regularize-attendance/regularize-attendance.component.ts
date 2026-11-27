@@ -23,6 +23,7 @@ import { IDialogActionHandler, ITrackedFields } from '@shared/types';
 import { getSelectedEmployeeRole } from '@shared/utility';
 import { getRegularizeAttendanceFormConfig } from '@features/attendance-management/config/form/regularize-attendance.config';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
+import { EmployeeService } from '@features/employee-management/services/employee.service';
 import {
   IAttendanceGetBaseResponseDto,
   IAttendanceRegularizedFormDto,
@@ -54,6 +55,7 @@ export class RegularizeAttendanceComponent
 {
   private readonly attendanceService = inject(AttendanceService);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly employeeService = inject(EmployeeService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -144,6 +146,7 @@ export class RegularizeAttendanceComponent
         this.appConfigurationService.employeeList()
       )
     );
+    this.loadEmployeeRoles(record.user.id);
 
     this.formContext.isEmployee = this.employeeRoles().includes(
       EUserRole.EMPLOYEE
@@ -217,12 +220,12 @@ export class RegularizeAttendanceComponent
   }
 
   private getAssignmentPatch(
-    _record: IAttendanceGetBaseResponseDto
+    record: IAttendanceGetBaseResponseDto
   ): ReturnType<typeof getAssignmentFormValues> {
-    return {
-      ...NULL_ASSIGNMENT_FORM_VALUES,
-      assignedDriver: this.assignedDriverMultiple ? [] : null,
-    };
+    return getAssignmentFormValues(record, {
+      includeAssignedDriver: true,
+      assignedDriverMultiple: this.assignedDriverMultiple,
+    });
   }
 
   private prepareFormData(userId: string): IAttendanceRegularizedFormDto {
@@ -270,6 +273,27 @@ export class RegularizeAttendanceComponent
         error: error => {
           this.logger.error('Failed to regularize attendance', error);
           this.notificationService.error('Failed to regularize attendance');
+        },
+      });
+  }
+
+  /**
+   * Employee dropdown cache is paginated, so the record's user may not be in it.
+   * Fetch roles directly so assignment fields render reliably.
+   */
+  private loadEmployeeRoles(userId: string): void {
+    this.employeeService
+      .getEmployeeDetailById({ id: userId })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: employee => {
+          this.employeeRoles.set(employee.roles.map(role => role.name));
+        },
+        error: error => {
+          this.logger.error(
+            'Failed to load employee roles for regularize attendance',
+            error
+          );
         },
       });
   }
