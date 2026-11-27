@@ -9,6 +9,7 @@ import {
   inject,
   signal,
   viewChild,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
@@ -136,7 +137,7 @@ export class GetProfitabilityComponent {
         return;
       }
 
-      this.loadProjectProfitability(projectId);
+      untracked(() => this.loadProjectProfitability(projectId));
     });
   }
 

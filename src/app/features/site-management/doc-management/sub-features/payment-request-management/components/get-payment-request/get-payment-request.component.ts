@@ -8,6 +8,7 @@ import {
   inject,
   OnInit,
   signal,
+  untracked,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { APP_CONFIG } from '@core/config';
@@ -100,8 +101,10 @@ export class GetPaymentRequestComponent implements OnInit {
   constructor() {
     effect(() => {
       this.workspaceContext.filterSubmitVersion();
+      // Untracked: the load reads and writes table signals, and tracking them made every
+      // response re-run this effect (an endless request loop after a filter search).
       if (this.tableFilterData) {
-        this.loadPaymentRequestList();
+        untracked(() => this.loadPaymentRequestList());
       }
     });
   }

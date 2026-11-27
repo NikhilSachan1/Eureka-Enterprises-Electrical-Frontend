@@ -7,6 +7,7 @@ import {
   inject,
   OnInit,
   signal,
+  untracked,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -137,7 +138,7 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
         this.tableFilterData &&
         (employeeChanged || projectChanged || filtersChanged)
       ) {
-        this.loadAllocationHistory();
+        untracked(() => this.loadAllocationHistory());
       }
     });
   }

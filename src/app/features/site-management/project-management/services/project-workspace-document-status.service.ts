@@ -56,9 +56,8 @@ export class ProjectWorkspaceDocumentStatusService {
   private readonly pendingTableSiteIds = new Set<string>();
   private readonly loadedTableSiteIds = new Set<string>();
   private readonly rowStatusIndex = new Map<string, IProjectDocumentStatus>();
-  private readonly mergedTableSnapshot = signal<IProjectPoBreakdownSnapshot | null>(
-    null
-  );
+  private readonly mergedTableSnapshot =
+    signal<IProjectPoBreakdownSnapshot | null>(null);
 
   readonly breakdown = signal<IProjectDocumentBreakdownCell>(
     emptyDocumentBreakdownCell()
@@ -66,20 +65,22 @@ export class ProjectWorkspaceDocumentStatusService {
   readonly tableBreakdownTick = signal(0);
   readonly tableBreakdownLoading = signal(false);
 
-  readonly documentTarget = computed((): IProjectDocumentStatusTarget | null => {
-    const projectId = this.resolveWorkspaceProjectId();
-    const overview = this.workspaceContext.projectOverview();
+  readonly documentTarget = computed(
+    (): IProjectDocumentStatusTarget | null => {
+      const projectId = this.resolveWorkspaceProjectId();
+      const overview = this.workspaceContext.projectOverview();
 
-    if (!projectId || !overview) {
-      return null;
+      if (!projectId || !overview) {
+        return null;
+      }
+
+      return buildDocumentStatusTargetFromOverview(
+        projectId,
+        overview,
+        this.appConfigurationService.projectStatus()
+      );
     }
-
-    return buildDocumentStatusTargetFromOverview(
-      projectId,
-      overview,
-      this.appConfigurationService.projectStatus()
-    );
-  });
+  );
 
   readonly hasProjectContext = computed(
     () => !!this.resolveWorkspaceProjectId()
@@ -112,11 +113,14 @@ export class ProjectWorkspaceDocumentStatusService {
 
       const siteId = this.resolveWorkspaceProjectId();
 
-      if (siteId && this.canViewDocumentStatus()) {
-        this.loadPrimaryBreakdownForSite(siteId);
-      } else {
-        this.resetBreakdownState();
-      }
+      const canView = this.canViewDocumentStatus();
+      untracked(() => {
+        if (siteId && canView) {
+          this.loadPrimaryBreakdownForSite(siteId);
+        } else {
+          this.resetBreakdownState();
+        }
+      });
     });
 
     effect(() => {
@@ -187,7 +191,10 @@ export class ProjectWorkspaceDocumentStatusService {
           }
 
           this.finalizeTableSiteLoad(requestedSiteIds);
-          this.logger.error('Failed to load workspace table document breakdown', error);
+          this.logger.error(
+            'Failed to load workspace table document breakdown',
+            error
+          );
         },
       });
   }
@@ -280,7 +287,10 @@ export class ProjectWorkspaceDocumentStatusService {
             ...emptyDocumentBreakdownCell(false),
             error: true,
           });
-          this.logger.error('Failed to load workspace document breakdown', error);
+          this.logger.error(
+            'Failed to load workspace document breakdown',
+            error
+          );
         },
       });
   }
@@ -303,7 +313,9 @@ export class ProjectWorkspaceDocumentStatusService {
     this.tableBreakdownLoading.set(this.pendingTableSiteIds.size > 0);
   }
 
-  private mergeResponseIntoRowIndex(response: IPoBreakdownGetResponseDto): void {
+  private mergeResponseIntoRowIndex(
+    response: IPoBreakdownGetResponseDto
+  ): void {
     const cell = mapBreakdownResponse(response, null);
     this.mergedTableSnapshot.update(current =>
       mergePoBreakdownSnapshots(current, cell.snapshot)
@@ -332,7 +344,12 @@ export class ProjectWorkspaceDocumentStatusService {
           }
 
           if (jmc.invoice) {
-            this.indexRowStatus('invoice', jmc.invoice.id, docContext, snapshot);
+            this.indexRowStatus(
+              'invoice',
+              jmc.invoice.id,
+              docContext,
+              snapshot
+            );
 
             for (const bookPayment of jmc.invoice.bookPayments) {
               this.indexRowStatus(

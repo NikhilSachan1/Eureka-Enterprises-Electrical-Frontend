@@ -166,8 +166,10 @@ export class GetBankTransferComponent implements OnInit, OnDestroy {
         this.lastProjectIdForHeaderFilters = projectId;
       }
 
+      // Untracked: the load reads and writes table signals, and tracking them made every
+      // response re-run this effect (an endless request loop after a filter search).
       if (this.tableFilterData) {
-        this.loadBankTransferList();
+        untracked(() => this.loadBankTransferList());
       }
     });
   }
