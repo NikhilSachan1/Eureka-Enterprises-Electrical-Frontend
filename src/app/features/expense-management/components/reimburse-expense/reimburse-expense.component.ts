@@ -5,6 +5,7 @@ import {
   computed,
   inject,
   OnInit,
+  Signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -23,6 +24,9 @@ import { IPageHeaderConfig } from '@shared/types';
 import { finalize } from 'rxjs';
 import { FormBase } from '@shared/base/form.base';
 import { ActivatedRoute } from '@angular/router';
+import { EPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.enum';
+import { DEFAULT_PAYMENT_RECORD_MODE } from '@features/centralized-payment-management/payment-sheet-management/config/form/payment-record-mode.config';
+import { DirectPaymentWarningComponent } from '@features/centralized-payment-management/shared/components/direct-payment-warning/direct-payment-warning.component';
 
 @Component({
   selector: 'app-reimburse-expense',
@@ -31,6 +35,7 @@ import { ActivatedRoute } from '@angular/router';
     InputFieldComponent,
     ButtonComponent,
     ReactiveFormsModule,
+    DirectPaymentWarningComponent,
   ],
   templateUrl: './reimburse-expense.component.html',
   styleUrl: './reimburse-expense.component.scss',
@@ -46,16 +51,28 @@ export class ReimburseExpenseComponent
   private readonly route = inject(ActivatedRoute);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  private recordMode?: Signal<unknown>;
 
   ngOnInit(): void {
     this.form = this.formService.createForm<IExpenseReimburseFormDto>(
       REIMBURSE_EXPENSE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
+        defaultValues: { recordMode: DEFAULT_PAYMENT_RECORD_MODE },
       }
+    );
+    this.recordMode = this.formService.trackFieldChanges(
+      this.form.formGroup,
+      'recordMode',
+      this.destroyRef
     );
 
     this.applyPrefillFromQueryParams();
+  }
+
+  /** Direct selected — the template warns that no payment sheet will be created. */
+  protected isDirectEntry(): boolean {
+    return this.recordMode?.() === EPaymentRecordMode.DIRECT;
   }
 
   private applyPrefillFromQueryParams(): void {
@@ -102,7 +119,7 @@ export class ReimburseExpenseComponent
       )
       .subscribe({
         next: (response: IExpenseReimburseResponseDto) => {
-          this.notifyReimburseResult(response);
+          this.notifyReimburseResult(response, formData.recordMode);
           const routeSegments = [
             ROUTE_BASE_PATHS.EXPENSE,
             ROUTES.EXPENSE.LEDGER,
@@ -116,7 +133,16 @@ export class ReimburseExpenseComponent
   }
 
   /** Payment always goes through; a missing sheet is a warning, not a failure (retrying would pay twice). */
-  private notifyReimburseResult(response: IExpenseReimburseResponseDto): void {
+  private notifyReimburseResult(
+    response: IExpenseReimburseResponseDto,
+    recordMode: EPaymentRecordMode
+  ): void {
+    if (recordMode === EPaymentRecordMode.DIRECT) {
+      this.notificationService.success(
+        'Reimburse expense applied successfully'
+      );
+      return;
+    }
     const sheetNumber = response.paymentSheet?.sheetNumber;
     if (sheetNumber) {
       this.notificationService.success(

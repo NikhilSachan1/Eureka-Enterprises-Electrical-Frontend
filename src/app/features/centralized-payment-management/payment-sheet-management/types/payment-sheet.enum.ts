@@ -97,3 +97,12 @@ export const PAYMENT_SHEET_WORKFLOW_ACTION_TYPES = [
   EPaymentSheetWorkflowActionType.FORWARD_TO_ADMIN,
   EPaymentSheetWorkflowActionType.FORWARD_TO_ACCOUNTANT,
 ] as const;
+
+/**
+ * How a Reimburse / vendor Bank Transfer is recorded. PAYMENT_SHEET also creates a COMPLETED payment
+ * sheet (payment-sheets/direct/*); DIRECT uses the original endpoint, with no sheet.
+ */
+export enum EPaymentRecordMode {
+  PAYMENT_SHEET = 'PAYMENT_SHEET',
+  DIRECT = 'DIRECT',
+}

@@ -2,10 +2,16 @@ import { transformDateFormat } from '@shared/utility/date-time.util';
 import * as z from 'zod';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { BankTransferUpsertShapeSchema } from './base-bank-transfer.schema';
-import { DirectPaymentSheetRefSchema } from '@features/centralized-payment-management/payment-sheet-management/schemas/direct-payment-sheet.schema';
+import {
+  DirectPaymentSheetRefSchema,
+  PaymentRecordModeField,
+} from '@features/centralized-payment-management/payment-sheet-management/schemas/direct-payment-sheet.schema';
 
 export const AddBankTransferRequestSchema =
-  BankTransferUpsertShapeSchema.transform(data => ({
+  BankTransferUpsertShapeSchema.extend({
+    // Vendor transfer only: picks the endpoint in the service; not part of the body.
+    recordMode: PaymentRecordModeField.nullable(),
+  }).transform(data => ({
     partyType: data.partyType,
     invoiceId: data.partyType === EDocContext.SALES ? data.invoiceNumber : null,
     bookPaymentId:

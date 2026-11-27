@@ -11,6 +11,7 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
 import { IAddBankTransferUIFormDto } from '../../types/bank-transfer.dto';
 import { EPaymentTypeFilter } from '@features/site-management/doc-management/shared/config/payment-filter.config';
 import { PAYMENT_TYPE_LABEL } from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
+import { PAYMENT_RECORD_MODE_FIELD_CONFIG } from '@features/centralized-payment-management/payment-sheet-management/config/form/payment-record-mode.config';
 
 /**
  * Invoice payment: Book Payment waits for the invoice. Advance / GST release have no invoice step,
@@ -35,6 +36,18 @@ const ADD_BANK_TRANSFER_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBankTrans
         },
       },
       validators: [Validators.required],
+    },
+    recordMode: {
+      ...PAYMENT_RECORD_MODE_FIELD_CONFIG,
+      // Vendor transfer only; a bank receipt never goes on a payment sheet.
+      validators: [],
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean =>
+            context.docContext === EDocContext.PURCHASE,
+          validators: [Validators.required],
+        },
+      ],
     },
     paymentType: {
       fieldType: EDataType.SELECT,

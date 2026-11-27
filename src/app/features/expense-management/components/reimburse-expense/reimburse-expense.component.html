@@ -7,6 +7,15 @@
 >
   <app-input-field
     [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.recordMode"
+  />
+
+  @if (isDirectEntry()) {
+    <app-direct-payment-warning />
+  }
+
+  <app-input-field
+    [formGroup]="form.formGroup"
     [inputFieldConfig]="form.fieldConfigs.employeeName"
   />
 

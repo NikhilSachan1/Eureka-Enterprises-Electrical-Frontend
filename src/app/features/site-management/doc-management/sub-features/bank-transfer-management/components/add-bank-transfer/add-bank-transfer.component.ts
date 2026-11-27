@@ -37,6 +37,9 @@ import { ADD_BANK_TRANSFER_FORM_CONFIG } from '../../config';
 import { BOOK_PAYMENT_BY_INVOICE_DEPENDENCY } from '../../config/form/add-bank-transfer.config';
 import { IBookPaymentOptionData } from '../../types/bank-transfer.interface';
 import { EPaymentTypeFilter } from '@features/site-management/doc-management/shared/config/payment-filter.config';
+import { EPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.enum';
+import { DirectPaymentWarningComponent } from '@features/centralized-payment-management/shared/components/direct-payment-warning/direct-payment-warning.component';
+import { DEFAULT_PAYMENT_RECORD_MODE } from '@features/centralized-payment-management/payment-sheet-management/config/form/payment-record-mode.config';
 import { BankTransferService } from '../../services/bank-transfer.service';
 import {
   IAddBankTransferFormDto,
@@ -55,7 +58,11 @@ import {
 @Component({
   selector: 'app-add-bank-transfer',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [InputFieldComponent, ReactiveFormsModule],
+  imports: [
+    InputFieldComponent,
+    ReactiveFormsModule,
+    DirectPaymentWarningComponent,
+  ],
   templateUrl: './add-bank-transfer.component.html',
   styleUrl: './add-bank-transfer.component.scss',
 })
@@ -177,6 +184,10 @@ export class AddBankTransferComponent
             this.docContext() === EDocContext.PURCHASE
               ? EPaymentTypeFilter.INVOICE
               : null,
+          recordMode:
+            this.docContext() === EDocContext.PURCHASE
+              ? DEFAULT_PAYMENT_RECORD_MODE
+              : null,
           invoiceNumber: null,
           bookPaymentNumber: null,
           remarks: null,
@@ -212,7 +223,13 @@ export class AddBankTransferComponent
     const trackedFields: (keyof IAddBankTransferUIFormDto)[] =
       this.docContext() === EDocContext.SALES
         ? ['projectName', 'invoiceNumber', 'transferAmount']
-        : ['projectName', 'paymentType', 'invoiceNumber', 'bookPaymentNumber'];
+        : [
+            'projectName',
+            'paymentType',
+            'invoiceNumber',
+            'bookPaymentNumber',
+            'recordMode',
+          ];
 
     this.trackedBankTransferInputs =
       this.formService.trackMultipleFieldChanges<IAddBankTransferUIFormDto>(
@@ -370,6 +387,15 @@ export class AddBankTransferComponent
   }
 
   /** Sales always picks an invoice; a vendor transfer only for an invoice payment. */
+  /** Vendor transfer with Direct selected — the template warns that no payment sheet is created. */
+  protected isDirectEntry(): boolean {
+    return (
+      this.docContext() === EDocContext.PURCHASE &&
+      this.trackedBankTransferInputs?.recordMode?.() ===
+        EPaymentRecordMode.DIRECT
+    );
+  }
+
   protected showInvoiceField(): boolean {
     return (
       this.docContext() === EDocContext.SALES ||
@@ -477,7 +503,10 @@ export class AddBankTransferComponent
       )
       .subscribe({
         next: (response: IAddBankTransferResponseDto) => {
-          this.notifyAddResult(response, isSales);
+          this.notifyAddResult(
+            response,
+            !isSales && formData.recordMode !== EPaymentRecordMode.DIRECT
+          );
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
@@ -498,7 +527,7 @@ export class AddBankTransferComponent
    */
   private notifyAddResult(
     response: IAddBankTransferResponseDto,
-    isSales: boolean
+    expectsPaymentSheet: boolean
   ): void {
     const sheetNumber = response.paymentSheet?.sheetNumber;
     if (sheetNumber) {
@@ -507,7 +536,7 @@ export class AddBankTransferComponent
       );
       return;
     }
-    if (isSales) {
+    if (!expectsPaymentSheet) {
       this.notificationService.success(response.message);
       return;
     }
