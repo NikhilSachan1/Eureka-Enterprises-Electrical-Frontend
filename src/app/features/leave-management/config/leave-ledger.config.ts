@@ -10,6 +10,7 @@ import {
   IEnhancedTableConfig,
   IPageHeaderConfig,
   ITableSearchFilterFormConfig,
+  ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
 import {
   ILeaveLedgerSearchFilterFormDto,
@@ -85,40 +86,48 @@ export const LEAVE_LEDGER_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<ILeaveLedg
     bulkActions: [],
   };
 
-export const SEARCH_FILTER_LEAVE_LEDGER_FORM_CONFIG: ITableSearchFilterFormConfig<ILeaveLedgerSearchFilterFormDto> =
+const LEAVE_LEDGER_EMPLOYEE_FILTER: ITableSearchFilterInputFieldsConfig<ILeaveLedgerSearchFilterFormDto>['employeeName'] =
   {
-    fields: {
-      employeeName: {
-        fieldType: EDataType.SELECT,
-        id: 'employeeName',
-        fieldName: 'employeeName',
-        label: 'Employee',
-        selectConfig: {
-          dynamicDropdown: {
-            moduleName: MODULE_NAMES.EMPLOYEE,
-            dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
-            archivedHandling: 'enabled',
-          },
-          showClearButton: true,
-        },
-        matchmode: ETableFilterMatchMode.EQUALS,
-        permission: [APP_PERMISSION.LEAVE.LEDGER_VIEW_ALL],
+    fieldType: EDataType.SELECT,
+    id: 'employeeName',
+    fieldName: 'employeeName',
+    label: 'Employee',
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+        archivedHandling: 'enabled',
       },
-      financialYear: {
-        fieldType: EDataType.SELECT,
-        id: 'financialYear',
-        fieldName: 'financialYear',
-        label: 'Financial Year',
-        hint: 'Empty = current financial year',
-        selectConfig: {
-          optionsDropdown: FINANCIAL_YEAR_DATA,
-          showClearButton: true,
-        },
-        matchmode: ETableFilterMatchMode.EQUALS,
-      },
+      showClearButton: true,
     },
-    buttons: {
-      reset: { ...COMMON_FORM_ACTIONS.RESET },
-      submit: { ...COMMON_FORM_ACTIONS.FILTER },
-    },
+    matchmode: ETableFilterMatchMode.EQUALS,
+    permission: [APP_PERMISSION.LEAVE.LEDGER_VIEW_ALL],
   };
+
+const LEAVE_LEDGER_FY_FILTER: ITableSearchFilterInputFieldsConfig<ILeaveLedgerSearchFilterFormDto>['financialYear'] =
+  {
+    fieldType: EDataType.SELECT,
+    id: 'financialYear',
+    fieldName: 'financialYear',
+    label: 'Financial Year',
+    hint: 'Empty = current financial year',
+    selectConfig: {
+      optionsDropdown: FINANCIAL_YEAR_DATA,
+      showClearButton: true,
+    },
+    matchmode: ETableFilterMatchMode.EQUALS,
+  };
+
+/** Employees and drivers get no employee picker: they only see their own ledger. */
+export const createLeaveLedgerSearchFilterConfig = (
+  showEmployee: boolean
+): ITableSearchFilterFormConfig<ILeaveLedgerSearchFilterFormDto> => ({
+  fields: {
+    ...(showEmployee ? { employeeName: LEAVE_LEDGER_EMPLOYEE_FILTER } : {}),
+    financialYear: LEAVE_LEDGER_FY_FILTER,
+  },
+  buttons: {
+    reset: { ...COMMON_FORM_ACTIONS.RESET },
+    submit: { ...COMMON_FORM_ACTIONS.FILTER },
+  },
+});
