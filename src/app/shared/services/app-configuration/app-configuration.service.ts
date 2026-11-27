@@ -48,6 +48,7 @@ import { IOptionDropdown } from '@shared/types';
 import { toTitleCase } from '@shared/utility';
 
 import { ConfigurationDropdownCacheService } from './configuration-dropdown-cache.service';
+import { IConfigurationValueDefinition } from './configuration-value.types';
 import { ReferenceEntityDropdownCacheService } from './reference-entity-dropdown-cache.service';
 import {
   sortDropdownByLabel,
@@ -166,6 +167,17 @@ export class AppConfigurationService {
   readonly paymentSheetStages = this.configCache.paymentSheetStages;
   readonly paymentSheetItemStatuses = this.configCache.paymentSheetItemStatuses;
   readonly configurationTypes = this.configCache.configurationTypes;
+
+  /**
+   * Single-value backend configuration (text / number / boolean / json) as a signal — declare it
+   * once with `defineConfigurationValue(...)`, then read it anywhere. Lazy, batched and cached
+   * like the dropdowns; holds the definition's fallback until loaded or when invalid.
+   */
+  configurationValue<T>(
+    definition: IConfigurationValueDefinition<T>
+  ): Signal<T> {
+    return this.configCache.configurationValue(definition);
+  }
 
   // --- Entity list dropdowns (delegate) ---
   readonly companyList = this.entityCache.companyList;

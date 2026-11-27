@@ -106,3 +106,13 @@ export enum EPaymentRecordMode {
   PAYMENT_SHEET = 'PAYMENT_SHEET',
   DIRECT = 'DIRECT',
 }
+
+/**
+ * Value of the `payments.record_mode` configuration (backend Configurations). One of:
+ * DIRECT (default) — always direct; PAYMENT_SHEET — always a sheet; BOTH — user picks.
+ */
+export enum EPaymentRecordConfigMode {
+  DIRECT = 'DIRECT',
+  PAYMENT_SHEET = 'PAYMENT_SHEET',
+  BOTH = 'BOTH',
+}

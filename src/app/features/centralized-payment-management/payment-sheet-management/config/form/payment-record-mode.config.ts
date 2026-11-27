@@ -1,7 +1,18 @@
 import { Validators } from '@angular/forms';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import {
+  defineConfigurationValue,
+  enumValueParser,
+} from '@shared/services/app-configuration/configuration-value.parsers';
 import { EDataType, IInputFieldsConfig } from '@shared/types';
-import { EPaymentRecordMode } from '../../types/payment-sheet.enum';
-import { defaultRecordMode } from '../../utils/payment-record-mode.util';
+import {
+  EPaymentRecordConfigMode,
+  EPaymentRecordMode,
+} from '../../types/payment-sheet.enum';
+import {
+  defaultRecordMode,
+  resolveAllowedRecordModes,
+} from '../../utils/payment-record-mode.util';
 
 /** Asked on Reimburse (expense / fuel) and vendor Bank Transfer: record it on a payment sheet or not. */
 export const PAYMENT_RECORD_MODE_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
@@ -31,5 +42,21 @@ export const DIRECT_PAYMENT_WARNING = {
     'This payment will not be added to any payment sheet. It will be recorded as a direct entry only.',
 } as const;
 
-/** Pre-selected on every form that asks — follows APP_CONFIG.PAYMENT_RECORD_CONFIG.MODE. */
-export const DEFAULT_PAYMENT_RECORD_MODE = defaultRecordMode();
+/**
+ * `payments.record_mode` (backend Configurations, text): DIRECT | PAYMENT_SHEET | BOTH.
+ * Missing / unknown → DIRECT. Read with `AppConfigurationService.configurationValue(...)`.
+ */
+export const PAYMENT_RECORD_MODE_CONFIG_VALUE = defineConfigurationValue({
+  moduleName: MODULE_NAMES.PAYMENTS,
+  key: CONFIGURATION_KEYS.PAYMENTS.RECORD_MODE,
+  fallback: EPaymentRecordConfigMode.DIRECT,
+  parse: enumValueParser(EPaymentRecordConfigMode),
+});
+
+/**
+ * Form's starting value before `payments.record_mode` loads — the config default (DIRECT). The
+ * form switches to the configured mode as soon as it arrives.
+ */
+export const DEFAULT_PAYMENT_RECORD_MODE = defaultRecordMode(
+  resolveAllowedRecordModes(EPaymentRecordConfigMode.DIRECT)
+);

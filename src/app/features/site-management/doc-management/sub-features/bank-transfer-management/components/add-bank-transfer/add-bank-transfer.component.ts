@@ -42,7 +42,11 @@ import { EPaymentRecordMode } from '@features/centralized-payment-management/pay
 import { DirectPaymentWarningComponent } from '@features/centralized-payment-management/shared/components/direct-payment-warning/direct-payment-warning.component';
 import { IPaymentRecordModeState } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.interface';
 import { bindPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/utils/payment-record-mode.util';
-import { DEFAULT_PAYMENT_RECORD_MODE } from '@features/centralized-payment-management/payment-sheet-management/config/form/payment-record-mode.config';
+import { AppConfigurationService } from '@shared/services/app-configuration/app-configuration.service';
+import {
+  DEFAULT_PAYMENT_RECORD_MODE,
+  PAYMENT_RECORD_MODE_CONFIG_VALUE,
+} from '@features/centralized-payment-management/payment-sheet-management/config/form/payment-record-mode.config';
 import { BankTransferService } from '../../services/bank-transfer.service';
 import {
   IAddBankTransferFormDto,
@@ -83,6 +87,7 @@ export class AddBankTransferComponent
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly injector = inject(Injector);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   protected recordMode?: IPaymentRecordModeState;
 
   private trackedBankTransferInputs!: ITrackedFields<IAddBankTransferUIFormDto>;
@@ -248,6 +253,9 @@ export class AddBankTransferComponent
     if (this.docContext() === EDocContext.PURCHASE && trackedRecordMode) {
       this.recordMode = bindPaymentRecordMode({
         formGroup: this.form.formGroup,
+        configMode: this.appConfigurationService.configurationValue(
+          PAYMENT_RECORD_MODE_CONFIG_VALUE
+        ),
         currentValue: trackedRecordMode,
         injector: this.injector,
       });

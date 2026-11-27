@@ -152,14 +152,4 @@ export const APP_CONFIG = {
     /** Fetched once at bootstrap for both tabs; popover never re-fetches. */
     DROPDOWN_PAGE_SIZE: 50,
   },
-
-  // Reimburse (expense / fuel) and vendor Bank Transfer — how the payment is recorded
-  PAYMENT_RECORD_CONFIG: {
-    /**
-     * 'BOTH'          → show the "Record Payment" dropdown (default: With Payment Sheet)
-     * 'PAYMENT_SHEET' → no dropdown, always create a payment sheet
-     * 'DIRECT'        → no dropdown, always a direct entry (no payment sheet)
-     */
-    MODE: 'BOTH' as 'BOTH' | 'PAYMENT_SHEET' | 'DIRECT',
-  },
 };

@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { IPaymentRecordModeState } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.interface';
 import { bindPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/utils/payment-record-mode.util';
+import { AppConfigurationService } from '@shared/services/app-configuration/app-configuration.service';
 import { FormBase } from '@shared/base/form.base';
 import { RouterNavigationService } from '@shared/services';
 import { REIMBURSE_FUEL_EXPENSE_FORM_CONFIG } from '../../config';
@@ -26,7 +27,10 @@ import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { EPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.enum';
-import { DEFAULT_PAYMENT_RECORD_MODE } from '@features/centralized-payment-management/payment-sheet-management/config/form/payment-record-mode.config';
+import {
+  DEFAULT_PAYMENT_RECORD_MODE,
+  PAYMENT_RECORD_MODE_CONFIG_VALUE,
+} from '@features/centralized-payment-management/payment-sheet-management/config/form/payment-record-mode.config';
 import { DirectPaymentWarningComponent } from '@features/centralized-payment-management/shared/components/direct-payment-warning/direct-payment-warning.component';
 
 @Component({
@@ -52,6 +56,7 @@ export class ReimburseFuelExpenseComponent
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   private readonly injector = inject(Injector);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   protected recordMode?: IPaymentRecordModeState;
 
   ngOnInit(): void {
@@ -64,6 +69,9 @@ export class ReimburseFuelExpenseComponent
     );
     this.recordMode = bindPaymentRecordMode({
       formGroup: this.form.formGroup,
+      configMode: this.appConfigurationService.configurationValue(
+        PAYMENT_RECORD_MODE_CONFIG_VALUE
+      ),
       currentValue: this.formService.trackFieldChanges(
         this.form.formGroup,
         'recordMode',

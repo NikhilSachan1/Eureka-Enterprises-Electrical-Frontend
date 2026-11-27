@@ -42,6 +42,7 @@ import {
   applyModulesConfigDropdown,
   resolveModuleActionsByModuleName,
 } from './modules-configuration.apply';
+import { IConfigurationValueDefinition } from './configuration-value.types';
 
 /**
  * Loads configuration-backed dropdowns (batched HTTP) and exposes lazy signals.
@@ -74,6 +75,15 @@ export class ConfigurationDropdownCacheService {
   /** Configuration keys touched while probing a one-shot table/detail mapper. */
   private configurationKeyCapture: Set<string> | null = null;
   private readonly _dropdownLoadingState = signal<Record<string, boolean>>({});
+  /** Single-value configurations, by configuration key (see {@link configurationValue}). */
+  private readonly configurationValues = new Map<
+    string,
+    {
+      definition: IConfigurationValueDefinition<unknown>;
+      value: WritableSignal<unknown>;
+      reader: Signal<unknown>;
+    }
+  >();
 
   // Configuration-backed signals load their module on first read, then stay cached.
   readonly genders = this.lazyConfigSignal(
@@ -507,6 +517,47 @@ export class ConfigurationDropdownCacheService {
     });
   }
 
+  /**
+   * A single-value configuration (text / number / boolean / json) as a signal. Loads on first read
+   * through the same batched, cached request as the dropdowns; holds `fallback` until then and
+   * whenever the value is missing or `parse` rejects it. One signal per key, shared by all readers.
+   */
+  configurationValue<T>(
+    definition: IConfigurationValueDefinition<T>
+  ): Signal<T> {
+    const existing = this.configurationValues.get(definition.key);
+    if (existing) {
+      return existing.reader as Signal<T>;
+    }
+
+    const value = signal<unknown>(definition.fallback);
+    const reader = computed(() => {
+      this.ensureConfigurationForKey(definition.moduleName, definition.key);
+      return value();
+    });
+    this.configurationValues.set(definition.key, {
+      definition: definition as IConfigurationValueDefinition<unknown>,
+      value,
+      reader,
+    });
+    return reader as Signal<T>;
+  }
+
+  /** Publishes a loaded (or failed → fallback) single-value configuration. */
+  private applyConfigurationValue(
+    configurationKey: string,
+    moduleConfigMap: Record<string, Record<string, unknown>>
+  ): void {
+    const entry = this.configurationValues.get(configurationKey);
+    if (!entry) {
+      return;
+    }
+    const { definition, value } = entry;
+    const raw = moduleConfigMap[definition.moduleName]?.[definition.key];
+    const parsed = raw === undefined ? null : definition.parse(raw);
+    value.set(parsed ?? definition.fallback);
+  }
+
   private lazyConfigSignal(
     moduleName: string,
     key: string,
@@ -682,6 +733,8 @@ export class ConfigurationDropdownCacheService {
     response: IConfigurationGetResponseDto
   ): void {
     const moduleConfigMap = buildModuleConfigMap(response);
+
+    this.applyConfigurationValue(configurationKey, moduleConfigMap);
 
     if (configurationKey === CONFIGURATION_KEYS.GEOGRAPHY.LOCATION) {
       applyGeographyLocationConfig(
