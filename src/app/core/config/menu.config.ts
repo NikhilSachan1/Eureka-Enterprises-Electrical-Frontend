@@ -4,6 +4,13 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { resolveApiEnvironment } from '@core/services/environment.service';
 import { EEnvironment } from '@core/types';
 import { environment } from '@environments/environment';
+import {
+  ASSET_LIST_SEARCH_TABS,
+  EMPLOYEE_LIST_SEARCH_TABS,
+  FUEL_LEDGER_SEARCH_TABS,
+  PROJECT_WORKSPACE_SEARCH_TABS,
+  VEHICLE_LIST_SEARCH_TABS,
+} from './menu-search-tabs.config';
 
 /** Prod → UAT data sync is only offered when the app is not pointed at the prod API. */
 const IS_PROD_API =
@@ -28,6 +35,7 @@ export const appMenu: ApplicationMenu = {
               icon: ICONS.COMMON.USERS,
               routerLink: ROUTES.EMPLOYEE.LIST,
               permission: [APP_PERMISSION.EMPLOYEE.TABLE_VIEW],
+              searchTabs: EMPLOYEE_LIST_SEARCH_TABS,
             },
             {
               label: 'Add Employee',
@@ -143,6 +151,7 @@ export const appMenu: ApplicationMenu = {
               icon: ICONS.COMMON.TH_LARGE,
               routerLink: ROUTES.ASSET.LIST,
               permission: [APP_PERMISSION.ASSET.TABLE_VIEW],
+              searchTabs: ASSET_LIST_SEARCH_TABS,
             },
             {
               label: 'Add Asset',
@@ -173,6 +182,7 @@ export const appMenu: ApplicationMenu = {
                   icon: ICONS.COMMON.VIEW,
                   routerLink: ROUTES.VEHICLE.LIST,
                   permission: [APP_PERMISSION.VEHICLE.TABLE_VIEW],
+                  searchTabs: VEHICLE_LIST_SEARCH_TABS,
                 },
                 {
                   label: 'Add Vehicle',
@@ -267,6 +277,7 @@ export const appMenu: ApplicationMenu = {
                   icon: ICONS.COMMON.CHART_LINE,
                   routerLink: ROUTES.FUEL.LEDGER,
                   permission: [APP_PERMISSION.FUEL_EXPENSE.TABLE_VIEW],
+                  searchTabs: FUEL_LEDGER_SEARCH_TABS,
                 },
                 {
                   label: 'Manual Fuel Expense',
@@ -374,6 +385,7 @@ export const appMenu: ApplicationMenu = {
                   icon: ICONS.COMMON.CHART,
                   routerLink: ROUTES.SITE.PROJECT.WORKSPACE,
                   permission: [APP_PERMISSION.PROJECT.WORKSPACE],
+                  searchTabs: PROJECT_WORKSPACE_SEARCH_TABS,
                 },
                 {
                   label: 'Workforce Allocation',

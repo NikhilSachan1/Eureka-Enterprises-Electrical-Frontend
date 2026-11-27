@@ -11,6 +11,16 @@ import { MenuItem, MenuSection } from '@shared/types/sidebar/menu.interface';
 
 const normalize = (value: string): string => value.trim().toLowerCase();
 
+function withQueryParams(
+  path: string,
+  queryParams: Record<string, string> | undefined
+): string {
+  if (!queryParams || !Object.keys(queryParams).length) {
+    return path;
+  }
+  return `${path}?${new URLSearchParams(queryParams).toString()}`;
+}
+
 /**
  * Every page in the (already permission-filtered) sidebar, flattened with its parent
  * names. Links are built the same way the sidebar builds them.
@@ -37,22 +47,34 @@ export function buildCommandPaletteEntries(
         );
       } else if (item.routerLink) {
         const link = buildLink(item.routerLink, parentBasePath);
-        const route = link.startsWith('/') ? link : `/${link}`;
-
-        // The same page can sit under two parents; list it once.
-        if (!seenRoutes.has(route)) {
-          seenRoutes.add(route);
-          entries.push({
-            id: route,
-            label: item.label,
-            trail,
-            icon: item.icon,
-            route,
-            searchText: normalize([...trail, item.label].join(' ')),
-          });
-        }
+        addPage(item, link.startsWith('/') ? link : `/${link}`, trail);
       }
     }
+  };
+
+  /** One entry for the page, then one per tab inside it (`searchTabs`, nested). */
+  const addPage = (item: MenuItem, path: string, trail: string[]): void => {
+    const route = withQueryParams(path, item.queryParams);
+
+    // The same page can sit under two parents; list it once.
+    if (!seenRoutes.has(route)) {
+      seenRoutes.add(route);
+      entries.push({
+        id: route,
+        label: item.label,
+        trail,
+        icon: item.icon,
+        route,
+        searchText: normalize([...trail, item.label].join(' ')),
+      });
+    }
+
+    item.searchTabs?.forEach(tab =>
+      addPage(tab, tab.routerLink ? buildLink(tab.routerLink, path) : path, [
+        ...trail,
+        item.label,
+      ])
+    );
   };
 
   sections.forEach(section => visit(section.items, [], ''));
