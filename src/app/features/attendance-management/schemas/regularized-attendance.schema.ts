@@ -12,12 +12,15 @@ import {
 } from '../utility/attendance-assignment.util';
 
 const { id, status, userId } = AttendanceBaseSchema.shape;
+const { assignedDriver } = AttendanceUpsertShapeSchema.shape;
 
 export const AttendanceRegularizedRequestSchema =
   AttendanceUpsertShapeSchema.omit({ remark: true })
     .extend({
       attendanceStatus: status,
       employeeName: userId,
+      // Omitted (undefined) when the employee has no driver assignment to manage.
+      assignedDriver: assignedDriver.optional(),
     })
     .strict()
     .transform(data => ({
@@ -25,11 +28,13 @@ export const AttendanceRegularizedRequestSchema =
       checkInTime: SHIFT_DATA.START_TIME,
       checkOutTime: SHIFT_DATA.END_TIME,
       userId: data.employeeName,
-      leaveCategory:
-        data.attendanceStatus === EAttendanceStatus.LEAVE
-          ? ELeaveCategory.EARNED
-          : null,
-      ...(isAttendanceAssignmentApplicable(data.attendanceStatus)
+      ...(data.attendanceStatus === EAttendanceStatus.LEAVE
+        ? { leaveCategory: ELeaveCategory.EARNED }
+        : {}),
+      // Sent even when empty: `assignedDrivers: []` is how the backend learns to
+      // drop every driver (the request skips cleanParams for this reason).
+      ...(isAttendanceAssignmentApplicable(data.attendanceStatus) &&
+      data.assignedDriver !== undefined
         ? {
             assignmentSnapshot: {
               assignedDrivers: toAssignedDriverIds(data.assignedDriver),

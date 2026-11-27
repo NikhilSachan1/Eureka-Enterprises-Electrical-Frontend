@@ -142,7 +142,10 @@ export class AttendanceService {
           response: AttendanceRegularizedResponseSchema,
           request: AttendanceRegularizedRequestSchema,
         },
-        formData
+        formData,
+        // cleanParams would strip `assignmentSnapshot: { assignedDrivers: [] }`,
+        // making "remove all drivers" look like a no-op to the backend.
+        { skipClean: true }
       )
       .pipe(
         tap((response: IAttendanceRegularizedResponseDto) => {

@@ -92,9 +92,9 @@ export type IAttendanceRegularizedRequestDto = z.infer<
 export type IAttendanceRegularizedFormDto = z.input<
   typeof AttendanceRegularizedRequestSchema
 >;
-export type IAttendanceRegularizedUIFormDto = Pick<
-  IAttendanceRegularizedFormDto,
-  'attendanceStatus' | 'assignedDriver'
+// The form always has the driver control; only the request may omit it.
+export type IAttendanceRegularizedUIFormDto = Required<
+  Pick<IAttendanceRegularizedFormDto, 'attendanceStatus' | 'assignedDriver'>
 >;
 export type IAttendanceRegularizedResponseDto = z.infer<
   typeof AttendanceRegularizedResponseSchema

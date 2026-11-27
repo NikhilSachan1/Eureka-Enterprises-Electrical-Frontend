@@ -231,10 +231,12 @@ export class RegularizeAttendanceComponent
   private prepareFormData(userId: string): IAttendanceRegularizedFormDto {
     const formData = this.form.getData();
     const isEmployee = this.employeeRoles().includes(EUserRole.EMPLOYEE);
+    // Only employees manage drivers; for anyone else the key is left out so no
+    // snapshot is sent and the driver pairings stay untouched.
     const assignment =
       isAttendanceAssignmentApplicable(formData.attendanceStatus) && isEmployee
         ? this.assignmentSubmitPayload()
-        : NULL_ASSIGNMENT_FORM_VALUES;
+        : {};
 
     return {
       attendanceStatus: formData.attendanceStatus,
