@@ -246,6 +246,8 @@ export interface IDateFieldConfig {
    * must be chosen separately (e.g. multi-day leave).
    */
   rangeAutoCompleteEndWithStart?: boolean;
+  /** Days that cannot be picked (e.g. holidays in the leave date picker). */
+  disabledDates?: Date[];
 }
 
 export interface IPasswordFieldConfig {

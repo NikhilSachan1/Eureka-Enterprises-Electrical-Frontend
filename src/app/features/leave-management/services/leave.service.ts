@@ -12,8 +12,22 @@ import {
   ILeaveGetFormDto,
   ILeaveGroupGetResponseDto,
 } from '../types/leave.dto';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import {
+  catchError,
+  forkJoin,
+  map,
+  Observable,
+  of,
+  tap,
+  throwError,
+} from 'rxjs';
 import { API_ROUTES } from '@core/constants';
+import {
+  LeaveHolidaysGetRequestSchema,
+  LeaveHolidaysGetResponseSchema,
+} from '../schemas/leave-holiday.schema';
+import { ILeaveHoliday } from '../types/leave-holiday.dto';
+import { toLeaveHolidays } from '../utils/leave-holiday.util';
 import {
   LeaveActionRequestSchema,
   LeaveActionResponseSchema,
@@ -145,6 +159,36 @@ export class LeaveService {
           return throwError(() => error);
         })
       );
+  }
+
+  /**
+   * Holidays of the given financial years ("2026-2027"), for disabling them in the leave date
+   * pickers. Best effort: on a failure the picker simply allows every day (the API still refuses
+   * leave on a holiday).
+   */
+  getHolidays(financialYears: string[]): Observable<ILeaveHoliday[]> {
+    if (!financialYears.length) {
+      return of([]);
+    }
+    return forkJoin(
+      financialYears.map(financialYear =>
+        this.apiService.getValidated(
+          API_ROUTES.LEAVE.HOLIDAYS,
+          {
+            response: LeaveHolidaysGetResponseSchema,
+            request: LeaveHolidaysGetRequestSchema,
+          },
+          { financialYear },
+          { silent: true }
+        )
+      )
+    ).pipe(
+      map(toLeaveHolidays),
+      catchError(error => {
+        this.logger.logUserAction('Get Leave Holidays Error', error);
+        return of([]);
+      })
+    );
   }
 
   getLeaveBalance(

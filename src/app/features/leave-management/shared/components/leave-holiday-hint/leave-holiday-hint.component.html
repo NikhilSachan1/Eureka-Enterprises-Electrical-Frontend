@@ -1,0 +1,26 @@
+@if (clashMessage()) {
+  <p
+    class="holiday-hint__clash"
+    role="alert"
+  >
+    <i class="pi pi-exclamation-triangle"></i>
+    {{ clashMessage() }}
+  </p>
+}
+
+@if (visible().length) {
+  <div class="holiday-hint">
+    <span class="holiday-hint__title">
+      <i class="pi pi-calendar-times"></i>
+      Holidays (can't be selected)
+    </span>
+    <ul class="holiday-hint__list">
+      @for (holiday of visible(); track holiday.isoDate) {
+        <li class="holiday-hint__item">
+          <span class="holiday-hint__date">{{ holiday.label }}</span>
+          <span class="holiday-hint__name">{{ holiday.name }}</span>
+        </li>
+      }
+    </ul>
+  </div>
+}

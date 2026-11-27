@@ -24,6 +24,13 @@ import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
 import { finalize } from 'rxjs';
 import { FormBase } from '@shared/base/form.base';
 import { LeaveBalanceCardsComponent } from '../../shared/components/leave-balance-cards/leave-balance-cards.component';
+import { LeaveHolidayHintComponent } from '../../shared/components/leave-holiday-hint/leave-holiday-hint.component';
+import { ILeaveHoliday } from '../../types/leave-holiday.dto';
+import {
+  financialYearsBetween,
+  holidayInRangeMessage,
+  holidaysInLeaveRange,
+} from '../../utils/leave-holiday.util';
 
 @Component({
   selector: 'app-force-leave',
@@ -33,6 +40,7 @@ import { LeaveBalanceCardsComponent } from '../../shared/components/leave-balanc
     ButtonComponent,
     ReactiveFormsModule,
     LeaveBalanceCardsComponent,
+    LeaveHolidayHintComponent,
   ],
   templateUrl: './force-leave.component.html',
   styleUrl: './force-leave.component.scss',
@@ -77,16 +85,56 @@ export class ForceLeaveComponent
       }
     );
 
-    const trackedFields: (keyof ILeaveForceFormDto)[] = ['employeeName'];
+    const trackedFields: (keyof ILeaveForceFormDto)[] = [
+      'employeeName',
+      'leaveDate',
+    ];
     this.trackedLeaveFields =
       this.formService.trackMultipleFieldChanges<ILeaveForceFormDto>(
         this.form.formGroup,
         trackedFields,
         this.destroyRef
       );
+    this.loadHolidays();
+  }
+
+  /** Holidays of the year(s) the picker covers: disabled in it and named under it. */
+  protected readonly holidays = signal<ILeaveHoliday[]>([]);
+
+  protected readonly leaveDateValue = computed(
+    () => this.trackedLeaveFields?.leaveDate?.() ?? null
+  );
+
+  protected readonly leaveDateConfig = computed(() => {
+    const config = this.form.fieldConfigs.leaveDate;
+    return {
+      ...config,
+      dateConfig: {
+        ...config.dateConfig,
+        disabledDates: this.holidays().map(holiday => holiday.date),
+      },
+    };
+  });
+
+  private loadHolidays(): void {
+    const { minDate, maxDate } =
+      this.form.fieldConfigs.leaveDate.dateConfig ?? {};
+    const today = new Date();
+    this.leaveService
+      .getHolidays(financialYearsBetween(minDate ?? today, maxDate ?? today))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(holidays => this.holidays.set(holidays));
   }
 
   override handleSubmit(): void {
+    const clashes = holidaysInLeaveRange(
+      this.holidays(),
+      this.form.formGroup.get('leaveDate')?.value
+    );
+    if (clashes.length) {
+      this.notificationService.error(holidayInRangeMessage(clashes));
+      return;
+    }
     const formData = this.prepareFormData();
     this.executeForceLeave(formData);
   }

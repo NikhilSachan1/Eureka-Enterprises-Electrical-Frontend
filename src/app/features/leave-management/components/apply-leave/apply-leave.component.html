@@ -13,7 +13,14 @@
   >
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.leaveDate"
+      [inputFieldConfig]="leaveDateConfig()"
+    />
+
+    <app-leave-holiday-hint
+      [holidays]="holidays()"
+      [selected]="leaveDateValue()"
+      [minDate]="leaveDateConfig().dateConfig.minDate ?? null"
+      [maxDate]="leaveDateConfig().dateConfig.maxDate ?? null"
     />
 
     <app-input-field

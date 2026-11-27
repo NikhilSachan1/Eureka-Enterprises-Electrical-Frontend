@@ -4,6 +4,7 @@ import {
   computed,
   inject,
   OnInit,
+  Signal,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -23,6 +24,13 @@ import { IPageHeaderConfig } from '@shared/types';
 import { finalize } from 'rxjs';
 import { FormBase } from '@shared/base/form.base';
 import { LeaveBalanceCardsComponent } from '../../shared/components/leave-balance-cards/leave-balance-cards.component';
+import { LeaveHolidayHintComponent } from '../../shared/components/leave-holiday-hint/leave-holiday-hint.component';
+import { ILeaveHoliday } from '../../types/leave-holiday.dto';
+import {
+  financialYearsBetween,
+  holidayInRangeMessage,
+  holidaysInLeaveRange,
+} from '../../utils/leave-holiday.util';
 
 @Component({
   selector: 'app-apply-leave',
@@ -32,6 +40,7 @@ import { LeaveBalanceCardsComponent } from '../../shared/components/leave-balanc
     ButtonComponent,
     PageHeaderComponent,
     LeaveBalanceCardsComponent,
+    LeaveHolidayHintComponent,
   ],
   templateUrl: './apply-leave.component.html',
   styleUrl: './apply-leave.component.scss',
@@ -58,6 +67,22 @@ export class ApplyLeaveComponent
     return Number.isFinite(availableBalance) && availableBalance > 0;
   });
 
+  /** Holidays of the year(s) the picker covers: disabled in it and named under it. */
+  protected readonly holidays = signal<ILeaveHoliday[]>([]);
+  private selectedLeaveDate: Signal<unknown> = signal(null);
+
+  protected readonly leaveDateValue = computed(() => this.selectedLeaveDate());
+  protected readonly leaveDateConfig = computed(() => {
+    const config = this.form.fieldConfigs.leaveDate;
+    return {
+      ...config,
+      dateConfig: {
+        ...config.dateConfig,
+        disabledDates: this.holidays().map(holiday => holiday.date),
+      },
+    };
+  });
+
   ngOnInit(): void {
     this.form = this.formService.createForm<ILeaveApplyFormDto>(
       APPLY_LEAVE_FORM_CONFIG,
@@ -65,9 +90,33 @@ export class ApplyLeaveComponent
         destroyRef: this.destroyRef,
       }
     );
+    this.selectedLeaveDate = this.formService.trackFieldChanges(
+      this.form.formGroup,
+      'leaveDate',
+      this.destroyRef
+    );
+    this.loadHolidays();
+  }
+
+  private loadHolidays(): void {
+    const { minDate, maxDate } =
+      this.form.fieldConfigs.leaveDate.dateConfig ?? {};
+    const today = new Date();
+    this.leaveService
+      .getHolidays(financialYearsBetween(minDate ?? today, maxDate ?? today))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(holidays => this.holidays.set(holidays));
   }
 
   protected override handleSubmit(): void {
+    const clashes = holidaysInLeaveRange(
+      this.holidays(),
+      this.form.formGroup.get('leaveDate')?.value
+    );
+    if (clashes.length) {
+      this.notificationService.error(holidayInRangeMessage(clashes));
+      return;
+    }
     const formData = this.prepareFormData();
     this.executeApplyLeave(formData);
   }

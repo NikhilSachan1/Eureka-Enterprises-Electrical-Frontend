@@ -98,6 +98,8 @@ export const API_ROUTES = {
     APPLY: 'leave/apply',
     FORCE: 'leave/force',
     APPROVAL_ACTION: 'leave/approval',
+    /** The year's holiday calendar (date + name) for the leave date pickers. */
+    HOLIDAYS: 'leave/holidays',
     BALANCE: 'leave-balances',
     /** The signed-in employee's own ledger. */
     MY_LEDGER: 'leave-balances/ledger/me',
