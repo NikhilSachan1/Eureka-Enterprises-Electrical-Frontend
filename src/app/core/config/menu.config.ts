@@ -143,7 +143,7 @@ export const appMenu: ApplicationMenu = {
               label: 'Leave Ledger',
               icon: ICONS.COMMON.BOOK,
               routerLink: ROUTES.LEAVE.LEDGER,
-              permission: [APP_PERMISSION.LEAVE.TABLE_VIEW],
+              permission: [APP_PERMISSION.LEAVE.LEDGER_VIEW_ALL],
             },
           ],
         },

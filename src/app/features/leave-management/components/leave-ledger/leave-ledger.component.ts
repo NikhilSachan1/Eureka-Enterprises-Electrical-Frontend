@@ -29,7 +29,7 @@ import {
   LEAVE_LEDGER_NO_EMPLOYEE_STATE,
   LEAVE_LEDGER_PAGE_HEADER,
   LEAVE_LEDGER_TABLE_ENHANCED_CONFIG,
-  SEARCH_FILTER_LEAVE_LEDGER_FORM_CONFIG,
+  createLeaveLedgerSearchFilterConfig,
 } from '../../config/leave-ledger.config';
 import { LeaveLedgerService } from '../../services/leave-ledger.service';
 import {
@@ -71,14 +71,16 @@ export class LeaveLedgerComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly pageHeaderConfig = LEAVE_LEDGER_PAGE_HEADER;
-  protected readonly searchFilterConfig: ITableSearchFilterFormConfig<ILeaveLedgerSearchFilterFormDto> =
-    SEARCH_FILTER_LEAVE_LEDGER_FORM_CONFIG;
 
-  /** Employees and drivers read their own ledger; everyone else picks an employee first. */
+  /** Employees and drivers read only their own ledger; everyone else picks an employee first. */
   private readonly readsOwnLedger = [
     EUserRole.EMPLOYEE,
     EUserRole.DRIVER,
   ].includes(this.authService.getCurrentUser()?.activeRole as EUserRole);
+
+  /** No employee picker for employees and drivers. */
+  protected readonly searchFilterConfig: ITableSearchFilterFormConfig<ILeaveLedgerSearchFilterFormDto> =
+    createLeaveLedgerSearchFilterConfig(!this.readsOwnLedger);
 
   protected readonly noEmployeeState = LEAVE_LEDGER_NO_EMPLOYEE_STATE;
 
@@ -115,6 +117,9 @@ export class LeaveLedgerComponent implements OnInit {
         this.tableFilterData,
         this.table.getHeaders()
       );
+    if (this.readsOwnLedger) {
+      delete params.employeeName;
+    }
 
     const needsEmployee = !this.readsOwnLedger && !params.employeeName;
     this.needsEmployee.set(needsEmployee);

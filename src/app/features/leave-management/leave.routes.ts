@@ -43,7 +43,7 @@ export const LEAVE_MANAGEMENT_ROUTES: Routes = [
       ),
     canActivate: [permissionGuard],
     data: {
-      permissions: [APP_PERMISSION.LEAVE.TABLE_VIEW],
+      permissions: [APP_PERMISSION.LEAVE.LEDGER_VIEW_ALL],
     },
   },
   {
