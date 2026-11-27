@@ -99,6 +99,12 @@ export const API_ROUTES = {
     FORCE: 'leave/force',
     APPROVAL_ACTION: 'leave/approval',
     BALANCE: 'leave-balances',
+    /** The signed-in employee's own ledger. */
+    MY_LEDGER: 'leave-balances/ledger/me',
+    /** Any employee's ledger (leave.ledger.view-all). */
+    LEDGER: 'leave-balances/ledger',
+    RECALCULATION: 'leave-balances/recalculation',
+    RECALCULATION_APPLY: 'leave-balances/recalculation/apply',
   },
   ASSET: {
     LIST: 'assets',

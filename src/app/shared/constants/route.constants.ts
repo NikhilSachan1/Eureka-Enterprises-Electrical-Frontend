@@ -114,6 +114,8 @@ export const ROUTES = {
     APPLY: `apply`,
     LIST: `list`,
     FORCE: `force`,
+    LEDGER: `ledger`,
+    RECALCULATION: `recalculation`,
   },
 
   SITE: {

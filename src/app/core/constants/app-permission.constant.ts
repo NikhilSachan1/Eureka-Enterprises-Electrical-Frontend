@@ -120,6 +120,8 @@ export const APP_PERMISSION = {
     APPROVE: 'leave.approve',
     REJECT: 'leave.reject',
     CANCEL: 'leave.cancel',
+    LEDGER_VIEW_ALL: 'leave.ledger.view-all',
+    CREDIT_RECALCULATE: 'leave.credit.recalculate',
   },
   PAYROLL: {
     VIEW_DETAIL: 'payroll.view-detail',

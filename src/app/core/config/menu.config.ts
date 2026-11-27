@@ -139,6 +139,18 @@ export const appMenu: ApplicationMenu = {
               routerLink: ROUTES.LEAVE.FORCE,
               permission: [APP_PERMISSION.LEAVE.FORCE],
             },
+            {
+              label: 'Leave Ledger',
+              icon: ICONS.COMMON.BOOK,
+              routerLink: ROUTES.LEAVE.LEDGER,
+              permission: [APP_PERMISSION.LEAVE.TABLE_VIEW],
+            },
+            {
+              label: 'Credit Recalculation',
+              icon: ICONS.COMMON.SYNC,
+              routerLink: ROUTES.LEAVE.RECALCULATION,
+              permission: [APP_PERMISSION.LEAVE.CREDIT_RECALCULATE],
+            },
           ],
         },
         {
