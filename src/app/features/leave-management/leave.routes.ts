@@ -47,17 +47,6 @@ export const LEAVE_MANAGEMENT_ROUTES: Routes = [
     },
   },
   {
-    path: ROUTES.LEAVE.RECALCULATION,
-    loadComponent: () =>
-      import(
-        './components/leave-recalculation/leave-recalculation.component'
-      ).then(m => m.LeaveRecalculationComponent),
-    canActivate: [permissionGuard],
-    data: {
-      permissions: [APP_PERMISSION.LEAVE.CREDIT_RECALCULATE],
-    },
-  },
-  {
     path: ROUTES.LEAVE.FORCE,
     loadComponent: () =>
       import('./components/force-leave/force-leave.component').then(

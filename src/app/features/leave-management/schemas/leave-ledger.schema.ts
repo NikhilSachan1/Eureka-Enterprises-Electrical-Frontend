@@ -52,39 +52,3 @@ export const LeaveLedgerGetResponseSchema = z.looseObject({
   months: z.array(LeaveLedgerMonthSchema),
   entries: z.array(LeaveLedgerEntrySchema),
 });
-
-export const LeaveRecalculationRowSchema = z.looseObject({
-  userId: z.string(),
-  employeeName: z.string(),
-  employeeCode: z.string().nullable(),
-  dateOfJoining: z.string().nullable(),
-  leaveCategory: z.string(),
-  oldCredit: z.number(),
-  correctCredit: z.number(),
-  difference: z.number(),
-  consumed: z.number(),
-  availableNow: z.number(),
-  adjustment: z.number(),
-  availableAfter: z.number(),
-  excessUsed: z.number(),
-  months: z.array(MonthAttendanceSchema),
-  applied: z.boolean(),
-});
-
-export const LeaveRecalculationGetRequestSchema = z
-  .object({ financialYear: z.string().optional() })
-  .strict();
-
-export const LeaveRecalculationResponseSchema = z.looseObject({
-  financialYear: z.string(),
-  coveredThrough: z.string(),
-  canApply: z.boolean(),
-  rows: z.array(LeaveRecalculationRowSchema),
-});
-
-export const LeaveRecalculationApplyRequestSchema = z
-  .object({
-    financialYear: z.string(),
-    userIds: z.array(uuidField).optional(),
-  })
-  .strict();

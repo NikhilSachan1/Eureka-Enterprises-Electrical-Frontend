@@ -5,16 +5,10 @@ import { API_ROUTES } from '@core/constants';
 import {
   LeaveLedgerGetRequestSchema,
   LeaveLedgerGetResponseSchema,
-  LeaveRecalculationApplyRequestSchema,
-  LeaveRecalculationGetRequestSchema,
-  LeaveRecalculationResponseSchema,
 } from '../schemas/leave-ledger.schema';
 import {
   ILeaveLedgerGetFormDto,
   ILeaveLedgerGetResponseDto,
-  ILeaveRecalculationApplyFormDto,
-  ILeaveRecalculationGetFormDto,
-  ILeaveRecalculationResponseDto,
 } from '../types/leave-ledger.dto';
 
 @Injectable({
@@ -42,42 +36,6 @@ export class LeaveLedgerService {
         params
       )
       .pipe(catchError(error => this.logError('Get Leave Ledger', error)));
-  }
-
-  getRecalculation(
-    params: ILeaveRecalculationGetFormDto = {}
-  ): Observable<ILeaveRecalculationResponseDto> {
-    return this.apiService
-      .getValidated(
-        API_ROUTES.LEAVE.RECALCULATION,
-        {
-          response: LeaveRecalculationResponseSchema,
-          request: LeaveRecalculationGetRequestSchema,
-        },
-        params
-      )
-      .pipe(
-        catchError(error => this.logError('Get Leave Recalculation', error))
-      );
-  }
-
-  applyRecalculation(
-    payload: ILeaveRecalculationApplyFormDto
-  ): Observable<ILeaveRecalculationResponseDto> {
-    this.logger.logUserAction('Apply Leave Recalculation Request', payload);
-
-    return this.apiService
-      .postValidated(
-        API_ROUTES.LEAVE.RECALCULATION_APPLY,
-        {
-          response: LeaveRecalculationResponseSchema,
-          request: LeaveRecalculationApplyRequestSchema,
-        },
-        payload
-      )
-      .pipe(
-        catchError(error => this.logError('Apply Leave Recalculation', error))
-      );
   }
 
   private logError(action: string, error: unknown): Observable<never> {

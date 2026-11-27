@@ -115,7 +115,6 @@ export const ROUTES = {
     LIST: `list`,
     FORCE: `force`,
     LEDGER: `ledger`,
-    RECALCULATION: `recalculation`,
   },
 
   SITE: {

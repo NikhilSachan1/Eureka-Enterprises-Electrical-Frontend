@@ -103,8 +103,6 @@ export const API_ROUTES = {
     MY_LEDGER: 'leave-balances/ledger/me',
     /** Any employee's ledger (leave.ledger.view-all). */
     LEDGER: 'leave-balances/ledger',
-    RECALCULATION: 'leave-balances/recalculation',
-    RECALCULATION_APPLY: 'leave-balances/recalculation/apply',
   },
   ASSET: {
     LIST: 'assets',

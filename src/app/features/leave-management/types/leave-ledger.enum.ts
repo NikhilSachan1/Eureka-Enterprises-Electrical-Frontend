@@ -6,7 +6,4 @@ export enum ELeaveLedgerEntryType {
   LEAVE_DEBIT = 'leave_debit',
   LEAVE_REVERSAL = 'leave_reversal',
   LWP_CONVERSION = 'lwp_conversion',
-  LEGACY_OPENING = 'legacy_opening',
-  LEGACY_CONSUMED = 'legacy_consumed',
-  LEGACY_CORRECTION = 'legacy_correction',
 }
