@@ -5,6 +5,7 @@ import {
   effect,
   inject,
   input,
+  Injector,
   OnInit,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -34,6 +35,18 @@ import { BookPaymentService } from '@features/site-management/doc-management/sub
 import { IBookPaymentDropdownRecordDto } from '@features/site-management/doc-management/sub-features/book-payment-management/types/book-payment.dto';
 
 import { ADD_BANK_TRANSFER_FORM_CONFIG } from '../../config';
+import { BOOK_PAYMENT_BY_INVOICE_DEPENDENCY } from '../../config/form/add-bank-transfer.config';
+import { IBookPaymentOptionData } from '../../types/bank-transfer.interface';
+import { EPaymentTypeFilter } from '@features/site-management/doc-management/shared/config/payment-filter.config';
+import { EPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.enum';
+import { DirectPaymentWarningComponent } from '@features/centralized-payment-management/shared/components/direct-payment-warning/direct-payment-warning.component';
+import { IPaymentRecordModeState } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.interface';
+import { bindPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/utils/payment-record-mode.util';
+import { AppConfigurationService } from '@shared/services/app-configuration/app-configuration.service';
+import {
+  DEFAULT_PAYMENT_RECORD_MODE,
+  PAYMENT_RECORD_MODE_CONFIG_VALUE,
+} from '@features/centralized-payment-management/payment-sheet-management/config/form/payment-record-mode.config';
 import { BankTransferService } from '../../services/bank-transfer.service';
 import {
   IAddBankTransferFormDto,
@@ -52,7 +65,11 @@ import {
 @Component({
   selector: 'app-add-bank-transfer',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [InputFieldComponent, ReactiveFormsModule],
+  imports: [
+    InputFieldComponent,
+    ReactiveFormsModule,
+    DirectPaymentWarningComponent,
+  ],
   templateUrl: './add-bank-transfer.component.html',
   styleUrl: './add-bank-transfer.component.scss',
 })
@@ -69,6 +86,9 @@ export class AddBankTransferComponent
     ConfirmationDialogService
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly injector = inject(Injector);
+  private readonly appConfigurationService = inject(AppConfigurationService);
+  protected recordMode?: IPaymentRecordModeState;
 
   private trackedBankTransferInputs!: ITrackedFields<IAddBankTransferUIFormDto>;
 
@@ -79,9 +99,7 @@ export class AddBankTransferComponent
   protected readonly projectName = input<string>();
 
   protected transferAmount: number | null = null;
-  private bookPaymentOptions: IOptionDropdown<{
-    paymentTotalAmount: number;
-  }>[] = [];
+  private bookPaymentOptions: IOptionDropdown<IBookPaymentOptionData>[] = [];
 
   constructor() {
     super();
@@ -109,10 +127,35 @@ export class AddBankTransferComponent
           return;
         }
         const raw = this.trackedBankTransferInputs.invoiceNumber();
+        // Advance / GST release list by project (effect below); the invoice is cleared for them.
+        if (this.selectedPaymentType() !== EPaymentTypeFilter.INVOICE) {
+          return;
+        }
         this.loadBookPaymentOptions(
           typeof raw === 'string' && raw.length > 0 ? raw : null
         );
       }
+    });
+
+    // Advance / GST release: no invoice step — list the project's bookings of that type.
+    effect(() => {
+      if (
+        !this.trackedBankTransferInputs?.paymentType ||
+        this.docContext() !== EDocContext.PURCHASE
+      ) {
+        return;
+      }
+      const paymentType = this.selectedPaymentType();
+      const siteId = this.trackedBankTransferInputs.projectName?.();
+      this.applyBookPaymentDependency(paymentType);
+      if (paymentType === EPaymentTypeFilter.INVOICE) {
+        return;
+      }
+      this.form.formGroup.get('bookPaymentNumber')?.setValue(null);
+      this.loadBookPaymentOptionsByType(
+        typeof siteId === 'string' && siteId.length > 0 ? siteId : null,
+        paymentType
+      );
     });
 
     effect(() => {
@@ -127,8 +170,12 @@ export class AddBankTransferComponent
             selectedId,
             'value',
             'data'
-          ) as { paymentTotalAmount: number } | undefined;
-          this.transferAmount = matched?.paymentTotalAmount ?? null;
+          ) as IBookPaymentOptionData | undefined;
+          // The transfer must equal total − hold; the backend rejects anything else.
+          this.transferAmount =
+            matched?.expectedTransferAmount ??
+            matched?.paymentTotalAmount ??
+            null;
         } else {
           this.transferAmount = null;
         }
@@ -143,6 +190,14 @@ export class AddBankTransferComponent
         destroyRef: this.destroyRef,
         defaultValues: {
           projectName: this.projectName(),
+          paymentType:
+            this.docContext() === EDocContext.PURCHASE
+              ? EPaymentTypeFilter.INVOICE
+              : null,
+          recordMode:
+            this.docContext() === EDocContext.PURCHASE
+              ? DEFAULT_PAYMENT_RECORD_MODE
+              : null,
           invoiceNumber: null,
           bookPaymentNumber: null,
           remarks: null,
@@ -178,7 +233,13 @@ export class AddBankTransferComponent
     const trackedFields: (keyof IAddBankTransferUIFormDto)[] =
       this.docContext() === EDocContext.SALES
         ? ['projectName', 'invoiceNumber', 'transferAmount']
-        : ['projectName', 'invoiceNumber', 'bookPaymentNumber'];
+        : [
+            'projectName',
+            'paymentType',
+            'invoiceNumber',
+            'bookPaymentNumber',
+            'recordMode',
+          ];
 
     this.trackedBankTransferInputs =
       this.formService.trackMultipleFieldChanges<IAddBankTransferUIFormDto>(
@@ -186,6 +247,19 @@ export class AddBankTransferComponent
         trackedFields,
         this.destroyRef
       );
+
+    // Vendor transfer only: `payments.record_modes` decides the dropdown and the default.
+    const trackedRecordMode = this.trackedBankTransferInputs.recordMode;
+    if (this.docContext() === EDocContext.PURCHASE && trackedRecordMode) {
+      this.recordMode = bindPaymentRecordMode({
+        formGroup: this.form.formGroup,
+        configMode: this.appConfigurationService.configurationValue(
+          PAYMENT_RECORD_MODE_CONFIG_VALUE
+        ),
+        currentValue: trackedRecordMode,
+        injector: this.injector,
+      });
+    }
   }
 
   private loadProjectDateRange(projectId: string): void {
@@ -274,6 +348,80 @@ export class AddBankTransferComponent
       });
   }
 
+  /** Advance / GST release bookings of a project (they have no invoice step to filter by). */
+  private loadBookPaymentOptionsByType(
+    siteId: string | null,
+    paymentType: EPaymentTypeFilter.ADVANCE | EPaymentTypeFilter.GST
+  ): void {
+    this.bookPaymentOptions = [];
+    this.transferAmount = null;
+    if (!siteId) {
+      this.applySelectOptions('bookPaymentNumber', [], false);
+      return;
+    }
+    this.applySelectOptions('bookPaymentNumber', [], true);
+
+    this.bookPaymentService
+      .getBookPaymentDropdown({ projectName: siteId, paymentType })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          // Ignore a late reply after the user switched type or project.
+          if (
+            this.selectedPaymentType() !== paymentType ||
+            this.form.getFieldData('projectName') !== siteId
+          ) {
+            return;
+          }
+          const opts = this.mapBookPaymentRecordToOption(response.records);
+          this.bookPaymentOptions = opts;
+          this.applySelectOptions('bookPaymentNumber', opts, false);
+        },
+        error: error => {
+          this.logger.error('Failed to load book payment dropdown', error);
+          this.notificationService.error(
+            'Could not load book payments for this project. Please try again.'
+          );
+          this.applySelectOptions('bookPaymentNumber', [], false);
+        },
+      });
+  }
+
+  /** Book Payment waits for the invoice only on an invoice payment. */
+  private applyBookPaymentDependency(paymentType: EPaymentTypeFilter): void {
+    const base = this.form.fieldConfigs.bookPaymentNumber;
+    const dependentDropdown =
+      paymentType === EPaymentTypeFilter.INVOICE
+        ? BOOK_PAYMENT_BY_INVOICE_DEPENDENCY
+        : undefined;
+    if (base.selectConfig?.dependentDropdown === dependentDropdown) {
+      return;
+    }
+    this.form.fieldConfigs.bookPaymentNumber = {
+      ...base,
+      selectConfig: { ...base.selectConfig, dependentDropdown },
+    } as IInputFieldsConfig;
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+  }
+
+  private selectedPaymentType(): EPaymentTypeFilter {
+    const value = this.trackedBankTransferInputs?.paymentType?.();
+    return (value as EPaymentTypeFilter | null) ?? EPaymentTypeFilter.INVOICE;
+  }
+
+  /** Sales always picks an invoice; a vendor transfer only for an invoice payment. */
+  /** Vendor transfer with Direct selected — the template warns that no payment sheet is created. */
+  protected isDirectEntry(): boolean {
+    return this.recordMode?.current() === EPaymentRecordMode.DIRECT;
+  }
+
+  protected showInvoiceField(): boolean {
+    return (
+      this.docContext() === EDocContext.SALES ||
+      this.selectedPaymentType() === EPaymentTypeFilter.INVOICE
+    );
+  }
+
   private prepareParamDataForInvoiceDropdown(
     siteId: string
   ): IInvoiceDropdownGetRequestDto {
@@ -297,13 +445,16 @@ export class AddBankTransferComponent
 
   private mapBookPaymentRecordToOption(
     records: IBookPaymentDropdownRecordDto[]
-  ): IOptionDropdown<{ paymentTotalAmount: number }>[] {
+  ): IOptionDropdown<IBookPaymentOptionData>[] {
     return records.map(record => ({
       label: record.label,
       value: record.id,
       disabled: !record.eligible,
       disabledReason: record.reason ?? undefined,
-      data: { paymentTotalAmount: record.meta.paymentTotalAmount },
+      data: {
+        paymentTotalAmount: record.meta.paymentTotalAmount,
+        expectedTransferAmount: record.meta.expectedTransferAmount,
+      },
     }));
   }
 
@@ -345,6 +496,10 @@ export class AddBankTransferComponent
         ? "Please wait while we're recording the bank receipt. This will just take a moment."
         : "Please wait while we're recording the bank transfer. This will just take a moment.",
     });
+    // Read before disabling. Disabling runs the conditional validators (invoice depends on payment
+    // type), which leave the group's own status enabled while every control is disabled — after
+    // that `getData()` (enabled controls only) comes back empty.
+    const formData = this.form.getData();
     this.form.disable();
 
     defer(() =>
@@ -355,7 +510,7 @@ export class AddBankTransferComponent
       .pipe(
         mergeMap((attachmentResponse: IFinancialFileUploadResponseDto | null) =>
           this.bankTransferService.addBankTransfer(
-            this.prepareFormData(attachmentResponse ?? undefined)
+            this.prepareFormData(formData, attachmentResponse ?? undefined)
           )
         ),
         finalize(() => {
@@ -367,7 +522,7 @@ export class AddBankTransferComponent
       )
       .subscribe({
         next: (response: IAddBankTransferResponseDto) => {
-          this.notificationService.success(response.message);
+          this.notifyAddResult(response, !isSales && !this.isDirectEntry());
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
@@ -382,15 +537,40 @@ export class AddBankTransferComponent
       });
   }
 
+  /**
+   * A vendor transfer always goes through; if its payment sheet could not be written that is a
+   * warning, not a failure (retrying would pay twice).
+   */
+  private notifyAddResult(
+    response: IAddBankTransferResponseDto,
+    expectsPaymentSheet: boolean
+  ): void {
+    const sheetNumber = response.paymentSheet?.sheetNumber;
+    if (sheetNumber) {
+      this.notificationService.success(
+        `Bank transfer recorded. Payment sheet ${sheetNumber} created.`
+      );
+      return;
+    }
+    if (!expectsPaymentSheet) {
+      this.notificationService.success(response.message);
+      return;
+    }
+    this.notificationService.warning(response.message);
+  }
+
   private prepareFormData(
+    formData: IAddBankTransferUIFormDto,
     attachmentResponse?: IFinancialFileUploadResponseDto | null
   ): IAddBankTransferFormDto {
-    const formData = this.form.getData();
     const record = { ...formData };
     delete (record as Record<string, unknown>)['projectName'];
     delete (record as Record<string, unknown>)['proofAttachment'];
+    delete (record as Record<string, unknown>)['paymentType'];
     return {
       ...record,
+      // A hidden dropdown (config allows one mode) still sends that mode; SALE never has one.
+      recordMode: this.recordMode?.current() ?? record.recordMode,
       partyType: this.docContext(),
       transferProofFileKey: attachmentResponse?.fileKey ?? null,
       transferProofFileName: attachmentResponse?.fileName ?? null,

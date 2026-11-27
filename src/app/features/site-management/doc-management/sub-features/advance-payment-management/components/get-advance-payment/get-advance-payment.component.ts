@@ -8,6 +8,7 @@ import {
   inject,
   OnInit,
   signal,
+  untracked,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { readDocTabSearch } from '@shared/constants';
@@ -109,8 +110,10 @@ export class GetAdvancePaymentComponent implements OnInit {
   constructor() {
     effect(() => {
       this.workspaceContext.filterSubmitVersion();
+      // Untracked: the load reads and writes table signals, and tracking them made every
+      // response re-run this effect (an endless request loop after a filter search).
       if (this.tableFilterData) {
-        this.loadAdvancePaymentList();
+        untracked(() => this.loadAdvancePaymentList());
       }
     });
   }

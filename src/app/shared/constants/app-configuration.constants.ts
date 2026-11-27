@@ -124,6 +124,8 @@ export const CONFIGURATION_KEYS = {
     SHEET_STATUSES: 'payments.sheet_statuses',
     SHEET_STAGES: 'payments.sheet_stages',
     ITEM_STATUSES: 'payments.item_statuses',
+    /** Single text value: DIRECT | PAYMENT_SHEET | BOTH — how Reimburse / Bank Transfer record. */
+    RECORD_MODE: 'payments.record_mode',
   },
   COMPANY_BANK_ACCOUNT: {
     COMPANY_BANK_ACCOUNT_LIST: 'company_bank_account_list',

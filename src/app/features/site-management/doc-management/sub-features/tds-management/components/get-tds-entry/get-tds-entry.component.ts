@@ -7,6 +7,7 @@ import {
   inject,
   OnInit,
   signal,
+  untracked,
 } from '@angular/core';
 import { LoggerService } from '@core/services';
 import {
@@ -145,8 +146,10 @@ export class GetTdsEntryComponent implements OnInit {
   constructor() {
     effect(() => {
       this.workspaceContext.filterSubmitVersion();
+      // Untracked: the load reads and writes table signals, and tracking them made every
+      // response re-run this effect (an endless request loop after a filter search).
       if (this.tableFilterData) {
-        this.loadTdsEntryList();
+        untracked(() => this.loadTdsEntryList());
       }
     });
   }

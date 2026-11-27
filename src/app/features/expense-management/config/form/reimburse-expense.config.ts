@@ -9,6 +9,7 @@ import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { Validators } from '@angular/forms';
 import { FORCE_EXPENSE_FORM_CONFIG } from './force-expense.config';
 import { IExpenseReimburseFormDto } from '@features/expense-management/types/expense.dto';
+import { PAYMENT_RECORD_MODE_FIELD_CONFIG } from '@features/centralized-payment-management/payment-sheet-management/config/form/payment-record-mode.config';
 
 const {
   fields: {
@@ -24,6 +25,7 @@ const {
 
 const REIMBURSE_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseReimburseFormDto> =
   {
+    recordMode: PAYMENT_RECORD_MODE_FIELD_CONFIG,
     employeeName,
     paymentMode,
     paidFromAccount: {

@@ -71,6 +71,8 @@ export const API_ROUTES = {
     ADD: 'expenses/debit',
     FORCE: 'expenses/force',
     REIMBURSE: 'expenses/credit',
+    /** Same body as REIMBURSE; also auto-creates a COMPLETED payment sheet. */
+    REIMBURSE_WITH_PAYMENT_SHEET: 'payment-sheets/direct/expense-reimburse',
     EDIT: (expenseId: string) => `expenses/${expenseId}`,
     DELETE: 'expenses',
     APPROVAL_ACTION: 'expenses/approval',
@@ -81,6 +83,9 @@ export const API_ROUTES = {
     ADD: 'fuel-expenses',
     FORCE: 'fuel-expenses/force',
     REIMBURSE: 'fuel-expenses/credit',
+    /** Same body as REIMBURSE; also auto-creates a COMPLETED payment sheet. */
+    REIMBURSE_WITH_PAYMENT_SHEET:
+      'payment-sheets/direct/fuel-expense-reimburse',
     EDIT: (fuelExpenseId: string) => `fuel-expenses/${fuelExpenseId}`,
     DELETE: 'fuel-expenses',
     APPROVAL_ACTION: 'fuel-expenses/approval',
@@ -94,6 +99,10 @@ export const API_ROUTES = {
     FORCE: 'leave/force',
     APPROVAL_ACTION: 'leave/approval',
     BALANCE: 'leave-balances',
+    /** The signed-in employee's own ledger. */
+    MY_LEDGER: 'leave-balances/ledger/me',
+    /** Any employee's ledger (leave.ledger.view-all). */
+    LEDGER: 'leave-balances/ledger',
   },
   ASSET: {
     LIST: 'assets',
@@ -395,6 +404,8 @@ export const API_ROUTES = {
       },
       BANK_TRANSFER: {
         ADD: 'bank-transfers',
+        /** PURCHASE only. Same body as ADD; also auto-creates a COMPLETED payment sheet. */
+        ADD_WITH_PAYMENT_SHEET: 'payment-sheets/direct/bank-transfer',
         EDIT: (id: string) => `bank-transfers/${id}`,
         LIST: 'bank-transfers',
         GET_BY_ID: (id: string) => `bank-transfers/${id}`,

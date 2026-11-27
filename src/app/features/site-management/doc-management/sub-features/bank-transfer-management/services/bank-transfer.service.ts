@@ -2,6 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
 import { catchError, Observable, tap, throwError } from 'rxjs';
+import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import { EPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.enum';
 import {
   AddBankTransferRequestSchema,
   AddBankTransferResponseSchema,
@@ -41,9 +43,18 @@ export class BankTransferService {
   ): Observable<IAddBankTransferResponseDto> {
     this.logger.logUserAction('Add Bank Transfer Request');
 
+    // A vendor payment (PURCHASE) can also be recorded on an auto-created payment sheet, unless the
+    // user picked Direct. A SALE receipt is money in, so it always stays on the plain endpoint.
+    const { ADD, ADD_WITH_PAYMENT_SHEET } =
+      API_ROUTES.SITE.DOCUMENT.BANK_TRANSFER;
+    const withPaymentSheet =
+      formData.partyType === EDocContext.PURCHASE &&
+      formData.recordMode !== EPaymentRecordMode.DIRECT;
+    const endpoint = withPaymentSheet ? ADD_WITH_PAYMENT_SHEET : ADD;
+
     return this.apiService
       .postValidated(
-        API_ROUTES.SITE.DOCUMENT.BANK_TRANSFER.ADD,
+        endpoint,
         {
           response: AddBankTransferResponseSchema,
           request: AddBankTransferRequestSchema,

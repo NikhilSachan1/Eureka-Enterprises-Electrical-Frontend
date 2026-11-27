@@ -17,3 +17,10 @@ export interface IBankTransfer
   paymentAdvicePdfKeys: string[];
   originalRawData: IBankTransferGetBaseResponseDto;
 }
+
+/** Data carried on a Book Payment option in the Add Bank Transfer form. */
+export interface IBookPaymentOptionData {
+  paymentTotalAmount: number;
+  /** paymentTotalAmount − paymentHoldAmount: what the transfer must equal. */
+  expectedTransferAmount?: number;
+}

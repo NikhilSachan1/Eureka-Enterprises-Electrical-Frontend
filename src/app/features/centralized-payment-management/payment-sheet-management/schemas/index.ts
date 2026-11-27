@@ -15,6 +15,7 @@ export {
   DeletePaymentSheetResponseSchema,
 } from './delete-payment-sheet.schema';
 export { DownloadPaymentSheetPdfFormSchema } from './download-payment-sheet-pdf.schema';
+export { DirectPaymentSheetRefSchema } from './direct-payment-sheet.schema';
 export {
   PaymentSheetDetailGetRequestSchema,
   PaymentSheetDetailGetResponseSchema,

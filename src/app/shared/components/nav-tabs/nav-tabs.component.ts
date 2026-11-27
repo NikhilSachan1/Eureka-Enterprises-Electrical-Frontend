@@ -197,6 +197,29 @@ export class NavTabsComponent implements OnInit {
     this.selectedTabIndex.set(tabIndex);
     this.updateUrlWithoutNavigation(tabIndex);
     this.setActiveTabByIndex(tabIndex);
+    this.followExternalTabParam();
+  }
+
+  /**
+   * A link to this same page with another `?tab=` (page search, a dashboard card) reuses
+   * the component, so the param change is picked up here instead of on init.
+   */
+  private followExternalTabParam(): void {
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const tabIndex = parseInt(params.get('tab') ?? '', 10);
+        if (
+          isNaN(tabIndex) ||
+          tabIndex === this.selectedTabIndex() ||
+          tabIndex < 0 ||
+          tabIndex >= this.visibleTabs().length
+        ) {
+          return;
+        }
+        this.selectedTabIndex.set(tabIndex);
+        this.setActiveTabByIndex(tabIndex);
+      });
   }
 
   private resolveContentTabIndex(): number {

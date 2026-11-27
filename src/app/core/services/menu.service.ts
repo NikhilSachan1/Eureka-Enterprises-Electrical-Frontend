@@ -121,6 +121,18 @@ export class MenuService {
           }
         }
 
+        // Page-search tabs follow the same rules, so search never offers a tab the page hides.
+        if (item.searchTabs?.length) {
+          return {
+            ...item,
+            searchTabs: this.filterMenuItemsByPermission(
+              item.searchTabs,
+              permissions,
+              vendorMenuAllowed
+            ),
+          };
+        }
+
         return item;
       })
       .filter((item): item is MenuItem => item !== null);

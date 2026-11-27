@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
 import { catchError, Observable, tap, throwError } from 'rxjs';
+import { EPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.enum';
 import {
   IFuelExpenseActionFormDto,
   IFuelExpenseActionResponseDto,
@@ -84,9 +85,15 @@ export class FuelExpenseService {
   ): Observable<IFuelExpenseReimburseResponseDto> {
     this.logger.logUserAction('Reimburse Fuel Expense Request');
 
+    // Direct keeps the original endpoint (no payment sheet).
+    const endpoint =
+      formData.recordMode === EPaymentRecordMode.DIRECT
+        ? API_ROUTES.FUEL_EXPENSE.REIMBURSE
+        : API_ROUTES.FUEL_EXPENSE.REIMBURSE_WITH_PAYMENT_SHEET;
+
     return this.apiService
       .postValidated(
-        API_ROUTES.FUEL_EXPENSE.REIMBURSE,
+        endpoint,
         {
           response: FuelExpenseReimburseResponseSchema,
           request: FuelExpenseReimburseRequestSchema,

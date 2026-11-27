@@ -9,6 +9,18 @@ import {
 } from '@shared/types';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { IAddBankTransferUIFormDto } from '../../types/bank-transfer.dto';
+import { EPaymentTypeFilter } from '@features/site-management/doc-management/shared/config/payment-filter.config';
+import { PAYMENT_TYPE_LABEL } from '@features/site-management/doc-management/shared/utils/tax-register-status.util';
+import { PAYMENT_RECORD_MODE_FIELD_CONFIG } from '@features/centralized-payment-management/payment-sheet-management/config/form/payment-record-mode.config';
+
+/**
+ * Invoice payment: Book Payment waits for the invoice. Advance / GST release have no invoice step,
+ * so the component drops this dependency and lists the project's bookings of that type.
+ */
+export const BOOK_PAYMENT_BY_INVOICE_DEPENDENCY = {
+  dependsOnField: 'invoiceNumber',
+  dependsOnFieldLabel: 'an invoice',
+};
 
 const ADD_BANK_TRANSFER_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBankTransferUIFormDto> =
   {
@@ -25,6 +37,47 @@ const ADD_BANK_TRANSFER_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBankTrans
       },
       validators: [Validators.required],
     },
+    recordMode: {
+      ...PAYMENT_RECORD_MODE_FIELD_CONFIG,
+      // Vendor transfer only; a bank receipt never goes on a payment sheet.
+      validators: [],
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean =>
+            context.docContext === EDocContext.PURCHASE,
+          validators: [Validators.required],
+        },
+      ],
+    },
+    paymentType: {
+      fieldType: EDataType.SELECT,
+      id: 'paymentType',
+      fieldName: 'paymentType',
+      label: 'Payment Type',
+      selectConfig: {
+        optionsDropdown: [
+          {
+            label: PAYMENT_TYPE_LABEL.INVOICE,
+            value: EPaymentTypeFilter.INVOICE,
+          },
+          {
+            label: PAYMENT_TYPE_LABEL.ADVANCE,
+            value: EPaymentTypeFilter.ADVANCE,
+          },
+          {
+            label: PAYMENT_TYPE_LABEL.GST_RELEASE,
+            value: EPaymentTypeFilter.GST,
+          },
+        ],
+      },
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean =>
+            context.docContext === EDocContext.PURCHASE,
+          validators: [Validators.required],
+        },
+      ],
+    },
     invoiceNumber: {
       fieldType: EDataType.SELECT,
       id: 'invoiceNumber',
@@ -37,7 +90,17 @@ const ADD_BANK_TRANSFER_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBankTrans
           dependsOnFieldLabel: 'a project',
         },
       },
-      validators: [Validators.required],
+      // Sales always picks an invoice; a vendor transfer only for an invoice payment.
+      conditionalValidators: [
+        {
+          dependsOn: 'paymentType',
+          shouldApply: (paymentType: unknown, context): boolean =>
+            context?.['docContext'] === EDocContext.SALES ||
+            paymentType === EPaymentTypeFilter.INVOICE,
+          validators: [Validators.required],
+          resetOnFalse: true,
+        },
+      ],
     },
     bookPaymentNumber: {
       fieldType: EDataType.SELECT,
@@ -46,10 +109,7 @@ const ADD_BANK_TRANSFER_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBankTrans
       label: 'Book Payment',
       selectConfig: {
         optionsDropdown: [],
-        dependentDropdown: {
-          dependsOnField: 'invoiceNumber',
-          dependsOnFieldLabel: 'an invoice',
-        },
+        dependentDropdown: BOOK_PAYMENT_BY_INVOICE_DEPENDENCY,
       },
       conditionalValidators: [
         {

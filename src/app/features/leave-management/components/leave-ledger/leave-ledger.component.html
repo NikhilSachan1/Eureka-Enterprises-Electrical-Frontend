@@ -1,0 +1,72 @@
+<app-page-header [pageHeaderConfig]="pageHeaderConfig" />
+
+@if (metricGroups().length) {
+  <app-metrics-card [metricGroups]="metricGroups()" />
+}
+
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="dataTable.dt()"
+    [searchFilterConfig]="searchFilterConfig"
+  />
+</div>
+
+<!-- Credit, debit and balance: "+4" in green, "−1" in red, an empty cell as "—". -->
+<ng-template
+  #ledgerCredit
+  let-row
+>
+  @if (row.credit > 0) {
+    <span class="font-semibold text-green-600">+{{ row.credit | number: '1.0-2' }}</span>
+  } @else {
+    <span class="text-content-secondary">—</span>
+  }
+</ng-template>
+
+<ng-template
+  #ledgerDebit
+  let-row
+>
+  @if (row.debit > 0) {
+    <span class="font-semibold text-red-600">−{{ row.debit | number: '1.0-2' }}</span>
+  } @else {
+    <span class="text-content-secondary">—</span>
+  }
+</ng-template>
+
+<ng-template
+  #ledgerBalance
+  let-row
+>
+  <span
+    class="font-semibold"
+    [class.text-red-600]="row.balance < 0"
+  >
+    {{ row.balance | number: '1.0-2' }}
+  </span>
+</ng-template>
+
+<app-data-table
+  #dataTable
+  [class.hidden]="needsEmployee()"
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [bulkActionButtons]="table.bulkActions()"
+  [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{
+    ledgerCredit: ledgerCredit,
+    ledgerDebit: ledgerDebit,
+    ledgerBalance: ledgerBalance,
+  }"
+  (filterData)="onTableStateChange($event)"
+/>
+
+@if (needsEmployee()) {
+  <app-empty-messages
+    [icon]="noEmployeeState.icon"
+    [title]="noEmployeeState.title"
+    [description]="noEmployeeState.description"
+  />
+}

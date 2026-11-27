@@ -36,6 +36,17 @@ export const LEAVE_MANAGEMENT_ROUTES: Routes = [
     },
   },
   {
+    path: ROUTES.LEAVE.LEDGER,
+    loadComponent: () =>
+      import('./components/leave-ledger/leave-ledger.component').then(
+        m => m.LeaveLedgerComponent
+      ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.LEAVE.TABLE_VIEW],
+    },
+  },
+  {
     path: ROUTES.LEAVE.FORCE,
     loadComponent: () =>
       import('./components/force-leave/force-leave.component').then(

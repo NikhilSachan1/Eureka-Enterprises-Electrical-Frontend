@@ -2,6 +2,10 @@ import { uuidField } from '@shared/schemas';
 import { FuelExpenseUpsertShapeSchema } from './base-fuel-expense.schema';
 import * as z from 'zod';
 import { transformDateFormat } from '@shared/utility';
+import {
+  DirectPaymentSheetRefSchema,
+  PaymentRecordModeField,
+} from '@features/centralized-payment-management/payment-sheet-management/schemas/direct-payment-sheet.schema';
 
 const { transactionId } = FuelExpenseUpsertShapeSchema.shape;
 
@@ -16,6 +20,8 @@ export const FuelExpenseReimburseRequestSchema =
       employeeName: uuidField,
       paidFromAccount: uuidField.nullable(),
       transactionId: transactionId.unwrap(),
+      // Picks the endpoint in the service; not part of the body.
+      recordMode: PaymentRecordModeField,
     })
     .strict()
     .transform(data => {
@@ -33,4 +39,5 @@ export const FuelExpenseReimburseRequestSchema =
 
 export const FuelExpenseReimburseResponseSchema = z.looseObject({
   message: z.string(),
+  paymentSheet: DirectPaymentSheetRefSchema,
 });

@@ -7,6 +7,7 @@ import {
   inject,
   OnInit,
   signal,
+  untracked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoggerService, AppPermissionService } from '@core/services';
@@ -149,8 +150,10 @@ export class GetDsrComponent implements OnInit {
         this.lastProjectIdForEmployeeFilter = projectId;
       }
 
+      // Untracked: the load reads and writes table signals, and tracking them made every
+      // response re-run this effect (an endless request loop after a filter search).
       if (this.tableFilterData) {
-        this.loadDsrList();
+        untracked(() => this.loadDsrList());
       }
     });
   }

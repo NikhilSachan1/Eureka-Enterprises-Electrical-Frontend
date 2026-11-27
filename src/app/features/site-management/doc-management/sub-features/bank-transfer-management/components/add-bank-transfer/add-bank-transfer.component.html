@@ -7,10 +7,30 @@
     [inputFieldConfig]="form.fieldConfigs.projectName"
   />
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.invoiceNumber"
-  />
+  @if (docContext() === EDocContext.PURCHASE) {
+    @if (recordMode?.showSelect()) {
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.recordMode"
+      />
+    }
+
+    @if (isDirectEntry()) {
+      <app-direct-payment-warning />
+    }
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.paymentType"
+    />
+  }
+
+  @if (showInvoiceField()) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.invoiceNumber"
+    />
+  }
 
   @if (docContext() === EDocContext.PURCHASE) {
     <app-input-field

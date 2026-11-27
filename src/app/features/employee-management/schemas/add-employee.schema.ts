@@ -86,11 +86,4 @@ export const EmployeeAddResponseSchema = z.looseObject({
   employeeId,
   message: z.string(),
   salaryCreated: z.boolean(),
-  leavesCredited: z.array(
-    z.object({
-      category: z.string(),
-      allocated: z.number(),
-      note: z.string(),
-    })
-  ),
 });
