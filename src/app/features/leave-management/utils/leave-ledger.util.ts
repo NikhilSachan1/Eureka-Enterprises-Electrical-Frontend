@@ -47,6 +47,15 @@ const workedNote = (record: ILeaveLedgerRecordDto): string =>
     ? `Worked ${round(record.paidDays)} of ${record.workingDays} working days`
     : '';
 
+/** "16 May 2026" for one day, "16 May 2026 – 25 May 2026" for several. */
+const leaveDaysLabel = (record: ILeaveLedgerRecordDto): string =>
+  record.leaveDateTo && record.leaveDateTo !== record.leaveDate
+    ? `${dayLabel(record.leaveDate)} – ${dayLabel(record.leaveDateTo)}`
+    : dayLabel(record.leaveDate);
+
+const dayCountLabel = (count: number): string =>
+  count === 1 ? '1 day' : `${count} days`;
+
 /** The reason's own words in brackets, e.g. "(cancelled)" from "... given back (cancelled)". */
 const bracketed = (reason: string | null): string =>
   /\(([^)]*)\)\s*$/.exec(reason ?? '')?.[1] ?? '';
@@ -56,7 +65,8 @@ export const describeLedgerRecord = (
   record: ILeaveLedgerRecordDto
 ): ILeaveLedgerParticulars => {
   const month = monthLabel(record.periodMonth);
-  const leaveDay = dayLabel(record.leaveDate);
+  const leaveDays = leaveDaysLabel(record);
+  const days = dayCountLabel(record.dayCount);
 
   switch (record.entryType as ELeaveLedgerEntryType) {
     case ELeaveLedgerEntryType.MONTHLY_ACCRUAL:
@@ -94,22 +104,22 @@ export const describeLedgerRecord = (
       };
     case ELeaveLedgerEntryType.LEAVE_DEBIT:
       return {
-        particulars: `Leave taken on ${leaveDay}`,
-        particularsNote: '',
+        particulars: `Leave taken · ${leaveDays}`,
+        particularsNote: days,
         icon: 'pi pi-sign-out',
       };
     case ELeaveLedgerEntryType.LEAVE_REVERSAL: {
       const cause = bracketed(record.reason);
       return {
-        particulars: `Leave returned for ${leaveDay}`,
-        particularsNote: cause ? `Leave ${cause}` : '',
+        particulars: `Leave returned · ${leaveDays}`,
+        particularsNote: cause ? `${days} · leave ${cause}` : days,
         icon: 'pi pi-replay',
       };
     }
     case ELeaveLedgerEntryType.LWP_CONVERSION:
       return {
-        particulars: `Leave on ${leaveDay} changed to LWP`,
-        particularsNote: 'Not enough leave earned — salary is cut for this day',
+        particulars: `Leave changed to LWP · ${leaveDays}`,
+        particularsNote: `${days} · not enough leave earned, salary is cut for these days`,
         icon: 'pi pi-ban',
       };
     default:

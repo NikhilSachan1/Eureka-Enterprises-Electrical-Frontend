@@ -56,6 +56,8 @@ export const LeaveLedgerRecordSchema = z.looseObject({
   balance: z.number(),
   periodMonth: z.string().nullable(),
   leaveDate: z.string().nullable(),
+  leaveDateTo: z.string().nullable(),
+  dayCount: z.number(),
   workingDays: z.number().nullable(),
   paidDays: z.number().nullable(),
   reason: z.string().nullable(),
