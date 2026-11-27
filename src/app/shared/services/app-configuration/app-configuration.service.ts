@@ -165,7 +165,6 @@ export class AppConfigurationService {
   readonly paymentSheetStatuses = this.configCache.paymentSheetStatuses;
   readonly paymentSheetStages = this.configCache.paymentSheetStages;
   readonly paymentSheetItemStatuses = this.configCache.paymentSheetItemStatuses;
-  readonly paymentRecordModes = this.configCache.paymentRecordModes;
   readonly configurationTypes = this.configCache.configurationTypes;
 
   // --- Entity list dropdowns (delegate) ---

@@ -40,7 +40,6 @@ import { IBookPaymentOptionData } from '../../types/bank-transfer.interface';
 import { EPaymentTypeFilter } from '@features/site-management/doc-management/shared/config/payment-filter.config';
 import { EPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.enum';
 import { DirectPaymentWarningComponent } from '@features/centralized-payment-management/shared/components/direct-payment-warning/direct-payment-warning.component';
-import { AppConfigurationService } from '@shared/services/app-configuration/app-configuration.service';
 import { IPaymentRecordModeState } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.interface';
 import { bindPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/utils/payment-record-mode.util';
 import { DEFAULT_PAYMENT_RECORD_MODE } from '@features/centralized-payment-management/payment-sheet-management/config/form/payment-record-mode.config';
@@ -83,7 +82,6 @@ export class AddBankTransferComponent
     ConfirmationDialogService
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
-  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly injector = inject(Injector);
   protected recordMode?: IPaymentRecordModeState;
 
@@ -250,7 +248,6 @@ export class AddBankTransferComponent
     if (this.docContext() === EDocContext.PURCHASE && trackedRecordMode) {
       this.recordMode = bindPaymentRecordMode({
         formGroup: this.form.formGroup,
-        configuredModes: this.appConfigurationService.paymentRecordModes,
         currentValue: trackedRecordMode,
         injector: this.injector,
       });

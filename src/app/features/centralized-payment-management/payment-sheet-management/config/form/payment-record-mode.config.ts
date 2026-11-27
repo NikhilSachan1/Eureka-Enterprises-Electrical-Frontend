@@ -1,6 +1,7 @@
 import { Validators } from '@angular/forms';
 import { EDataType, IInputFieldsConfig } from '@shared/types';
 import { EPaymentRecordMode } from '../../types/payment-sheet.enum';
+import { defaultRecordMode } from '../../utils/payment-record-mode.util';
 
 /** Asked on Reimburse (expense / fuel) and vendor Bank Transfer: record it on a payment sheet or not. */
 export const PAYMENT_RECORD_MODE_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
@@ -30,5 +31,5 @@ export const DIRECT_PAYMENT_WARNING = {
     'This payment will not be added to any payment sheet. It will be recorded as a direct entry only.',
 } as const;
 
-/** Pre-selected on every form that asks. */
-export const DEFAULT_PAYMENT_RECORD_MODE = EPaymentRecordMode.PAYMENT_SHEET;
+/** Pre-selected on every form that asks — follows APP_CONFIG.PAYMENT_RECORD_CONFIG.MODE. */
+export const DEFAULT_PAYMENT_RECORD_MODE = defaultRecordMode();

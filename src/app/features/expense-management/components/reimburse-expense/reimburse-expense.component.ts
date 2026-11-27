@@ -7,7 +7,6 @@ import {
   Injector,
   OnInit,
 } from '@angular/core';
-import { AppConfigurationService } from '@shared/services/app-configuration/app-configuration.service';
 import { IPaymentRecordModeState } from '@features/centralized-payment-management/payment-sheet-management/types/payment-sheet.interface';
 import { bindPaymentRecordMode } from '@features/centralized-payment-management/payment-sheet-management/utils/payment-record-mode.util';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -53,7 +52,6 @@ export class ReimburseExpenseComponent
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly route = inject(ActivatedRoute);
 
-  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly injector = inject(Injector);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
@@ -69,7 +67,6 @@ export class ReimburseExpenseComponent
     );
     this.recordMode = bindPaymentRecordMode({
       formGroup: this.form.formGroup,
-      configuredModes: this.appConfigurationService.paymentRecordModes,
       currentValue: this.formService.trackFieldChanges(
         this.form.formGroup,
         'recordMode',

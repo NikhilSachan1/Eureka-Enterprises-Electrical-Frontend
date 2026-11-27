@@ -336,11 +336,6 @@ export class ConfigurationDropdownCacheService {
     CONFIGURATION_KEYS.PAYMENTS.ITEM_STATUSES,
     this.store.paymentSheetItemStatusesSignal
   );
-  readonly paymentRecordModes = this.lazyConfigSignal(
-    MODULE_NAMES.PAYMENTS,
-    CONFIGURATION_KEYS.PAYMENTS.RECORD_MODES,
-    this.store.paymentRecordModesSignal
-  );
   readonly configurationTypes = this.lazyConfigSignal(
     MODULE_NAMES.CONFIGURATION,
     CONFIGURATION_KEYS.CONFIGURATION.CONFIGURATION_TYPE_DROPDOWN,

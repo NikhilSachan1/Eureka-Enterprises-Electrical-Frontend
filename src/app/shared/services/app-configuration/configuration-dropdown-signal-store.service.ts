@@ -83,7 +83,6 @@ export class ConfigurationDropdownSignalStore {
   private readonly _paymentSheetStatuses = signal<IOptionDropdown[]>([]);
   private readonly _paymentSheetStages = signal<IOptionDropdown[]>([]);
   private readonly _paymentSheetItemStatuses = signal<IOptionDropdown[]>([]);
-  private readonly _paymentRecordModes = signal<IOptionDropdown[]>([]);
   private readonly _configurationTypes = signal<IOptionDropdown[]>([]);
 
   /** Writable signals for cache lazyConfigSignal wrappers. */
@@ -143,7 +142,6 @@ export class ConfigurationDropdownSignalStore {
   readonly paymentSheetStatusesSignal = this._paymentSheetStatuses;
   readonly paymentSheetStagesSignal = this._paymentSheetStages;
   readonly paymentSheetItemStatusesSignal = this._paymentSheetItemStatuses;
-  readonly paymentRecordModesSignal = this._paymentRecordModes;
   readonly configurationTypesSignal = this._configurationTypes;
 
   readonly geographySignals: GeographyConfigurationSignals = {
@@ -411,10 +409,6 @@ export class ConfigurationDropdownSignalStore {
       {
         key: CONFIGURATION_KEYS.PAYMENTS.ITEM_STATUSES,
         signal: this._paymentSheetItemStatuses,
-      },
-      {
-        key: CONFIGURATION_KEYS.PAYMENTS.RECORD_MODES,
-        signal: this._paymentRecordModes,
       },
     ],
     [MODULE_NAMES.CONFIGURATION]: [

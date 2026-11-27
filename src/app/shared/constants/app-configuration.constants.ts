@@ -124,8 +124,6 @@ export const CONFIGURATION_KEYS = {
     SHEET_STATUSES: 'payments.sheet_statuses',
     SHEET_STAGES: 'payments.sheet_stages',
     ITEM_STATUSES: 'payments.item_statuses',
-    /** Allowed ways to record a Reimburse / vendor Bank Transfer (with or without a payment sheet). */
-    RECORD_MODES: 'payments.record_modes',
   },
   COMPANY_BANK_ACCOUNT: {
     COMPANY_BANK_ACCOUNT_LIST: 'company_bank_account_list',
