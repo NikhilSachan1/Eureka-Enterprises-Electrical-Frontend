@@ -18,11 +18,13 @@ export class LeaveLedgerService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
-  /** With a userId: that employee's ledger (needs leave.ledger.view-all); without: my own. */
+  /** With an employee picked: that employee's ledger (leave.ledger.view-all); without: my own. */
   getLedger(
     params: ILeaveLedgerGetFormDto
   ): Observable<ILeaveLedgerGetResponseDto> {
-    const endpoint = params.userId
+    const employee = params.employeeName;
+    const hasEmployee = Array.isArray(employee) ? !!employee[0] : !!employee;
+    const endpoint = hasEmployee
       ? API_ROUTES.LEAVE.LEDGER
       : API_ROUTES.LEAVE.MY_LEDGER;
 

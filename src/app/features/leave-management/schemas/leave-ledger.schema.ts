@@ -1,54 +1,76 @@
 import * as z from 'zod';
-import { uuidField } from '@shared/schemas';
+import { FilterSchema, uuidField } from '@shared/schemas';
 
-const MonthAttendanceSchema = z.looseObject({
-  month: z.string(),
-  workingDays: z.number(),
-  presentDays: z.number(),
-  halfDays: z.number(),
-  paidLeaveDays: z.number(),
-  paidDays: z.number(),
-  earned: z.number(),
-});
+const { sortOrder, sortField, pageSize, page } = FilterSchema.shape;
 
-export const LeaveLedgerEntrySchema = z.looseObject({
-  id: z.string(),
-  createdAt: z.string(),
-  entryType: z.string(),
-  days: z.number(),
-  balanceAfter: z.number(),
-  periodMonth: z.string().nullable(),
-  reason: z.string().nullable(),
-  leaveApplicationId: z.string().nullable(),
-  createdBy: z
-    .looseObject({
-      id: z.string(),
-      firstName: z.string().nullable(),
-      lastName: z.string().nullable(),
-    })
-    .nullable(),
-});
+/** "2026-27" (the FY dropdown) → "2026-2027" (the API). */
+const toApiFinancialYear = (value: string): string => {
+  const start = Number(value.slice(0, 4));
+  return Number.isFinite(start) ? `${start}-${start + 1}` : value;
+};
 
-export const LeaveLedgerMonthSchema = MonthAttendanceSchema.extend({
-  credited: z.number(),
-});
-
+/**
+ * Filter bar + table state → ledger query. The employee picked in the filter becomes `userId`
+ * (HR looking at someone); without it the API answers with the signed-in employee's own ledger.
+ */
 export const LeaveLedgerGetRequestSchema = z
   .object({
-    userId: uuidField.optional(),
-    financialYear: z.string().optional(),
+    employeeName: z
+      .union([uuidField, z.array(uuidField)])
+      .nullable()
+      .optional(),
+    financialYear: z.string().nullable().optional(),
+    sortOrder,
+    sortField,
+    pageSize,
+    page,
   })
-  .strict();
+  .strict()
+  .transform(({ employeeName, financialYear, ...paging }) => {
+    const userId = Array.isArray(employeeName)
+      ? employeeName[0]
+      : (employeeName ?? undefined);
+    return {
+      ...(userId ? { userId } : {}),
+      ...(financialYear
+        ? { financialYear: toApiFinancialYear(financialYear) }
+        : {}),
+      pageSize: paging.pageSize,
+      page: paging.page,
+    };
+  });
+
+const LedgerUserSchema = z.looseObject({
+  id: z.string(),
+  firstName: z.string().nullable(),
+  lastName: z.string().nullable(),
+});
+
+export const LeaveLedgerRecordSchema = z.looseObject({
+  id: z.string(),
+  date: z.string(),
+  entryType: z.string(),
+  credit: z.number(),
+  debit: z.number(),
+  days: z.number(),
+  balance: z.number(),
+  periodMonth: z.string().nullable(),
+  leaveDate: z.string().nullable(),
+  workingDays: z.number().nullable(),
+  paidDays: z.number().nullable(),
+  reason: z.string().nullable(),
+  createdBy: LedgerUserSchema.nullable(),
+});
 
 export const LeaveLedgerGetResponseSchema = z.looseObject({
   userId: z.string(),
   leaveCategory: z.string(),
   financialYear: z.string(),
   summary: z.looseObject({
-    credited: z.number(),
+    earned: z.number(),
     used: z.number(),
     available: z.number(),
   }),
-  months: z.array(LeaveLedgerMonthSchema),
-  entries: z.array(LeaveLedgerEntrySchema),
+  records: z.array(LeaveLedgerRecordSchema),
+  totalRecords: z.number(),
 });

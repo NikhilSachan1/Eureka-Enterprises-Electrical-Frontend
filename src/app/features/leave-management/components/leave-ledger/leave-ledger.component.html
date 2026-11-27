@@ -1,176 +1,72 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig" />
 
-@if (canViewAll && employeeForm) {
-  <form
-    [formGroup]="employeeForm.formGroup"
-    class="ledger-employee"
-  >
-    <app-input-field
-      [formGroup]="employeeForm.formGroup"
-      [inputFieldConfig]="employeeForm.fieldConfigs.employeeName"
-    />
-    <p class="ledger-employee__hint">Leave it empty to see your own ledger.</p>
-  </form>
+@if (metricGroups().length) {
+  <app-metrics-card [metricGroups]="metricGroups()" />
 }
 
-@if (loadFailed()) {
-  <div class="ledger-empty">
-    <i class="pi pi-exclamation-circle"></i>
-    <p>Could not load the leave ledger. Please try again.</p>
-  </div>
-} @else {
-  <section
-    class="ledger-summary"
-    [class.ledger-summary--loading]="loading()"
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="dataTable.dt()"
+    [searchFilterConfig]="searchFilterConfig"
+  />
+</div>
+
+<!-- Credit, debit and balance: "+4" in green, "−1" in red, an empty cell as "—". -->
+<ng-template
+  #ledgerCredit
+  let-row
+>
+  @if (row.credit > 0) {
+    <span class="font-semibold text-green-600">+{{ row.credit | number: '1.0-2' }}</span>
+  } @else {
+    <span class="text-content-secondary">—</span>
+  }
+</ng-template>
+
+<ng-template
+  #ledgerDebit
+  let-row
+>
+  @if (row.debit > 0) {
+    <span class="font-semibold text-red-600">−{{ row.debit | number: '1.0-2' }}</span>
+  } @else {
+    <span class="text-content-secondary">—</span>
+  }
+</ng-template>
+
+<ng-template
+  #ledgerBalance
+  let-row
+>
+  <span
+    class="font-semibold"
+    [class.text-red-600]="row.balance < 0"
   >
-    @for (card of summaryCards(); track card.label) {
-      <div [class]="'ledger-card ledger-card--' + card.tone">
-        <span class="ledger-card__icon">
-          <i [class]="card.icon"></i>
-        </span>
-        <div class="ledger-card__body">
-          <span class="ledger-card__label">{{ card.label }}</span>
-          <span class="ledger-card__value">{{ card.value | number: '1.0-2' }}</span>
-          <span class="ledger-card__hint">{{ card.hint }}</span>
-        </div>
-      </div>
-    }
-  </section>
+    {{ row.balance | number: '1.0-2' }}
+  </span>
+</ng-template>
 
-  <section class="ledger-section">
-    <header class="ledger-section__header">
-      <h2>
-        Earned from attendance
-        @if (financialYear()) {
-          <span>FY {{ financialYear() }}</span>
-        }
-      </h2>
-      <p>
-        Each month earns 52 ÷ 12 × paid days ÷ working days. Paid days are present days, half days (×0.5) and approved
-        leave; absent and LWP days earn nothing. April and the joining month are credited in advance and settled when
-        the month ends.
-      </p>
-    </header>
+<app-data-table
+  #dataTable
+  [class.hidden]="needsEmployee()"
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [bulkActionButtons]="table.bulkActions()"
+  [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{
+    ledgerCredit: ledgerCredit,
+    ledgerDebit: ledgerDebit,
+    ledgerBalance: ledgerBalance,
+  }"
+  (filterData)="onTableStateChange($event)"
+/>
 
-    <p-table
-      [value]="monthRows()"
-      [loading]="loading()"
-      styleClass="p-datatable-sm ledger-table"
-      [tableStyle]="{ 'min-width': '40rem' }"
-    >
-      <ng-template #header>
-        <tr>
-          <th>Month</th>
-          <th class="text-right">Working days</th>
-          <th class="text-right">Paid days</th>
-          <th class="text-right">Not paid</th>
-          <th class="text-right">Earned</th>
-          <th class="text-right">Credited</th>
-        </tr>
-      </ng-template>
-      <ng-template
-        #body
-        let-row
-      >
-        <tr>
-          <td>
-            {{ row.label }}
-            @if (row.inProgress) {
-              <app-status-tag
-                value="In progress"
-                [config]="{ severity: 'info' }"
-              />
-            }
-          </td>
-          <td class="text-right tabular">{{ row.workingDays }}</td>
-          <td class="text-right tabular">{{ row.paidDays | number: '1.0-1' }}</td>
-          <td
-            class="text-right tabular"
-            [class.ledger-negative]="row.absentOrUnpaidDays > 0"
-          >
-            {{ row.absentOrUnpaidDays | number: '1.0-1' }}
-          </td>
-          <td class="text-right tabular">{{ row.earned | number: '1.0-2' }}</td>
-          <td class="text-right tabular font-semibold">{{ row.credited | number: '1.0-2' }}</td>
-        </tr>
-      </ng-template>
-      <ng-template #emptymessage>
-        <tr>
-          <td
-            colspan="6"
-            class="ledger-table__empty"
-          >
-            No months to show yet.
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </section>
-
-  <section class="ledger-section">
-    <header class="ledger-section__header">
-      <h2>Passbook</h2>
-      <p>Every credit and debit, newest first, with the balance after it.</p>
-    </header>
-
-    <p-table
-      [value]="entryRows()"
-      [loading]="loading()"
-      [paginator]="entryRows().length > 15"
-      [rows]="15"
-      styleClass="p-datatable-sm ledger-table"
-      [tableStyle]="{ 'min-width': '48rem' }"
-    >
-      <ng-template #header>
-        <tr>
-          <th>Date</th>
-          <th>Entry</th>
-          <th>Details</th>
-          <th class="text-right">Days</th>
-          <th class="text-right">Balance</th>
-        </tr>
-      </ng-template>
-      <ng-template
-        #body
-        let-row
-      >
-        <tr>
-          <td class="whitespace-nowrap">
-            {{ row.createdAt | date: dateTimeFormat }}
-            <small class="ledger-muted">{{ row.byName }}</small>
-          </td>
-          <td>
-            <app-status-tag
-              [value]="row.view.label"
-              [config]="{ severity: row.view.severity, icon: row.view.icon }"
-            />
-          </td>
-          <td>
-            {{ row.reason ?? '—' }}
-            @if (row.periodLabel) {
-              <small class="ledger-muted">For {{ row.periodLabel }}</small>
-            }
-          </td>
-          <td
-            class="text-right tabular font-semibold"
-            [class.ledger-positive]="row.days > 0"
-            [class.ledger-negative]="row.days < 0"
-          >
-            {{ row.days > 0 ? '+' : '' }}{{ row.days | number: '1.0-2' }}
-          </td>
-          <td class="text-right tabular">{{ row.balanceAfter | number: '1.0-2' }}</td>
-        </tr>
-      </ng-template>
-      <ng-template #emptymessage>
-        <tr>
-          <td
-            colspan="5"
-            class="ledger-table__empty"
-          >
-            No entries yet for this year.
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </section>
+@if (needsEmployee()) {
+  <app-empty-messages
+    [icon]="noEmployeeState.icon"
+    [title]="noEmployeeState.title"
+    [description]="noEmployeeState.description"
+  />
 }

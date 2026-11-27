@@ -1,16 +1,13 @@
-import {
-  LEAVE_LEDGER_ENTRY_TYPE_VIEW,
-  LEAVE_LEDGER_UNKNOWN_ENTRY_VIEW,
-} from '../config/leave-ledger.config';
+import { ICONS } from '@shared/constants';
+import { IMetricGroup } from '@shared/types';
 import {
   ILeaveLedgerGetResponseDto,
-  ILeaveLedgerMonthDto,
+  ILeaveLedgerRecordDto,
 } from '../types/leave-ledger.dto';
 import { ELeaveLedgerEntryType } from '../types/leave-ledger.enum';
 import {
-  ILeaveLedgerEntryTypeView,
-  ILeaveLedgerMonthRow,
-  ILeaveSummaryCard,
+  ILeaveLedgerParticulars,
+  ILeaveLedgerTableRow,
 } from '../types/leave-ledger.interface';
 
 const MONTH_FORMAT = new Intl.DateTimeFormat('en-IN', {
@@ -18,69 +15,154 @@ const MONTH_FORMAT = new Intl.DateTimeFormat('en-IN', {
   year: 'numeric',
   timeZone: 'UTC',
 });
+const DAY_FORMAT = new Intl.DateTimeFormat('en-IN', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
 
-/** "2026-05" → "May 2026" (no time-zone shift: the month is a plain string). */
-export const formatLeaveMonth = (month: string): string => {
-  const [year, mon] = month.split('-').map(Number);
-  return MONTH_FORMAT.format(new Date(Date.UTC(year, mon - 1, 1)));
+/** "2026-05-01" or "2026-05" → "May 2026" (plain dates, no time-zone shift). */
+const monthLabel = (value: string | null): string => {
+  if (!value) {
+    return '';
+  }
+  const [year, month] = value.split('-').map(Number);
+  return MONTH_FORMAT.format(new Date(Date.UTC(year, month - 1, 1)));
 };
 
-export const roundLeave = (value: number): number =>
-  Math.round(value * 100) / 100;
+/** "2026-05-16" → "16 May 2026". */
+const dayLabel = (value: string | null): string => {
+  if (!value) {
+    return '';
+  }
+  const [year, month, day] = value.split('-').map(Number);
+  return DAY_FORMAT.format(new Date(Date.UTC(year, month - 1, day)));
+};
 
-export const getLedgerEntryView = (
-  entryType: string
-): ILeaveLedgerEntryTypeView =>
-  LEAVE_LEDGER_ENTRY_TYPE_VIEW[entryType as ELeaveLedgerEntryType] ??
-  LEAVE_LEDGER_UNKNOWN_ENTRY_VIEW;
+const round = (value: number): number => Math.round(value * 100) / 100;
 
-export const buildLeaveSummaryCards = (
-  summary: ILeaveLedgerGetResponseDto['summary']
-): ILeaveSummaryCard[] => [
-  {
-    label: 'Credited',
-    value: roundLeave(summary.credited),
-    hint: 'Earned from attendance, advances and holiday work',
-    icon: 'pi pi-arrow-up',
-    tone: 'credited',
-  },
-  {
-    label: 'Used',
-    value: roundLeave(summary.used),
-    hint: 'Leave taken, including pending applications',
-    icon: 'pi pi-arrow-down',
-    tone: 'used',
-  },
-  {
-    label: 'Available',
-    value: roundLeave(summary.available),
-    hint: 'What you can apply for now (never below 0)',
-    icon: 'pi pi-wallet',
-    tone: 'available',
-  },
-];
+const workedNote = (record: ILeaveLedgerRecordDto): string =>
+  record.workingDays !== null && record.paidDays !== null
+    ? `Worked ${round(record.paidDays)} of ${record.workingDays} working days`
+    : '';
 
-export const buildLeaveMonthRows = (
-  months: ILeaveLedgerMonthDto[],
-  currentMonth: string
-): ILeaveLedgerMonthRow[] =>
-  months.map(month => ({
-    month: month.month,
-    label: formatLeaveMonth(month.month),
-    workingDays: month.workingDays,
-    paidDays: roundLeave(month.paidDays),
-    absentOrUnpaidDays: roundLeave(
-      Math.max(0, month.workingDays - month.paidDays)
-    ),
-    earned: roundLeave(month.earned),
-    credited: roundLeave(month.credited),
-    inProgress: month.month === currentMonth,
+/** The reason's own words in brackets, e.g. "(cancelled)" from "... given back (cancelled)". */
+const bracketed = (reason: string | null): string =>
+  /\(([^)]*)\)\s*$/.exec(reason ?? '')?.[1] ?? '';
+
+/** Plain-language title and note of one statement line. */
+export const describeLedgerRecord = (
+  record: ILeaveLedgerRecordDto
+): ILeaveLedgerParticulars => {
+  const month = monthLabel(record.periodMonth);
+  const leaveDay = dayLabel(record.leaveDate);
+
+  switch (record.entryType as ELeaveLedgerEntryType) {
+    case ELeaveLedgerEntryType.MONTHLY_ACCRUAL:
+      if (record.days > 0) {
+        return {
+          particulars: `Leave earned for ${month}`,
+          particularsNote: workedNote(record),
+          icon: ICONS.COMMON.CALENDAR_PLUS,
+        };
+      }
+      if (record.days === 0) {
+        return {
+          particulars: `No leave earned for ${month}`,
+          particularsNote: workedNote(record) || 'No working days attended',
+          icon: 'pi pi-calendar-times',
+        };
+      }
+      return {
+        particulars: `Leave reduced for ${month}`,
+        particularsNote: `${workedNote(record)} — less than already given`,
+        icon: 'pi pi-calendar-minus',
+      };
+    case ELeaveLedgerEntryType.ADVANCE_CREDIT:
+      return {
+        particulars: `Advance leave for ${month}`,
+        particularsNote:
+          'Given at the start of the month, adjusted to attendance when it ends',
+        icon: 'pi pi-forward',
+      };
+    case ELeaveLedgerEntryType.HOLIDAY_WORK_CREDIT:
+      return {
+        particulars: 'Extra leave for working on a holiday',
+        particularsNote: bracketed(record.reason),
+        icon: 'pi pi-star',
+      };
+    case ELeaveLedgerEntryType.LEAVE_DEBIT:
+      return {
+        particulars: `Leave taken on ${leaveDay}`,
+        particularsNote: '',
+        icon: 'pi pi-sign-out',
+      };
+    case ELeaveLedgerEntryType.LEAVE_REVERSAL: {
+      const cause = bracketed(record.reason);
+      return {
+        particulars: `Leave returned for ${leaveDay}`,
+        particularsNote: cause ? `Leave ${cause}` : '',
+        icon: 'pi pi-replay',
+      };
+    }
+    case ELeaveLedgerEntryType.LWP_CONVERSION:
+      return {
+        particulars: `Leave on ${leaveDay} changed to LWP`,
+        particularsNote: 'Not enough leave earned — salary is cut for this day',
+        icon: 'pi pi-ban',
+      };
+    default:
+      return {
+        particulars: record.reason ?? 'Adjustment',
+        particularsNote: '',
+        icon: 'pi pi-circle',
+      };
+  }
+};
+
+export const buildLeaveLedgerRows = (
+  records: ILeaveLedgerRecordDto[]
+): ILeaveLedgerTableRow[] =>
+  records.map(record => ({
+    id: record.id,
+    date: record.date,
+    entryType: record.entryType,
+    credit: round(record.credit),
+    debit: round(record.debit),
+    balance: round(record.balance),
+    ...describeLedgerRecord(record),
   }));
 
-/** Current month as YYYY-MM in India time. */
-export const currentLeaveMonth = (): string =>
-  new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Kolkata',
-    year: 'numeric',
-    month: '2-digit',
-  }).format(new Date());
+/** Earned / used / available for the year shown. */
+export const buildLeaveLedgerMetricGroups = (
+  ledger: ILeaveLedgerGetResponseDto | null
+): IMetricGroup[] => [
+  {
+    id: 'leave-ledger',
+    title: ledger
+      ? `Leave Balance · FY ${ledger.financialYear.slice(0, 5)}${ledger.financialYear.slice(7)}`
+      : 'Leave Balance',
+    icon: ICONS.COMMON.CHART_LINE,
+    metrics: [
+      {
+        label: 'Earned',
+        value: round(ledger?.summary.earned ?? 0),
+        icon: ICONS.COMMON.ARROW_UP,
+        description: 'From attendance and holiday work',
+      },
+      {
+        label: 'Used',
+        value: round(ledger?.summary.used ?? 0),
+        icon: ICONS.COMMON.ARROW_DOWN,
+        description: 'Leave taken, including pending',
+      },
+      {
+        label: 'Available',
+        value: round(ledger?.summary.available ?? 0),
+        icon: ICONS.COMMON.CHART_LINE,
+        description: 'What can be applied now',
+      },
+    ],
+  },
+];

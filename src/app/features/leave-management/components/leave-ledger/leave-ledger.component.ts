@@ -3,53 +3,57 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   inject,
   OnInit,
   signal,
-  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DatePipe, DecimalPipe } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
+import { DecimalPipe } from '@angular/common';
+import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
-import { APP_CONFIG } from '@core/config';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
-import { AppPermissionService, LoggerService } from '@core/services';
-import { FormService } from '@shared/services';
-import { IEnhancedForm, ITrackedFields } from '@shared/types';
-import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
+import { LoggerService } from '@core/services';
+import { EUserRole } from '@shared/constants';
 import {
-  LEAVE_LEDGER_EMPLOYEE_FORM_CONFIG,
+  TableServerSideParamsBuilderService,
+  TableService,
+} from '@shared/services';
+import { IEnhancedTable, ITableSearchFilterFormConfig } from '@shared/types';
+import { applyGroupMetricValueLoading } from '@shared/utility';
+import { AuthService } from '@features/auth-management/services/auth.service';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
+import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
+import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
+import {
+  LEAVE_LEDGER_NO_EMPLOYEE_STATE,
   LEAVE_LEDGER_PAGE_HEADER,
+  LEAVE_LEDGER_TABLE_ENHANCED_CONFIG,
+  SEARCH_FILTER_LEAVE_LEDGER_FORM_CONFIG,
 } from '../../config/leave-ledger.config';
 import { LeaveLedgerService } from '../../services/leave-ledger.service';
-import { ILeaveLedgerGetResponseDto } from '../../types/leave-ledger.dto';
-import { ILeaveLedgerEmployeeFormDto } from '../../types/leave-ledger.interface';
 import {
-  buildLeaveMonthRows,
-  buildLeaveSummaryCards,
-  currentLeaveMonth,
-  formatLeaveMonth,
-  getLedgerEntryView,
+  ILeaveLedgerGetFormDto,
+  ILeaveLedgerGetResponseDto,
+} from '../../types/leave-ledger.dto';
+import { ILeaveLedgerSearchFilterFormDto } from '../../types/leave-ledger.interface';
+import {
+  buildLeaveLedgerMetricGroups,
+  buildLeaveLedgerRows,
 } from '../../utils/leave-ledger.util';
 
 /**
- * Leave passbook: what each month earned from attendance, and every credit and debit with the
- * balance after it. Employees see their own; HR (leave.ledger.view-all) can pick anyone.
+ * Leave passbook for one financial year: every credit and debit with the balance after it.
+ * Employees and drivers see their own straight away; office roles first pick an employee.
  */
 @Component({
   selector: 'app-leave-ledger',
   imports: [
     PageHeaderComponent,
-    InputFieldComponent,
-    StatusTagComponent,
-    ReactiveFormsModule,
-    TableModule,
-    DatePipe,
+    MetricsCardComponent,
+    SearchFilterComponent,
+    DataTableComponent,
+    EmptyMessagesComponent,
     DecimalPipe,
   ],
   templateUrl: './leave-ledger.component.html',
@@ -58,96 +62,85 @@ import {
 })
 export class LeaveLedgerComponent implements OnInit {
   private readonly leaveLedgerService = inject(LeaveLedgerService);
-  private readonly appPermissionService = inject(AppPermissionService);
-  private readonly formService = inject(FormService);
+  private readonly dataTableService = inject(TableService);
+  private readonly tableParamsBuilder = inject(
+    TableServerSideParamsBuilderService
+  );
+  private readonly authService = inject(AuthService);
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly pageHeaderConfig = LEAVE_LEDGER_PAGE_HEADER;
-  protected readonly dateTimeFormat = APP_CONFIG.DATE_FORMATS.DEFAULT;
-  protected readonly canViewAll = this.appPermissionService.hasPermission(
-    APP_PERMISSION.LEAVE.LEDGER_VIEW_ALL
-  );
+  protected readonly searchFilterConfig: ITableSearchFilterFormConfig<ILeaveLedgerSearchFilterFormDto> =
+    SEARCH_FILTER_LEAVE_LEDGER_FORM_CONFIG;
 
-  protected employeeForm?: IEnhancedForm<ILeaveLedgerEmployeeFormDto>;
-  private trackedFields?: ITrackedFields<ILeaveLedgerEmployeeFormDto>;
+  /** Employees and drivers read their own ledger; everyone else picks an employee first. */
+  private readonly readsOwnLedger = [
+    EUserRole.EMPLOYEE,
+    EUserRole.DRIVER,
+  ].includes(this.authService.getCurrentUser()?.activeRole as EUserRole);
 
-  protected readonly loading = signal(false);
-  protected readonly loadFailed = signal(false);
+  protected readonly noEmployeeState = LEAVE_LEDGER_NO_EMPLOYEE_STATE;
+
+  protected table!: IEnhancedTable;
+  private tableFilterData!: TableLazyLoadEvent;
   private readonly ledger = signal<ILeaveLedgerGetResponseDto | null>(null);
 
-  /** The picked employee, or null for "my own ledger". */
-  private readonly selectedEmployeeId = computed(() => {
-    const value = this.trackedFields?.['employeeName']?.();
-    return typeof value === 'string' && value ? value : null;
-  });
+  /** Office roles: no employee picked yet — the table is hidden behind an empty message. */
+  protected readonly needsEmployee = signal(!this.readsOwnLedger);
 
-  protected readonly financialYear = computed(
-    () => this.ledger()?.financialYear ?? ''
+  protected readonly metricGroups = computed(() =>
+    this.ledger()
+      ? applyGroupMetricValueLoading(
+          buildLeaveLedgerMetricGroups(this.ledger()),
+          this.table.loading()
+        )
+      : []
   );
-  protected readonly summaryCards = computed(() => {
-    const ledger = this.ledger();
-    return ledger ? buildLeaveSummaryCards(ledger.summary) : [];
-  });
-  protected readonly monthRows = computed(() =>
-    buildLeaveMonthRows(this.ledger()?.months ?? [], currentLeaveMonth())
-  );
-  protected readonly entryRows = computed(() =>
-    (this.ledger()?.entries ?? []).map(entry => ({
-      ...entry,
-      view: getLedgerEntryView(entry.entryType),
-      periodLabel: entry.periodMonth
-        ? formatLeaveMonth(entry.periodMonth.slice(0, 7))
-        : null,
-      byName: entry.createdBy
-        ? `${entry.createdBy.firstName ?? ''} ${entry.createdBy.lastName ?? ''}`.trim()
-        : 'System',
-    }))
-  );
-
-  constructor() {
-    effect(() => {
-      const userId = this.selectedEmployeeId();
-      // Untracked: the load writes signals this effect must not re-run on.
-      untracked(() => this.loadLedger(userId));
-    });
-  }
 
   ngOnInit(): void {
-    if (!this.canViewAll) {
-      return;
-    }
-    this.employeeForm =
-      this.formService.createForm<ILeaveLedgerEmployeeFormDto>(
-        LEAVE_LEDGER_EMPLOYEE_FORM_CONFIG,
-        { destroyRef: this.destroyRef }
-      );
-    this.trackedFields =
-      this.formService.trackMultipleFieldChanges<ILeaveLedgerEmployeeFormDto>(
-        this.employeeForm.formGroup,
-        ['employeeName'],
-        this.destroyRef
-      );
+    this.table = this.dataTableService.createTable(
+      LEAVE_LEDGER_TABLE_ENHANCED_CONFIG
+    );
   }
 
-  private loadLedger(userId: string | null): void {
-    this.loading.set(true);
-    this.loadFailed.set(false);
+  protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
+    this.tableFilterData = tableFilterData;
+    this.loadLedger();
+  }
 
+  private loadLedger(): void {
+    const params =
+      this.tableParamsBuilder.buildQueryParams<ILeaveLedgerGetFormDto>(
+        this.tableFilterData,
+        this.table.getHeaders()
+      );
+
+    const needsEmployee = !this.readsOwnLedger && !params.employeeName;
+    this.needsEmployee.set(needsEmployee);
+    if (needsEmployee) {
+      this.ledger.set(null);
+      this.table.setData([]);
+      return;
+    }
+
+    this.table.setLoading(true);
     this.leaveLedgerService
-      .getLedger(userId ? { userId } : {})
+      .getLedger(params)
       .pipe(
-        finalize(() => this.loading.set(false)),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: ledger => {
           this.ledger.set(ledger);
-          this.logger.logUserAction('Leave ledger loaded', { userId });
+          this.table.updateTableConfig({ totalRecords: ledger.totalRecords });
+          this.table.setData(buildLeaveLedgerRows(ledger.records));
+          this.logger.logUserAction('Leave ledger loaded');
         },
         error: error => {
           this.ledger.set(null);
-          this.loadFailed.set(true);
+          this.table.setLoadError();
           this.logger.logUserAction('Failed to load leave ledger', error);
         },
       });
